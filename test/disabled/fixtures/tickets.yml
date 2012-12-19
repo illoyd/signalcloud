@@ -1,0 +1,43 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  appliance: 
+  status: 1
+  encrypted_from_number: MyString
+  encrypted_to_number: MyString
+  expiry: 2012-12-15 13:55:09
+  encrypted_question: MyString
+  encrypted_expected_confirmed_answer: MyString
+  encrypted_expected_denied_answer: MyString
+  encrypted_actual_answer: MyString
+  encrypted_confirmed_reply: MyString
+  encrypted_denied_reply: MyString
+  encrypted_failed_reply: MyString
+  encrypted_expired_reply: MyString
+  challenge_sent: 2012-12-15 13:55:09
+  challenge_sms_sid: MyString
+  response_received: 2012-12-15 13:55:09
+  response_sms_sid: MyString
+  reply_sent: 2012-12-15 13:55:09
+  reply_sms_sid: MyString
+
+two:
+  appliance: 
+  status: 1
+  encrypted_from_number: MyString
+  encrypted_to_number: MyString
+  expiry: 2012-12-15 13:55:09
+  encrypted_question: MyString
+  encrypted_expected_confirmed_answer: MyString
+  encrypted_expected_denied_answer: MyString
+  encrypted_actual_answer: MyString
+  encrypted_confirmed_reply: MyString
+  encrypted_denied_reply: MyString
+  encrypted_failed_reply: MyString
+  encrypted_expired_reply: MyString
+  challenge_sent: 2012-12-15 13:55:09
+  challenge_sms_sid: MyString
+  response_received: 2012-12-15 13:55:09
+  response_sms_sid: MyString
+  reply_sent: 2012-12-15 13:55:09
+  reply_sms_sid: MyString

@@ -1,0 +1,20 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Directory:</b>
+  <%= @phone_directory_entry.directory %>
+</p>
+
+<p>
+  <b>Phone number:</b>
+  <%= @phone_directory_entry.phone_number %>
+</p>
+
+<p>
+  <b>Country:</b>
+  <%= @phone_directory_entry.country %>
+</p>
+
+
+<%= link_to 'Edit', edit_phone_directory_entry_path(@phone_directory_entry) %> |
+<%= link_to 'Back', phone_directory_entries_path %>

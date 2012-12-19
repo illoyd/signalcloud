@@ -1,0 +1,27 @@
+<h1>Listing phone_directory_entries</h1>
+
+<table>
+  <tr>
+    <th>Directory</th>
+    <th>Phone number</th>
+    <th>Country</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @phone_directory_entries.each do |phone_directory_entry| %>
+  <tr>
+    <td><%= phone_directory_entry.directory %></td>
+    <td><%= phone_directory_entry.phone_number %></td>
+    <td><%= phone_directory_entry.country %></td>
+    <td><%= link_to 'Show', phone_directory_entry %></td>
+    <td><%= link_to 'Edit', edit_phone_directory_entry_path(phone_directory_entry) %></td>
+    <td><%= link_to 'Destroy', phone_directory_entry, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Phone directory entry', new_phone_directory_entry_path %>

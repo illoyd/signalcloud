@@ -1,0 +1,59 @@
+<h1>Listing tickets</h1>
+
+<table>
+  <tr>
+    <th>Appliance</th>
+    <th>Status</th>
+    <th>Encrypted from number</th>
+    <th>Encrypted to number</th>
+    <th>Expiry</th>
+    <th>Encrypted question</th>
+    <th>Encrypted expected confirmed answer</th>
+    <th>Encrypted expected denied answer</th>
+    <th>Encrypted actual answer</th>
+    <th>Encrypted confirmed reply</th>
+    <th>Encrypted denied reply</th>
+    <th>Encrypted failed reply</th>
+    <th>Encrypted expired reply</th>
+    <th>Challenge sent</th>
+    <th>Challenge sms sid</th>
+    <th>Response received</th>
+    <th>Response sms sid</th>
+    <th>Reply sent</th>
+    <th>Reply sms sid</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @tickets.each do |ticket| %>
+  <tr>
+    <td><%= ticket.appliance %></td>
+    <td><%= ticket.status %></td>
+    <td><%= ticket.encrypted_from_number %></td>
+    <td><%= ticket.encrypted_to_number %></td>
+    <td><%= ticket.expiry %></td>
+    <td><%= ticket.encrypted_question %></td>
+    <td><%= ticket.encrypted_expected_confirmed_answer %></td>
+    <td><%= ticket.encrypted_expected_denied_answer %></td>
+    <td><%= ticket.encrypted_actual_answer %></td>
+    <td><%= ticket.encrypted_confirmed_reply %></td>
+    <td><%= ticket.encrypted_denied_reply %></td>
+    <td><%= ticket.encrypted_failed_reply %></td>
+    <td><%= ticket.encrypted_expired_reply %></td>
+    <td><%= ticket.challenge_sent %></td>
+    <td><%= ticket.challenge_sms_sid %></td>
+    <td><%= ticket.response_received %></td>
+    <td><%= ticket.response_sms_sid %></td>
+    <td><%= ticket.reply_sent %></td>
+    <td><%= ticket.reply_sms_sid %></td>
+    <td><%= link_to 'Show', ticket %></td>
+    <td><%= link_to 'Edit', edit_ticket_path(ticket) %></td>
+    <td><%= link_to 'Destroy', ticket, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Ticket', new_ticket_path %>

@@ -1,0 +1,25 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Ticket:</b>
+  <%= @message.ticket %>
+</p>
+
+<p>
+  <b>Provider cost:</b>
+  <%= @message.provider_cost %>
+</p>
+
+<p>
+  <b>Our cost:</b>
+  <%= @message.our_cost %>
+</p>
+
+<p>
+  <b>Encrypted payload:</b>
+  <%= @message.encrypted_payload %>
+</p>
+
+
+<%= link_to 'Edit', edit_message_path(@message) %> |
+<%= link_to 'Back', messages_path %>

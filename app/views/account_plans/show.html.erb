@@ -1,0 +1,55 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Label:</b>
+  <%= @account_plan.label %>
+</p>
+
+<p>
+  <b>Month:</b>
+  <%= @account_plan.month %>
+</p>
+
+<p>
+  <b>Phone add:</b>
+  <%= @account_plan.phone_add %>
+</p>
+
+<p>
+  <b>Phone mult:</b>
+  <%= @account_plan.phone_mult %>
+</p>
+
+<p>
+  <b>Call in add:</b>
+  <%= @account_plan.call_in_add %>
+</p>
+
+<p>
+  <b>Call in mult:</b>
+  <%= @account_plan.call_in_mult %>
+</p>
+
+<p>
+  <b>Sms in add:</b>
+  <%= @account_plan.sms_in_add %>
+</p>
+
+<p>
+  <b>Sms in mult:</b>
+  <%= @account_plan.sms_in_mult %>
+</p>
+
+<p>
+  <b>Sms out add:</b>
+  <%= @account_plan.sms_out_add %>
+</p>
+
+<p>
+  <b>Sms out mult:</b>
+  <%= @account_plan.sms_out_mult %>
+</p>
+
+
+<%= link_to 'Edit', edit_account_plan_path(@account_plan) %> |
+<%= link_to 'Back', account_plans_path %>

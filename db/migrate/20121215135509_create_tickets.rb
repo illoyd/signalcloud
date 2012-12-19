@@ -1,0 +1,35 @@
+class CreateTickets < ActiveRecord::Migration
+  def change
+    create_table :tickets, primary_key: :id do |t|
+      t.column :id, :bigint, null: false
+      t.references :appliance, null: false
+      t.integer :status, null: false, default: 0, limit: 1
+      t.string :encrypted_from_number, null: false
+      t.string :encrypted_to_number, null: false
+      t.datetime :expiry, null: false
+      t.string :encrypted_question, null: false
+      t.string :encrypted_expected_confirmed_answer, null: false
+      t.string :encrypted_expected_denied_answer, null: false
+      t.string :encrypted_actual_answer
+      t.string :encrypted_confirmed_reply, null: false
+      t.string :encrypted_denied_reply, null: false
+      t.string :encrypted_failed_reply, null: false
+      t.string :encrypted_expired_reply, null: false
+      t.datetime :challenge_sent
+      t.string :challenge_sms_sid, limit: 34
+      t.datetime :response_received
+      t.string :response_sms_sid, limit: 34
+      t.datetime :reply_sent
+      t.string :reply_sms_sid, limit: 34
+
+      t.timestamps
+    end
+    
+    # Add indexes
+    add_index :tickets, :appliance_id
+    add_index :tickets, :status
+    add_index :tickets, :encrypted_from_number
+    add_index :tickets, :encrypted_to_number
+    
+  end
+end

@@ -1,0 +1,25 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Account:</b>
+  <%= @phone_number.account %>
+</p>
+
+<p>
+  <b>Encrypted number:</b>
+  <%= @phone_number.encrypted_number %>
+</p>
+
+<p>
+  <b>Provider cost:</b>
+  <%= @phone_number.provider_cost %>
+</p>
+
+<p>
+  <b>Our cost:</b>
+  <%= @phone_number.our_cost %>
+</p>
+
+
+<%= link_to 'Edit', edit_phone_number_path(@phone_number) %> |
+<%= link_to 'Back', phone_numbers_path %>

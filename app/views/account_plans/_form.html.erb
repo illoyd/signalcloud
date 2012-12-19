@@ -1,0 +1,57 @@
+<%= form_for(@account_plan) do |f| %>
+  <% if @account_plan.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@account_plan.errors.count, "error") %> prohibited this account_plan from being saved:</h2>
+
+      <ul>
+      <% @account_plan.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :label %><br />
+    <%= f.text_field :label %>
+  </div>
+  <div class="field">
+    <%= f.label :month %><br />
+    <%= f.text_field :month %>
+  </div>
+  <div class="field">
+    <%= f.label :phone_add %><br />
+    <%= f.text_field :phone_add %>
+  </div>
+  <div class="field">
+    <%= f.label :phone_mult %><br />
+    <%= f.text_field :phone_mult %>
+  </div>
+  <div class="field">
+    <%= f.label :call_in_add %><br />
+    <%= f.text_field :call_in_add %>
+  </div>
+  <div class="field">
+    <%= f.label :call_in_mult %><br />
+    <%= f.text_field :call_in_mult %>
+  </div>
+  <div class="field">
+    <%= f.label :sms_in_add %><br />
+    <%= f.text_field :sms_in_add %>
+  </div>
+  <div class="field">
+    <%= f.label :sms_in_mult %><br />
+    <%= f.text_field :sms_in_mult %>
+  </div>
+  <div class="field">
+    <%= f.label :sms_out_add %><br />
+    <%= f.text_field :sms_out_add %>
+  </div>
+  <div class="field">
+    <%= f.label :sms_out_mult %><br />
+    <%= f.text_field :sms_out_mult %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
