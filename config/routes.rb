@@ -2,8 +2,8 @@ Ticketplease::Application.routes.draw do
 
 
   namespace :twilio do
-    resource :inbound_call, only: :show
-    resource :inbound_sms, only: :show
+    resource :inbound_call, only: [ :show, :create ], :defaults => { :format => 'xml' }
+    resource :inbound_sms, only: [ :show, :create ], :defaults => { :format => 'xml' }
   end
 
   #get "twilio/inbound_call"
