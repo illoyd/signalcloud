@@ -42,10 +42,14 @@
             %a{ :href => "#" }
               %i.icon-cogs.icon-large
               Settings
-          %li.pull-right
+          %li
             %a{:href => "#"}
               %i.icon-signout.icon-large
               Sign out
+          %li.pull-right
+            %a
+              = form_tag :controller => 'tickets', :action => 'index', :method => 'get'
+                = text_field_tag :search, params[:search], class: 'search-query', placeholder: 'Search Tickets'
 
     / Body
     .container
