@@ -40,6 +40,7 @@ gem 'jquery-rails'
 
 # Additional gems
 #gem 'phony'
+gem 'haml'
 gem 'twilio-ruby'
 gem 'devise'
 gem 'attr_encrypted'
