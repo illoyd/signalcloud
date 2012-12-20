@@ -1,0 +1,58 @@
+!!!
+%html
+  %head
+    %title= @page_title || 'ticketplease'
+    = stylesheet_link_tag    "application", :media => "all"
+	  - if content_for?( :stylesheets )
+	    %style{:type => 'text/css'}= yield :stylesheets
+    = javascript_include_tag "application"
+    = csrf_meta_tags
+  %body
+    / Navigation header
+    .navbar
+      .navbar-inner
+        %a.brand{:href => "#"} ticketplease
+        %ul.nav
+          %li
+            %a{ :href => "/" }
+              %i.icon-dashboard.icon-large
+              Dashboard
+          %li.dropdown
+            %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#"}
+              Manage
+              %b.caret
+            %ul.dropdown-menu
+              %li
+                %a{ :href => appliances_path() }
+                  %i.icon-inbox
+                  Appliances
+              %li
+                %a{ :href => directories_path() }
+                  %i.icon-book
+                  Directories
+              %li
+                %a{ :href => phone_numbers_path() }
+                  %i.icon-phone
+                  Phone Numbers
+          %li
+            %a{ :href => "#" }
+              %i.icon-bar-chart.icon-large
+              Reports
+          %li
+            %a{ :href => "#" }
+              %i.icon-cogs.icon-large
+              Settings
+          %li.pull-right
+            %a{:href => "#"}
+              %i.icon-signout.icon-large
+              Sign out
+
+    / Body
+    .container
+      -# Flash errors, alerts, and notices
+      = render 'messages'
+      = yield
+
+    / Footer
+    .container
+      Footer details here

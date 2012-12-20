@@ -1,0 +1,12 @@
+-# Automatic message partial
+-# For reference,
+-# info = blue
+-# success = green
+-# error/danger = red
+-# EVERYTHING ELSE becomes amber
+
+- recognised_flash_keys = [ 'info', 'success', 'alert', 'error', 'danger', 'warning', 'notice' ]
+- (flash.keys & recognised_flash_keys).each do |key|
+  %div{ :class=> "alert alert-%{key}" }
+    %a{ :href=>"#" :class=>"close" :data-dismiss=>"alert" } &times;
+    = flash[key]
