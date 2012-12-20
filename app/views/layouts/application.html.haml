@@ -3,13 +3,13 @@
   %head
     %title= @page_title || 'ticketplease'
     = stylesheet_link_tag    "application", :media => "all"
-	  - if content_for?( :stylesheets )
-	    %style{:type => 'text/css'}= yield :stylesheets
+    - if content_for?( :stylesheets )
+      %style{:type => 'text/css'}= yield :stylesheets
     = javascript_include_tag "application"
     = csrf_meta_tags
   %body
     / Navigation header
-    .navbar
+    .navbar>
       .navbar-inner
         %a.brand{:href => "#"} ticketplease
         %ul.nav
@@ -27,7 +27,7 @@
                   %i.icon-hdd
                   Appliances
               %li
-                %a{ :href => directories_path() }
+                %a{ :href => phone_directories_path() }
                   %i.icon-book
                   Directories
               %li
@@ -48,13 +48,13 @@
               Sign out
           %li.pull-right
             %a
-              = form_tag :controller => 'tickets', :action => 'index', :method => 'get'
+              = form_tag :controller => 'tickets', :action => 'index', :method => 'get' do
                 = text_field_tag :search, params[:search], class: 'search-query', placeholder: 'Search Tickets'
 
     / Body
     .container
       -# Flash errors, alerts, and notices
-      = render 'messages'
+      = render 'layouts/messages'
       = yield
 
     / Footer
