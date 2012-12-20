@@ -6,5 +6,5 @@ test_account:
   label: Test Account
   balance: 9.99
   account_plan: test_plan
-  encrypted_twilio_account_sid: "<%= Account.encrypt :twilio_account_sid, 'AC87d5ea262c3f4a0434b5699adae2e911' %>"
-  encrypted_twilio_auth_token: "<%= Account.encrypt :twilio_auth_token, '291d6cf97529bf97b9008b1d4332df76' %>"
+  encrypted_twilio_account_sid: "<%= Account.encrypt :twilio_account_sid, ENV['TWILIO_TEST_ACCOUNT_SID'] %>"
+  encrypted_twilio_auth_token: "<%= Account.encrypt :twilio_auth_token, ENV['TWILIO_TEST_AUTH_TOKEN'] %>"
