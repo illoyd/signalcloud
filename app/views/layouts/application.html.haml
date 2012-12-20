@@ -11,14 +11,15 @@
     / Navigation header
     .navbar>
       .navbar-inner
-        %a.brand{:href => "#"} ticketplease
+        %a.brand{:href => "/"} ticketplease
         %ul.nav
           %li
             %a{ :href => "/" }
-              %i.icon-dashboard.icon-large
+              %i.icon-dashboard  
               Dashboard
           %li.dropdown
             %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#"}
+              %i.icon-briefcase
               Manage
               %b.caret
             %ul.dropdown-menu
@@ -36,20 +37,18 @@
                   Phone Numbers
           %li
             %a{ :href => "#" }
-              %i.icon-bar-chart.icon-large
+              %i.icon-bar-chart  
               Reports
           %li
             %a{ :href => "#" }
-              %i.icon-cogs.icon-large
+              %i.icon-cogs  
               Settings
           %li
             %a{:href => "#"}
-              %i.icon-signout.icon-large
+              %i.icon-signout  
               Sign out
-          %li.pull-right
-            %a
-              = form_tag :controller => 'tickets', :action => 'index', :method => 'get' do
-                = text_field_tag :search, params[:search], class: 'search-query', placeholder: 'Search Tickets'
+        = form_tag tickets_path(), :controller => 'tickets', :action => 'index', :method => 'get', :class => 'navbar-search pull-right' do
+          = text_field_tag :search, params[:search], class: 'search-query', placeholder: 'Search Tickets'
 
     / Body
     .container
