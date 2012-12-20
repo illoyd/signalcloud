@@ -40,6 +40,7 @@ gem 'jquery-rails'
 
 # Additional gems
 #gem 'phony'
+gem 'delayed_job_active_record'
 gem 'haml'
 gem 'twilio-ruby'
 gem 'devise'
