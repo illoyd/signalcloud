@@ -21,4 +21,16 @@ class Account < ActiveRecord::Base
     self.auth_token ||= SecureRandom.hex(32)
   end
   
+  def twilio_account
+    # TODO: Add error if twilio account details are not defined
+    @twilio_account ||= Twilio::REST::Client.new self.twilio_account_sid, self.twilio_auth_token
+    return @twilio_account
+  end
+  
+  def twilio_validator
+    # TODO: Add error if twilio account details are not defined
+    @twilio_validator ||= Twilio::Util::RequestValidator.new self.twilio_auth_token
+    return @twilio_validator
+  end
+  
 end
