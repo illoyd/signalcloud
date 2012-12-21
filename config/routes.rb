@@ -1,36 +1,28 @@
 Ticketplease::Application.routes.draw do
 
+  # Configure authentication for USERS
+  devise_for :users
 
+  # Global resources
+  resources :account_plans
+  
+  # Accounts
+  resources :accounts do
+    resources :users
+    resources :appliances
+    resources :tickets
+    resources :messages
+    resources :transactions
+    resources :phone_numbers
+    resources :phone_directories
+    # resources :phone_directory_entries
+  end
+  
+  # Twilio API extension
   namespace :twilio do
     resource :inbound_call, only: [ :show, :create ], :defaults => { :format => 'xml' }
     resource :inbound_sms, only: [ :show, :create ], :defaults => { :format => 'xml' }
   end
-
-  #get "twilio/inbound_call"
-
-  #get "twilio/inbound_sms"
-
-  resources :transactions
-
-  resources :messages
-
-  resources :tickets
-
-  resources :appliances
-
-  resources :phone_directory_entries
-
-  resources :phone_directories
-
-  resources :phone_numbers
-
-  devise_for :users
-
-  resources :users
-
-  resources :accounts
-
-  resources :account_plans
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
