@@ -1,11 +1,7 @@
 class Twilio::InboundSmsController < ApplicationController
 
   respond_to :xml
-  before_filter :authenticate
-  
-  def authenticate
-    @account = self.authenticate_twilio!
-  end
+  before_filter :authenticate_account!, :authenticate_twilio!
   
   # POST /twilio/inbound_sms
   # POST /twilio/inbound_sms.xml
