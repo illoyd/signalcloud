@@ -24,15 +24,19 @@
               %b.caret
             %ul.dropdown-menu
               %li
-                %a{ :href => appliances_path() }
+                %a{ :href => account_appliances_path(@user.account) }
                   %i.icon-hdd
                   Appliances
               %li
-                %a{ :href => phone_directories_path() }
+                %a{ :href => account_appliances_path(@user.account) }
+                  %i.icon-hdd
+                  Appliances
+              %li
+                %a{ :href => account_phone_directories_path(@user.account) }
                   %i.icon-book
                   Directories
               %li
-                %a{ :href => phone_numbers_path() }
+                %a{ :href => account_phone_numbers_path(@user.account) }
                   %i.icon-phone
                   Phone Numbers
           %li
@@ -44,10 +48,10 @@
               %i.icon-cogs  
               Settings
           %li
-            %a{:href => "#"}
+            = link_to destroy_user_session_path, :method => :delete do
               %i.icon-signout  
               Sign out
-        = form_tag tickets_path(), :controller => 'tickets', :action => 'index', :method => 'get', :class => 'navbar-search pull-right' do
+        = form_tag account_tickets_path(@user.account), :method => 'get', :class => 'navbar-search pull-right' do
           = text_field_tag :search, params[:search], class: 'search-query', placeholder: 'Search Tickets'
 
     / Body
