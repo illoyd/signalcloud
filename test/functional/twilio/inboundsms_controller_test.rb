@@ -3,6 +3,26 @@ require 'test_helper'
 class Twilio::InboundSmsControllerTest < ActionController::TestCase
 
   def build_twilio_sms()
+    return {
+      SmsSid: 'test-sms-01',
+      AccountSid: @account.twilio_account_sid,
+      From: '',
+      To: '',
+      Body: ''
+    }
+  end
+
+  def build_extended_twilio_sms()
+    return self.build_twilio_sms().merge({
+      FromCity: 'Seattle',
+      FromState: 'WA',
+      FromZip: '98112',
+      FromCountry: 'USA',
+      ToCity: 'Washington',
+      ToState: 'DC',
+      ToZip: '11112',
+      ToCountry: 'USA'
+    })
   end
 
   setup do
@@ -21,7 +41,10 @@ class Twilio::InboundSmsControllerTest < ActionController::TestCase
     assert_response :forbidden
     
     # Now, create one that actually works
-    post :create, { }
+    v_uri = create_twilio_inbound_sms_url
+    v_params = self.build_twilio_sms
+    request.headers['HTTP_X_TWILIO_SIGNATURE'] = @account.twilio_validator.build_signature_for v_uri, v_params
+    post :create, v_params
     flunk 'Needs more details to create sms'
     assert_response :created
   end

@@ -10,7 +10,7 @@ class ApplicationController < ActionController::Base
   
   def authenticate_twilio!
     # If no account given, kill immediately    
-    if @account.nil? or account == false
+    if @account.nil? || @account == false
       head :unauthorized
 
     # Only continue processing if the account was found
