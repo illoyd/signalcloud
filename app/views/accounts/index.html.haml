@@ -1,0 +1,40 @@
+.page-header
+  %h1 Accounts
+    %small all accounts
+
+%table.table.table-striped
+  %thead
+    %tr
+      %th Label
+      %th Balance
+      %th Plan
+      %th Users
+      %th Tickets
+      %th Has Twilio?
+      %th
+  %tbody
+    - @accounts.each do |account|
+      %tr
+        %td= account.label
+        %td= account.account_plan.label
+        %td{'align'=>'right'}= 'US$%0.4d' % account.balance
+        %td{'align'=>'right'}= account.users.count
+        %td{'align'=>'right'}= account.tickets.count
+        %td= ( !account.twilio_account_sid.nil? && !account.twilio_auth_token.nil? ) ? 'Yes' : 'No'
+        %td
+          .btn-group
+            %a.btn.dropdown-toggle.btn-small{"data-toggle" => "dropdown", :href => "#"}
+              Manage
+              %span.caret
+            %ul.dropdown-menu
+              %li= link_to account, { 'tabindex' => "-1" } do
+                %i.icon-info
+                Details
+              %li= link_to edit_account_path(account), { 'tabindex' => "-1" } do
+                %i.icon-pencil
+                Edit
+              %li= link_to account, { method: :delete, data: { confirm: 'Are you sure?' } }, { 'tabindex' => "-1" } do
+                %i.icon-trash
+                Delete
+%br/
+= link_to 'New Account', new_account_path
