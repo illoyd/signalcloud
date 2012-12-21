@@ -20,7 +20,7 @@ class Twilio::InboundSmsControllerTest < ActionController::TestCase
       FromCountry: 'USA',
       ToCity: 'Washington',
       ToState: 'DC',
-      ToZip: '11112',
+      ToZip: '20500',
       ToCountry: 'USA'
     })
   end
