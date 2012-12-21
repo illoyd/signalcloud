@@ -5,11 +5,13 @@ class ApplicationController < ActionController::Base
   
     # Validate digest authentication
     account = nil
-    authenticate_or_request_with_http_digest( DIGEST_REALM ) do |sid|
+    results = authenticate_or_request_with_http_digest( DIGEST_REALM ) do |sid|
       (account = Account.find_by_account_sid( sid )).try( :auth_token ) # || false
     end
+    
+    puts 'Results? ' + results.to_s
 
-    return account
+    return results ? account : false
   end
   
   def authenticate_twilio!
@@ -17,8 +19,8 @@ class ApplicationController < ActionController::Base
     account = authenticate_api!
 
     # If no account given, kill immediately    
-    if account.nil?
-      head :unauthorized
+    if account.nil? or account == false
+      return false #head :unauthorized
 
     # Only process this step if the account was found
     else

@@ -2,11 +2,14 @@ require 'test_helper'
 
 class Twilio::InboundSmsControllerTest < ActionController::TestCase
 
+  def build_twilio_sms()
+  end
+
   setup do
     @account = accounts(:test_account)
     assert_not_nil( @account )
   end
-
+  
   test "should request, fail, then sign in, succeed, post a blank, fail, post a good answer, succeed" do
     # Should not authenticate
     post :create, {}
