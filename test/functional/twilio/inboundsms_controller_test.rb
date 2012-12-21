@@ -13,12 +13,12 @@ class Twilio::InboundSmsControllerTest < ActionController::TestCase
   test "should request, fail, then sign in, succeed, post a blank, fail, post a good answer, succeed" do
     # Should not authenticate
     post :create, {}
-    assert_response 401
+    assert_response :unauthorized
 
     # Should authenticate, but should fail when making a page request
     authenticate_with_http_digest @account.account_sid, @account.auth_token, DIGEST_REALM
     post :create
-    assert_response 403
+    assert_response :forbidden
     
     # Now, create one that actually works
     post :create, { }
@@ -30,7 +30,7 @@ class Twilio::InboundSmsControllerTest < ActionController::TestCase
     # Should authenticate, but should fail when making a page request
     authenticate_with_http_digest @account.account_sid, @account.auth_token, DIGEST_REALM
     post :create
-    assert_response 403
+    assert_response :forbidden
   end  
 
   test "should create sms" do
@@ -44,49 +44,49 @@ class Twilio::InboundSmsControllerTest < ActionController::TestCase
   test "should not be authorised (no credentials)" do
     # Should not authenticate
     get :create, {}
-    assert_response 401
+    assert_response :unauthorized
   end  
 
   test "should not be authorised (bad user, pass)" do
     # Test with both being bad, but right realm
     authenticate_with_http_digest 'not a real sid', 'not a real token', DIGEST_REALM
     post :create
-    assert_response 401
+    assert_response :unauthorized
   end
 
   test "should not be authorised (bad user)" do
     # Test with bad sid
     authenticate_with_http_digest 'not a real sid', @account.auth_token, DIGEST_REALM
     post :create
-    assert_response 401
+    assert_response :unauthorized
   end
 
   test "should not be authorised (bad pass)" do
     # Test with bad token
     authenticate_with_http_digest @account.account_sid, 'not a real token', DIGEST_REALM
     post :create
-    assert_response 401
+    assert_response :forbidden
   end
 
   test "should not be authorised (bad user, pass, realm)" do
     # Test with both being bad, but right realm
     authenticate_with_http_digest 'not a real sid', 'not a real token', 'another_realm'
     post :create
-    assert_response 401
+    assert_response :unauthorized
   end
 
   test "should not be authorised (bad user, realm)" do
     # Test with bad sid
     authenticate_with_http_digest 'not a real sid', @account.auth_token, 'another_realm'
     post :create
-    assert_response 401
+    assert_response :unauthorized
   end
 
   test "should not be authorised (bad pass, realm)" do
     # Test with bad token
     authenticate_with_http_digest @account.account_sid, 'not a real token', 'another_realm'
     post :create
-    assert_response 401
+    assert_response :unauthorized
   end
 
 end
