@@ -20,8 +20,8 @@ Ticketplease::Application.routes.draw do
   
   # Twilio API extension
   namespace :twilio do
-    resource :inbound_call, only: [ :show, :create ], :defaults => { :format => 'xml' }
-    resource :inbound_sms, only: [ :show, :create ], :defaults => { :format => 'xml' }
+    resource :inbound_call, only: [ :create ], :defaults => { :format => 'xml' }
+    resource :inbound_sms, only: [ :create ], :defaults => { :format => 'xml' }
   end
 
   # The priority is based upon order of creation:
