@@ -9,34 +9,39 @@
     .span3
       %ul.nav.nav-list
         %li.nav-header Manage Account
-        %li.active= link_to @account do
-          %i.icon-info
-          Details
-        %li= link_to edit_account_path( @account ) do
-          %i.icon-pencil
-          Edit
-        %li= link_to account, { method: :delete, data: { confirm: 'Are you sure?' } } do
-          %i.icon-trash
-          Delete
+        %li.active
+          = link_to @account do
+            %i.icon-info
+            Details
+        %li
+          = link_to edit_account_path( @account ) do
+            %i.icon-pencil
+            Edit
+        %li
+          = link_to @account, { method: :delete, data: { confirm: 'Are you sure?' } } do
+            %i.icon-trash
+            Delete
         %li.nav-header View Objects
-        %li= link_to account_tickets_path( @account ) do
-          %i.icon-tags
-          Tickets
-        %li= link_to account_appliances_path( @account ) do
-          %i.icon-hdd
-          Appliances
-        %li= link_to account_phone_numbers_path( @account ) do
-          %i.icon-hdd
-          Phone Numbers
-        %li= link_to account_phone_directories_path( @account ) do
-          %i.icon-hdd
-          Phone Directories
-        %li= link_to account_users_path( @account ) do
-          %i.icon-group
-          Users
-        %li= link_to account_transactions_path( @account ) do
-          %i.icon-list-alt
-          Transactions
+        %li
+          = link_to account_appliances_path( @account ) do
+            %i.icon-hdd
+            Appliances
+        %li
+          = link_to account_phone_numbers_path( @account ) do
+            %i.icon-hdd
+            Phone Numbers
+        %li
+          = link_to account_phone_directories_path( @account ) do
+            %i.icon-hdd
+            Phone Directories
+        %li
+          = link_to account_users_path( @account ) do
+            %i.icon-group
+            Users
+        %li
+          = link_to account_transactions_path( @account ) do
+            %i.icon-list-alt
+            Transactions
         
 
     .span9
