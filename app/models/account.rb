@@ -10,6 +10,7 @@ class Account < ActiveRecord::Base
   belongs_to :account_plan, inverse_of: :accounts
   has_many :users, inverse_of: :account
   has_many :appliances, inverse_of: :account
+  has_many :tickets, through: :appliances
   has_many :phone_directories, inverse_of: :account
   
   before_validation :ensure_account_sid_and_token
@@ -17,8 +18,8 @@ class Account < ActiveRecord::Base
   validates_uniqueness_of :account_sid
     
   def ensure_account_sid_and_token
-    self.account_sid ||= SecureRandom.hex(32)
-    self.auth_token ||= SecureRandom.hex(32)
+    self.account_sid ||= SecureRandom.hex(16)
+    self.auth_token ||= SecureRandom.hex(16)
   end
   
   def twilio_account
