@@ -6,9 +6,9 @@ class Twilio::InboundSmsControllerTest < ActionController::TestCase
     return {
       SmsSid: 'test-sms-01',
       AccountSid: @account.twilio_account_sid,
-      From: '',
-      To: '',
-      Body: ''
+      From: '+12005555555',
+      To: '+12005555556',
+      Body: 'Hello, world!'
     }
   end
 
@@ -24,6 +24,19 @@ class Twilio::InboundSmsControllerTest < ActionController::TestCase
       ToCountry: 'USA'
     })
   end
+  
+  def build_twilio_signature( post_params )
+    signature = @account.twilio_validator.build_signature_for( twilio_inbound_sms_url, post_params )
+    #output = { 'validator out' => { 'url' => twilio_inbound_sms_url, 'params' => v_params, 'header' => signature } }
+    #pp output
+    
+    #print "build_twilio_signature\n"
+    #print "  URL: %s\n" % twilio_inbound_sms_url
+    #print "  Given: %s\n" % signature
+    #pp post_params
+    
+    return signature
+  end
 
   setup do
     @account = accounts(:test_account)
@@ -37,30 +50,29 @@ class Twilio::InboundSmsControllerTest < ActionController::TestCase
 
     # Should authenticate, but should fail when making a page request
     authenticate_with_http_digest @account.account_sid, @account.auth_token, DIGEST_REALM
-    post :create
+    post :create, {}
     assert_response :forbidden
     
     # Now, create one that actually works
-    v_uri = create_twilio_inbound_sms_url
-    v_params = self.build_twilio_sms
-    request.headers['HTTP_X_TWILIO_SIGNATURE'] = @account.twilio_validator.build_signature_for v_uri, v_params
-    post :create, v_params
-    flunk 'Needs more details to create sms'
+    sms_payload = build_twilio_sms
+    @request.env['HTTP_X_TWILIO_SIGNATURE'] = build_twilio_signature( sms_payload )
+    post :create, sms_payload
     assert_response :created
   end
 
   test "should authorise but fail without sms input" do
     # Should authenticate, but should fail when making a page request
     authenticate_with_http_digest @account.account_sid, @account.auth_token, DIGEST_REALM
-    post :create
+    post :create, {}
     assert_response :forbidden
   end  
 
   test "should create sms" do
-    # Should not authenticate
     authenticate_with_http_digest @account.account_sid, @account.auth_token, DIGEST_REALM
-    get :create, { }
-    flunk 'Needs more details to create sms'
+    sms_payload = build_twilio_sms
+    @request.env['HTTP_X_TWILIO_SIGNATURE'] = build_twilio_signature( sms_payload )
+    post :create, sms_payload.merge({ format: 'xml' })
+    # print @request.original_url
     assert_response :created
   end  
 
@@ -88,7 +100,7 @@ class Twilio::InboundSmsControllerTest < ActionController::TestCase
     # Test with bad token
     authenticate_with_http_digest @account.account_sid, 'not a real token', DIGEST_REALM
     post :create
-    assert_response :forbidden
+    assert_response :unauthorized
   end
 
   test "should not be authorised (bad user, pass, realm)" do
