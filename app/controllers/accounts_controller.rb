@@ -12,7 +12,7 @@ class AccountsController < ApplicationController
   # GET /accounts/1
   # GET /accounts/1.json
   def show
-    @account = Account.find( params.exist? :id ? params[:id] : params[:account_id] )
+    @account = Account.find( params.fetch( :account_id, params[:id] ) )
     respond_with @account
   end
 
@@ -25,7 +25,7 @@ class AccountsController < ApplicationController
 
   # GET /accounts/1/edit
   def edit
-    @account = Account.find( params.exist? :id ? params[:id] : params[:account_id] )
+    @account = Account.find( params.fetch( :account_id, params[:id] ) )
     respond_with @account
   end
 
@@ -42,7 +42,7 @@ class AccountsController < ApplicationController
   # PUT /accounts/1
   # PUT /accounts/1.json
   def update
-    @account = Account.find( params.exist? :id ? params[:id] : params[:account_id] )
+    @account = Account.find( params.fetch( :account_id, params[:id] ) )
     if @account.update_attributes(params[:account])
       flash[:success] = 'Your account has been updated.'
     end
@@ -52,7 +52,7 @@ class AccountsController < ApplicationController
   # DELETE /accounts/1
   # DELETE /accounts/1.json
   def destroy
-    @account = Account.find( params.exist? :id ? params[:id] : params[:account_id] )
+    @account = Account.find( params.fetch( :account_id, params[:id] ) )
     @account.destroy
     flash[:notice] = "Successfully destroyed account."
     respond_with(@account)
