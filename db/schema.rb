@@ -14,18 +14,19 @@
 ActiveRecord::Schema.define(:version => 20121220210403) do
 
   create_table "account_plans", :force => true do |t|
-    t.string   "label",                                                       :null => false
-    t.decimal  "month",        :precision => 6, :scale => 4, :default => 0.0, :null => false
-    t.decimal  "phone_add",    :precision => 6, :scale => 4, :default => 0.0, :null => false
-    t.decimal  "phone_mult",   :precision => 6, :scale => 4, :default => 0.0, :null => false
-    t.decimal  "call_in_add",  :precision => 6, :scale => 4, :default => 0.0, :null => false
-    t.decimal  "call_in_mult", :precision => 6, :scale => 4, :default => 0.0, :null => false
-    t.decimal  "sms_in_add",   :precision => 6, :scale => 4, :default => 0.0, :null => false
-    t.decimal  "sms_in_mult",  :precision => 6, :scale => 4, :default => 0.0, :null => false
-    t.decimal  "sms_out_add",  :precision => 6, :scale => 4, :default => 0.0, :null => false
-    t.decimal  "sms_out_mult", :precision => 6, :scale => 4, :default => 0.0, :null => false
-    t.datetime "created_at",                                                  :null => false
-    t.datetime "updated_at",                                                  :null => false
+    t.string   "label",                                                         :null => false
+    t.boolean  "default",                                    :default => false, :null => false
+    t.decimal  "month",        :precision => 6, :scale => 4, :default => 0.0,   :null => false
+    t.decimal  "phone_add",    :precision => 6, :scale => 4, :default => 0.0,   :null => false
+    t.decimal  "phone_mult",   :precision => 6, :scale => 4, :default => 0.0,   :null => false
+    t.decimal  "call_in_add",  :precision => 6, :scale => 4, :default => 0.0,   :null => false
+    t.decimal  "call_in_mult", :precision => 6, :scale => 4, :default => 0.0,   :null => false
+    t.decimal  "sms_in_add",   :precision => 6, :scale => 4, :default => 0.0,   :null => false
+    t.decimal  "sms_in_mult",  :precision => 6, :scale => 4, :default => 0.0,   :null => false
+    t.decimal  "sms_out_add",  :precision => 6, :scale => 4, :default => 0.0,   :null => false
+    t.decimal  "sms_out_mult", :precision => 6, :scale => 4, :default => 0.0,   :null => false
+    t.datetime "created_at",                                                    :null => false
+    t.datetime "updated_at",                                                    :null => false
   end
 
   create_table "accounts", :force => true do |t|

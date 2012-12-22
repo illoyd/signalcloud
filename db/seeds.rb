@@ -12,7 +12,12 @@ shared_plan = AccountPlan.create label:'Shared', month: 0, phone_add: 2, call_in
 dedicated_plan = AccountPlan.create label:'Dedicated', month: 500, phone_add: 1, call_in_add: 0.01, sms_in_add: 0.01, sms_out_add: 0.01
 
 # Add master account (me!)
-my_account = Account.create label:'Master Account', account_sid: 'master', auth_token: 'master', account_plan: master_plan, twilio_account_sid: ENV['TWILIO_MASTER_ACCOUNT_SID'], twilio_auth_token: ENV['TWILIO_MASTER_AUTH_TOKEN']
-test_account = Account.create label:'Test Account', account_sid: 'test', auth_token: 'test', account_plan: master_plan, twilio_account_sid: ENV['TWILIO_TEST_ACCOUNT'], twilio_auth_token: ENV['TWILIO_TEST_AUTH_TOKEN']
+my_account = Account.create label:'Master Account', account_sid: 'master', auth_token: 'master', account_plan: master_plan
+  my_account.twilio_account_sid = ENV['TWILIO_MASTER_ACCOUNT_SID']
+  my_account.twilio_auth_token = ENV['TWILIO_MASTER_AUTH_TOKEN']
+
+test_account = Account.create label:'Test Account', account_sid: 'test', auth_token: 'test', account_plan: master_plan
+  test_account.twilio_account_sid = ENV['TWILIO_TEST_ACCOUNT']
+  test_account.twilio_auth_token = ENV['TWILIO_TEST_AUTH_TOKEN']
 
 # 
