@@ -1,12 +1,9 @@
 class Twilio::InboundCallController < ApplicationController
 
   respond_to :xml
-  before_filter :authenticate
+  before_filter :authenticate_account!, :authenticate_twilio!
+  skip_before_filter :authenticate_user!
   
-  def authenticate
-    @account = self.authenticate_twilio!
-  end
-
   # POST /account_plans
   # POST /account_plans.json
   def create
