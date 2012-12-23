@@ -48,15 +48,16 @@ ActiveRecord::Schema.define(:version => 20121220210403) do
   create_table "appliances", :force => true do |t|
     t.integer  "account_id",                                             :null => false
     t.integer  "phone_directory_id",                                     :null => false
+    t.string   "label",                                                  :null => false
     t.integer  "seconds_to_live",                     :default => 180,   :null => false
     t.boolean  "default",                             :default => false, :null => false
-    t.string   "encrypted_question",                                     :null => false
-    t.string   "encrypted_expected_confirmed_answer",                    :null => false
-    t.string   "encrypted_expected_denied_answer",                       :null => false
-    t.string   "encrypted_confirmed_reply",                              :null => false
-    t.string   "encrypted_denied_reply",                                 :null => false
-    t.string   "encrypted_failed_reply",                                 :null => false
-    t.string   "encrypted_expired_reply",                                :null => false
+    t.string   "encrypted_question"
+    t.string   "encrypted_expected_confirmed_answer"
+    t.string   "encrypted_expected_denied_answer"
+    t.string   "encrypted_confirmed_reply"
+    t.string   "encrypted_denied_reply"
+    t.string   "encrypted_failed_reply"
+    t.string   "encrypted_expired_reply"
     t.datetime "created_at",                                             :null => false
     t.datetime "updated_at",                                             :null => false
   end
@@ -95,7 +96,7 @@ ActiveRecord::Schema.define(:version => 20121220210403) do
 
   create_table "phone_directories", :force => true do |t|
     t.integer  "account_id",  :null => false
-    t.string   "name",        :null => false
+    t.string   "label",       :null => false
     t.text     "description"
     t.datetime "created_at",  :null => false
     t.datetime "updated_at",  :null => false

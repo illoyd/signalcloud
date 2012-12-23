@@ -18,9 +18,9 @@ master_account = Account.new label:'Master Account', account_sid: 'master', auth
   master_account.save!
 
 test_account = Account.new label:'Test Account', account_sid: 'test', auth_token: 'test', account_plan: master_plan
-  test_account.twilio_account_sid = ENV['TWILIO_TEST_ACCOUNT']
+  test_account.twilio_account_sid = ENV['TWILIO_TEST_ACCOUNT_SID']
   test_account.twilio_auth_token = ENV['TWILIO_TEST_AUTH_TOKEN']
   test_account.save!
 
 # Add users
-test_user = test_account.users.build first_name: 'Jane', last_name: 'Doe', email: 'jane.doe@ticketpleaseapp.com', password: 'password'
+test_user = test_account.users.create first_name: 'Jane', last_name: 'Doe', email: 'jane.doe@ticketpleaseapp.com', password: 'password', password_confirmation: 'password'
