@@ -14,3 +14,9 @@
 //= require jquery_ujs
 //= require twitter/bootstrap.min.js
 //= require_tree .
+
+// Add tooltips and popovers
+$(document).ready(function() {
+    $('[rel=tooltip]').tooltip()
+    $('[rel=popover]').popover()
+});
