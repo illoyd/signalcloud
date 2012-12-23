@@ -15,9 +15,13 @@
           %a.brand{:href => "/"} ticketplease
           - unless user_signed_in?
             %ul.nav
-              %li
+              %li{ :class => ( request.path == new_user_session_path ? 'active' : '' ) }
+                = link_to new_user_session_path do
+                  %i.icon-signin
+                  Sign In
+              %li{ :class => ( request.path == new_user_registration_path ? 'active' : '' ) }
                 = link_to new_user_registration_path do
-                  %i.icon-globe
+                  %i.icon-upload-alt
                   Sign Up
           - else
             %ul.nav
@@ -32,19 +36,15 @@
                   %b.caret
                 %ul.dropdown-menu
                   %li
-                    %a{ :href => account_appliances_path(@current_user.account) }
+                    %a{ :href => appliances_path }
                       %i.icon-hdd
                       Appliances
                   %li
-                    %a{ :href => account_appliances_path(@current_user.account) }
-                      %i.icon-hdd
-                      Appliances
-                  %li
-                    %a{ :href => account_phone_directories_path(@current_user.account) }
+                    %a{ :href => account_phone_directories_path(current_user.account) }
                       %i.icon-book
                       Directories
                   %li
-                    %a{ :href => account_phone_numbers_path(@current_user.account) }
+                    %a{ :href => account_phone_numbers_path(current_user.account) }
                       %i.icon-phone
                       Phone Numbers
               %li
@@ -54,18 +54,18 @@
               %li.dropdown
                 %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#"}
                   %i.icon-user
-                  = @current_user.first_name
+                  = current_user.first_name
                   %b.caret
                 %ul.dropdown-menu
                   %li
-                    = link_to @current_user do
+                    = link_to current_user do
                       %i.icon-cogs
                       Preferences
                   %li
                     = link_to destroy_user_session_path, :method => :delete do
                       %i.icon-signout
                       Sign out
-            = form_tag account_tickets_path( @current_user.account ), :method => 'get', :class => 'navbar-search pull-right' do
+            = form_tag account_tickets_path( current_user.account ), :method => 'get', :class => 'navbar-search pull-right' do
               = text_field_tag :search, params[:search], class: 'search-query', placeholder: 'Search Tickets'
   
       / Body
