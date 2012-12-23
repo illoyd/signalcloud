@@ -1,6 +1,6 @@
 class Account < ActiveRecord::Base
   # General attributes
-  attr_accessible :account_sid, :account_plan, :auth_token, :balance, :label, :account_plan_id
+  attr_accessible :account_sid, :account_plan, :auth_token, :balance, :label, :account_plan_id, :description
   
   # Encrypted attributes
   attr_encrypted :twilio_account_sid, key: ATTR_ENCRYPTED_SECRET

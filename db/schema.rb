@@ -37,6 +37,7 @@ ActiveRecord::Schema.define(:version => 20121220210403) do
     t.integer  "account_plan_id",                                                             :null => false
     t.string   "encrypted_twilio_account_sid"
     t.string   "encrypted_twilio_auth_token"
+    t.text     "description"
     t.datetime "created_at",                                                                  :null => false
     t.datetime "updated_at",                                                                  :null => false
   end
@@ -58,6 +59,7 @@ ActiveRecord::Schema.define(:version => 20121220210403) do
     t.string   "encrypted_denied_reply"
     t.string   "encrypted_failed_reply"
     t.string   "encrypted_expired_reply"
+    t.text     "description"
     t.datetime "created_at",                                             :null => false
     t.datetime "updated_at",                                             :null => false
   end

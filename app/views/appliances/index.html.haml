@@ -28,7 +28,10 @@
       %tbody
         - @appliances.each do |appliance|
           %tr
-            %td= link_to appliance.label, appliance
+            %td
+              / { 'rel'=>'tooltip', 'data-original-title'=>appliance.description || 'No description' }
+              = link_to appliance.label, appliance, { 'rel'=>'tooltip', 'data-original-title'=>appliance.description || 'No description' }
+              / %span{ 'rel'=>'popover', 'data-trigger'=>'hover', 'data-original-title'=>'Description', 'data-content'=>appliance.description || 'No description' }= icon( 'info-sign'.to_sym )
             %td= link_to appliance.phone_directory.label, appliance.phone_directory
             %td= appliance.seconds_to_live.seconds_to_words
             %td= appliance.question

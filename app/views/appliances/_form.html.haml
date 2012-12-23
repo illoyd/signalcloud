@@ -8,6 +8,12 @@
         - @appliance.errors.full_messages.each do |msg|
           %li= msg
   .control-group
+    = f.label :label, :class => 'control-label'
+    .controls= f.text_field :label
+  .control-group
+    = f.label :description, :class => 'control-label'
+    .controls= f.text_area :description, :rows=>2
+  .control-group
     = f.label :phone_directory, :class => 'control-label'
     .controls= f.collection_select :phone_directory_id, @appliance.account.phone_directories, :id, :label
   .control-group

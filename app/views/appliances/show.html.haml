@@ -11,6 +11,9 @@
     = render 'navlist'
   .span9
     %p
+      %b Description:
+      = @appliance.description || 'No description configured.'
+    %p
       %b
         = icon( :phone_number )
         Phone directory:
@@ -24,28 +27,28 @@
     
     %p
       %b Question:
-    .well= @appliance.question || 'No default configured.'
+    .well= @appliance.question || 'No default question configured.'
     
     %p
       %b Expected confirmed answer:
-    .well= @appliance.expected_confirmed_answer || 'No default configured.'
+    .well= @appliance.expected_confirmed_answer || 'No default expected confirmed answer configured.'
     
     %p
       %b Expected denied answer:
-    .well= @appliance.expected_denied_answer || 'No default configured.'
+    .well= @appliance.expected_denied_answer || 'No default expected denied answer configured.'
     
     %p
       %b Confirmed reply:
-    .well= @appliance.confirmed_reply || 'No default configured.'
+    .well= @appliance.confirmed_reply || 'No default reply to confirmation responses configured.'
     
     %p
       %b Denied reply:
-    .well= @appliance.denied_reply || 'No default configured.'
+    .well= @appliance.denied_reply || 'No default reply to denial responses configured.'
     
     %p
       %b Failed reply:
-    .well= @appliance.failed_reply || 'No default configured.'
+    .well= @appliance.failed_reply || 'No default reply for failed responses configured.'
     
     %p
       %b Expired reply:
-    .well= @appliance.expired_reply || 'No default configured.'
+    .well= @appliance.expired_reply || 'No default message for expired questions configured.'

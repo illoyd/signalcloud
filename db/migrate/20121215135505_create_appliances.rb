@@ -13,6 +13,7 @@ class CreateAppliances < ActiveRecord::Migration
       t.string :encrypted_denied_reply
       t.string :encrypted_failed_reply
       t.string :encrypted_expired_reply
+      t.text :description
 
       t.timestamps
     end

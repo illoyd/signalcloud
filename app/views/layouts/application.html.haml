@@ -63,7 +63,7 @@
                       Preferences
                   %li
                     = link_to destroy_user_session_path, :method => :delete do
-                      %i.icon-signout
+                      %i.icon-off
                       Sign out
             = form_tag account_tickets_path( current_user.account ), :method => 'get', :class => 'navbar-search pull-right' do
               = text_field_tag :search, params[:search], class: 'search-query', placeholder: 'Search Tickets'
@@ -74,4 +74,6 @@
       = yield
   
       / Footer
-      .small Footer details here
+      .row
+        .span12
+          .small Footer details here
