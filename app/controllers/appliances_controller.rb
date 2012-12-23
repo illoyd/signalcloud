@@ -2,7 +2,7 @@ class AppliancesController < ApplicationController
   # GET /appliances
   # GET /appliances.json
   def index
-    @appliances = Appliance.all
+    @appliances = current_account.appliances
 
     respond_to do |format|
       format.html # index.html.erb
@@ -13,7 +13,7 @@ class AppliancesController < ApplicationController
   # GET /appliances/1
   # GET /appliances/1.json
   def show
-    @appliance = Appliance.find(params[:id])
+    @appliance = current_account.appliances.find( params[:id] )
 
     respond_to do |format|
       format.html # show.html.erb
@@ -24,7 +24,7 @@ class AppliancesController < ApplicationController
   # GET /appliances/new
   # GET /appliances/new.json
   def new
-    @appliance = Appliance.new
+    @appliance = current_account.appliances.build
 
     respond_to do |format|
       format.html # new.html.erb
@@ -34,13 +34,13 @@ class AppliancesController < ApplicationController
 
   # GET /appliances/1/edit
   def edit
-    @appliance = Appliance.find(params[:id])
+    @appliance = current_account.appliances.find( params[:id] )
   end
 
   # POST /appliances
   # POST /appliances.json
   def create
-    @appliance = Appliance.new(params[:appliance])
+    @appliance = current_account.appliances.build( params[:appliance] )
 
     respond_to do |format|
       if @appliance.save
@@ -56,7 +56,7 @@ class AppliancesController < ApplicationController
   # PUT /appliances/1
   # PUT /appliances/1.json
   def update
-    @appliance = Appliance.find(params[:id])
+    @appliance = current_account.appliances.find( params[:id] )
 
     respond_to do |format|
       if @appliance.update_attributes(params[:appliance])
@@ -72,7 +72,7 @@ class AppliancesController < ApplicationController
   # DELETE /appliances/1
   # DELETE /appliances/1.json
   def destroy
-    @appliance = Appliance.find(params[:id])
+    @appliance = current_account.appliances.find( params[:id] )
     @appliance.destroy
 
     respond_to do |format|

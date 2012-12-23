@@ -1,6 +1,11 @@
 class AccountsController < ApplicationController
 
   respond_to :html, :json, :xml
+  
+  def current_account
+    return Account.find( params[:id] ) if params.include? :id
+    return super
+  end
 
   # GET /accounts
   # GET /accounts.json
@@ -12,7 +17,7 @@ class AccountsController < ApplicationController
   # GET /accounts/1
   # GET /accounts/1.json
   def show
-    @account = Account.find( params.fetch( :account_id, params[:id] ) )
+    @account = current_account # Account.find( params.fetch( :account_id, params[:id] ) )
     respond_with @account
   end
 

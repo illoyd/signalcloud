@@ -37,5 +37,10 @@ class ApplicationController < ActionController::Base
       head :forbidden unless @account.twilio_validator.validate( request.original_request_url, v_params, v_header )
     end
   end
+  
+  def current_account
+    return Account.find( params[:account_id] ) if params.include? :account_id
+    return current_user.account
+  end
 
 end
