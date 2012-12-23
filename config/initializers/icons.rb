@@ -3,6 +3,7 @@ ICONS = {
   appliances: 'hdd',
   phone_directories: 'book',
   phone_numbers: 'phone',
+  tickets: 'tags',
   
   # Common actions
   show: 'search',
