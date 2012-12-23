@@ -8,6 +8,9 @@
 
 .row
   .span3
-    = render 'navlist'
+    = navigation_list([ |
+      { header: 'Related' }, |
+      { label: 'All Appliances', icon: :appliances, link: appliances_path } |
+      ]) |
   .span9
     = render 'form'

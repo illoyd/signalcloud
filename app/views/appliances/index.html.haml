@@ -51,5 +51,4 @@
                     = link_to appliance, { method: :delete, data: { confirm: 'Are you sure?' } }, { 'tabindex' => "-1" } do
                       = icon( :delete )
                       Delete
-    %br/
-    = link_to 'New Appliance', new_appliance_path
+    %div= link_to 'New Appliance', new_appliance_path, :class => 'btn btn-success'

@@ -1,4 +1,7 @@
 class AppliancesController < ApplicationController
+  
+  #respond_to :html, :json, :xml
+
   # GET /appliances
   # GET /appliances.json
   def index
@@ -25,7 +28,7 @@ class AppliancesController < ApplicationController
   # GET /appliances/new.json
   def new
     @appliance = current_account.appliances.build
-
+#    respond_with @appliance
     respond_to do |format|
       format.html # new.html.erb
       format.json { render json: @appliance }
