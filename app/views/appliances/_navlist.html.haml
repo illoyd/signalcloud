@@ -2,7 +2,7 @@
   { header: 'Manage' }, |
   { label: 'Details', icon: :show, link: @appliance }, |
   { label: 'Edit', icon: :edit, link: edit_appliance_path( @appliance ) }, |
-  { label: 'Delete', icon: :delete, link: @appliance }, |
+  { label: 'Delete', icon: :delete, link: @appliance, options: { method: :delete, data: { confirm: 'Are you sure?' } } }, |
   { header: 'Related' }, |
   { label: 'All Appliances', icon: :appliances, link: appliances_path }, |
   { label: 'Phone Directory', icon: :phone_directories, link: @appliance.phone_directory } ]) |
