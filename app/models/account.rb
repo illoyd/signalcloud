@@ -16,6 +16,7 @@ class Account < ActiveRecord::Base
   before_validation :ensure_account_sid_and_token
   validates_presence_of :account_sid, :auth_token, :label
   validates_uniqueness_of :account_sid
+  before_create :create_initial_resources
     
   def ensure_account_sid_and_token
     self.account_sid ||= SecureRandom.hex(16)
@@ -32,6 +33,17 @@ class Account < ActiveRecord::Base
     # TODO: Add error if twilio account details are not defined
     @twilio_validator ||= Twilio::Util::RequestValidator.new self.twilio_auth_token
     return @twilio_validator
+  end
+  
+  def create_initial_resources
+
+    # Create first directory
+    default_directory = self.phone_directories.build label: 'Default Directory'
+  
+    # Build first appliance
+    default_appliance = default_directory.appliances.build label: 'Default Appliance'
+    default_appliance.account = self
+    
   end
   
 end
