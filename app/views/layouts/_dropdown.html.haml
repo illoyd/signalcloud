@@ -1,0 +1,18 @@
+/ Dropdown list
+- default_options = { 'tabindex' => "-1" }
+.btn-group
+  %a.btn.dropdown-toggle.btn-small{"data-toggle" => "dropdown", :href => "#"}
+    = label || 'Manage'
+    %span.caret
+  - unless dropdown.is_a? Array
+    Oops! Dropdown is not an array!
+  - else
+    %ul.dropdown-menu
+      - dropdown.each do |entry|
+        - entry_class = entry.fetch( :active, false ) ? 'active' : ''
+        - options = default_options.merge entry.fetch(:options, {})
+        %li{ 'class' => entry_class }
+          = link_to entry[:link], options do
+            - if entry.include? :icon
+              = icon( entry[:icon] )
+            = entry[:label]
