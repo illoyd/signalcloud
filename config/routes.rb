@@ -15,7 +15,6 @@ Ticketplease::Application.routes.draw do
     resources :transactions
     resources :phone_numbers
     resources :phone_directories
-    # resources :phone_directory_entries
   end
   
   # Twilio API extension
