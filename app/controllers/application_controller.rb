@@ -1,12 +1,8 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery
   
-  before_filter :create_temp_user
+  before_filter :authenticate_user!
   
-  def create_temp_user
-    @user = User.first
-  end
-
   def authenticate_account!
     # Validate digest authentication
     results = authenticate_or_request_with_http_digest( DIGEST_REALM ) do |sid|
