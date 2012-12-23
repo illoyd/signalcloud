@@ -1,0 +1,18 @@
+/ Navigation list
+.well{ 'style' => 'padding: 8px 0px' }
+  - unless navlist.is_a? Array
+    Oops! Navlist is not an array!
+  - else
+    %ul.nav.nav-list
+      - navlist.each do |entry|
+        - if entry.include? :header
+          %li.nav-header= entry[:header]
+        - elsif entry.include? :divider
+          %li.divider
+        - else
+          - entry_class = entry.fetch( :active, false ) ? 'active' : ''
+          %li{ 'class' => entry_class }
+            = link_to entry[:link], entry.fetch(:options, {}) do
+              - if entry.include? :icon
+                = icon( entry[:icon] )
+              = entry[:label]
