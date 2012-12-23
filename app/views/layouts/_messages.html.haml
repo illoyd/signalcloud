@@ -5,8 +5,13 @@
 -# error/danger = red
 -# EVERYTHING ELSE becomes amber
 
-- recognised_flash_keys = [ 'info', 'success', 'alert', 'error', 'danger', 'warning', 'notice' ]
+- recognised_flash_keys = [ :info, :success, :alert, :error, :danger, :warning, :notice ]
+- translate_recognised_flash_keys = { :notice => :info, :alert => :warning }
+
 - (flash.keys & recognised_flash_keys).each do |key|
-  %div{ :class=> "alert alert-%{key}" }
-    %a{ :href=>"#", :class=>"close", :data-dismiss=>"alert" } &times;
+  - css_class = translate_recognised_flash_keys.fetch( key, key ).to_s
+  %div{ :class=> "alert alert-%{css_class}" }
+    %a{ :href=>"#", :class=>"close", 'data-dismiss'=>"alert" } &times;
+    %b= key.to_s.titleize + '!'
     = flash[key]
+    
