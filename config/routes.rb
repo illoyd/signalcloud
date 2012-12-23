@@ -6,7 +6,16 @@ Ticketplease::Application.routes.draw do
   # Global resources
   resources :account_plans
   
-  # Accounts
+  # All resources should be accessible outside the account scope as well
+  resources :users
+  resources :appliances
+  resources :tickets
+  resources :messages
+  resources :transactions
+  resources :phone_numbers
+  resources :phone_directories
+
+  # Nested resources via account
   resources :accounts do
     resources :users
     resources :appliances
