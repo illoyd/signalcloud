@@ -1,0 +1,16 @@
+.row
+  .span12
+    .page-header
+      %h1
+        = icon( :accounts )
+        Accounts
+        %small new
+.row
+  .span3
+    = navigation_list([ |
+      { header: 'Related' }, |
+      { label: 'All Accounts', icon: :accounts, link: accounts_path } |
+      ]) |
+
+  .span9
+    = render 'form'

@@ -1,109 +1,75 @@
-.container
-  .row
-    .span9.offset3
-      .page-header
-        %h1
-          Accounts
-          %small= @account.label
-  .row
-    .span3
-      %ul.nav.nav-list
-        %li.nav-header Manage Account
-        %li.active
-          = link_to @account do
-            %i.icon-info
-            Details
-        %li
-          = link_to edit_account_path( @account ) do
-            %i.icon-pencil
-            Edit
-        %li
-          = link_to @account, { method: :delete, data: { confirm: 'Are you sure?' } } do
-            %i.icon-trash
-            Delete
-        %li.nav-header View Objects
-        %li
-          = link_to account_appliances_path( @account ) do
-            %i.icon-hdd
-            Appliances
-        %li
-          = link_to account_phone_numbers_path( @account ) do
-            %i.icon-hdd
-            Phone Numbers
-        %li
-          = link_to account_phone_directories_path( @account ) do
-            %i.icon-hdd
-            Phone Directories
-        %li
-          = link_to account_users_path( @account ) do
-            %i.icon-group
-            Users
-        %li
-          = link_to account_transactions_path( @account ) do
-            %i.icon-list-alt
-            Transactions
-        
+/ Page header
+.row
+  .span12
+    .page-header
+      %h1
+        = icon( :accounts )
+        Accounts
+        %small= @account.label
 
-    .span9
-      %h2 account details...
-      %ul.thumbnails
-        / Account Plan
-        %li.span4
-          .thumbnail
-            %p
-              %b Plan:
-              = @account.account_plan.label
-        / Current Balance
-        %li.span4
-          .thumbnail
-            %p
-              %b Current credits:
-              = "%0.4f" % @account.balance
-        / Balance Used Today
-        %li.span4
-          .thumbnail
-            %p
-              %b Used today:
-              = "%0.4f" % -99.99
-        / Tickets Yesterday
-        %li.span4
-          .thumbnail
-            %p
-              %b Tickets yesterday:
-              = "%d" % 9999
-        / Tickets Today
-        %li.span4
-          .thumbnail
-            %p
-              %b Tickets today:
-              = "%d" % 9999
-        / Open Tickets
-        %li.span4
-          .thumbnail
-            %p
-              %b Open tickets:
-              = "%i" % 9999
+/ Page body
+.row
+  .span3
+    = render :partial => 'navlist'
+  .span9
+    %ul.thumbnails
+      / Account Plan
+      %li.span4
+        .thumbnail
+          %p
+            %b Plan:
+            = @account.account_plan.label
+      / Current Balance
+      %li.span4
+        .thumbnail
+          %p
+            %b Current credits:
+            = "%0.4f" % @account.balance
+      / Balance Used Today
+      %li.span4
+        .thumbnail
+          %p
+            %b Used today:
+            = "%0.4f" % -99.99
+      / Tickets Yesterday
+      %li.span4
+        .thumbnail
+          %p
+            %b Tickets yesterday:
+            = "%d" % @account.tickets.yesterday.count
+      / Tickets Today
+      %li.span4
+        .thumbnail
+          %p
+            %b Tickets today:
+            = "%d" % @account.tickets.today.count
+      / Open Tickets
+      %li.span4
+        .thumbnail
+          %p
+            %b Open tickets:
+            = "%i" % @account.tickets.opened.count
 
-      %h2 Tokens...
-      %table.table
-        %thead
-          %tr
-            %th Provider
-            %th SID
-            %th Token
-        %tbody
-          / production
-          %tr
-            %td ticketplease
-            %td= @account.account_sid
-            %td= @account.auth_token
-          / Twilio
-          -# TODO Remove this section from general view!
-          %tr
-            %td Twilio
-            %td= @account.twilio_account_sid
-            %td= @account.twilio_auth_token
+    %h3 tokens
+    %table.table
+      %thead
+        %tr
+          %th Provider
+          %th SID
+          %th Token
+      %tbody
+        / production
+        %tr
+          %td ticketplease
+          %td= @account.account_sid
+          %td= @account.auth_token
+        / Twilio
+        -# TODO Remove this section from general view!
+        %tr
+          %td Twilio
+          %td= @account.twilio_account_sid
+          %td= @account.twilio_auth_token
 
-      = link_to 'Edit', edit_account_path(@account)
-      |
-      \#{link_to 'Back', accounts_path}
+    = link_to 'Edit', edit_account_path(@account)
+    |
+    \#{link_to 'Back', accounts_path}

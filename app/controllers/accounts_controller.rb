@@ -10,7 +10,7 @@ class AccountsController < ApplicationController
   # GET /accounts
   # GET /accounts.json
   def index
-    @accounts = Account.all
+    @accounts = Account.all( order: :label )
     respond_with @accounts
   end
 
@@ -25,19 +25,23 @@ class AccountsController < ApplicationController
   # GET /accounts/new.json
   def new
     @account = Account.new
-    respond_with @account
+    #respond_with @account
+#     respond_to do |format|
+#       format.html # new.html.erb
+#       format.json { render json: @account }
+#     end
   end
 
   # GET /accounts/1/edit
   def edit
-    @account = Account.find( params.fetch( :account_id, params[:id] ) )
+    @account = current_account
     respond_with @account
   end
 
   # POST /accounts
   # POST /accounts.json
   def create
-    @account = Account.new(params[:account])
+    @account = Account.new( params[:account] )
     if @account.save
       flash[:success] = 'Your account has been created.'
     end
@@ -47,7 +51,7 @@ class AccountsController < ApplicationController
   # PUT /accounts/1
   # PUT /accounts/1.json
   def update
-    @account = Account.find( params.fetch( :account_id, params[:id] ) )
+    @account = current_account
     if @account.update_attributes(params[:account])
       flash[:success] = 'Your account has been updated.'
     end
@@ -57,9 +61,9 @@ class AccountsController < ApplicationController
   # DELETE /accounts/1
   # DELETE /accounts/1.json
   def destroy
-    @account = Account.find( params.fetch( :account_id, params[:id] ) )
+    @account = current_account
     @account.destroy
-    flash[:notice] = "Successfully destroyed account."
+    flash[:alert] = "Successfully destroyed account."
     respond_with(@account)
   end
 end
