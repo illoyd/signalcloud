@@ -17,7 +17,7 @@
   = render "devise/shared/links"
 
 = form_for( resource, :as => resource_name, :url => session_path(resource_name), :html => { :class => "form-horizontal" } ) do |f|
-  .modal
+  .modal.inline-modal
     .modal-header
       / %button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} &times;
       %h3 Sign in
@@ -34,6 +34,9 @@
           .controls= f.check_box :remember_me
     .modal-footer
       / %a.btn{:href => "#"} Close
-      %div= f.submit "Sign in", class: 'btn btn-primary'
+      %div
+        = f.submit "Sign in", class: 'btn btn-primary'
+        - if devise_mapping.recoverable? && controller_name != 'passwords'
+          = link_to "Forgot your password?", new_password_path(resource_name), :class => 'btn'
 
 = render "devise/shared/links"

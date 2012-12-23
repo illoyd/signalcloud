@@ -13,3 +13,13 @@
  *= require twitter/font-awesome.css
  *= require_tree .
  */
+
+div.inline-modal {
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+  margin: 0 auto 20px;
+  z-index: 1;
+  max-width: 100%;
+}
