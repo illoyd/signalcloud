@@ -1,0 +1,48 @@
+.row
+  .span12
+    .page-header
+      %h1
+        Appliances
+        %small= @appliance.label
+
+.row
+  .span3
+    = render 'navlist'
+  .span9
+    %p
+      %b
+        = icon( :phone_number )
+        Phone directory:
+      = link_to @appliance.phone_directory.label, @appliance.phone_directory
+    
+    %p
+      %b Seconds to live:
+      = @appliance.seconds_to_live
+    
+    %p
+      %b Question:
+    .well= @appliance.question || 'No default configured.'
+    
+    %p
+      %b Expected confirmed answer:
+    .well= @appliance.expected_confirmed_answer || 'No default configured.'
+    
+    %p
+      %b Expected denied answer:
+    .well= @appliance.expected_denied_answer || 'No default configured.'
+    
+    %p
+      %b Confirmed reply:
+    .well= @appliance.confirmed_reply || 'No default configured.'
+    
+    %p
+      %b Denied reply:
+    .well= @appliance.denied_reply || 'No default configured.'
+    
+    %p
+      %b Failed reply:
+    .well= @appliance.failed_reply || 'No default configured.'
+    
+    %p
+      %b Expired reply:
+    .well= @appliance.expired_reply || 'No default configured.'

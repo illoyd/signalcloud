@@ -1,0 +1,41 @@
+= form_for( @appliance, :html => { :class => 'form-horizontal' } ) do |f|
+  - if @appliance.errors.any?
+    #error_explanation
+      %h2
+        = pluralize(@appliance.errors.count, "error")
+        prohibited this appliance from being saved:
+      %ul
+        - @appliance.errors.full_messages.each do |msg|
+          %li= msg
+  .control-group
+    = f.label :phone_directory, :class => 'control-label'
+    .controls= f.collection_select :phone_directory_id, @appliance.account.phone_directories, :id, :label
+  .control-group
+    = f.label :seconds_to_live, :class => 'control-label'
+    .controls= f.number_field :seconds_to_live
+  .control-group
+    = f.label :question, :class => 'control-label'
+    .controls= f.text_area :question, :rows=>3
+  .control-group
+    = f.label :expected_confirmed_answer, :class => 'control-label'
+    .controls= f.text_area :expected_confirmed_answer, :rows=>3
+  .control-group
+    = f.label :expected_denied_answer, :class => 'control-label'
+    .controls= f.text_area :expected_denied_answer, :rows=>3
+  .control-group
+    = f.label :confirmed_reply, :class => 'control-label'
+    .controls= f.text_area :confirmed_reply, :rows=>3
+  .control-group
+    = f.label :denied_reply, :class => 'control-label'
+    .controls= f.text_area :denied_reply, :rows=>3
+  .control-group
+    = f.label :failed_reply, :class => 'control-label'
+    .controls= f.text_area :failed_reply, :rows=>3
+  .control-group
+    = f.label :expired_reply, :class => 'control-label'
+    .controls= f.text_area :expired_reply, :rows=>3
+
+  .control-group.actions
+    .controls
+      = f.submit :class => 'btn btn-primary'
+      = link_to 'Discard changes', @appliance, :class => 'btn'
