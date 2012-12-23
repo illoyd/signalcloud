@@ -1,44 +1,55 @@
-.page-header
-  %h1
-    Appliances
-    %small all appliances
+.row
+  .span12
+    .page-header
+      %h1
+        = icon( :appliances )
+        Appliances
+        %small all appliances
 
-%table.table.table-striped
-  %thead
-    %tr
-      %th Label
-      %th Phone directory
-      %th Seconds to live
-      %th Question
-      %th Open Tickets
-      %th
-      %th
-      %th
-  %tbody
-    - @appliances.each do |appliance|
-      %tr
-        %td= link_to appliance.label, appliance
-        %td= link_to appliance.phone_directory.label, appliance.phone_directory
-        %td= appliance.seconds_to_live
-        %td= appliance.question
-        %td= appliance.tickets.count
-        %td
-          .btn-group
-            %a.btn.dropdown-toggle.btn-small{"data-toggle" => "dropdown", :href => "#"}
-              Manage
-              %span.caret
-            %ul.dropdown-menu
-              %li
-                = link_to appliance, { 'tabindex' => "-1" } do
-                  %i.icon-info
-                  Details
-              %li
-                = link_to edit_appliance_path(appliance), { 'tabindex' => "-1" } do
-                  %i.icon-pencil
-                  Edit
-              %li.text-danger
-                = link_to appliance, { method: :delete, data: { confirm: 'Are you sure?' } }, { 'tabindex' => "-1" } do
-                  %i.icon-trash
-                  Delete
-%br/
-= link_to 'New Appliance', new_appliance_path
+.row
+  .span12
+    %table.table.table-striped
+      %thead
+        %tr
+          %th Appliance
+          %th
+            = icon( :phone_directories )
+            Phone directory
+          %th
+            = icon( :time )
+            Time to live
+          %th Question
+          %th
+            = icon( :tickets )
+            Open tickets
+          %th
+          %th
+          %th
+      %tbody
+        - @appliances.each do |appliance|
+          %tr
+            %td= link_to appliance.label, appliance
+            %td= link_to appliance.phone_directory.label, appliance.phone_directory
+            %td= appliance.seconds_to_live.seconds_to_words
+            %td= appliance.question
+            %td= appliance.tickets.count
+            %td
+              .btn-group
+                %a.btn.dropdown-toggle.btn-small{"data-toggle" => "dropdown", :href => "#"}
+                  Manage
+                  %span.caret
+                %ul.dropdown-menu
+                  %li
+                    = link_to appliance, { 'tabindex' => "-1" } do
+                      = icon( :show )
+                      Details
+                  %li
+                    = link_to edit_appliance_path(appliance), { 'tabindex' => "-1" } do
+                      = icon( :edit )
+                      Edit
+                  %li.text-danger
+                    = link_to appliance, { method: :delete, data: { confirm: 'Are you sure?' } }, { 'tabindex' => "-1" } do
+                      = icon( :delete )
+                      Delete
+    %br/
+    = link_to 'New Appliance', new_appliance_path

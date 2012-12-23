@@ -2,6 +2,7 @@
   .span12
     .page-header
       %h1
+        = icon( :appliances )
         Appliances
         %small= @appliance.label
 
@@ -16,8 +17,10 @@
       = link_to @appliance.phone_directory.label, @appliance.phone_directory
     
     %p
-      %b Seconds to live:
-      = @appliance.seconds_to_live
+      %b
+        = icon( :time )
+        Time to live:
+      = @appliance.seconds_to_live.seconds_to_words
     
     %p
       %b Question:
