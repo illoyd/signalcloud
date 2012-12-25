@@ -1,0 +1,43 @@
+/ Page header
+.row
+  .span12
+    .page-header
+      %h1
+        = icon( :phone_numbers )
+        Phone Numbers
+        %small search
+
+/ Page body
+.row
+  .span3= navigation_list([ |
+    { header: 'Search by Country' }, |
+    { label: 'Canada', icon: :phone_numbers, link: search_phone_numbers_path('CA'), active: ( params[:country] == 'CA' ) }, |
+    { label: 'United Kingdom', icon: :phone_numbers, link: search_phone_numbers_path('GB'), active: ( params[:country] == 'GB' ) }, |
+    { label: 'United States', icon: :phone_numbers, link: search_phone_numbers_path('US'), active: ( params[:country] == 'US' ) }, |
+    { header: 'Related' }, |
+    { label: 'All Phone Numbers', icon: :phone_numbers, link: phone_numbers_path }, |
+    ]) |
+
+  .span9
+    %table.table.table-striped
+      %thead
+        %tr
+          %th Phone Number
+          %th Country
+          %th Monthly fee
+          %th
+      %tbody
+        - if @available_phone_numbers.empty?
+          %tr
+            %td{'colspan'=>4}
+              %em No phone numbers were found matching your search.
+        - @available_phone_numbers.each do |phone_number|
+          %tr
+            %td{'colspan'=>3}
+              pre= phone_number.to_s
+            -# %td= phone_number.phone_directories.count
+            -# %td= phone_number.cost
+            %td
+              = form_tag( url: sessions_path ) do |f|
+                = f.hidden_field :phone_number, :number, :value => phone_number['PhoneNumber']
+                = f.submit 'Buy', phone_number, :class=>'btn btn-primary'
