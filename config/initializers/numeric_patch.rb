@@ -18,8 +18,10 @@ class Numeric
         '0 seconds'
       when 1
         text.join
+      when 2
+        text.join ' and '
       else
-        interim = [ text.first(-1).join( ', ' ), text.last ]
+        interim = [ text.first( text.length - 1 ).join( ', ' ), text.last ]
         interim.join ', and '
     end
     # return "%d days, %d hours, %d minutes, and %d seconds" % [dd, hh, mm, ss]
