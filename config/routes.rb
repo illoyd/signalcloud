@@ -12,7 +12,11 @@ Ticketplease::Application.routes.draw do
   resources :tickets
   resources :messages
   resources :transactions
-  resources :phone_numbers
+  resources :phone_numbers, only: [ :index, :create ] do
+    collection do
+      get 'search/:country', action: 'search', defaults: { country: 'US' }, constraint: { country: /(US|CA|GB)/ }, as: 'search'
+    end
+  end
   resources :phone_directories
 
   # Nested resources via account
