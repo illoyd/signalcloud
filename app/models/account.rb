@@ -12,6 +12,7 @@ class Account < ActiveRecord::Base
   has_many :appliances, inverse_of: :account
   has_many :tickets, through: :appliances
   has_many :phone_directories, inverse_of: :account
+  has_many :phone_numbers, inverse_of: :account
   
   before_validation :ensure_account_sid_and_token
   validates_presence_of :account_sid, :auth_token, :label
@@ -23,10 +24,15 @@ class Account < ActiveRecord::Base
     self.auth_token ||= SecureRandom.hex(16)
   end
   
+  def twilio_client
+    # TODO: Add error if twilio account details are not defined
+    @twilio_client ||= Twilio::REST::Client.new self.twilio_account_sid, self.twilio_auth_token
+    return @twilio_client
+  end
+  
   def twilio_account
     # TODO: Add error if twilio account details are not defined
-    @twilio_account ||= Twilio::REST::Client.new self.twilio_account_sid, self.twilio_auth_token
-    return @twilio_account
+    return self.twilio_client.account
   end
   
   def twilio_validator

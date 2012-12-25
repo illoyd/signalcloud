@@ -119,12 +119,13 @@ ActiveRecord::Schema.define(:version => 20121220210403) do
   add_index "phone_directory_entries", ["phone_number_id"], :name => "index_phone_directory_entries_on_phone_number_id"
 
   create_table "phone_numbers", :force => true do |t|
-    t.integer  "account_id",                                                      :null => false
-    t.string   "encrypted_number",                                                :null => false
-    t.decimal  "provider_cost",    :precision => 6, :scale => 4, :default => 0.0, :null => false
-    t.decimal  "our_cost",         :precision => 6, :scale => 4, :default => 0.0, :null => false
-    t.datetime "created_at",                                                      :null => false
-    t.datetime "updated_at",                                                      :null => false
+    t.integer  "account_id",                                                             :null => false
+    t.string   "encrypted_number",                                                       :null => false
+    t.string   "twilio_phone_number_sid",                                                :null => false
+    t.decimal  "provider_cost",           :precision => 6, :scale => 4, :default => 0.0, :null => false
+    t.decimal  "our_cost",                :precision => 6, :scale => 4, :default => 0.0, :null => false
+    t.datetime "created_at",                                                             :null => false
+    t.datetime "updated_at",                                                             :null => false
   end
 
   add_index "phone_numbers", ["account_id"], :name => "index_phone_numbers_on_account_id"
