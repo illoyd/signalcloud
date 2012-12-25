@@ -4,6 +4,9 @@ class AccountsControllerTest < ActionController::TestCase
   setup do
     @account = accounts(:test_account)
     @account_plan = account_plans(:payg_plan)
+
+	# Sign in the payg user
+	sign_in users( :payg_user )
   end
 
   test "should get index" do
