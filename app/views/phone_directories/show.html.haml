@@ -1,0 +1,44 @@
+.row
+  .span12
+    .page-header
+      %h1
+        = icon( :phone_directories )
+        Directories
+        %small= @phone_directory.label
+
+.row
+  .span3
+    = render 'navlist'
+  .span9
+    %p
+      %b Description:
+      = @phone_directory.description || 'No description configured.'
+
+    %h2 Phone numbers
+    %table.table
+      %thead
+        %tr
+          %th Country
+          %th Number
+          %th
+      %tbody
+        - @phone_directory.phone_directory_entries.each do |entry|
+          %tr
+            %td= entry.country || 'Default'
+            %td= entry.phone_number.number
+            %td TODO
+
+    -# %div= link_to 'Link a phone number', new_phone_directory_phone_number_entry_path( @phone_directory ), :class => 'btn btn-success'
+            
+
+    %h2 Appliances using this directory
+    %table.table
+      %thead
+        %tr
+          %th Appliance
+          %th
+      %tbody
+        - @phone_directory.appliances.each do |appliance|
+          %tr
+            %td= link_to appliance.label, appliance
+            %td TODO

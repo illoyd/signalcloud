@@ -2,7 +2,7 @@ class PhoneDirectoriesController < ApplicationController
   # GET /phone_directories
   # GET /phone_directories.json
   def index
-    @phone_directories = PhoneDirectory.all
+    @phone_directories = current_account.phone_directories.all
 
     respond_to do |format|
       format.html # index.html.erb
@@ -13,7 +13,7 @@ class PhoneDirectoriesController < ApplicationController
   # GET /phone_directories/1
   # GET /phone_directories/1.json
   def show
-    @phone_directory = PhoneDirectory.find(params[:id])
+    @phone_directory = current_account.phone_directories.find(params[:id])
 
     respond_to do |format|
       format.html # show.html.erb
@@ -24,7 +24,7 @@ class PhoneDirectoriesController < ApplicationController
   # GET /phone_directories/new
   # GET /phone_directories/new.json
   def new
-    @phone_directory = PhoneDirectory.new
+    @phone_directory = current_account.phone_directories.build
 
     respond_to do |format|
       format.html # new.html.erb
@@ -34,13 +34,13 @@ class PhoneDirectoriesController < ApplicationController
 
   # GET /phone_directories/1/edit
   def edit
-    @phone_directory = PhoneDirectory.find(params[:id])
+    @phone_directory = current_account.phone_directories.find(params[:id])
   end
 
   # POST /phone_directories
   # POST /phone_directories.json
   def create
-    @phone_directory = PhoneDirectory.new(params[:phone_directory])
+    @phone_directory = current_account.phone_directories.build(params[:phone_directory])
 
     respond_to do |format|
       if @phone_directory.save
@@ -56,7 +56,7 @@ class PhoneDirectoriesController < ApplicationController
   # PUT /phone_directories/1
   # PUT /phone_directories/1.json
   def update
-    @phone_directory = PhoneDirectory.find(params[:id])
+    @phone_directory = current_account.phone_directories.find(params[:id])
 
     respond_to do |format|
       if @phone_directory.update_attributes(params[:phone_directory])
@@ -72,7 +72,7 @@ class PhoneDirectoriesController < ApplicationController
   # DELETE /phone_directories/1
   # DELETE /phone_directories/1.json
   def destroy
-    @phone_directory = PhoneDirectory.find(params[:id])
+    @phone_directory = current_account.phone_directories.find(params[:id])
     @phone_directory.destroy
 
     respond_to do |format|

@@ -1,0 +1,16 @@
+.row
+  .span12
+    .page-header
+      %h1
+        = icon( :phone_directories )
+        Directories
+        %small new
+
+.row
+  .span3
+    = navigation_list([ |
+      { header: 'Related' }, |
+      { label: 'All Directories', icon: :phone_directories, link: phone_directories_path } |
+      ]) |
+  .span9
+    = render 'form'

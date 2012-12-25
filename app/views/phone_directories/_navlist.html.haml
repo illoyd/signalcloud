@@ -1,0 +1,8 @@
+= navigation_list([ |
+  { header: 'Manage' }, |
+  { label: 'Details', icon: :show, link: @phone_directory }, |
+  { label: 'Edit', icon: :edit, link: edit_phone_directory_path( @phone_directory ) }, |
+  { label: 'Delete', icon: :delete, link: @phone_directory, options: { method: :delete, data: { confirm: 'Are you sure?' } } }, |
+  { header: 'Related' }, |
+  { label: 'All Directories', icon: :phone_directories, link: phone_directories_path } |
+  ]) |

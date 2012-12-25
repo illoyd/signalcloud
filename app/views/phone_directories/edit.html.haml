@@ -1,0 +1,13 @@
+.row
+  .span12
+    .page-header
+      %h1
+        = icon( :phone_directories )
+        Directories
+        %small= @phone_directory.label
+
+.row
+  .span3
+    = render 'navlist'
+  .span9
+    = render 'form'
