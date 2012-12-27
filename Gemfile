@@ -45,3 +45,8 @@ gem 'haml'
 gem 'twilio-ruby'
 gem 'devise'
 gem 'attr_encrypted'
+
+group :test do
+	gem 'shoulda'
+end
+
