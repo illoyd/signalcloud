@@ -7,15 +7,18 @@ class PhoneNumber < ActiveRecord::Base
   has_many :phone_number_entries, inverse_of: :phone_number
   has_many :phone_directories, through: :phone_number_entries
   
-  validates_presence_of :account_id, :twilio_phone_number_sid, :number
+  validates_presence_of :account, :twilio_phone_number_sid, :number
   validates_uniqueness_of :twilio_phone_number_sid
 
   def cost
     return self.provider_cost + self.our_cost
   end
   
+  
   def buy
-    results = self.account.twilio_account.incoming_phone_numbers.create( { phone_number: self.number } )
+    # If not assigned to an account, cannot buy a number!
+    raise TicketpleaseError.new( 'PhoneNumber not associated to an Account' ) if self.account.nil?
+    results = self.account.twilio_account.incoming_phone_numbers.create( { phone_number: self.number, application_sid: self.account.twilio_application_sid } )
     self.twilio_phone_number_sid = results.sid
     return results
   end
