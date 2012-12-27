@@ -37,6 +37,7 @@ ActiveRecord::Schema.define(:version => 20121220210403) do
     t.integer  "account_plan_id",                                                             :null => false
     t.string   "encrypted_twilio_account_sid"
     t.string   "encrypted_twilio_auth_token"
+    t.string   "twilio_application_sid"
     t.text     "description"
     t.datetime "created_at",                                                                  :null => false
     t.datetime "updated_at",                                                                  :null => false

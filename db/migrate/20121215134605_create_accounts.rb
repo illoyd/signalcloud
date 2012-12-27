@@ -8,6 +8,7 @@ class CreateAccounts < ActiveRecord::Migration
       t.references :account_plan, null: false
       t.string :encrypted_twilio_account_sid
       t.string :encrypted_twilio_auth_token
+      t.string :twilio_application_sid
       t.text :description
 
       t.timestamps
