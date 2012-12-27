@@ -1,0 +1,31 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+test_plan:
+  label: Test Plan - no extra charges
+
+payg_plan:
+  label: PAYG
+  phone_add: 2
+  call_in_add: 0.02
+  sms_in_add: 0.02
+  sms_out_add: 0.02
+
+monthly_plan:
+  label: Dedicated
+  month: 500
+  phone_add: 1
+  phone_mult: 9.99
+  call_in_add: 9.99
+  call_in_mult: 9.99
+  sms_in_add: 9.99
+  sms_in_mult: 9.99
+  sms_out_add: 9.99
+  sms_out_mult: 9.99
+
+discounted_plan:
+  label: Discounted
+  month: 1000
+  phone_mult: 1.1
+  call_in_mult: 1.1
+  sms_in_mult: 1.1
+  sms_out_mult: 1.1

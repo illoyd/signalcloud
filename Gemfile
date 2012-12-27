@@ -46,7 +46,13 @@ gem 'twilio-ruby'
 gem 'devise'
 gem 'attr_encrypted'
 
+# Add rspec
+group :test, :development do
+  gem "rspec-rails", "~> 2.0"
+end
+
+# Add shoulda matchers
 group :test do
-	gem 'shoulda'
+	gem 'shoulda-matchers'
 end
 

@@ -12,73 +12,33 @@ class PhoneNumberTest < ActiveSupport::TestCase
   UNAVAILABLE_AREACODE = '533'
   AVAILABLE_AREACODE = '500'
   
-  test "should save phone number" do
+  test "should review validations" do
+    # Account...
+    should belong_to(:account)
+    should validate_presense_of(:account)
+    
+    # Other relationships
+    should have_many(:phone_directories)
+    should have_many(:phone_number_entries)
+    
+    # Values and attributes
+    should allow_mass_assignment_of(:number, :twilio_phone_number_sid, :account_id, :our_cost, :provider_cost)
+    should validate_presense_of(:number)
+    should validate_presense_of(:twilio_phone_number_sid)
+    should validate_numericality_of(:our_cost)
+    should validate_numericality_of(:provider_cost)
+  end
+  
+  test "should save phone number (with temporary twilio SID)" do
     # Build a basic phone number and save
     account = accounts( :test_account )
     phone_number = account.phone_numbers.build( { number: AVAILABLE_NUMBER } )
     phone_number.twilio_phone_number_sid = 'TEMP'
-    assert phone_number.valid?
+    assert phone_number.valid?, 'Phone number failed validity checks'
     
     # Save number
     assert_difference( 'account.phone_numbers.count' ) do
       assert phone_number.save, "Failed to save phone_number"
-    end
-  end
-  
-  test "should not save phone number" do
-    # Get test account
-    account = accounts( :test_account )
-    
-    # Build a new generic phone number missing some details
-    phone_number = account.phone_numbers.build( { number: nil } )
-    assert !phone_number.valid?
-    
-    phone_number.number = AVAILABLE_NUMBER
-    assert !phone_number.valid?
-    
-    phone_number.twilio_phone_number_sid = 'TEMP'
-    assert !phone_number.valid?
-    
-    # Save number (and fail)
-    assert_no_difference( 'account.phone_numbers.count' ) do
-      assert !phone_number.save, "Saved phone_number when model was invalid"
-    end
-  end
-  
-  test "should not save (missing account) phone number" do
-    # Get test account
-    account = accounts( :test_account )
-    
-    # Build a new generic phone number missing some details
-    phone_number = PhoneNumber.new( { number: nil } )
-    assert !phone_number.valid?
-    
-    # Save number (and fail)
-    assert_no_difference( 'account.phone_numbers.count' ) do
-      assert !phone_number.save, "Saved phone_number when model was invalid"
-    end
-
-    phone_number.number = AVAILABLE_NUMBER
-    assert !phone_number.valid?
-    
-    # Save number (and fail)
-    assert_no_difference( 'account.phone_numbers.count' ) do
-      assert !phone_number.save, "Saved phone_number when model was invalid"
-    end
-
-    phone_number.twilio_phone_number_sid = 'TEMP'
-    assert !phone_number.valid?
-    
-    # Save number (and fail)
-    assert_no_difference( 'account.phone_numbers.count' ) do
-      assert !phone_number.save, "Saved phone_number when model was invalid"
-    end
-
-    phone_number.account = accounts( :test_account )
-    
-    # Save number (and fail)
-    assert_no_difference( 'account.phone_numbers.count' ) do
-      assert !phone_number.save, "Saved phone_number when model was invalid"
     end
   end
   
