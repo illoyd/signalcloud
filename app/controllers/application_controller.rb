@@ -50,9 +50,10 @@ class ApplicationController < ActionController::Base
   # Return the appliance of the current request, based upon the request and filtered to the current account.
   # Will return nil if no appliance is specified in the request. This method is primarily intended to be used for 
   # nested resource requests.
-  def current_appliance
+  def current_appliance( use_default = true )
     return current_account.appliances.find( params[:appliance_id] ) if params.include? :appliance_id
-    return current_account.default_appliance
+    return current_account.default_appliance if use_default
+    return nil
   end
 
 end
