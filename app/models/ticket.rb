@@ -30,10 +30,11 @@ class Ticket < ActiveRecord::Base
   has_many :messages, inverse_of: :ticket
   
   # Validation
-  validates_presence_of :appliance, :actual_answer, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry
-  validates_length_of :challenge_sms_sid, :is=>34
-  validates_length_of :reply_sms_sid, :is=>34
-  validates_length_of :response_sms_sid, :is=>34
+  validates_presence_of :appliance, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry
+  validates_length_of :challenge_sms_sid, :is=>34, :allow_nil=>true
+  validates_length_of :reply_sms_sid, :is=>34, :allow_nil=>true
+  validates_length_of :response_sms_sid, :is=>34, :allow_nil=>true
+  #validates_numericality_of :seconds_to_live
   
   # Scopes
   scope :opened, where( :status => [ QUEUED, CHALLENGE_SENT ] )
@@ -42,8 +43,8 @@ class Ticket < ActiveRecord::Base
   scope :yesterday, where( "tickets.created_at >= ? and tickets.created_at <= ?", DateTime.yesterday.beginning_of_day, DateTime.yesterday.end_of_day )
   
   def update_expiry_time_based_on_seconds_to_live
-    if !self.seconds_to_live.nil? and self.seconds_to_live.is_a?(Numeric)
-      self.expiry = self.seconds_to_live.seconds.from_now
+    if !self.seconds_to_live.nil? 
+      self.expiry = self.seconds_to_live.to_i.seconds.from_now
     end
   end
 end
