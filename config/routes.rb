@@ -9,13 +9,13 @@ Ticketplease::Application.routes.draw do
   # All resources should be accessible outside the account scope as well
   resources :users
   resources :appliances do
-    resources :tickets, only: [ :index, :create, :show ] do
+    resources :tickets, only: [ :index, :new, :create, :show ] do
       member do
         post 'force', action: 'force_status', as: 'force_status'
       end
     end
   end
-  resources :tickets, only: [ :index, :create, :show ]
+  resources :tickets, only: [ :index, :show ]
   resources :messages, only: [ :show ]
   resources :transactions, only: [ :index, :show ]
   resources :phone_numbers, only: [ :index, :create ] do
@@ -29,7 +29,7 @@ Ticketplease::Application.routes.draw do
   resources :accounts do
     resources :users
     resources :appliances
-    resources :tickets, only: [ :index, :create, :show ]
+    resources :tickets, only: [ :index, :new, :create, :show ]
     resources :messages, only: [ :show ]
     resources :transactions, only: [ :index, :show ]
     resources :phone_numbers, only: [ :index, :create ]
