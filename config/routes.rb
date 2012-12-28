@@ -11,7 +11,7 @@ Ticketplease::Application.routes.draw do
   resources :appliances do
     resources :tickets, only: [ :index, :create, :show ] do
       member do
-        post 'force', action: 'force_status', as 'force_status'
+        post 'force', action: 'force_status', as: 'force_status'
       end
     end
   end
