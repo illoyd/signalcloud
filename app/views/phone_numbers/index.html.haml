@@ -27,8 +27,8 @@
             %td= phone_number.number
             %td= phone_number.phone_directories.count
             %td= phone_number.cost
-            %td= link_to 'Show', phone_number
-            %td= link_to 'Edit', edit_phone_number_path(phone_number)
-            %td= link_to 'Destroy', phone_number, method: :delete, data: { confirm: 'Are you sure?' }
+            -# %td= link_to 'Show', phone_number
+            -# %td= link_to 'Edit', edit_phone_number_path(phone_number)
+            -# %td= link_to 'Destroy', phone_number, method: :delete, data: { confirm: 'Are you sure?' }
 
     = link_to 'Search for a new Phone Number', search_phone_numbers_path, :class => 'btn btn-success'
