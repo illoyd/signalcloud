@@ -12,6 +12,7 @@ class CreateMessages < ActiveRecord::Migration
     end
     
     # Indices
-    add_index :messages, :ticket_id, :updated_at
+    add_index :messages, :ticket_id
+    add_index :messages, :updated_at
   end
 end

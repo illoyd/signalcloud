@@ -87,15 +87,17 @@ ActiveRecord::Schema.define(:version => 20121220210403) do
 
   create_table "messages", :force => true do |t|
     t.integer  "ticket_id",                                                                      :null => false
+    t.string   "twilio_sid",        :limit => 34,                                                :null => false
     t.decimal  "provider_cost",                   :precision => 6, :scale => 4, :default => 0.0, :null => false
     t.decimal  "our_cost",                        :precision => 6, :scale => 4, :default => 0.0, :null => false
-    t.string   "sid",               :limit => 34,                                                :null => false
+    t.text     "text",                                                                           :null => false
     t.text     "encrypted_payload",                                                              :null => false
     t.datetime "created_at",                                                                     :null => false
     t.datetime "updated_at",                                                                     :null => false
   end
 
   add_index "messages", ["ticket_id"], :name => "index_messages_on_ticket_id"
+  add_index "messages", ["updated_at"], :name => "index_messages_on_updated_at"
 
   create_table "phone_directories", :force => true do |t|
     t.integer  "account_id",  :null => false
