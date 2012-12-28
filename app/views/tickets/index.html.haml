@@ -1,0 +1,69 @@
+-# UI variables
+- ticket_link = current_appliance.nil? ? new_ticket_path() : new_appliance_ticket_path( current_appliance )
+
+/ Page header
+.row
+  .span12
+    .page-header
+      %h1
+        = icon( :tickets )
+        Tickets
+        %small all tickets
+
+/ Page controls
+.row
+  .span12
+    = appliance_dropdown_list( current_account, current_appliance )
+    .pull-right
+      = link_to 'Start a new ticket', ticket_link, :class=>'btn btn-success'
+
+/ Page body
+.row
+  .span12
+    %table.table.table-striped
+      %thead
+        %tr
+          - if @multiappliance
+            %th Appliance
+          %th Status
+          %th From number
+          %th To number
+          %th Expires On
+          %th Question
+          %th
+            %abbr{ :title => 'Message sent to person' }
+              = icon( :rss )
+              = icon( :arrow-right )
+              = icon( :user )
+          %th
+            %abbr{ :title => 'Message received from person' }
+              = icon( :rss )
+              = icon( :arrow-left )
+              = icon( :user )
+          %th
+            %abbr{ :title => 'Reply sent to person' }
+              = icon( :rss )
+              = icon( :arrow-right )
+              = icon( :user )
+          %th
+            / Manage toolbox
+      %tbody
+        - @tickets.each do |ticket|
+          %tr
+            - if @multiappliance
+              %td= ticket.appliance.label
+            %td= ticket.status
+            %td= ticket.from_number
+            %td= ticket.to_number
+            %td= ticket.expiry
+            %td= ticket.question
+            %td= ticket.challenge_sent ? icon(:ok) : ''
+            %td= ticket.response_received ? icon(:ok) : ''
+            %td= ticket.reply_sent ? icon(:ok) : ''
+            %td= dropdown_list( 'Manage', [ |
+                { label: 'Details', icon: :show, link: ticket }, |
+                { label: 'Force status to Confirmed', icon: 'ok-sign', link: ticket }, |
+                { label: 'Force status to Denied', icon: 'minus-sign', link: ticket }, |
+                { label: 'Force status to Failed', icon: 'remove-sign', link: ticket }, |
+                { label: 'Force status to Expired', icon: :time, link: ticket } |
+              ]) |
