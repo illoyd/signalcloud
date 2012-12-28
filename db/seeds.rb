@@ -24,3 +24,23 @@ test_account = Account.new label:'Test Account', account_sid: 'test', auth_token
 
 # Add users
 test_user = test_account.users.create first_name: 'Jane', last_name: 'Doe', email: 'jane.doe@ticketpleaseapp.com', password: 'password', password_confirmation: 'password'
+
+# Add example data for the test account
+test_numbers = {
+  US: test_account.phone_numbers.create( number: '+12125001234', twilio_phone_number_sid: 'XX'+SecureRandom.hex(16) ),
+  CA: test_account.phone_numbers.create( number: '+17127005678', twilio_phone_number_sid: 'XX'+SecureRandom.hex(16) ),
+  GB: test_account.phone_numbers.create( number: '+447540123456', twilio_phone_number_sid: 'XX'+SecureRandom.hex(16) )
+}
+
+example_directory = test_account.phone_directories.create label: 'Example Directory'
+example_directory.phone_directory_entries.create phone_number_id: test_numbers[:US].id
+test_numbers.each { |country,number| example_directory.phone_directory_entries.create country: country, phone_number_id: number.id }
+
+example_appliance = test_account.appliances.create label: 'Example Appliance', default: true, phone_directory_id: example_directory.id, seconds_to_live: 180,
+  description: 'Example appliance for handling possibly fraudulent charges to a debit card.',
+  question: 'Hello from Friendly Bank. We recently detected a possibly fraudulent charge using your debit card. To protect you, we have temporarily blocked the card. If you are making this purchase and would like us to unlock the card, please reply to this number with the amount of the transaction. If you believe this charge is fraudulent, please reply NO and we will contact you about next steps.',
+  expected_denied_answer: 'NO',
+  confirmed_reply: 'Thank you. We will unblock your card immediately. Please retry your purchase.',
+  denied_reply: 'Thank you. We will contact you shortly to discuss next steps to protect your account.',
+  failed_reply: 'We are sorry, but your answer does not match your records. For your safety we have blocked your card and we will contact you shortly to discuss next steps.',
+  expired_reply: 'We are sorry, but we did not receive your reply. For your safety we have blocked your card and we will contact you shortly to discuss next steps.',
