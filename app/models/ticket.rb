@@ -1,5 +1,7 @@
 class Ticket < ActiveRecord::Base
 
+  before_validation :update_expiry_time_based_on_seconds_to_live
+
   # Constants
   QUEUED = 0
   CHALLENGE_SENT = 1
@@ -8,8 +10,8 @@ class Ticket < ActiveRecord::Base
   FAILED = 4
   EXPIRED = 5
 
-  #attr_accessible :appliance, :challenge_sent, :challenge_sms_sid, :encrypted_actual_answer, :encrypted_confirmed_reply, :encrypted_denied_reply, :encrypted_expected_confirmed_answer, :encrypted_expected_denied_answer, :encrypted_expired_reply, :encrypted_failed_reply, :encrypted_from_number, :encrypted_question, :encrypted_to_number, :expiry, :reply_sent, :reply_sms_sid, :response_received, :response_sms_sid, :status
-  attr_accessible :challenge_sent, :challenge_sms_sid, :expiry, :reply_sent, :reply_sms_sid, :response_received, :response_sms_sid, :status
+  attr_accessible :seconds_to_live, :appliance_id, :actual_answer, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry
+  attr_accessor :seconds_to_live
   
   # Encrypted attributes
   attr_encrypted :actual_answer, key: ATTR_ENCRYPTED_SECRET
@@ -27,9 +29,21 @@ class Ticket < ActiveRecord::Base
   belongs_to :appliance, inverse_of: :tickets
   has_many :messages, inverse_of: :ticket
   
+  # Validation
+  validates_presence_of :appliance, :actual_answer, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry
+  validates_length_of :challenge_sms_sid, :is=>34
+  validates_length_of :reply_sms_sid, :is=>34
+  validates_length_of :response_sms_sid, :is=>34
+  
   # Scopes
   scope :opened, where( :status => [ QUEUED, CHALLENGE_SENT ] )
   scope :closed, where( :status => [ CONFIRMED, DENIED, FAILED, EXPIRED ] )
   scope :today, where( "tickets.created_at >= ?", Time.now.beginning_of_day )
   scope :yesterday, where( "tickets.created_at >= ? and tickets.created_at <= ?", DateTime.yesterday.beginning_of_day, DateTime.yesterday.end_of_day )
+  
+  def update_expiry_time_based_on_seconds_to_live
+    if !self.seconds_to_live.nil? and self.seconds_to_live.is_a?(Numeric)
+      self.expiry = self.seconds_to_live.seconds.from_now
+    end
+  end
 end

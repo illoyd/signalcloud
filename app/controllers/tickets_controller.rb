@@ -1,19 +1,25 @@
 class TicketsController < ApplicationController
+
+  respond_to :html, :json, :xml
+  before_filter :setup_account_and_appliance
+  
+  def setup_account_and_appliance
+    @account = current_account()
+    @appliance = current_appliance(false)
+  end
+  
   # GET /tickets
   # GET /tickets.json
   def index
-    @tickets = Ticket.all
+    @tickets = ( @appliance.nil? ? @account : @appliance ).tickets.all
 
-    respond_to do |format|
-      format.html # index.html.erb
-      format.json { render json: @tickets }
-    end
+    respond_with @tickets
   end
 
   # GET /tickets/1
   # GET /tickets/1.json
   def show
-    @ticket = Ticket.find(params[:id])
+    @ticket = ( @appliance.nil? ? @account : @appliance ).tickets.find(params[:id])
 
     respond_to do |format|
       format.html # show.html.erb
@@ -24,7 +30,7 @@ class TicketsController < ApplicationController
   # GET /tickets/new
   # GET /tickets/new.json
   def new
-    @ticket = Ticket.new
+    @ticket = ( @appliance.nil? ? @account : @appliance ).tickets.build
 
     respond_to do |format|
       format.html # new.html.erb
@@ -34,13 +40,13 @@ class TicketsController < ApplicationController
 
   # GET /tickets/1/edit
   def edit
-    @ticket = Ticket.find(params[:id])
+    @ticket = ( @appliance.nil? ? @account : @appliance ).tickets.find(params[:id])
   end
 
   # POST /tickets
   # POST /tickets.json
   def create
-    @ticket = Ticket.new(params[:ticket])
+    @ticket = ( @appliance.nil? ? @account : @appliance ).tickets.create( params[:ticket] )
 
     respond_to do |format|
       if @ticket.save
@@ -56,7 +62,7 @@ class TicketsController < ApplicationController
   # PUT /tickets/1
   # PUT /tickets/1.json
   def update
-    @ticket = Ticket.find(params[:id])
+    @ticket = ( @appliance.nil? ? @account : @appliance ).tickets.find(params[:id])
 
     respond_to do |format|
       if @ticket.update_attributes(params[:ticket])
@@ -72,7 +78,7 @@ class TicketsController < ApplicationController
   # DELETE /tickets/1
   # DELETE /tickets/1.json
   def destroy
-    @ticket = Ticket.find(params[:id])
+    @ticket = ( @appliance.nil? ? @account : @appliance ).tickets.find(params[:id])
     @ticket.destroy
 
     respond_to do |format|
