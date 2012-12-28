@@ -1,5 +1,6 @@
 = navigation_list([ |
   { header: 'Manage' }, |
+  { label: 'Tickets', icon: :tickets, link: appliance_tickets_path( @appliance ) }, |
   { label: 'Details', icon: :show, link: @appliance }, |
   { label: 'Edit', icon: :edit, link: edit_appliance_path( @appliance ) }, |
   { label: 'Delete', icon: :delete, link: @appliance, options: { method: :delete, data: { confirm: 'Are you sure?' } } }, |
