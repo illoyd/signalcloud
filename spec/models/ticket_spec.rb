@@ -65,7 +65,8 @@ describe Ticket do
       
       # And run the filter manually
       ticket.update_expiry_time_based_on_seconds_to_live
-      expect( ticket.expiry ).to be_within(0.5).of( 360.seconds.from_now )
+      ticket.expiry.should > original_expiry
+      ticket.expiry.should be_within(0.5).of( 360.seconds.from_now )
     end
 
     it "should update expiry on create" do
@@ -78,9 +79,10 @@ describe Ticket do
       # Update the 'seconds_to_live' flag
       ticket.seconds_to_live = 360
       
-      # And run the filter manually
+      # And run the filter automatically durring save
       ticket.save
-      expect( ticket.expiry ).to_not be_nil
+      ticket.expiry.should_not be_nil
+      ticket.expiry.should be_within(0.5).of( 360.seconds.from_now )
     end
 
     it "should update expiry on update" do
@@ -92,9 +94,10 @@ describe Ticket do
       # Update the 'seconds_to_live' flag
       ticket.seconds_to_live = 360
       
-      # And run the filter manually
+      # And run the filter automatically during save
       ticket.save
-      expect( ticket.expiry ).to be_within(0.5).of(360.seconds.from_now)
+      ticket.expiry.should > original_expiry
+      ticket.expiry.should be_within(0.5).of( 360.seconds.from_now )
     end
   end
   
