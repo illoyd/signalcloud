@@ -12,4 +12,43 @@ module TicketsHelper
     
     dropdown_list( title, entries )
   end
+  
+  def ticket_class( status )
+    return case status
+      #when Ticket::QUEUED
+      #  ''
+      when Ticket::CHALLENGE_SENT
+        'info'
+      when Ticket::CONFIRMED
+        'success'
+      when Ticket::DENIED
+        'error'
+      when Ticket::FAILED
+        'error'
+      when Ticket::EXPIRED
+        'warning'
+      else
+        ''
+    end
+  end
+  
+  def human_ticket_status( status )
+    return case status
+      when Ticket::QUEUED
+        'Queued'
+      when Ticket::CHALLENGE_SENT
+        'Sent'
+      when Ticket::CONFIRMED
+        'Confirmed'
+      when Ticket::DENIED
+        'Denied'
+      when Ticket::FAILED
+        'Failed'
+      when Ticket::EXPIRED
+        'Expired'
+      else
+        'Other: ' + status.to_s
+    end
+  end
+
 end

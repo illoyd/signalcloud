@@ -1,5 +1,5 @@
 -# UI variables
-- ticket_link = @appliance.nil? ? new_ticket_path() : new_appliance_ticket_path( @appliance )
+- ticket_link = new_appliance_ticket_path( @appliance.nil? ? @account.default_appliance : @appliance )
 
 / Page header
 .row
@@ -32,7 +32,7 @@
           %th From number
           %th To number
           %th Expires On
-          %th Question
+          / %th Question
           %th
             %abbr{ :title => 'Message sent to person' }
               = icon( :rss )
@@ -52,14 +52,14 @@
             / Manage toolbox
       %tbody
         - @tickets.each do |ticket|
-          %tr
+          %tr{ :class=>ticket_class(ticket.status) }
             - if @multiappliance
               %td= ticket.appliance.label
-            %td= ticket.status
+            %td= link_to human_ticket_status(ticket.status), ticket
             %td= ticket.from_number
             %td= ticket.to_number
             %td= ticket.expiry
-            %td= ticket.question
+            / %td= ticket.question
             %td= ticket.challenge_sent ? icon(:ok) : ''
             %td= ticket.response_received ? icon(:ok) : ''
             %td= ticket.reply_sent ? icon(:ok) : ''

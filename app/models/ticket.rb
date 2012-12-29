@@ -47,4 +47,22 @@ class Ticket < ActiveRecord::Base
       self.expiry = self.seconds_to_live.to_i.seconds.from_now
     end
   end
+  
+  ##
+  # Has the challenge message already been sent to the recipient?
+  def has_challenge_been_sent?
+    return !self.challenge_sent.nil?
+  end
+  
+  ##
+  # Has the challenge message already been sent to the recipient?
+  def has_response_been_received?
+    return !self.response_received.nil?
+  end
+  
+  ##
+  # Has the challenge message already been sent to the recipient?
+  def has_reply_been_sent?
+    return !self.reply_sent.nil?
+  end
 end

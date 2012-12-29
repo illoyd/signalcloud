@@ -46,7 +46,8 @@ class TicketsController < ApplicationController
   # POST /tickets
   # POST /tickets.json
   def create
-    @ticket = ( @appliance.nil? ? @account : @appliance ).tickets.create( params[:ticket] )
+    # @ticket = ( @appliance.nil? ? @account : @appliance ).tickets.create( params[:ticket] )
+    @ticket = @appliance.open_ticket( params[:ticket] )
 
     respond_to do |format|
       if @ticket.save

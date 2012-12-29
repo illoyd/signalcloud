@@ -5,7 +5,7 @@
       %h1
         = icon( :tickets )
         Tickets
-        %small= "ticket #{ticket.id}"
+        %small= "ticket #{@ticket.id}"
 
 / Page body
 .row
@@ -16,7 +16,7 @@
       .span4
         %p
           %b Appliance:
-          = @ticket.appliance
+          = @ticket.appliance.label
         %p
           %b Status:
           = @ticket.status
@@ -36,10 +36,10 @@
             %tr
               %th{ :width=>'50%'}
                 %abbr{ :title => 'Message sent to person' }= icon( :rss )
-                = ticket.from_number
+                = @ticket.from_number
               %th{ :width=>'50%'}
                 %abbr{ :title => 'Message received from person' }= icon( :user )
-                = ticket.to_number
+                = @ticket.to_number
           %tbody
             - @ticket.messages( order: :updated_at ).each do |message|
               %tr

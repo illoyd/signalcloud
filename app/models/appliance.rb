@@ -16,4 +16,29 @@ class Appliance < ActiveRecord::Base
   belongs_to :account, inverse_of: :appliances
   belongs_to :phone_directory, inverse_of: :appliances
   has_many :tickets, inverse_of: :appliance
+  
+  def open_ticket( passed_options )
+    # Build a hash of options using self as a default, merging passed options
+    options = {
+      seconds_to_live: self.seconds_to_live,
+      question: self.question,
+      expected_confirmed_answer: self.expected_confirmed_answer,
+      expected_denied_answer: self.expected_denied_answer,
+      expired_reply: self.expired_reply,
+      failed_reply: self.failed_reply,
+      confirmed_reply: self.confirmed_reply,
+      denied_reply: self.denied_reply
+    }.merge( passed_options )
+    
+    # Add a randomly selected from number if needed
+    options[:from_number] = self.phone_directory.select_from_number( options[:to_number] ) unless options.key? :from_number
+    
+    return self.tickets.build( options )
+
+    # Create a new ticket
+    # ticket = self.tickets.create!( options )
+    
+    # Queue for processing
+    # TODO
+  end
 end
