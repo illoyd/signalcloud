@@ -24,6 +24,16 @@ class Account < ActiveRecord::Base
     self.auth_token ||= SecureRandom.hex(16)
   end
   
+  ##
+  # Send an SMS using the Twilio API.
+  def send_sms( to_number, from_number, body )
+    return self.twilio_account.sms.messages.create(
+      to: to_number,
+      from: from_number,
+      body: body
+    )
+  end
+  
   def twilio_client
     # TODO: Add error if twilio account details are not defined
     @twilio_client ||= Twilio::REST::Client.new self.twilio_account_sid, self.twilio_auth_token

@@ -8,15 +8,15 @@ class SendChallengeJob < Struct.new( :ticket_id )
     return if ticket.has_challenge_been_sent?
     
     # Send the SMS if not already sent
-    results = ticket.send_sms()
+    results = ticket.send_challenge()
     
     # Save the message for future access
     # This payload will, generally, be a subset of the complete payload
     # We'll update the message with the results of the 'sms delivered webhook' provided by Twilio
-    message = ticket.messages.create({
-      twilio_sid: results['sid'],
-      payload: results
-    })
+    #message = ticket.messages.create({
+    #  twilio_sid: results['sid'],
+    #  payload: results
+    #})
   end
   
   def find_ticket()

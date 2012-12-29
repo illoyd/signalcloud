@@ -32,13 +32,6 @@ class Appliance < ActiveRecord::Base
     
     # Add a randomly selected from number if needed
     options[:from_number] = self.phone_directory.select_from_number( options[:to_number] ) unless options.key? :from_number
-    
     return self.tickets.build( options )
-
-    # Create a new ticket
-    # ticket = self.tickets.create!( options )
-    
-    # Queue for processing
-    # TODO
   end
 end

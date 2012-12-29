@@ -9,6 +9,13 @@ class Ticket < ActiveRecord::Base
   DENIED = 3
   FAILED = 4
   EXPIRED = 5
+  
+  ERROR_INVALID_TO = 101
+  ERROR_INVALID_FROM = 102
+  ERROR_BLACKLISTED_TO = 105
+  ERROR_NOT_SMS_CAPABLE = 103
+  ERROR_CANNOT_ROUTE = 104
+  ERROR_SMS_QUEUE_FULL = 106
 
   attr_accessible :seconds_to_live, :appliance_id, :actual_answer, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry
   attr_accessor :seconds_to_live
@@ -43,9 +50,70 @@ class Ticket < ActiveRecord::Base
   scope :yesterday, where( "tickets.created_at >= ? and tickets.created_at <= ?", DateTime.yesterday.beginning_of_day, DateTime.yesterday.end_of_day )
   
   def update_expiry_time_based_on_seconds_to_live
-    if !self.seconds_to_live.nil? 
-      self.expiry = self.seconds_to_live.to_i.seconds.from_now
+    unless self.seconds_to_live.nil?
+      ss = ( Float(self.seconds_to_live) rescue nil )
+      self.expiry = ss.seconds.from_now unless ss.nil?
     end
+  end
+  
+  ##
+  # Send challenge SMS message. This will construct the appropriate SMS 'envelope' and pass to the +Ticket's+ +Account+. This will also convert
+  # the results into a message, to be held for reference.
+  def send_challenge( force_resend = false )
+  
+    # Abort if message already sent and we do not want to force a resend
+    return if self.has_challenge_been_sent? and !force_resend
+    
+    # Otherwise, continue to send SMS and store the results
+    results = nil
+    begin
+      results = self.appliance.account.send_sms( self.to_number, self.from_number, self.question )
+      message = self.messages.create( twilio_sid: results.sid, payload: results.to_property_hash );
+
+    rescue Twilio::REST::RequestError => ex
+      self.status = case ex.code
+        when 21211
+          ERROR_INVALID_TO
+        when 21212
+          ERROR_INVALID_FROM
+        when 21606, 21614
+          ERROR_NOT_SMS_CAPABLE
+        when 21611
+          ERROR_SMS_QUEUE_FULL
+        when 21612
+          ERROR_CANNOT_ROUTE
+        when 21610
+          ERROR_BLACKLISTED_TO
+        else
+          raise ex
+        end
+        self.save  
+    end
+
+    return results    
+  end
+  
+  ##
+  # Send reply SMS message, based upon the +Ticket's+ current state. This will construct the appropriate SMS 'envelope' and pass to the +Ticket's+ +Account+.
+  def send_reply( force_resend = false )
+  
+    # Abort if message already sent and we do not want to force a resend
+    return if self.has_reply_been_sent? and !force_resend
+    
+    # Otherwise, continue to send SMS and store the results
+    message = case self.status
+      when CONFIRMED
+        self.confirmed_reply
+      when DENIED
+        self.denied_reply
+      when FAILED
+        self.failed_reply
+      when EXPIRED
+        self.expired_reply
+    end
+    self.appliance.account.send_sms( self.to_number, self.from_number, message )
+    message = self.messages.create( twilio_sid: results.sid, payload: results.to_property_hash );
+    return results
   end
   
   ##

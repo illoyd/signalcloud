@@ -135,7 +135,7 @@ ActiveRecord::Schema.define(:version => 20121220210403) do
 
   create_table "tickets", :force => true do |t|
     t.integer  "appliance_id",                                                     :null => false
-    t.integer  "status",                              :limit => 1,  :default => 0, :null => false
+    t.integer  "status",                              :limit => 4,  :default => 0, :null => false
     t.string   "encrypted_from_number",                                            :null => false
     t.string   "encrypted_to_number",                                              :null => false
     t.datetime "expiry",                                                           :null => false

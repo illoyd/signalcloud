@@ -5,7 +5,6 @@ test_ticket_response_payload = { body: 'Hi!', to: 'us', from: 'them', price: 0.0
 test_ticket_reply_payload = { body: 'Hi!', to: 'us', from: 'them', price: 0.01 }
 %>
 
-
 test_ticket_challenge:
   ticket: :test_ticket
   provider_cost: 0.01
