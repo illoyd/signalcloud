@@ -16,11 +16,11 @@ class CreateTickets < ActiveRecord::Migration
       t.string :encrypted_failed_reply, null: false
       t.string :encrypted_expired_reply, null: false
       t.datetime :challenge_sent
-      t.string :challenge_sms_sid, limit: 34
+      t.string :challenge_sms_sid, limit: TWILIO_SID_LENGTH
       t.datetime :response_received
-      t.string :response_sms_sid, limit: 34
+      t.string :response_sms_sid, limit: TWILIO_SID_LENGTH
       t.datetime :reply_sent
-      t.string :reply_sms_sid, limit: 34
+      t.string :reply_sms_sid, limit: TWILIO_SID_LENGTH
 
       t.timestamps
     end

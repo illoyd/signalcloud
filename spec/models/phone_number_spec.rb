@@ -33,7 +33,7 @@ describe PhoneNumber do
     it { should validate_presence_of(:twilio_phone_number_sid) }
     it { should allow_mass_assignment_of( :twilio_phone_number_sid ) }
     it { should validate_uniqueness_of(:twilio_phone_number_sid) }
-    it { should ensure_length_of(:twilio_phone_number_sid).is_equal_to(34) }
+    it { should ensure_length_of(:twilio_phone_number_sid).is_equal_to(TWILIO_SID_LENGTH) }
 
     it { should allow_mass_assignment_of( :number ) }
     it { should validate_presence_of(:number) }
