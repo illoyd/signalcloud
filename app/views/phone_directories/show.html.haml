@@ -10,9 +10,11 @@
   .span3
     = render 'navlist'
   .span9
-    %p
-      %b Description:
-      = @phone_directory.description || 'No description configured.'
+    %p.well
+      - if @phone_directory.description.nil?
+        %em No description configured.
+      - else
+        = @phone_directory.description
 
     %h2 Phone numbers
     %table.table
@@ -22,7 +24,7 @@
           %th Number
           %th
       %tbody
-        - @phone_directory.phone_directory_entries.each do |entry|
+        - @phone_directory.phone_directory_entries( order: 'country desc, number' ).each do |entry|
           %tr
             %td= entry.country || 'Default'
             %td= entry.phone_number.number

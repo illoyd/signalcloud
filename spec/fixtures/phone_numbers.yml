@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  account: test_account
+  encrypted_number: "<%= PhoneNumber.encrypt :number, '+12152759000' %>"
+  twilio_phone_number_sid: 'TEMP-AAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+  provider_cost: 1.0
+  our_cost: 1.0
+
+two:
+  account: test_account
+  encrypted_number: "<%= PhoneNumber.encrypt :number, '+4475401865000' %>"
+  twilio_phone_number_sid: 'TEMP-BBBBBBBBBBBBBBBBBBBBBBBBBBBBB'
+  provider_cost: 1.0
+  our_cost: 0.5

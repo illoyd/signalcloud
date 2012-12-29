@@ -8,25 +8,31 @@ Ticketplease::Application.routes.draw do
   
   # All resources should be accessible outside the account scope as well
   resources :users
-  resources :appliances
-  resources :tickets
-  resources :messages
-  resources :transactions
+  resources :appliances do
+    resources :tickets, only: [ :index, :new, :create, :show ] do
+      member do
+        post 'force', action: 'force_status', as: 'force_status'
+      end
+    end
+  end
+  resources :tickets, only: [ :index, :show ]
+  resources :messages, only: [ :show ]
+  resources :transactions, only: [ :index, :show ]
   resources :phone_numbers, only: [ :index, :create ] do
     collection do
       get 'search/:country', action: 'search', defaults: { country: 'US' }, constraint: { country: /(US|CA|GB)/ }, as: 'search'
     end
   end
   resources :phone_directories
-
+  
   # Nested resources via account
   resources :accounts do
     resources :users
     resources :appliances
-    resources :tickets
-    resources :messages
-    resources :transactions
-    resources :phone_numbers
+    resources :tickets, only: [ :index, :new, :create, :show ]
+    resources :messages, only: [ :show ]
+    resources :transactions, only: [ :index, :show ]
+    resources :phone_numbers, only: [ :index, :create ]
     resources :phone_directories
   end
   

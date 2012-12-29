@@ -1,0 +1,17 @@
+- header_text ||= 'Modal Header'
+- cancel_text ||= 'Discard changes'
+- accept_text ||= 'Save Changes'
+- show_cancel_button = show_cancel_button.nil? ? true : show_cancel_button
+- show_accept_button = show_accept_button.nil? ? true : show_accept_button
+.modal.hide.fade{ :id=>modal_id, "aria-hidden" => "true", "aria-labelledby" => "myModalLabel", :role => "dialog", :tabindex => "-1"}
+  .modal-header
+    - if show_cancel_button
+      %button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} &times;
+    %h3= header_text
+  .modal-body
+    %p= render partial: body_partial
+  .modal-footer
+    - if show_cancel_button
+      %button.btn{"aria-hidden" => "true", "data-dismiss" => "modal"}= cancel_text
+    - if show_accept_button
+      %button.btn.btn-primary= accept_text

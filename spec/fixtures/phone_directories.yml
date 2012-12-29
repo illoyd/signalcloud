@@ -1,0 +1,6 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+test_directory:
+  account: test_account
+  label: My Test Directory
+  description: A general purpose test directory

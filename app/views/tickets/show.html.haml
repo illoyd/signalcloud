@@ -1,0 +1,56 @@
+/ Page header
+.row
+  .span12
+    .page-header
+      %h1
+        = icon( :tickets )
+        Tickets
+        %small= "ticket #{@ticket.id}"
+
+/ Page body
+.row
+  .span3
+    = render :partial => 'navlist'
+  .span9
+    .row
+      .span4
+        %p
+          %b Appliance:
+          = @ticket.appliance.label
+        %p
+          %b Status:
+          = @ticket.status
+        %p
+          %b Expiry:
+          = @ticket.expiry
+      .span5
+        %p
+          %b Encrypted question:
+        .well= @ticket.question
+
+    .row
+      .span9
+        / Conversation flow
+        %table.table.table-striped
+          %thead
+            %tr
+              %th{ :width=>'50%'}
+                %abbr{ :title => 'Message sent to person' }= icon( :rss )
+                = @ticket.from_number
+              %th{ :width=>'50%'}
+                %abbr{ :title => 'Message received from person' }= icon( :user )
+                = @ticket.to_number
+          %tbody
+            - @ticket.messages( order: :updated_at ).each do |message|
+              %tr
+                -# Do OUTBOUND
+                %td
+                  - if message.from_number == ticket.from_number
+                    %p= message.text
+                    %p.small= "Last update %s" % message.updated_at
+                -# Do INBOUND
+                %td
+                  - if message.from_number == ticket.to_number
+                    %p
+                      %i Message hidden for security
+                    %p.small= "Last update %s" % message.updated_at

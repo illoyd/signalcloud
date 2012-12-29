@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+test_appliance:
+  account: :test_account
+  label: My Test Appliance
+  description: A simple toaster
+  phone_directory: :test_directory
+  seconds_to_live: 180
+  encrypted_question: Hello, I am a question.
+  encrypted_expected_confirmed_answer: yes
+  encrypted_expected_denied_answer: no
+  encrypted_confirmed_reply: Right answer!
+  encrypted_denied_reply: The other right answer!
+  encrypted_failed_reply: Wrong answer!
+  encrypted_expired_reply: Took too long!

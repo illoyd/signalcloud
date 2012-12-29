@@ -1,0 +1,27 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+<%
+test_ticket_challenge_payload = { body: 'Hi!', to: 'us', from: 'them', price: 0.01 }
+test_ticket_response_payload = { body: 'Hi!', to: 'us', from: 'them', price: 0.01 }
+test_ticket_reply_payload = { body: 'Hi!', to: 'us', from: 'them', price: 0.01 }
+%>
+
+test_ticket_challenge:
+  ticket: :test_ticket
+  provider_cost: 0.01
+  our_cost: 0.02
+  twilio_sid: "<%= 'A1' + SecureRandom.hex(16) %>"
+  encrypted_payload: "<%= Message.encrypt(:payload, test_ticket_challenge_payload) %>"
+
+test_ticket_response:
+  ticket: :test_ticket
+  provider_cost: 0.01
+  our_cost: 0.02
+  twilio_sid: "<%= 'A2' + SecureRandom.hex(16) %>"
+  encrypted_payload: "<%= Message.encrypt(:payload, test_ticket_response_payload) %>"
+
+test_ticket_reply:
+  ticket: :test_ticket
+  provider_cost: 0.01
+  our_cost: 0.02
+  twilio_sid: "<%= 'A3' + SecureRandom.hex(16) %>"
+  encrypted_payload: "<%= Message.encrypt(:payload, test_ticket_reply_payload) %>"

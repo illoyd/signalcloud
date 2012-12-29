@@ -1,0 +1,10 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+test_account:
+  account_sid: test
+  auth_token: secret_test
+  label: Test Account
+  balance: 9.99
+  account_plan: test_plan
+  encrypted_twilio_account_sid: "<%= Account.encrypt :twilio_account_sid, ENV['TWILIO_TEST_ACCOUNT_SID'] %>"
+  encrypted_twilio_auth_token: "<%= Account.encrypt :twilio_auth_token, ENV['TWILIO_TEST_AUTH_TOKEN'] %>"

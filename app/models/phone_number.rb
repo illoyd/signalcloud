@@ -4,11 +4,14 @@ class PhoneNumber < ActiveRecord::Base
   attr_encrypted :number, key: ATTR_ENCRYPTED_SECRET
   
   belongs_to :account, inverse_of: :phone_numbers
-  has_many :phone_number_entries, inverse_of: :phone_number
-  has_many :phone_directories, through: :phone_number_entries
+  has_many :phone_directory_entries, inverse_of: :phone_number
+  has_many :phone_directories, through: :phone_directory_entries
   
-  validates_presence_of :account, :twilio_phone_number_sid, :number
-  validates_uniqueness_of :twilio_phone_number_sid
+  validates_presence_of :account_id, :twilio_phone_number_sid, :number
+  validates_numericality_of :our_cost, :provider_cost, :account_id
+  
+  validates_length_of :twilio_phone_number_sid, is: TWILIO_SID_LENGTH
+  validates_uniqueness_of :twilio_phone_number_sid, :case_sensitive => false
 
   def cost
     return self.provider_cost + self.our_cost

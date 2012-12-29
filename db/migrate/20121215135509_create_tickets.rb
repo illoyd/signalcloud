@@ -3,7 +3,7 @@ class CreateTickets < ActiveRecord::Migration
     create_table :tickets, primary_key: :id do |t|
       t.column :id, :bigint, null: false
       t.references :appliance, null: false
-      t.integer :status, null: false, default: 0, limit: 1
+      t.integer :status, null: false, default: 0, limit: 4
       t.string :encrypted_from_number, null: false
       t.string :encrypted_to_number, null: false
       t.datetime :expiry, null: false
@@ -16,11 +16,11 @@ class CreateTickets < ActiveRecord::Migration
       t.string :encrypted_failed_reply, null: false
       t.string :encrypted_expired_reply, null: false
       t.datetime :challenge_sent
-      t.string :challenge_sms_sid, limit: 34
+      t.string :challenge_sms_sid, limit: TWILIO_SID_LENGTH
       t.datetime :response_received
-      t.string :response_sms_sid, limit: 34
+      t.string :response_sms_sid, limit: TWILIO_SID_LENGTH
       t.datetime :reply_sent
-      t.string :reply_sms_sid, limit: 34
+      t.string :reply_sms_sid, limit: TWILIO_SID_LENGTH
 
       t.timestamps
     end
