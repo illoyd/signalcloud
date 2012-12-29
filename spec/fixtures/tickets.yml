@@ -1,0 +1,43 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+test_ticket:
+  appliance: :test_appliance
+  status: 0
+  encrypted_from_number: '<%= Ticket.encrypt(:from_number, "+12121234567") %>'
+  encrypted_to_number: '<%= Ticket.encrypt(:to_number, "+15005550006") %>'
+  expiry: '<%= 180.seconds.from_now %>'
+  encrypted_question: '<%= Ticket.encrypt(:question, "Question") %>'
+  encrypted_expected_confirmed_answer: '<%= Ticket.encrypt(:confirmed_answer, "yes") %>'
+  encrypted_expected_denied_answer: '<%= Ticket.encrypt(:denied_answer, "no") %>'
+  encrypted_actual_answer: nil
+  encrypted_confirmed_reply: '<%= Ticket.encrypt(:confirmed_reply, "Right!") %>'
+  encrypted_denied_reply: '<%= Ticket.encrypt(:denied_reply, "Other right!") %>'
+  encrypted_failed_reply: '<%= Ticket.encrypt(:failed_reply, "Wrong!") %>'
+  encrypted_expired_reply: '<%= Ticket.encrypt(:expired_reply, "Expired!") %>'
+  challenge_sent: nil
+  challenge_sms_sid: nil
+  response_received: nil
+  response_sms_sid: nil
+  reply_sent: nil
+  reply_sms_sid: nil
+
+test_ticket_fail:
+  appliance: :test_appliance
+  status: 0
+  encrypted_from_number: '<%= Ticket.encrypt(:from_number, "+12121234567") %>'
+  encrypted_to_number: '<%= Ticket.encrypt(:to_number, "+15005550001") %>'
+  expiry: '<%= 180.seconds.from_now %>'
+  encrypted_question: '<%= Ticket.encrypt(:question, "Question") %>'
+  encrypted_expected_confirmed_answer: '<%= Ticket.encrypt(:confirmed_answer, "yes") %>'
+  encrypted_expected_denied_answer: '<%= Ticket.encrypt(:denied_answer, "no") %>'
+  encrypted_actual_answer: nil
+  encrypted_confirmed_reply: '<%= Ticket.encrypt(:confirmed_reply, "Right!") %>'
+  encrypted_denied_reply: '<%= Ticket.encrypt(:denied_reply, "Other right!") %>'
+  encrypted_failed_reply: '<%= Ticket.encrypt(:failed_reply, "Wrong!") %>'
+  encrypted_expired_reply: '<%= Ticket.encrypt(:expired_reply, "Expired!") %>'
+  challenge_sent: nil
+  challenge_sms_sid: nil
+  response_received: nil
+  response_sms_sid: nil
+  reply_sent: nil
+  reply_sms_sid: nil
