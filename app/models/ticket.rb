@@ -30,7 +30,7 @@ class Ticket < ActiveRecord::Base
   has_many :messages, inverse_of: :ticket
   
   # Validation
-  validates_presence_of :appliance, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry
+  validates_presence_of :appliance_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry
   validates_length_of :challenge_sms_sid, :is=>TWILIO_SID_LENGTH, :allow_nil=>true
   validates_length_of :reply_sms_sid, :is=>TWILIO_SID_LENGTH, :allow_nil=>true
   validates_length_of :response_sms_sid, :is=>TWILIO_SID_LENGTH, :allow_nil=>true
@@ -39,7 +39,7 @@ class Ticket < ActiveRecord::Base
   # Scopes
   scope :opened, where( :status => [ QUEUED, CHALLENGE_SENT ] )
   scope :closed, where( :status => [ CONFIRMED, DENIED, FAILED, EXPIRED ] )
-  scope :today, where( "tickets.created_at >= ?", Time.now.beginning_of_day )
+  scope :today, where( "tickets.created_at >= ? and tickets.created_at <= ?", DateTime.now.beginning_of_day, DateTime.now.end_of_day )
   scope :yesterday, where( "tickets.created_at >= ? and tickets.created_at <= ?", DateTime.yesterday.beginning_of_day, DateTime.yesterday.end_of_day )
   
   def update_expiry_time_based_on_seconds_to_live

@@ -90,7 +90,6 @@ ActiveRecord::Schema.define(:version => 20121220210403) do
     t.string   "twilio_sid",        :limit => 34,                                                :null => false
     t.decimal  "provider_cost",                   :precision => 6, :scale => 4, :default => 0.0, :null => false
     t.decimal  "our_cost",                        :precision => 6, :scale => 4, :default => 0.0, :null => false
-    t.text     "text",                                                                           :null => false
     t.text     "encrypted_payload",                                                              :null => false
     t.datetime "created_at",                                                                     :null => false
     t.datetime "updated_at",                                                                     :null => false

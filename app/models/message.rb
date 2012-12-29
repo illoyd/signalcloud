@@ -10,11 +10,10 @@ class Message < ActiveRecord::Base
   belongs_to :ticket, inverse_of: :messages
   
   # Validations
+  validates_presence_of :ticket_id, :twilio_sid, :payload
   validates_numericality_of :our_cost, allow_null: true
   validates_numericality_of :provider_cost, allow_null: true
-  validates_presence_of :ticket
-  validates_presence_of :payload
-  validates_length_of :twilio_id, is: TWILIO_SID_LENGTH
+  validates_length_of :twilio_sid, is: TWILIO_SID_LENGTH
   validates_uniqueness_of :twilio_sid
   
   ##
@@ -24,8 +23,21 @@ class Message < ActiveRecord::Base
   end
   
   ##
-  # Text shortcut to access the payload's text parameter
-  def text
-    return self.cached_payload['text']
+  # Shortcut to access the payload's 'body' parameter
+  def body
+    return self.cached_payload['body']
   end
+  
+  ##
+  # Shortcut to access the payload's 'to' parameter
+  def to_number
+    return self.cached_payload['to']
+  end
+  
+  ##
+  # Shortcut to access the payload's 'from' parameter
+  def from_number
+    return self.cached_payload['from']
+  end
+  
 end

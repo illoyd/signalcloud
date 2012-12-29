@@ -2,7 +2,7 @@ class SendChallengeJob < Struct.new( :ticket_id )
 
   def perform
     # Get the most recent copy of the ticket
-    ticket = Ticket.find( self.ticket_id )
+    ticket = self.find_ticket()
     
     # Abort if ticket has already been sent
     return if ticket.has_challenge_been_sent?
@@ -17,6 +17,10 @@ class SendChallengeJob < Struct.new( :ticket_id )
       twilio_sid: results['sid'],
       payload: results
     })
+  end
+  
+  def find_ticket()
+    return Ticket.find( self.ticket_id )
   end
   
 end

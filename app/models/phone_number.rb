@@ -7,7 +7,7 @@ class PhoneNumber < ActiveRecord::Base
   has_many :phone_directory_entries, inverse_of: :phone_number
   has_many :phone_directories, through: :phone_directory_entries
   
-  validates_presence_of :account, :account_id, :twilio_phone_number_sid, :number
+  validates_presence_of :account_id, :twilio_phone_number_sid, :number
   validates_numericality_of :our_cost, :provider_cost, :account_id
   
   validates_length_of :twilio_phone_number_sid, is: TWILIO_SID_LENGTH
