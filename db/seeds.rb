@@ -6,6 +6,32 @@
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
+def rand_f( min, max )
+  rand * (max-min) + min
+end
+
+def rand_i( min, max )
+  min = min.to_i
+  max = max.to_i
+  rand(max-min) + min
+end
+
+def random_us_number()
+  '+1%i%i%i' % [ rand_i(201, 799), rand_i(100, 999), rand_i(0001, 9999) ]
+end
+
+def random_ca_number()
+  '+1%i%i%i' % [ rand_i(201, 799), rand_i(100, 999), rand_i(0001, 9999) ]
+end
+
+def random_uk_number()
+  '+44%i%i%i' % [ rand_i(20000, 9999), rand_i(000, 999), rand_i(000, 999) ]
+end
+
+def random_answer()
+  '%0.2f' % rand_f(0.01, 100.99)
+end
+
 # Add plan data
 master_plan = AccountPlan.create label:'Super'
 shared_plan = AccountPlan.create label:'Shared', month: 0, phone_add: 2, call_in_add: 0.02, sms_in_add: 0.02, sms_out_add: 0.02
@@ -46,20 +72,12 @@ example_appliance = test_account.appliances.create({ label: 'Example Appliance',
   expired_reply: 'We are sorry, but we did not receive your reply. For your safety we have blocked your card and we will contact you shortly to discuss next steps.'
   })
 
-example_appliance.open_ticket( to_number: '+' + (10000000000 + rand(9999999999)).to_s, expected_confirmed_answer: rand(100) + rand(99)/100 ).save!
-example_appliance.open_ticket( to_number: '+' + (10000000000 + rand(9999999999)).to_s, expected_confirmed_answer: rand(100) + rand(99)/100 ).save!
-example_appliance.open_ticket( to_number: '+' + (10000000000 + rand(9999999999)).to_s, expected_confirmed_answer: rand(100) + rand(99)/100 ).save!
-example_appliance.open_ticket( to_number: '+' + (10000000000 + rand(9999999999)).to_s, expected_confirmed_answer: rand(100) + rand(99)/100 ).save!
-example_appliance.open_ticket( to_number: '+' + (10000000000 + rand(9999999999)).to_s, expected_confirmed_answer: rand(100) + rand(99)/100 ).save!
-example_appliance.open_ticket( to_number: '+' + (10000000000 + rand(9999999999)).to_s, expected_confirmed_answer: rand(100) + rand(99)/100 ).save!
-example_appliance.open_ticket( to_number: '+' + (10000000000 + rand(9999999999)).to_s, expected_confirmed_answer: rand(100) + rand(99)/100 ).save!
-example_appliance.open_ticket( to_number: '+' + (10000000000 + rand(9999999999)).to_s, expected_confirmed_answer: rand(100) + rand(99)/100 ).save!
-example_appliance.open_ticket( to_number: '+' + (10000000000 + rand(9999999999)).to_s, expected_confirmed_answer: rand(100) + rand(99)/100 ).save!
-example_appliance.open_ticket( to_number: '+' + (10000000000 + rand(9999999999)).to_s, expected_confirmed_answer: rand(100) + rand(99)/100 ).save!
-example_appliance.open_ticket( to_number: '+' + (10000000000 + rand(9999999999)).to_s, expected_confirmed_answer: rand(100) + rand(99)/100 ).save!
-example_appliance.open_ticket( to_number: '+' + (10000000000 + rand(9999999999)).to_s, expected_confirmed_answer: rand(100) + rand(99)/100 ).save!
-example_appliance.open_ticket( to_number: '+' + (10000000000 + rand(9999999999)).to_s, expected_confirmed_answer: rand(100) + rand(99)/100 ).save!
-example_appliance.open_ticket( to_number: '+' + (10000000000 + rand(9999999999)).to_s, expected_confirmed_answer: rand(100) + rand(99)/100 ).save!
-example_appliance.open_ticket( to_number: '+' + (10000000000 + rand(9999999999)).to_s, expected_confirmed_answer: rand(100) + rand(99)/100 ).save!
-example_appliance.open_ticket( to_number: '+' + (10000000000 + rand(9999999999)).to_s, expected_confirmed_answer: rand(100) + rand(99)/100 ).save!
-example_appliance.open_ticket( to_number: '+' + (10000000000 + rand(9999999999)).to_s, expected_confirmed_answer: rand(100) + rand(99)/100 ).save!
+20.times do 
+  example_appliance.open_ticket( to_number: random_us_number(), expected_confirmed_answer: random_answer() ).save!
+end
+10.times do 
+  example_appliance.open_ticket( to_number: random_ca_number(), expected_confirmed_answer: random_answer() ).save!
+end
+5.times do 
+  example_appliance.open_ticket( to_number: random_uk_number(), expected_confirmed_answer: random_answer() ).save!
+end
