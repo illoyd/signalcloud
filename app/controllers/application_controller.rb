@@ -2,7 +2,12 @@ class ApplicationController < ActionController::Base
   protect_from_forgery
   
   before_filter :authenticate_user!
+  load_and_authorize_resource
   
+  rescue_from CanCan::AccessDenied do |exception|
+    redirect_to root_url, :alert => exception.message
+  end
+
   def authenticate_account!
     # Validate digest authentication
     results = authenticate_or_request_with_http_digest( DIGEST_REALM ) do |sid|
