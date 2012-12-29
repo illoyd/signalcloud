@@ -53,7 +53,7 @@ class Account < ActiveRecord::Base
   end
   
   def default_appliance
-    self.appliances.find_by_default( true ).first
+    self.appliances.find_by_default( true )
   end
   
 end
