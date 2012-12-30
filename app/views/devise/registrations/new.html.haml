@@ -1,17 +1,36 @@
-%h2 Sign up
-= form_for(resource, :as => resource_name, :url => registration_path(resource_name)) do |f|
-  = devise_error_messages!
-  %div
-    = f.label :email
-    %br/
-    = f.email_field :email
-  %div
-    = f.label :password
-    %br/
-    = f.password_field :password
-  %div
-    = f.label :password_confirmation
-    %br/
-    = f.password_field :password_confirmation
-  %div= f.submit "Sign up"
+= form_for( resource, :as => resource_name, :url => session_path(resource_name), :html => { :class => "form-horizontal" } ) do |f|
+  .modal.inline-modal
+    .modal-header
+      / %button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} &times;
+      %h3 Sign up
+
+    .modal-body
+    
+      %h5 Set up your sign-in
+      .control-group
+        = f.label :email, :class => 'control-label'
+        .controls= f.email_field :email
+      .control-group
+        = f.label :password, :class => 'control-label'
+        .controls= f.password_field :password
+      .control-group
+        = f.label :password_confirmation, :class => 'control-label'
+        .controls= f.password_field :password_confirmation
+
+      %hr
+      %h5 Tell us a bit about you
+      .control-group
+        = f.label :first_name, :class => 'control-label'
+        .controls= f.text_field :first_name
+      .control-group
+        = f.label :last_name, :class => 'control-label'
+        .controls= f.text_field :last_name
+      -#.control-group
+      -#  = f.label :account, :label, :class => 'control-label'
+      -#  .controls= f.text_field :account, :label
+
+    .modal-footer
+      / %a.btn{:href => "#"} Close
+      %div= f.submit "Sign up", class: 'btn btn-primary'
+
 = render "devise/shared/links"
