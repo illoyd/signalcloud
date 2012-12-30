@@ -1,4 +1,7 @@
 class TransactionsController < ApplicationController
+
+  load_and_authorize_resource
+  
   # GET /transactions
   # GET /transactions.json
   def index

@@ -1,4 +1,8 @@
 class AccountPlansController < ApplicationController
+
+  load_and_authorize_resource
+
+
   # GET /account_plans
   # GET /account_plans.json
   def index

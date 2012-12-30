@@ -1,4 +1,7 @@
 class PhoneDirectoriesController < ApplicationController
+
+  load_and_authorize_resource
+
   # GET /phone_directories
   # GET /phone_directories.json
   def index

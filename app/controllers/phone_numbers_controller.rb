@@ -1,5 +1,7 @@
 class PhoneNumbersController < ApplicationController
 
+  load_and_authorize_resource
+
   respond_to :html
 
   # GET /phone_numbers

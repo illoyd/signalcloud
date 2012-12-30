@@ -1,5 +1,7 @@
 class TicketsController < ApplicationController
 
+  load_and_authorize_resource
+
   respond_to :html, :json, :xml
   before_filter :setup_account_and_appliance
   
@@ -11,7 +13,10 @@ class TicketsController < ApplicationController
   # GET /tickets
   # GET /tickets.json
   def index
-    @tickets = ( @appliance.nil? ? @account : @appliance ).tickets.all
+    #@tickets = ( @appliance.nil? ? @account : @appliance ).tickets.all
+    unless @appliance.nil?
+      @tickets = @tickets.where( appliance_id: @appliance.id )
+    end
 
     respond_with @tickets
   end

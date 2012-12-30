@@ -1,7 +1,8 @@
 class AccountsController < ApplicationController
 
   respond_to :html, :json, :xml
-  
+  load_and_authorize_resource
+
   def current_account
     return Account.find( params[:id] ) if params.include? :id
     return super

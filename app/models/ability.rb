@@ -56,11 +56,15 @@ class Ability
         
         # Explicitly block major items
         cannot :manage, [ AccountPlan ]
-        cannot [ :index, :create, :update, :delete ], Account
+        cannot [ :index, :create, :update, :destroy ], Account
       
       # 'Admin' users - super accounts with multiple accounts
       when User::ROLE_ADMIN
         can :manage, :all
+      
+      # Everyone else... can only sign in
+      else
+        can :manage, Session
       end
   end
 end
