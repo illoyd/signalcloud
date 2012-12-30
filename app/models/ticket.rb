@@ -63,13 +63,14 @@ class Ticket < ActiveRecord::Base
   def send_challenge( force_resend = false )
   
     # Abort if message already sent and we do not want to force a resend
-    return if self.has_challenge_been_sent? and !force_resend
+    return nil if self.has_challenge_been_sent? and !force_resend
     
     # Otherwise, continue to send SMS and store the results
-    results = nil
+    #message = nil
     begin
       results = self.appliance.account.send_sms( self.to_number, self.from_number, self.question )
-      message = self.messages.create( twilio_sid: results.sid, payload: results.to_property_hash );
+      message = self.messages.create!( twilio_sid: results.sid, payload: results.to_property_hash )
+      return message
 
     rescue Twilio::REST::RequestError => ex
       self.status = case ex.code
@@ -87,11 +88,12 @@ class Ticket < ActiveRecord::Base
           ERROR_BLACKLISTED_TO
         else
           raise ex
-        end
-        self.save  
+      end
+      self.save
+      return nil
     end
 
-    return message    
+    #return message    
   end
   
   ##
