@@ -6,7 +6,11 @@ class PhoneNumber < ActiveRecord::Base
   belongs_to :account, inverse_of: :phone_numbers
   has_many :phone_directory_entries, inverse_of: :phone_number
   has_many :phone_directories, through: :phone_directory_entries
-  
+
+  ##
+  # Transactions for this message - usually only one, but may be more
+  has_many :transactions, as: :item
+
   validates_presence_of :account_id, :twilio_phone_number_sid, :number
   validates_numericality_of :our_cost, :provider_cost, :account_id
   

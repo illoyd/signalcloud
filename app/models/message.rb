@@ -11,6 +11,10 @@ class Message < ActiveRecord::Base
   # Parent ticket, of which this message is part of the conversation
   belongs_to :ticket, inverse_of: :messages
   
+  ##
+  # Transactions for this message - usually only one, but may be more
+  has_many :transactions, as: :item
+  
   # Validations
   validates_presence_of :ticket_id, :twilio_sid, :payload
   validates_numericality_of :our_cost, allow_null: true

@@ -35,6 +35,7 @@ class Ticket < ActiveRecord::Base
   # Relationships
   belongs_to :appliance, inverse_of: :tickets
   has_many :messages, inverse_of: :ticket
+  has_many :transactions, as: :item
   
   # Validation
   validates_presence_of :appliance_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry
@@ -90,7 +91,7 @@ class Ticket < ActiveRecord::Base
         self.save  
     end
 
-    return results    
+    return message    
   end
   
   ##
@@ -101,7 +102,7 @@ class Ticket < ActiveRecord::Base
     return if self.has_reply_been_sent? and !force_resend
     
     # Otherwise, continue to send SMS and store the results
-    message = case self.status
+    reply_body = case self.status
       when CONFIRMED
         self.confirmed_reply
       when DENIED
@@ -111,9 +112,8 @@ class Ticket < ActiveRecord::Base
       when EXPIRED
         self.expired_reply
     end
-    self.appliance.account.send_sms( self.to_number, self.from_number, message )
-    message = self.messages.create( twilio_sid: results.sid, payload: results.to_property_hash );
-    return results
+    self.appliance.account.send_sms( self.to_number, self.from_number, reply_body )
+    return self.messages.create( twilio_sid: results.sid, payload: results.to_property_hash );
   end
   
   ##

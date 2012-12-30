@@ -106,16 +106,16 @@ describe Ticket do
     it "should send challenge" do
       ticket = tickets(:test_ticket)
       original_message_count = ticket.messages.count
-      expect{ @results = ticket.send_challenge() }.to_not raise_error
-      @results.body.should == ticket.question
-      @results.to.should == ticket.to_number
-      @results.from.should == ticket.from_number
+      expect{ @message = ticket.send_challenge() }.to_not raise_error
+      @message.body.should == ticket.question
+      @message.to_number.should == ticket.to_number
+      @message.from_number.should == ticket.from_number
       
       # Was a new message saved?
       ticket.messages.count.should == ( original_message_count + 1 )
       
-      # Get the last message, based upon the SID of the response
-      message = ticket.messages.find_by_twilio_sid( @results.sid )
+      # Re-find the last message, based upon the SID of the response
+      message = ticket.messages.find_by_twilio_sid( @message.twilio_sid )
       message.should_not be_nil
       message.body.should == ticket.question
       message.to_number.should == ticket.to_number

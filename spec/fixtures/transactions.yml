@@ -1,0 +1,35 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+outbound_sms_1:
+  account: test_account
+  item: test_ticket_challenge (Message)
+  narrative: 'Outbound SMS'
+  value: 0.03
+  settled_at: <%= 33.seconds.ago %>
+
+outbound_sms_2:
+  account: test_account
+  item: test_ticket_response (Message)
+  narrative: 'Inbound SMS'
+  value: 0.02
+  settled_at: <%= 15.seconds.ago %>
+
+outbound_sms_3:
+  account: test_account
+  item: test_ticket_reply
+  narrative: 'Outbound SMS'
+  value: 0.03
+  settled_at: <%= 14.seconds.ago %>
+
+outbound_sms_pending:
+  account: test_account
+  item: test_ticket_challenge (Message)
+  narrative: 'Outbound SMS'
+  value: 0.03
+
+outbound_sms_settled:
+  account: test_account
+  item: test_ticket_challenge (Message)
+  narrative: 'Outbound SMS'
+  value: 0.044
+  settled_at: <%= DateTime.now %>

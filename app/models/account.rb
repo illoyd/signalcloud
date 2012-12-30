@@ -13,6 +13,7 @@ class Account < ActiveRecord::Base
   has_many :tickets, through: :appliances
   has_many :phone_directories, inverse_of: :account
   has_many :phone_numbers, inverse_of: :account
+  has_many :transactions, inverse_of: :account
   
   before_validation :ensure_account_sid_and_token
   validates_presence_of :account_sid, :auth_token, :label
