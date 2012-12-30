@@ -1,12 +1,22 @@
-= navigation_list([ |
-  { header: 'Manage' }, |
-  { label: 'Details', icon: :show, link: @account }, |
-  { label: 'Edit', icon: :edit, link: edit_account_path( @account ) }, |
-  { label: 'Delete', icon: :delete, link: @account, options: { method: :delete, data: { confirm: 'Are you sure?' } } }, |
-  { header: 'Related' }, |
-  { label: 'All Accounts', icon: :accounts, link: accounts_path }, |
-  { label: 'Users', icon: :users, link: account_users_path(@account) }, |
-  { label: 'Appliances', icon: :appliances, link: account_appliances_path(@account) }, |
-  { label: 'Directories', icon: :phone_directories, link: account_phone_directories_path(@account) }, |
-  { label: 'Phone Numbers', icon: :phone_numbers, link: account_phone_numbers_path(@account) } |
-  ]) |
+- if @account.new_record?
+  -# New account
+  = navigation_list([ |
+    { header: 'Related' }, |
+    { label: 'Dashboard', icon: :dashboard, link: '#' }, |
+    { label: 'All Accounts', icon: :accounts, link: accounts_path } |
+    ]) |
+
+- else
+  -# Existing account
+  = navigation_list([ |
+    { header: 'Manage' }, |
+    { label: 'Details', icon: :show, link: @account }, |
+    { label: 'Edit', icon: :edit, link: edit_account_path( @account ), if: can?(:edit, @account) }, |
+    { label: 'Delete', icon: :delete, link: @account, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, @account) }, |
+    { header: 'Related' }, |
+    { label: 'All Accounts', icon: :accounts, link: accounts_path, if: can?(:index, Account) }, |
+    { label: 'Users', icon: :users, link: account_users_path(@account), if: can?(:index, User) }, |
+    { label: 'Appliances', icon: :appliances, link: account_appliances_path(@account) }, |
+    { label: 'Directories', icon: :phone_directories, link: account_phone_directories_path(@account) }, |
+    { label: 'Phone Numbers', icon: :phone_numbers, link: account_phone_numbers_path(@account) } |
+    ]) |

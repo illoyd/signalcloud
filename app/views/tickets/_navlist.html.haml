@@ -1,12 +1,12 @@
 - if @ticket.new_record?
-  / New ticket navigation
+  -# New ticket navigation
   = navigation_list([ |
     { header: 'Related' }, |
-    { label: 'All Tickets', icon: :tickets, link: tickets_path }, |
-    { label: 'All Tickets for ' + @appliance.label, icon: :appliances, link: appliance_tickets_path(@appliance) } |
+    { label: 'All Tickets', icon: :tickets, link: tickets_path, if: can?(:index, Ticket) }, |
+    { label: 'All Tickets for ' + @appliance.label, icon: :appliances, link: appliance_tickets_path(@appliance), if: can?(:index, Ticket) } |
     ]) |
 - else
-  / Existing ticket navigation
+  -# Existing ticket navigation
   = navigation_list([ |
     { header: 'Manage' }, |
     { label: 'Force status to Confirmed', icon: 'ok-sign', link: @ticket }, |
@@ -14,6 +14,6 @@
     { label: 'Force status to Failed', icon: 'remove-sign', link: @ticket }, |
     { label: 'Force status to Expired', icon: :time, link: @ticket }, |
     { header: 'Related' }, |
-    { label: 'All Tickets', icon: :tickets, link: tickets_path }, |
-    { label: 'All Tickets for ' + @ticket.appliance.label, icon: :appliances, link: appliance_tickets_path(@ticket.appliance) } |
+    { label: 'All Tickets', icon: :tickets, link: tickets_path, if: can?(:index, Ticket) }, |
+    { label: 'All Tickets for ' + @ticket.appliance.label, icon: :appliances, link: appliance_tickets_path(@ticket.appliance), if: can?(:index, Ticket) } |
     ]) |

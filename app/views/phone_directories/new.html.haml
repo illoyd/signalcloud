@@ -8,9 +8,6 @@
 
 .row
   .span3
-    = navigation_list([ |
-      { header: 'Related' }, |
-      { label: 'All Directories', icon: :phone_directories, link: phone_directories_path } |
-      ]) |
+    = render 'navlist'
   .span9
     = render 'form'
