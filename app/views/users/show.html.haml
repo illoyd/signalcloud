@@ -1,0 +1,23 @@
+/ Page header
+.row
+  .span12
+    .page-header
+      %h1
+        = icon( :user )
+        User
+        %small= "hello #{@user.first_name}"
+
+/ Page body
+.row
+  .span3= render :partial => 'navlist'
+  .span9
+    %p
+      %b Name:
+      = "#{@user.first_name} #{@user.last_name}"
+    %p
+      %b E-mail:
+      = link_to @user.email
+    %p
+      %b Role:
+      = @user.role.humanize
+      

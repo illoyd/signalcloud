@@ -1,0 +1,45 @@
+/ Page header
+.row
+  .span12
+    .page-header
+      %h1
+        = icon( :user )
+        User
+        %small= "hello #{@user.first_name}"
+
+/ Page body
+.row
+  .span3= render :partial => 'navlist'
+  .span9
+    = form_for( @user, html: { class: 'form-horizontal' } ) do |f|
+      - if @user.errors.any?
+        #error_explanation
+          %h2
+            = pluralize(@user.errors.count, "error")
+            prohibited this user from being saved:
+          %ul
+            - @user.errors.full_messages.each do |msg|
+              %li= msg
+      .control-group
+        = f.label :first_name, class: 'control-label'
+        .controls= f.text_field :first_name
+      .control-group
+        = f.label :last_name, class: 'control-label'
+        .controls= f.text_field :last_name
+      .control-group
+        = f.label :email, class: 'control-label'
+        .controls= f.email_field :email
+      
+      - if [ User::ROLE_OWNER, User::ROLE_ADMIN ].include? current_user.role
+        .control-group
+          = f.label :role, class: 'control-label'
+          - unless @user.id == current_user.id
+            .controls= f.select :role, [ User::ROLE_USER, User::ROLE_OWNER ].map { |role| [role.humanize, role] }
+          - else
+            .controls
+              %span.input.uneditable-input= @user.role.humanize
+              %span.help-inline For your safety and to prevent you from accidentally locking yourself out of your own account, you may not edit your own role.
+            
+        
+      .control-group
+        .controls= f.submit class: 'btn btn-primary'
