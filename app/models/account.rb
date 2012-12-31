@@ -67,4 +67,25 @@ class Account < ActiveRecord::Base
     self.appliances.find_by_default( true )
   end
   
+  def ticket_statistics
+    return {
+      expired: self.tickets.where( status: Ticket::EXPIRED ).count,
+      denied: self.tickets.where( status: Ticket::DENIED ).count,
+      failed: self.tickets.where( status: Ticket::FAILED ).count,
+      confirmed: self.tickets.where( status: Ticket::CONFIRMED ).count,
+      queued: self.tickets.where( status: Ticket::QUEUED ).count,
+      sent: self.tickets.where( status: Ticket::CHALLENGE_SENT ).count
+    }
+  end
+  
+  def additive_ticket_statistics
+    statistics = self.ticket_statistics
+    return {
+      expired: statistics[:expired],
+      denied: statistics[:expired] + statistics[:denied],
+      failed: statistics[:expired] + statistics[:denied] + statistics[:failed],
+      confirmed: statistics[:expired] + statistics[:denied] + statistics[:failed] + statistics[:confirmed]
+    }
+  end
+  
 end

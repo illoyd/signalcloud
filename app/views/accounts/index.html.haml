@@ -23,7 +23,7 @@
       %tbody
         - @accounts.each do |account|
           %tr
-            %td= link_to account.label, account
+            %td= link_to account.label, shadow_account_path(account)
             %td= account.account_plan.label
             %td{'align'=>'right'}
               %small US

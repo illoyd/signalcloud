@@ -46,7 +46,7 @@ class ApplicationController < ActionController::Base
   # Return the account of the current request, based upon the request as well as user privileges.
   # Will default to the +current_user+ parent account.
   def current_account
-    return Account.find( params[:account_id] ) if params.include? :account_id
+    return Account.find( session[:shadow_account_id] ) if current_user.can_shadow_account? && session.include?(:shadow_account_id)
     return current_user.account
   end
   

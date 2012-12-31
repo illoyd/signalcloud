@@ -13,44 +13,52 @@
     = render :partial => 'navlist'
   .span9
     %ul.thumbnails
-      / Account Plan
-      %li.span4
-        .thumbnail
-          %p
-            %b Plan:
-            = @account.account_plan.label
       / Current Balance
-      %li.span4
-        .thumbnail
-          %p
-            %b Current credits:
-            = "%0.4f" % @account.balance
+      %li.span3
+        .thumbnail.tile
+          %p.information= "%0.2f" % @account.balance
+          %p.information-label Current credits
       / Balance Used Today
-      %li.span4
-        .thumbnail
-          %p
-            %b Used today:
-            = "%0.4f" % -99.99
-      / Tickets Yesterday
-      %li.span4
-        .thumbnail
-          %p
-            %b Tickets yesterday:
-            = "%d" % @account.tickets.yesterday.count
-      / Tickets Today
-      %li.span4
-        .thumbnail
-          %p
-            %b Tickets today:
-            = "%d" % @account.tickets.today.count
+      %li.span3
+        .thumbnail.tile
+          %p.information= "%0.2f" % @account.transactions.today.sum(:value)
+          %p.information-label Used today
+      / Balance Used Today
+      %li.span3
+        .thumbnail.tile
+          %p.information= "%0.2f" % @account.transactions.yesterday.sum(:value)
+          %p.information-label Used yesterday
       / Open Tickets
-      %li.span4
-        .thumbnail
-          %p
-            %b Open tickets:
-            = "%i" % @account.tickets.opened.count
+      %li.span3
+        .thumbnail.tile
+          %p.information= "%i" % @account.tickets.opened.count
+          %p.information-label Open tickets
+      / Tickets Today
+      %li.span3
+        .thumbnail.tile
+          %p.information= "%i" % @account.tickets.today.count
+          %p.information-label Tickets today
+      / Tickets Yesterday
+      %li.span3
+        .thumbnail.tile
+          %p.information= "%i" % @account.tickets.yesterday.count
+          %p.information-label Tickets yesterday
+      / Account Plan
+      %li.span3
+        .thumbnail.tile
+          %p.information= @account.account_plan.label
+          %p.information-label Plan
+    
+    %h4 ticket breakdown
+    - statistics = @account.additive_ticket_statistics
+    .progress
+      .bar{ :style => "width: #{statistics[:expired]}" }
+      .bar.bar-success{ :style => "width: #{statistics[:confirmed]}" }
+      .bar.bar-danger{ :style => "width: #{statistics[:denied]}" }
+      .bar.bar-warning{ :style => "width: #{statistics[:failed]}" }
 
-    %h3 tokens
+    %h4 tokens
+    %p Tokens are used to authenticate with the ticketplease API.
     %table.table
       %thead
         %tr

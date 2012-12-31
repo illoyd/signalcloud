@@ -8,6 +8,7 @@ ICONS = {
   tickets: 'tags',
   accounts: 'briefcase',
   users: 'group',
+  transactions: 'list-alt',
   
   # Common actions
   show: 'search',

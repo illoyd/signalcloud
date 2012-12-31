@@ -15,4 +15,10 @@ class User < ActiveRecord::Base
   ROLE_ADMIN = 'admin'
   
   validates_inclusion_of :role, in: [ ROLE_USER, ROLE_OWNER, ROLE_ADMIN ]
+  
+  # Permission handling
+  def can_shadow_account?
+    return self.role == ROLE_ADMIN
+  end
+  
 end

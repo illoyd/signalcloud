@@ -1,11 +1,11 @@
 class AccountsController < ApplicationController
 
   respond_to :html, :json, :xml
+  before_filter :assign_current_account, only: [:show, :edit, :update, :destroy]
   load_and_authorize_resource
-
-  def current_account
-    return Account.find( params[:id] ) if params.include? :id
-    return super
+  
+  def assign_current_account
+    @account = current_account
   end
 
   # GET /accounts
@@ -18,7 +18,7 @@ class AccountsController < ApplicationController
   # GET /accounts/1
   # GET /accounts/1.json
   def show
-    @account = current_account # Account.find( params.fetch( :account_id, params[:id] ) )
+    #@account = current_account # Account.find( params.fetch( :account_id, params[:id] ) )
     respond_with @account
   end
 
@@ -35,7 +35,7 @@ class AccountsController < ApplicationController
 
   # GET /accounts/1/edit
   def edit
-    @account = current_account
+    #@account = current_account
     respond_with @account
   end
 
@@ -52,7 +52,7 @@ class AccountsController < ApplicationController
   # PUT /accounts/1
   # PUT /accounts/1.json
   def update
-    @account = current_account
+    #@account = current_account
     if @account.update_attributes(params[:account])
       flash[:success] = 'Your account has been updated.'
     end
@@ -62,9 +62,17 @@ class AccountsController < ApplicationController
   # DELETE /accounts/1
   # DELETE /accounts/1.json
   def destroy
-    @account = current_account
+    #@account = current_account
     @account.destroy
     flash[:alert] = "Successfully destroyed account."
     respond_with(@account)
+  end
+  
+  def shadow
+    # Only set the shadow option if allows
+    if current_user.can_shadow_account?
+      session[:shadow_account_id] = params[:account_id]
+    end
+    redirect_to account_path
   end
 end

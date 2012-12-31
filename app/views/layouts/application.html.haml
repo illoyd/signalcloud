@@ -35,18 +35,36 @@
                   Manage
                   %b.caret
                 %ul.dropdown-menu
-                  %li
-                    %a{ :href => appliances_path }
-                      %i.icon-hdd
-                      Appliances
-                  %li
-                    %a{ :href => account_phone_directories_path(current_user.account) }
-                      %i.icon-book
-                      Directories
-                  %li
-                    %a{ :href => account_phone_numbers_path(current_user.account) }
-                      %i.icon-phone
-                      Phone Numbers
+                  - if can? :index, User
+                    %li
+                      %a{ :href => users_path }
+                        = icon(:users)
+                        Users
+                  - if can? :index, Appliance
+                    %li
+                      %a{ :href => appliances_path }
+                        %i.icon-hdd
+                        Appliances
+                  - if can? :index, PhoneDirectory
+                    %li
+                      %a{ :href => phone_directories_path }
+                        %i.icon-book
+                        Directories
+                  - if can? :index, PhoneNumber
+                    %li
+                      %a{ :href => phone_numbers_path }
+                        %i.icon-phone
+                        Phone Numbers
+                  - if can? :index, Ticket
+                    %li
+                      %a{ :href => tickets_path }
+                        %i.icon-tags
+                        Tickets
+                  - if can? :index, Transaction
+                    %li
+                      %a{ :href => transactions_path }
+                        = icon( :transactions )
+                        Transactions
               %li
                 %a{ :href => "#" }
                   %i.icon-bar-chart  
@@ -57,6 +75,11 @@
                   = current_user.first_name
                   %b.caret
                 %ul.dropdown-menu
+                  - if current_user.can_shadow_account?
+                    %li
+                      = link_to accounts_path do
+                        = icon( :accounts )
+                        Switch accounts
                   %li
                     = link_to current_user do
                       %i.icon-cogs
@@ -65,7 +88,7 @@
                     = link_to destroy_user_session_path, :method => :delete do
                       %i.icon-off
                       Sign out
-            = form_tag account_tickets_path( current_user.account ), :method => 'get', :class => 'navbar-search pull-right' do
+            = form_tag tickets_path, :method => 'get', :class => 'navbar-search pull-right' do
               = text_field_tag :search, params[:search], class: 'search-query', placeholder: 'Search Tickets'
   
       / Body

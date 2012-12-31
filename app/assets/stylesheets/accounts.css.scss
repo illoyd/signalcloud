@@ -1,3 +1,7 @@
 // Place all the styles related to the Accounts controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+
+ul.thumbnails li div.thumbnail.tile { text-align: center }
+ul.thumbnails li div.thumbnail p.information { line-height: 75%; font-size: 500% }
+ul.thumbnails li div.thumbnail p.information-label { font-weight: bold; font-size: 75%; line-height: 75% }

@@ -22,6 +22,9 @@ class Transaction < ActiveRecord::Base
   # This usually entails the 'value' is set to a permanent figure.
   scope :settled, where( 'settled_at is not null' )
 
+  scope :today, where( "transactions.created_at >= ? and transactions.created_at <= ?", DateTime.now.beginning_of_day, DateTime.now.end_of_day )
+  scope :yesterday, where( "transactions.created_at >= ? and transactions.created_at <= ?", DateTime.yesterday.beginning_of_day, DateTime.yesterday.end_of_day )
+
   ##
   # Simple test if status is pending (e.g. has not been confirmed by the provider)
   def is_pending?

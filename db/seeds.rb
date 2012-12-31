@@ -49,7 +49,7 @@ test_account = Account.new label:'Test Account', account_sid: 'test', auth_token
   test_account.save!
 
 # Add users
-test_user = test_account.users.create first_name: 'Jane', last_name: 'Doe', email: 'jane.doe@ticketpleaseapp.com', password: 'password', password_confirmation: 'password', role: User::ROLE_OWNER
+test_user = test_account.users.create first_name: 'Jane', last_name: 'Doe', email: 'jane.doe@ticketpleaseapp.com', password: 'password', password_confirmation: 'password', role: User::ROLE_ADMIN
 
 # Add example data for the test account
 test_numbers = {
