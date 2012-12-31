@@ -13,6 +13,7 @@
 # Ignore all logfiles and tempfiles.
 /log/*.log
 /tmp
+/doc
 
 # Ignore secret files
 .env
@@ -76,3 +77,4 @@ capybara-*.html
 rerun.txt
 pickle-email-*.html
 .project
+/doc/*
