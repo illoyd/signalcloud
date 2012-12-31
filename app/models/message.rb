@@ -19,7 +19,7 @@ class Message < ActiveRecord::Base
   validates_presence_of :ticket_id, :twilio_sid, :payload
   validates_numericality_of :our_cost, allow_null: true
   validates_numericality_of :provider_cost, allow_null: true
-  validates_length_of :twilio_sid, is: TWILIO_SID_LENGTH
+  validates_length_of :twilio_sid, is: Twilio::SID_LENGTH
   validates_uniqueness_of :twilio_sid
   
   ##

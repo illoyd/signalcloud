@@ -1,6 +1,3 @@
-# Twilio API items
-TWILIO_SID_LENGTH = 34
-
 ##
 # Patch for Twilio::TwiML::Response to support .to_s and .to_xml
 module Twilio
@@ -21,6 +18,10 @@ module Twilio
   INVALID_INTERNATIONAL_NUMBER = '+15005550003'
   INVALID_BLACKLISTED_NUMBER = '+15005550004'
   INVALID_NOT_SMS_CAPABLE_TO_NUMBER = '+15005550009'
+  
+  ##
+  # Twilio's standardised SID length. This is effectively an identifier (2) and random (32) string.
+  SID_LENGTH = 34
 
   ##
   # REST API interface

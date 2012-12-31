@@ -1,3 +1,6 @@
+##
+# Represents a purchased telephone number which may be used in tickets. Additionally, these numbers are charged per
+# month.
 class PhoneNumber < ActiveRecord::Base
   attr_accessible :number, :twilio_phone_number_sid, :account_id, :our_cost, :provider_cost
   
@@ -14,7 +17,7 @@ class PhoneNumber < ActiveRecord::Base
   validates_presence_of :account_id, :twilio_phone_number_sid, :number
   validates_numericality_of :our_cost, :provider_cost, :account_id
   
-  validates_length_of :twilio_phone_number_sid, is: TWILIO_SID_LENGTH
+  validates_length_of :twilio_phone_number_sid, is: Twilio::SID_LENGTH
   validates_uniqueness_of :twilio_phone_number_sid, :case_sensitive => false
 
   def cost

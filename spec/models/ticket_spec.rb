@@ -7,9 +7,9 @@ describe Ticket do
   it { should have_many :messages }
   it { [ :seconds_to_live, :appliance_id, :actual_answer, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry ].each { |param| should allow_mass_assignment_of(param) } }
   it { [:appliance_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry].each { |param| should validate_presence_of(param) } }
-  it { should ensure_length_of(:challenge_sms_sid).is_equal_to(TWILIO_SID_LENGTH) }
-  it { should ensure_length_of(:reply_sms_sid).is_equal_to(TWILIO_SID_LENGTH) }
-  it { should ensure_length_of(:response_sms_sid).is_equal_to(TWILIO_SID_LENGTH) }
+  it { should ensure_length_of(:challenge_sms_sid).is_equal_to(Twilio::SID_LENGTH) }
+  it { should ensure_length_of(:reply_sms_sid).is_equal_to(Twilio::SID_LENGTH) }
+  it { should ensure_length_of(:response_sms_sid).is_equal_to(Twilio::SID_LENGTH) }
   
   describe ".has_challenge_been_sent?" do
     it "should be false when challenge_sent is blank" do

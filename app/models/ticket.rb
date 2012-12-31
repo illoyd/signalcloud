@@ -39,9 +39,9 @@ class Ticket < ActiveRecord::Base
   
   # Validation
   validates_presence_of :appliance_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry
-  validates_length_of :challenge_sms_sid, :is=>TWILIO_SID_LENGTH, :allow_nil=>true
-  validates_length_of :reply_sms_sid, :is=>TWILIO_SID_LENGTH, :allow_nil=>true
-  validates_length_of :response_sms_sid, :is=>TWILIO_SID_LENGTH, :allow_nil=>true
+  validates_length_of :challenge_sms_sid, :is=>Twilio::SID_LENGTH, :allow_nil=>true
+  validates_length_of :reply_sms_sid, :is=>Twilio::SID_LENGTH, :allow_nil=>true
+  validates_length_of :response_sms_sid, :is=>Twilio::SID_LENGTH, :allow_nil=>true
   #validates_numericality_of :seconds_to_live
   
   # Scopes

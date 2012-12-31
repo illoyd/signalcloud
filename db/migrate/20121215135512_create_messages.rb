@@ -2,7 +2,7 @@ class CreateMessages < ActiveRecord::Migration
   def change
     create_table :messages do |t|
       t.references :ticket, null: false
-      t.string :twilio_sid, null: false, limit: TWILIO_SID_LENGTH
+      t.string :twilio_sid, null: false, limit: Twilio::SID_LENGTH
       t.decimal :provider_cost, null: false, default: 0, precision: 6, scale: 4
       t.decimal :our_cost, null: false, default: 0, precision: 6, scale: 4
       t.text :encrypted_payload, null: false
