@@ -4,7 +4,7 @@ class CreateUsers < ActiveRecord::Migration
       t.references :account
       t.string :first_name
       t.string :last_name
-      t.string :role, nil: false, default: User::ROLE_USER
+      t.integer :roles_mask, nil: false, default: 0
 
       t.timestamps
     end
