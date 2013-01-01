@@ -1,0 +1,11 @@
+/ Navigation - pill list
+%ul.nav.nav-pills
+  - navpills.each do |entry|
+    - entry_class = []
+    - entry_class << entry.fetch( :active, false ) ? 'active' : ''
+    - entry_class << entry.fetch( :disabled, false ) ? 'disabled' : ''
+    %li{ 'class' => entry_class }
+      - unless entry.fetch( :disabled, false )
+        = link_to entry[:label], entry[:link]
+      - else
+        = entry[:label]
