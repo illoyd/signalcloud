@@ -9,11 +9,7 @@ Ticketplease::Application.routes.draw do
   # All resources should be accessible outside the account scope as well
   
   # Prevent accounts from being deleted
-  resource :account, only: [ :show, :new, :create, :update, :edit ] do
-    member do
-      get 'shadow', action: 'shadow', as: 'shadow'
-    end
-  end
+  resource :account, only: [ :show, :new, :create, :update, :edit ]
   resources :users
   resources :appliances do
     resources :tickets, only: [ :index, :new, :create ] do
@@ -51,7 +47,11 @@ Ticketplease::Application.routes.draw do
     resource :sms_callback, only: [:create], defaults: { format: 'xml' }
   end
 
-  resources :accounts, only: [:index]
+  resources :accounts, only: [:index] do
+    member do
+      get 'shadow', action: 'shadow' #, as: 'shadow'
+    end
+  end
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
