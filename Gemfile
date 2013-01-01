@@ -50,6 +50,8 @@ gem 'attr_encrypted'
 # Add rspec
 group :test, :development do
   gem "rspec-rails", "~> 2.0"
+  gem "ZenTest", "~> 4.4.2"
+  gem "autotest-rails", "~> 4.1.0"
 end
 
 # Add shoulda matchers

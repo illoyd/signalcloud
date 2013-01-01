@@ -1,6 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    ZenTest (4.4.2)
     actionmailer (3.2.6)
       actionpack (= 3.2.6)
       mail (~> 2.4.4)
@@ -31,6 +32,9 @@ GEM
     arel (3.0.2)
     attr_encrypted (1.2.1)
       encryptor (>= 1.1.1)
+    autotest-rails (4.1.0)
+      ZenTest
+      hoe (>= 2.0.0)
     bcrypt-ruby (3.0.1)
     bourne (1.1.2)
       mocha (= 0.10.5)
@@ -60,6 +64,8 @@ GEM
       multi_json (~> 1.0)
     haml (3.1.7)
     hike (1.2.1)
+    hoe (3.4.0)
+      rake (>= 0.8, < 11.0)
     i18n (0.6.1)
     journey (1.0.4)
     jquery-rails (2.1.4)
@@ -148,7 +154,9 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  ZenTest (~> 4.4.2)
   attr_encrypted
+  autotest-rails (~> 4.1.0)
   cancan
   coffee-rails (~> 3.2.1)
   delayed_job_active_record
