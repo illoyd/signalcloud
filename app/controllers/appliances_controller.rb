@@ -7,11 +7,13 @@ class AppliancesController < ApplicationController
   # GET /appliances.json
   def index
     @appliances = current_account.appliances
-
-    respond_to do |format|
-      format.html # index.html.erb
-      format.json { render json: @appliances }
+    
+    # Apply an active/inactive filter if requested
+    if ( params.include? :active_filter )
+      @appliances = @appliances.where( active: params[:active_filter] )
     end
+
+    respond_with @appliances
   end
 
   # GET /appliances/1

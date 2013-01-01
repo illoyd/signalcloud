@@ -53,6 +53,7 @@ ActiveRecord::Schema.define(:version => 20121220210403) do
     t.string   "label",                                                  :null => false
     t.integer  "seconds_to_live",                     :default => 180,   :null => false
     t.boolean  "default",                             :default => false, :null => false
+    t.boolean  "active",                              :default => true,  :null => false
     t.string   "encrypted_question"
     t.string   "encrypted_expected_confirmed_answer"
     t.string   "encrypted_expected_denied_answer"

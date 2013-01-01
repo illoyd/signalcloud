@@ -10,22 +10,32 @@ Ticketplease::Application.routes.draw do
   
   # Prevent accounts from being deleted
   resource :account, only: [ :show, :new, :create, :update, :edit ]
+
   resources :users
+
   resources :appliances do
+    collection do
+      get 'active', action: 'index', defaults: { active_filter: true }, as: 'active'
+      get 'inactive', action: 'index', defaults: { active_filter: false }, as: 'inactive'
+    end
     resources :tickets, only: [ :index, :new, :create ] do
       member do
         post 'force', action: 'force_status', as: 'force_status'
       end
     end
   end
+
   resources :tickets, only: [ :index, :show ]
+
   resources :transactions, only: [ :index, :show ]
+
   resources :phone_numbers, only: [ :index, :show ] do
     collection do
       get 'search/:country', action: 'search', defaults: { country: 'US' }, constraint: { country: /(US|CA|GB)/ }, as: 'search'
       post 'buy', action: 'buy', as: 'buy'
     end
   end
+
   resources :phone_directories
   
   # Nested resources via account

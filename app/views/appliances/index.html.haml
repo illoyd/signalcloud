@@ -1,3 +1,9 @@
+- content_for :table_header do
+  .row
+    .span12
+      = filter_dropdown_list()
+      .pull-right= link_to 'New Appliance', new_appliance_path, :class => 'btn btn-success btn-small'
+
 .row
   .span12
     .page-header
@@ -6,35 +12,39 @@
         Appliances
         %small all appliances
 
+= yield :table_header
+
 .row
   .span12
     %table.table.table-striped
       %thead
         %tr
           %th Appliance
-          %th
-            = icon( :phone_directories )
-            Phone directory
-          %th
-            = icon( :time )
-            Time to live
-          %th Question
-          %th
-            = icon( :tickets )
-            Open tickets
-          %th
-          %th
+          %th Directory
+          %th Active
+          %th Description
+          %th Open tickets
           %th
       %tbody
+        - if @appliances.empty?
+          %tr
+            %td{ colspan: 6 }
+              %em No appliances match your selected filters. Please change your filters to view other items.
+        
         - @appliances.each do |appliance|
           %tr
             %td
               / { 'rel'=>'tooltip', 'data-original-title'=>appliance.description || 'No description' }
-              = link_to appliance.label, appliance, { 'rel'=>'tooltip', 'data-original-title'=>appliance.description || 'No description' }
+              = link_to appliance.label, appliance
+              / , { 'rel'=>'tooltip', 'data-original-title'=>appliance.description || 'No description' }
               / %span{ 'rel'=>'popover', 'data-trigger'=>'hover', 'data-original-title'=>'Description', 'data-content'=>appliance.description || 'No description' }= icon( 'info-sign'.to_sym )
             %td= link_to appliance.phone_directory.label, appliance.phone_directory
-            %td= appliance.seconds_to_live.seconds_to_words
-            %td= appliance.question
+            %td= icon( appliance.active ? :ok : :remove )
+            %td
+              - if appliance.description.blank?
+                %em No description defined.
+              - else
+                = appliance.description
             %td= appliance.tickets.count
             %td
               .btn-group
@@ -54,4 +64,5 @@
                     = link_to appliance, { method: :delete, data: { confirm: 'Are you sure?' } }, { 'tabindex' => "-1" } do
                       = icon( :delete )
                       Delete
-    %div= link_to 'New Appliance', new_appliance_path, :class => 'btn btn-success'
+
+= yield :table_header
