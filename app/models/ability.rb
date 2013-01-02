@@ -82,7 +82,8 @@ class Ability
   
   def grant_default_privileges(user)
     # Index and show for primary objects
-    can :read, [ Appliance, PhoneNumber, PhoneDirectory, Ticket ], { account_id: user.account_id }
+    can :read, [ Appliance, PhoneNumber, PhoneDirectory ], { account_id: user.account_id }
+    can :read, [ Ticket ], { appliance: { account_id: user.account_id } }
     
     # Show for owning account
     can :show, [ Account ], { id: user.account_id }
@@ -124,12 +125,12 @@ class Ability
   
   def grant_force_tickets_privileges(user)
     # Allow forcing tickets
-    can [:force], Ticket, { account_id: user.account_id }
+    can [:force], Ticket, { appliance: { account_id: user.account_id } }
   end
   
   def grant_start_ticket_privileges(user)
     # Allow new, create for tickets
-    can [:new, :create], Ticket, { account_id: user.account_id }
+    can [:new, :create], Ticket, { appliance: { account_id: user.account_id } }
   end
   
 end
