@@ -121,7 +121,7 @@ class Ability
     can :manage, PhoneDirectory, { account_id: user.account_id }
   end
   
-  def grant_manage_tickets_privileges(user)
+  def grant_force_tickets_privileges(user)
     # Allow forcing tickets
     can [:force], Ticket, { account_id: user.account_id }
   end
