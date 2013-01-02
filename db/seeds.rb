@@ -17,15 +17,15 @@ def rand_i( min, max )
 end
 
 def random_us_number()
-  '+1%i%i%i' % [ rand_i(201, 799), rand_i(100, 999), rand_i(0001, 9999) ]
+  '+1%03d%03d%04d' % [ rand_i(201, 799), rand_i(100, 999), rand_i(0001, 9999) ]
 end
 
 def random_ca_number()
-  '+1%i%i%i' % [ rand_i(201, 799), rand_i(100, 999), rand_i(0001, 9999) ]
+  '+1%03d%03d%04d' % [ rand_i(201, 799), rand_i(100, 999), rand_i(0001, 9999) ]
 end
 
 def random_uk_number()
-  '+44%i%i%i' % [ rand_i(20000, 9999), rand_i(000, 999), rand_i(000, 999) ]
+  '+44%04d%03d%03d' % [ rand_i(2000, 9999), rand_i(000, 999), rand_i(000, 999) ]
 end
 
 def random_answer()
@@ -49,7 +49,7 @@ test_account = Account.new label:'Test Account', account_sid: 'test', auth_token
   test_account.save!
 
 # Add users
-test_user = test_account.users.create first_name: 'Jane', last_name: 'Doe', email: 'jane.doe@ticketpleaseapp.com', password: 'password', password_confirmation: 'password', role: User::ROLE_ADMIN
+test_user = test_account.users.create first_name: 'Jane', last_name: 'Doe', email: 'jane.doe@ticketpleaseapp.com', password: 'password', password_confirmation: 'password', roles: [ :shadow_account ]
 
 # Add example data for the test account
 test_numbers = {
@@ -73,11 +73,17 @@ example_appliance = test_account.appliances.create({ label: 'Example Appliance',
   })
 
 20.times do 
-  example_appliance.open_ticket( to_number: random_us_number(), expected_confirmed_answer: random_answer() ).save!
+  ticket = example_appliance.open_ticket( to_number: random_us_number(), expected_confirmed_answer: random_answer() )
+  ticket.status = rand_i(0, 5);
+  ticket.save!
 end
 10.times do 
-  example_appliance.open_ticket( to_number: random_ca_number(), expected_confirmed_answer: random_answer() ).save!
+  ticket = example_appliance.open_ticket( to_number: random_ca_number(), expected_confirmed_answer: random_answer() )
+  ticket.status = rand_i(0, 5)
+  ticket.save!
 end
 5.times do 
-  example_appliance.open_ticket( to_number: random_uk_number(), expected_confirmed_answer: random_answer() ).save!
+  ticket = example_appliance.open_ticket( to_number: random_uk_number(), expected_confirmed_answer: random_answer() )
+  ticket.status = rand_i(0, 5)
+  ticket.save!
 end
