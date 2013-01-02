@@ -8,8 +8,13 @@ module ApplicationHelper
     render partial: 'layouts/dropdown', object: entries, locals: { label: label, options: options }
   end
   
-  def icon( kind = :blank )
-    render partial: 'layouts/icon', object: ICONS.fetch( kind, kind ).to_s
+  def icon( kind = :blank, options = {} )
+    render partial: 'layouts/icon', object: ICONS.fetch( kind, kind ).to_s, locals: { options: options }
+  end
+
+  def header_icon( kind = :blank, options = {} )
+    options = { class: 'header-icon' }.merge options
+    icon( kind, options )
   end
 
 end

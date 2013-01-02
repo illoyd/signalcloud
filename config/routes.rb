@@ -22,10 +22,25 @@ Ticketplease::Application.routes.draw do
       member do
         post 'force', action: 'force_status', as: 'force_status'
       end
+      collection do
+        get 'confirmed', action: 'index', defaults: { status: Ticket::CONFIRMED }
+        get 'denied', action: 'index', defaults: { status: Ticket::DENIED }
+        get 'failed', action: 'index', defaults: { status: Ticket::FAILED }
+        get 'expired', action: 'index', defaults: { status: Ticket::EXPIRED }
+        get 'open', action: 'index', defaults: { status: [Ticket::QUEUED, Ticket::CHALLENGE_SENT] }
+      end
     end
   end
 
-  resources :tickets, only: [ :index, :show ]
+  resources :tickets, only: [ :index, :show ] do
+    collection do
+      get 'confirmed', action: 'index', defaults: { status: Ticket::CONFIRMED }
+      get 'denied', action: 'index', defaults: { status: Ticket::DENIED }
+      get 'failed', action: 'index', defaults: { status: Ticket::FAILED }
+      get 'expired', action: 'index', defaults: { status: Ticket::EXPIRED }
+      get 'open', action: 'index', defaults: { status: [Ticket::QUEUED, Ticket::CHALLENGE_SENT] }
+    end
+  end
 
   resources :transactions, only: [ :index, :show ]
 
