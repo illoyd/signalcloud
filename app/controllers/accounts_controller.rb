@@ -24,30 +24,24 @@ class AccountsController < ApplicationController
 
   # GET /accounts/new
   # GET /accounts/new.json
-  def new
-    @account = Account.new
-    #respond_with @account
-#     respond_to do |format|
-#       format.html # new.html.erb
-#       format.json { render json: @account }
-#     end
-  end
+  #   def new
+  #     @account = Account.new
+  #   end
 
   # GET /accounts/1/edit
   def edit
-    #@account = current_account
     respond_with @account
   end
 
   # POST /accounts
   # POST /accounts.json
-  def create
-    @account = Account.new( params[:account] )
-    if @account.save
-      flash[:success] = 'Your account has been created.'
-    end
-    respond_with @account
-  end
+  #   def create
+  #     @account = Account.new( params[:account] )
+  #     if @account.save
+  #       flash[:success] = 'Your account has been created.'
+  #     end
+  #     respond_with @account
+  #   end
 
   # PUT /accounts/1
   # PUT /accounts/1.json
@@ -61,12 +55,12 @@ class AccountsController < ApplicationController
 
   # DELETE /accounts/1
   # DELETE /accounts/1.json
-  def destroy
-    #@account = current_account
-    @account.destroy
-    flash[:alert] = "Successfully destroyed account."
-    respond_with(@account)
-  end
+  #   def destroy
+  #     #@account = current_account
+  #     @account.destroy
+  #     flash[:alert] = "Successfully destroyed account."
+  #     respond_with(@account)
+  #   end
   
   def shadow
     # Only set the shadow option if allows
