@@ -8,7 +8,6 @@ UNAVAILABLE_AREACODE = '533'
 AVAILABLE_AREACODE = '500'
 
 describe PhoneNumber do
-  #pending "add some examples to (or delete) #{__FILE__}"
   fixtures :accounts, :phone_numbers
   
   before :each do
@@ -20,7 +19,6 @@ describe PhoneNumber do
   describe "validations" do
     # Account...
     it { should belong_to(:account) }
-    #it { should validate_presence_of(:account) }
     it { should validate_presence_of(:account_id) }
     it { should validate_numericality_of(:account_id) }
     it { should allow_mass_assignment_of( :account_id ) }
