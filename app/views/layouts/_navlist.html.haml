@@ -5,18 +5,18 @@
   - else
     %ul.nav.nav-list
       - navlist.each do |entry|
-        - if entry.fetch( :if, true ) # If an :if clause was provided, evaluate it   
+        - next unless entry.fetch( :if, true ) # If an :if clause was provided, evaluate it   
 
-          - if entry.include? :header # Insert a header
-            %li.nav-header= entry[:header]
+        - if entry.include? :header # Insert a header
+          %li.nav-header= entry[:header]
 
-          - elsif entry.include? :divider # Insert a divider
-            %li.divider
+        - elsif entry.include? :divider # Insert a divider
+          %li.divider
 
-          - else # Otherwise, this is just an entry
-            - entry_class = entry.fetch( :active, false ) ? 'active' : ''
-            %li{ 'class' => entry_class }
-              = link_to entry[:link], entry.fetch(:options, {}) do
-                - if entry.include? :icon
-                  = icon( entry[:icon] )
-                = entry[:label]
+        - else # Otherwise, this is just an entry
+          - entry_class = entry.fetch( :active, false ) ? 'active' : ''
+          %li{ 'class' => entry_class }
+            = link_to entry[:link], entry.fetch(:options, {}) do
+              - if entry.include? :icon
+                = icon( entry[:icon] )
+              = entry[:label]

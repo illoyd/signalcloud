@@ -9,8 +9,9 @@
   - else
     %ul.dropdown-menu
       - dropdown.each do |entry|
-        - entry_class = entry.fetch( :active, false ) ? 'active' : ''
-        - options = default_options.merge entry.fetch(:options, {})
+        - next unless entry.fetch( :if, true )                       # Skip this line unless the optional IF clause is true
+        - entry_class = entry.fetch( :active, false ) ? 'active' : '' # Decide if this is the 'active' entry
+        - options = default_options.merge entry.fetch(:options, {})   # Build a set of options for the link_to field
         %li{ 'class' => entry_class }
           = link_to entry[:link], options do
             - if entry.include? :icon

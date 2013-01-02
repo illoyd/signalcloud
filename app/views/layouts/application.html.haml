@@ -43,22 +43,22 @@
                   - if can? :index, Appliance
                     %li
                       %a{ :href => appliances_path }
-                        %i.icon-hdd
+                        = icon( :appliances )
                         Appliances
                   - if can? :index, PhoneDirectory
                     %li
                       %a{ :href => phone_directories_path }
-                        %i.icon-book
+                        = icon( :phone_directories )
                         Directories
                   - if can? :index, PhoneNumber
                     %li
                       %a{ :href => phone_numbers_path }
-                        %i.icon-phone
+                        = icon( :phone_numbers )
                         Phone Numbers
                   - if can? :index, Ticket
                     %li
                       %a{ :href => tickets_path }
-                        %i.icon-tags
+                        = icon( :tickets )
                         Tickets
                   - if can? :index, Transaction
                     %li
@@ -75,7 +75,7 @@
                   = current_user.first_name
                   %b.caret
                 %ul.dropdown-menu
-                  - if current_user.can_shadow_account?
+                  - if can? :shadow, Account
                     %li
                       = link_to accounts_path do
                         = icon( :accounts )
