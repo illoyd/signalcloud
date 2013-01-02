@@ -13,14 +13,17 @@ class TicketsController < ApplicationController
   # GET /tickets
   # GET /tickets.json
   def index
-    unless @appliance.nil?
+    @multiappliance = @appliance.nil?
+    if !@multiappliance
       @tickets = @tickets.where( appliance_id: @appliance.id )
     end
-    @multiappliance = !@appliance.nil?
 
     unless params[:status].nil?
       @tickets = @tickets.where( status: params[:status] )
     end
+    
+    # Add pagination
+    @tickets = @tickets.page(params[:page])
 
     respond_with @tickets
   end

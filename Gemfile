@@ -46,6 +46,7 @@ gem 'twilio-ruby'
 gem 'devise'
 gem 'cancan'
 gem 'attr_encrypted'
+gem 'kaminari'
 
 # Add rspec
 group :test, :development do

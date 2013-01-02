@@ -10,7 +10,7 @@ module TicketsHelper
       entries << { label: 'Filter by ' + appliance.label, icon: :appliances, link: appliance_tickets_path( appliance ) }
     end
     
-    dropdown_list( title, entries )
+    dropdown_list( title, entries, {class: 'btn-mini'} )
   end
   
   def status_dropdown_list( current_account, current_appliance, current_status )
@@ -27,7 +27,7 @@ module TicketsHelper
       { label: 'Filter by Expired', icon: :time, link: current_appliance.nil? ? expired_tickets_path : expired_appliance_tickets_path( current_appliance ) }
     ]
 
-    dropdown_list( title, entries )
+    dropdown_list( title, entries, {class: 'btn-mini'} )
   end
   
   def ticket_class( status )
@@ -51,6 +51,8 @@ module TicketsHelper
   
   def human_ticket_status( status )
     return case status
+      when [ Ticket::QUEUED, Ticket::CHALLENGE_SENT ]
+        'Open'
       when Ticket::QUEUED
         'Queued'
       when Ticket::CHALLENGE_SENT

@@ -1,7 +1,7 @@
 / Dropdown list
 - default_options = { 'tabindex' => "-1" }
-.btn-group
-  %a.btn.dropdown-toggle.btn-small{"data-toggle" => "dropdown", :href => "#"}
+%div.btn-group
+  %a{class: [ 'btn', 'dropdown-toggle', options.fetch('class', 'btn-small') ], "data-toggle" => "dropdown", :href => "#"}
     = label || 'Manage'
     %span.caret
   - unless dropdown.is_a? Array

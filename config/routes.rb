@@ -15,30 +15,52 @@ Ticketplease::Application.routes.draw do
 
   resources :appliances do
     collection do
-      get 'active', action: 'index', defaults: { active_filter: true }, as: 'active'
-      get 'inactive', action: 'index', defaults: { active_filter: false }, as: 'inactive'
+      get 'active', action: :index, defaults: { active_filter: true }, as: 'active'
+      get 'inactive', action: :index, defaults: { active_filter: false }, as: 'inactive'
     end
     resources :tickets, only: [ :index, :new, :create ] do
       member do
         post 'force', action: 'force_status', as: 'force_status'
       end
       collection do
-        get 'confirmed', action: 'index', defaults: { status: Ticket::CONFIRMED }
-        get 'denied', action: 'index', defaults: { status: Ticket::DENIED }
-        get 'failed', action: 'index', defaults: { status: Ticket::FAILED }
-        get 'expired', action: 'index', defaults: { status: Ticket::EXPIRED }
-        get 'open', action: 'index', defaults: { status: [Ticket::QUEUED, Ticket::CHALLENGE_SENT] }
+        get 'page/:page', action: :index
+        get 'confirmed', action: :index, defaults: { status: Ticket::CONFIRMED } do
+          get 'page/:page', action: :index
+        end
+        get 'denied', action: :index, defaults: { status: Ticket::DENIED } do
+          get 'page/:page', action: :index, on: :collection
+        end
+        get 'failed', action: :index, defaults: { status: Ticket::FAILED } do
+          get 'page/:page', action: :index, on: :collection
+        end
+        get 'expired', action: :index, defaults: { status: Ticket::EXPIRED } do
+          get 'page/:page', action: :index, on: :collection
+        end
+        get 'open', action: :index, defaults: { status: [Ticket::QUEUED, Ticket::CHALLENGE_SENT] } do
+          get 'page/:page', action: :index, on: :collection
+        end
       end
     end
   end
 
   resources :tickets, only: [ :index, :show ] do
     collection do
-      get 'confirmed', action: 'index', defaults: { status: Ticket::CONFIRMED }
-      get 'denied', action: 'index', defaults: { status: Ticket::DENIED }
-      get 'failed', action: 'index', defaults: { status: Ticket::FAILED }
-      get 'expired', action: 'index', defaults: { status: Ticket::EXPIRED }
-      get 'open', action: 'index', defaults: { status: [Ticket::QUEUED, Ticket::CHALLENGE_SENT] }
+      get 'page/:page', action: :index
+      get 'confirmed', action: :index, defaults: { status: Ticket::CONFIRMED } do
+        get 'page/:page', action: :index, on: :collection
+      end
+      get 'denied', action: :index, defaults: { status: Ticket::DENIED } do
+        get 'page/:page', action: :index, on: :collection
+      end
+      get 'failed', action: :index, defaults: { status: Ticket::FAILED } do
+        get 'page/:page', action: :index, on: :collection
+      end
+      get 'expired', action: :index, defaults: { status: Ticket::EXPIRED } do
+        get 'page/:page', action: :index, on: :collection
+      end
+      get 'open', action: :index, defaults: { status: [Ticket::QUEUED, Ticket::CHALLENGE_SENT] } do
+        get 'page/:page', action: :index, on: :collection
+      end
     end
   end
 

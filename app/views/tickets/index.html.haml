@@ -1,14 +1,6 @@
 -# UI variables
 - ticket_link = new_appliance_ticket_path( @appliance.nil? ? @account.default_appliance : @appliance )
 
-- content_for :table_header do
-  .row
-    .span12
-      = appliance_dropdown_list( @account, @appliance )
-      = status_dropdown_list( @account, @appliance, params[:status] )
-      - if can? :new, Ticket
-        .pull-right= link_to 'Start a new ticket', ticket_link, :class=>'btn btn-success btn-small'
-
 / Page header
 .row
   .span12
@@ -22,12 +14,17 @@
             = "for #{@appliance.label}"
 
 / Page controls
-= yield :table_header
+.row
+  .span12
+    = appliance_dropdown_list( @account, @appliance )
+    = status_dropdown_list( @account, @appliance, params[:status] )
+    - if can? :new, Ticket
+      .pull-right= link_to 'Start a new ticket', ticket_link, :class=>'btn btn-success btn-mini'
 
 / Page body
 .row
   .span12
-    %table.table.table-striped
+    %table.table.table-striped.table-condensed
       %thead
         %tr
           - if @multiappliance
@@ -78,5 +75,4 @@
                 { label: 'Force status to Expired', icon: :time, link: ticket } |
               ]) |
 
-/ Page controls
-= yield :table_header
+  = paginate @tickets
