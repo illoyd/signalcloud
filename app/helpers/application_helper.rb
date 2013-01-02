@@ -1,11 +1,11 @@
 module ApplicationHelper
 
-  def navigation_list( entries = [] )
-    render partial: 'layouts/navlist', object: entries
+  def navigation_list( entries = [], options = {} )
+    render partial: 'layouts/navlist', object: entries, locals: { options: options }
   end
   
-  def dropdown_list( label, entries = [] )
-    render partial: 'layouts/dropdown', object: entries, locals: { label: label }
+  def dropdown_list( label, entries = [], options = {} )
+    render partial: 'layouts/dropdown', object: entries, locals: { label: label, options: options }
   end
   
   def icon( kind = :blank )

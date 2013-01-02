@@ -3,7 +3,7 @@
   - unless navlist.is_a? Array
     Oops! Navlist is not an array!
   - else
-    %ul.nav.nav-list
+    %ul{ class: 'nav nav-list ' + options.fetch( :class, '' ) }
       - navlist.each do |entry|
         - next unless entry.fetch( :if, true ) # If an :if clause was provided, evaluate it   
 

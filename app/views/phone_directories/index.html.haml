@@ -1,3 +1,11 @@
+-# Table header
+- content_for :table_header do
+  / Table header
+  .row
+    .span12
+      - if can? :new, PhoneDirectory      
+        %div.pull-right= link_to 'New Directory', new_phone_directory_path, :class => 'btn btn-success'
+
 / Page header
 .row
   .span12
@@ -7,6 +15,8 @@
         Directories
         %small all directories
 
+= yield: :table_header
+
 / Page body
 .row
   .span12
@@ -14,19 +24,26 @@
       %thead
         %tr
           %th Directory
+          %th Description
           %th Phone numbers
           %th Appliances
           %th
       %tbody
         - @phone_directories.each do |phone_directory|
           %tr
-            %td= link_to phone_directory.label, phone_directory, { 'rel'=>'tooltip', 'data-original-title'=>phone_directory.description || 'No description' }
+            %td= link_to phone_directory.label, phone_directory
+            %td
+              %small
+                - if phone_directory.description.blank?
+                  %em No description configured.
+                - else
+                  = phone_directory.description
             %td= phone_directory.phone_directory_entries.count
             %td= phone_directory.appliances.count
-            %td= dropdown_list( 'Manage', [ |
-                { label: 'Details', icon: :show, link: phone_directory }, |
-                { label: 'Edit', icon: :edit, link: edit_phone_directory_path(phone_directory) }, |
-                { label: 'Delete', icon: :delete, link: phone_directory, options: { method: :delete, data: { confirm: 'Are you sure?' } } } |
+            %td.pull-right= dropdown_list( 'Manage', [ |
+                { label: 'Details', icon: :show, link: phone_directory, if: can?(:show, phone_directory) }, |
+                { label: 'Edit', icon: :edit, link: edit_phone_directory_path(phone_directory), if: can?(:edit, phone_directory) }, |
+                { label: 'Delete', icon: :delete, link: phone_directory_entry, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, phone_directory_entry) } |
               ]) |
 
-    %div= link_to 'New Directory', new_phone_directory_path, :class => 'btn btn-success'
+= yield: :table_header

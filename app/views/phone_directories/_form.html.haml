@@ -7,12 +7,17 @@
       %ul
         - @phone_directory.errors.full_messages.each do |msg|
           %li= msg
+
   .control-group
     = f.label :label, :class => 'control-label'
-    .controls= f.text_field :label
+    .controls
+      = f.text_field :label, { required: true }
+      %help-inline Required
+
   .control-group
     = f.label :description, :class => 'control-label'
-    .controls= f.text_area :description, :rows=>3
+    .controls= f.text_area :description, :rows => 3
+
   .control-group
     .controls
       = f.submit :class => 'btn btn-primary'
