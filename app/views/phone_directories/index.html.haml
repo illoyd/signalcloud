@@ -15,7 +15,7 @@
         Directories
         %small all directories
 
-= yield: :table_header
+= yield :table_header
 
 / Page body
 .row
@@ -40,10 +40,10 @@
                   = phone_directory.description
             %td= phone_directory.phone_directory_entries.count
             %td= phone_directory.appliances.count
-            %td.pull-right= dropdown_list( 'Manage', [ |
+            %td= dropdown_list( 'Manage', [ |
                 { label: 'Details', icon: :show, link: phone_directory, if: can?(:show, phone_directory) }, |
                 { label: 'Edit', icon: :edit, link: edit_phone_directory_path(phone_directory), if: can?(:edit, phone_directory) }, |
-                { label: 'Delete', icon: :delete, link: phone_directory_entry, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, phone_directory_entry) } |
+                { label: 'Delete', icon: :delete, link: phone_directory, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, phone_directory) } |
               ]) |
 
-= yield: :table_header
+= yield :table_header
