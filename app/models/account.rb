@@ -68,24 +68,24 @@ class Account < ActiveRecord::Base
   end
   
   def ticket_statistics
+    total = self.tickets.today.count
     return {
-      expired: self.tickets.where( status: Ticket::EXPIRED ).count,
-      denied: self.tickets.where( status: Ticket::DENIED ).count,
-      failed: self.tickets.where( status: Ticket::FAILED ).count,
-      confirmed: self.tickets.where( status: Ticket::CONFIRMED ).count,
-      queued: self.tickets.where( status: Ticket::QUEUED ).count,
-      sent: self.tickets.where( status: Ticket::CHALLENGE_SENT ).count
+      expired: self.tickets.today.where( status: Ticket::EXPIRED ).count.to_f / total * 100.0,
+      denied: self.tickets.today.where( status: Ticket::DENIED ).count.to_f / total * 100.0,
+      failed: self.tickets.today.where( status: Ticket::FAILED ).count.to_f / total * 100.0,
+      confirmed: self.tickets.today.where( status: Ticket::CONFIRMED ).count.to_f / total * 100.0,
+      queued: self.tickets.today.where( status: Ticket::QUEUED ).count.to_f / total * 100.0,
+      sent: self.tickets.today.where( status: Ticket::CHALLENGE_SENT ).count.to_f / total * 100.0
     }
   end
   
   def additive_ticket_statistics
     statistics = self.ticket_statistics
-    return {
-      expired: statistics[:expired],
-      denied: statistics[:expired] + statistics[:denied],
-      failed: statistics[:expired] + statistics[:denied] + statistics[:failed],
-      confirmed: statistics[:expired] + statistics[:denied] + statistics[:failed] + statistics[:confirmed]
-    }
+    total = statistics.values.sum
+    additive_statistics = {}
+    [ :queued, :sent, :confirmed, :expired, :failed, :denied ].each { |key| additive_statistics[key] = additive_statistics.values.sum + statistics[key] }
+    additive_statistics.each { |key,value| additive_statistics[key] = value }
+    return additive_statistics
   end
   
 end

@@ -31,7 +31,7 @@
       / Open Tickets
       %li.span3
         .thumbnail.tile
-          %p.information= "%i" % @account.tickets.opened.count
+          %p.information= "%i" % @account.tickets.today.opened.count
           %p.information-label Open tickets
       / Tickets Today
       %li.span3
@@ -50,12 +50,14 @@
           %p.information-label Plan
     
     %h4 ticket breakdown
-    - statistics = @account.additive_ticket_statistics
+    - statistics = @account.ticket_statistics
     .progress
-      .bar{ :style => "width: #{statistics[:expired]}" }
-      .bar.bar-success{ :style => "width: #{statistics[:confirmed]}" }
-      .bar.bar-danger{ :style => "width: #{statistics[:denied]}" }
-      .bar.bar-warning{ :style => "width: #{statistics[:failed]}" }
+      .bar.bar-info{ :style => "width: #{statistics[:queued]}%", rel: 'tooltip', title: 'Queued: %0.0f%%' % statistics[:queued] }
+      .bar{ :style => "width: #{statistics[:sent]}%", rel: 'tooltip', title: 'Sent: %0.0f%%' % statistics[:sent] }
+      .bar.bar-success{ :style => "width: #{statistics[:confirmed]}%", rel: 'tooltip', title: 'Confirmed: %0.0f%%' % statistics[:confirmed] }
+      .bar.bar-warning{ :style => "width: #{statistics[:expired]}%", rel: 'tooltip', title: 'Expired: %0.0f%%' % statistics[:expired] }
+      .bar.bar-lightdanger{ :style => "width: #{statistics[:failed]}%", rel: 'tooltip', title: 'Failed: %0.0f%%' % statistics[:failed] }
+      .bar.bar-danger{ :style => "width: #{statistics[:denied]}%", rel: 'tooltip', title: 'Denied: %0.0f%%' % statistics[:denied] }
 
     %h4 tokens
     %p Tokens are used to authenticate with the ticketplease API.
