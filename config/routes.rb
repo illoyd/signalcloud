@@ -37,6 +37,7 @@ Ticketplease::Application.routes.draw do
   end
 
   resources :phone_directories
+  resources :phone_directory_entries, only: [:create, :destroy]
   
   # Nested resources via account
   # This functionality has been removed in favour of shadowing the current account using the session.
