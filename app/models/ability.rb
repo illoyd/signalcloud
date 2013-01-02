@@ -119,6 +119,7 @@ class Ability
   def grant_manage_phone_directories_privileges(user)
     # All for account phone directories
     can :manage, PhoneDirectory, { account_id: user.account_id }
+    can [:create, :destroy], PhoneDirectoryEntry, { phone_directory: { account_id: user.account_id } }
   end
   
   def grant_force_tickets_privileges(user)
