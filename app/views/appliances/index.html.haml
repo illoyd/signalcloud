@@ -9,7 +9,7 @@
   .span12
     .page-header
       %h1
-        = icon( :appliances )
+        = icon(:appliances)
         Appliances
         %small all appliances
 
@@ -34,11 +34,7 @@
         
         - @appliances.each do |appliance|
           %tr
-            %td
-              / { 'rel'=>'tooltip', 'data-original-title'=>appliance.description || 'No description' }
-              = link_to appliance.label, appliance
-              / , { 'rel'=>'tooltip', 'data-original-title'=>appliance.description || 'No description' }
-              / %span{ 'rel'=>'popover', 'data-trigger'=>'hover', 'data-original-title'=>'Description', 'data-content'=>appliance.description || 'No description' }= icon( 'info-sign'.to_sym )
+            %td= link_to appliance.label, appliance
             %td= link_to appliance.phone_directory.label, appliance.phone_directory
             %td= icon( appliance.active ? :ok : :remove )
             %td
@@ -53,22 +49,5 @@
                 { label: 'Edit', icon: :edit, link: edit_appliance_path(appliance), if: can?(:edit, appliance) }, |
                 { label: 'Delete', icon: :delete, link: appliance, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, appliance) } |
                 ]) |
-              -#
-                %a.btn.dropdown-toggle.btn-small{"data-toggle" => "dropdown", :href => "#"}
-                  Manage
-                  %span.caret
-                %ul.dropdown-menu
-                  %li
-                    = link_to appliance, { 'tabindex' => "-1" } do
-                      = icon( :show )
-                      Details
-                  %li
-                    = link_to edit_appliance_path(appliance), { 'tabindex' => "-1" } do
-                      = icon( :edit )
-                      Edit
-                  %li.text-danger
-                    = link_to appliance, { method: :delete, data: { confirm: 'Are you sure?' } }, { 'tabindex' => "-1" } do
-                      = icon( :delete )
-                      Delete
 
 = yield :table_header
