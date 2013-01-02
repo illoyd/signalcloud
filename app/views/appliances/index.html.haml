@@ -2,7 +2,8 @@
   .row
     .span12
       = filter_dropdown_list()
-      .pull-right= link_to 'New Appliance', new_appliance_path, :class => 'btn btn-success btn-small'
+      - if can? :new, Appliance      
+        .pull-right= link_to 'New Appliance', new_appliance_path, :class => 'btn btn-success btn-small'
 
 .row
   .span12
@@ -47,7 +48,12 @@
                 = appliance.description
             %td= appliance.tickets.count
             %td
-              .btn-group
+              .btn-group= dropdown_list( 'Manage', [ |
+                { label: 'Details', icon: :show, link: appliance, if: can?(:show, appliance) }, |
+                { label: 'Edit', icon: :edit, link: edit_appliance_path(appliance), if: can?(:edit, appliance) }, |
+                { label: 'Delete', icon: :delete, link: appliance, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, appliance) } |
+                ]) |
+              -#
                 %a.btn.dropdown-toggle.btn-small{"data-toggle" => "dropdown", :href => "#"}
                   Manage
                   %span.caret
