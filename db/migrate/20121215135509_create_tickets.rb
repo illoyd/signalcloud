@@ -1,7 +1,9 @@
 class CreateTickets < ActiveRecord::Migration
   def change
-    create_table :tickets, primary_key: :id do |t|
-      t.column :id, :bigint, null: false
+    #create_table :tickets, primary_key: :id do |t|
+    #  t.column :id, :bigint, null: false
+    create_table :tickets do |t|
+      #t.column :id, :bigint, null: false
       t.references :appliance, null: false
       t.integer :status, null: false, default: 0, limit: 4
       t.string :encrypted_from_number, null: false

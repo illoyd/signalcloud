@@ -17,15 +17,15 @@ def rand_i( min, max )
 end
 
 def random_us_number()
-  '+1%03d%03d%04d' % [ rand_i(201, 799), rand_i(100, 999), rand_i(0001, 9999) ]
+  '1%03d%03d%04d' % [ rand_i(201, 799), rand_i(100, 999), rand_i(0001, 9999) ]
 end
 
 def random_ca_number()
-  '+1%03d%03d%04d' % [ rand_i(201, 799), rand_i(100, 999), rand_i(0001, 9999) ]
+  '1%03d%03d%04d' % [ rand_i(201, 799), rand_i(100, 999), rand_i(0001, 9999) ]
 end
 
 def random_uk_number()
-  '+44%04d%03d%03d' % [ rand_i(2000, 9999), rand_i(000, 999), rand_i(000, 999) ]
+  '44%04d%03d%03d' % [ rand_i(2000, 9999), rand_i(000, 999), rand_i(000, 999) ]
 end
 
 def random_answer()
@@ -38,12 +38,12 @@ shared_plan = AccountPlan.create label:'Shared', month: 0, phone_add: 2, call_in
 dedicated_plan = AccountPlan.create label:'Dedicated', month: 500, phone_add: 1, call_in_add: 0.01, sms_in_add: 0.01, sms_out_add: 0.01
 
 # Add master account (me!)
-master_account = Account.new label:'Master Account', account_sid: 'master', auth_token: 'master', account_plan: master_plan, description: 'My master account'
+master_account = Account.new label:'Master Account', auth_token: 'master', account_plan: master_plan, description: 'My master account'
   master_account.twilio_account_sid = ENV['TWILIO_MASTER_ACCOUNT_SID']
   master_account.twilio_auth_token = ENV['TWILIO_MASTER_AUTH_TOKEN']
   master_account.save!
 
-test_account = Account.new label:'Test Account', account_sid: 'test', auth_token: 'test', account_plan: master_plan, description: 'My test account'
+test_account = Account.new label:'Test Account', auth_token: 'test', account_plan: master_plan, description: 'My test account'
   test_account.twilio_account_sid = ENV['TWILIO_TEST_ACCOUNT_SID']
   test_account.twilio_auth_token = ENV['TWILIO_TEST_AUTH_TOKEN']
   test_account.save!
@@ -53,12 +53,12 @@ test_user = test_account.users.create first_name: 'Jane', last_name: 'Doe', emai
 
 # Add example data for the test account
 test_numbers = {
-  US: test_account.phone_numbers.create( number: '+12125001234', twilio_phone_number_sid: 'XX'+SecureRandom.hex(16) ),
-  CA: test_account.phone_numbers.create( number: '+17127005678', twilio_phone_number_sid: 'XX'+SecureRandom.hex(16) ),
-  GB: test_account.phone_numbers.create( number: '+447540123456', twilio_phone_number_sid: 'XX'+SecureRandom.hex(16) )
+  US: test_account.phone_numbers.create( number: Twilio::VALID_NUMBER, twilio_phone_number_sid: 'XX'+SecureRandom.hex(16) ),
+  CA: test_account.phone_numbers.create( number: '17127005678', twilio_phone_number_sid: 'XX'+SecureRandom.hex(16) ),
+  GB: test_account.phone_numbers.create( number: '447540123456', twilio_phone_number_sid: 'XX'+SecureRandom.hex(16) )
 }
 
-example_directory = test_account.phone_directories.create label: 'Example Directory'
+example_directory = test_account.phone_directories.create label: 'Example Directory', description: 'Example description.'
 example_directory.phone_directory_entries.create phone_number_id: test_numbers[:US].id
 test_numbers.each { |country,number| example_directory.phone_directory_entries.create country: country, phone_number_id: number.id }
 
@@ -74,7 +74,7 @@ example_appliance = test_account.appliances.create({ label: 'Example Appliance',
 
 20.times do 
   ticket = example_appliance.open_ticket( to_number: random_us_number(), expected_confirmed_answer: random_answer() )
-  ticket.status = rand_i(0, 5);
+  ticket.status = rand_i( 0, 5 )
   ticket.save!
 end
 10.times do 

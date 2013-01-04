@@ -11,6 +11,15 @@ describe Ticket do
   it { should ensure_length_of(:reply_sms_sid).is_equal_to(Twilio::SID_LENGTH) }
   it { should ensure_length_of(:response_sms_sid).is_equal_to(Twilio::SID_LENGTH) }
   
+  describe "test phony" do
+    
+    Phony.normalize('+41 44 364 35 33').should == '41443643533'
+    Phony.plausible?( '41 44 364 35 33' ).should == true
+    Phony.plausible?( '+41 44 364 35 33' ).should == true
+    Phony.plausible?( '+414436435 33' ).should == true
+    
+  end
+
   describe ".has_challenge_been_sent?" do
     it "should be false when challenge_sent is blank" do
       ticket = tickets(:test_ticket)

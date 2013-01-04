@@ -1,6 +1,7 @@
 class Ticket < ActiveRecord::Base
 
   before_validation :update_expiry_time_based_on_seconds_to_live
+  before_save :normalize_phone_numbers
 
   # Constants
   QUEUED = 0
@@ -42,6 +43,8 @@ class Ticket < ActiveRecord::Base
   validates_length_of :challenge_sms_sid, :is=>Twilio::SID_LENGTH, :allow_nil=>true
   validates_length_of :reply_sms_sid, :is=>Twilio::SID_LENGTH, :allow_nil=>true
   validates_length_of :response_sms_sid, :is=>Twilio::SID_LENGTH, :allow_nil=>true
+  validates :to_number, phone_number: true
+  validates :from_number, phone_number: true
   #validates_numericality_of :seconds_to_live
   
   # Scopes
@@ -50,11 +53,20 @@ class Ticket < ActiveRecord::Base
   scope :today, where( "tickets.created_at >= ? and tickets.created_at <= ?", DateTime.now.beginning_of_day, DateTime.now.end_of_day )
   scope :yesterday, where( "tickets.created_at >= ? and tickets.created_at <= ?", DateTime.yesterday.beginning_of_day, DateTime.yesterday.end_of_day )
   
+  ##
+  # Update expiry based upon seconds to live
   def update_expiry_time_based_on_seconds_to_live
     unless self.seconds_to_live.nil?
       ss = ( Float(self.seconds_to_live) rescue nil )
       self.expiry = ss.seconds.from_now unless ss.nil?
     end
+  end
+  
+  ##
+  # Normalize phone numbers using the Phony library.
+  def normalize_phone_numbers
+    self.to_number = Phony.normalize(self.to_number)
+    self.from_number = Phony.normalize(self.from_number)
   end
   
   ##
