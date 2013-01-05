@@ -54,6 +54,7 @@ group :test, :development do
   gem "rspec-rails", "~> 2.0"
   gem "ZenTest", "~> 4.4.2"
   gem "autotest-rails", "~> 4.1.0"
+  gem 'simplecov', :require => false
 end
 
 # Add shoulda matchers
