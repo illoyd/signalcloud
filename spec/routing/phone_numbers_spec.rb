@@ -22,10 +22,10 @@ describe 'routing to phone numbers' do
     expect( :post => 'phone_numbers/buy' ).to route_to( controller: 'phone_numbers', action: 'buy' )
   end
   
-  it 'does not allow new' do
-    pending 'Needs analysis of how to block #show gloming on to "new".'
-    expect( :get => 'phone_numbers/new' ).not_to be_routable
-  end
+#   it 'does not allow new' do
+#     pending 'Needs analysis of how to block #show gloming on to "new".'
+#     expect( :get => 'phone_numbers/new' ).not_to be_routable
+#   end
 
   it 'does not allow creating' do
     expect( :post => 'phone_numbers' ).not_to be_routable
