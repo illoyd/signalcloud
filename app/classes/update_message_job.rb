@@ -7,14 +7,7 @@
 # This class is intended for use with Delayed::Job.
 #
 class UpdateMessageJob < Struct.new( :callback_values, :quiet )
-
-  cattr_accessor :logger
-
-  self.logger = if defined?(Rails)
-    Rails.logger
-  elsif defined?(RAILS_DEFAULT_LOGGER)
-    RAILS_DEFAULT_LOGGER
-  end
+  include Talkable
 
   def perform
     # Get the original message and update
@@ -28,12 +21,6 @@ class UpdateMessageJob < Struct.new( :callback_values, :quiet )
     transaction = message.transactions.find_by_twilio_sid( callback_values[:sid] )
     transaction.cost = message.cost
     transaction.save!
-  end
-  
-  def say(text, level = Logger::INFO)
-    text = "[SendChallengeJob(#{self.ticket_id})] #{text}"
-    puts text unless self.quiet
-    self.logger.add level, "#{Time.now.strftime('%FT%T%z')}: #{text}" if self.logger
   end
 
 end

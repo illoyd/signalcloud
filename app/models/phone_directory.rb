@@ -7,7 +7,7 @@ class PhoneDirectory < ActiveRecord::Base
   
   def select_from_number( to_number )
     # Attempt to map the given number into a country
-    components = Phony.split( to_number )
+    components = Phony.split( Phony.normalize(to_number) )
 
     # Read first component - this is usually the country code
     country = case components.first

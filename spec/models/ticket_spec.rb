@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'spec_helper'
 
 describe Ticket do
@@ -18,6 +19,46 @@ describe Ticket do
     Phony.plausible?( '+41 44 364 35 33' ).should == true
     Phony.plausible?( '+414436435 33' ).should == true
     
+  end
+  
+  describe '.normalize_message' do
+
+    it 'should handle normal text' do
+      Ticket.normalize_message( 'abcd1234' ).should == 'abcd1234'
+      Ticket.normalize_message( 'ABCD1234' ).should == 'abcd1234'
+      Ticket.normalize_message( 'AbCd1234' ).should == 'abcd1234'
+      Ticket.normalize_message( 'aBcD 1234' ).should == 'abcd1234'
+      Ticket.normalize_message( 'Hello!' ).should == 'hello'
+      Ticket.normalize_message( 'Hello there, I love you!' ).should == 'hellothereiloveyou'
+      Ticket.normalize_message( '      Hello there, I love you!   ' ).should == 'hellothereiloveyou'
+    end
+
+    it 'should handle diacritics text' do
+      Ticket.normalize_message( "Café périferol" ).should == 'cafeperiferol'
+      Ticket.normalize_message( "Cafe periferôl" ).should == 'cafeperiferol'
+      Ticket.normalize_message( "Café périferôl" ).should == 'cafeperiferol'
+    end
+
+    it 'should handle japanese text' do
+      Ticket.normalize_message( "こんにちは" ).should == "konnitiha"
+      Ticket.normalize_message( "    こんにちは    " ).should == "konnitiha"
+      Ticket.normalize_message( " こ ん           に ち は " ).should == "konnitiha"
+      Ticket.normalize_message( " こ ん           に ち は 4  22 31 33" ).should == "konnitiha4223133"
+    end
+
+    it 'should handle special punctuation text' do
+      
+    end
+    
+    it 'should handle currencies' do
+      Ticket.normalize_message( '$9.74' ).should == '974'
+      Ticket.normalize_message( 'US$9.74' ).should == 'us974'
+      Ticket.normalize_message( '¥1,000,564' ).should == '1000564'
+      Ticket.normalize_message( '€5,321,987.45' ).should == '532198745'
+      Ticket.normalize_message( '€5.321.987,45' ).should == '532198745'
+      Ticket.normalize_message( 'S/.1,345.65' ).should == 's134565'
+    end
+
   end
 
   describe ".has_challenge_been_sent?" do
@@ -110,12 +151,12 @@ describe Ticket do
     end
   end
   
-  describe ".send_challenge" do
+  describe ".send_challenge_message" do
 
     it "should send challenge" do
       ticket = tickets(:test_ticket)
       original_message_count = ticket.messages.count
-      expect{ @message = ticket.send_challenge() }.to_not raise_error
+      expect{ @message = ticket.send_challenge_message() }.to_not raise_error
       @message.body.should == ticket.question
       @message.to_number.should == ticket.to_number
       @message.from_number.should == ticket.from_number
@@ -136,7 +177,7 @@ describe Ticket do
       it "because invalid TO" do
         ticket = tickets(:test_ticket_invalid_to)
         original_message_count = ticket.messages.count
-        expect{ results = ticket.send_challenge() }.to_not raise_error
+        expect{ results = ticket.send_challenge_message() }.to_not raise_error
         ticket.status.should == Ticket::ERROR_INVALID_TO
         
         # Was a new message saved?
@@ -146,7 +187,7 @@ describe Ticket do
       it "because routing is not possible" do
         ticket = tickets(:test_ticket_cannot_route_to)
         original_message_count = ticket.messages.count
-        expect{ results = ticket.send_challenge() }.to_not raise_error
+        expect{ results = ticket.send_challenge_message() }.to_not raise_error
         ticket.status.should == Ticket::ERROR_CANNOT_ROUTE
         
         # Was a new message saved?
@@ -156,7 +197,7 @@ describe Ticket do
       it "because international support is disabled" do
         ticket = tickets(:test_ticket_international_to)
         original_message_count = ticket.messages.count
-        expect{ results = ticket.send_challenge() }.to raise_error(Twilio::REST::RequestError)
+        expect{ results = ticket.send_challenge_message() }.to raise_error(Twilio::REST::RequestError)
         # ticket.status.should == Ticket::ERROR_INVALID_TO
         
         # Was a new message saved?
@@ -166,7 +207,7 @@ describe Ticket do
       it "because TO is on blacklist" do
         ticket = tickets(:test_ticket_blacklisted_to)
         original_message_count = ticket.messages.count
-        expect{ results = ticket.send_challenge() }.to_not raise_error
+        expect{ results = ticket.send_challenge_message() }.to_not raise_error
         ticket.status.should == Ticket::ERROR_BLACKLISTED_TO
         
         # Was a new message saved?
@@ -176,7 +217,7 @@ describe Ticket do
       it "because TO is not SMS capable" do
         ticket = tickets(:test_ticket_not_sms_capable_to)
         original_message_count = ticket.messages.count
-        expect{ results = ticket.send_challenge() }.to_not raise_error
+        expect{ results = ticket.send_challenge_message() }.to_not raise_error
         ticket.status.should == Ticket::ERROR_NOT_SMS_CAPABLE
         
         # Was a new message saved?
@@ -186,7 +227,7 @@ describe Ticket do
       it "because invalid FROM" do
         ticket = tickets(:test_ticket_invalid_from)
         original_message_count = ticket.messages.count
-        expect{ results = ticket.send_challenge() }.to_not raise_error
+        expect{ results = ticket.send_challenge_message() }.to_not raise_error
         ticket.status.should == Ticket::ERROR_INVALID_FROM
         
         # Was a new message saved?
@@ -196,7 +237,7 @@ describe Ticket do
       it "because FROM is not SMS capable" do
         ticket = tickets(:test_ticket_not_sms_capable_from)
         original_message_count = ticket.messages.count
-        expect{ results = ticket.send_challenge() }.to_not raise_error
+        expect{ results = ticket.send_challenge_message() }.to_not raise_error
         ticket.status.should == Ticket::ERROR_NOT_SMS_CAPABLE
         
         # Was a new message saved?
@@ -206,7 +247,7 @@ describe Ticket do
       it "because FROM has a full SMS queue" do
         ticket = tickets(:test_ticket_sms_queue_full_from)
         original_message_count = ticket.messages.count
-        expect{ results = ticket.send_challenge() }.to_not raise_error
+        expect{ results = ticket.send_challenge_message() }.to_not raise_error
         ticket.status.should == Ticket::ERROR_SMS_QUEUE_FULL
         
         # Was a new message saved?

@@ -1,3 +1,4 @@
+# encoding: UTF-8
 class Ticket < ActiveRecord::Base
 
   before_validation :update_expiry_time_based_on_seconds_to_live
@@ -10,6 +11,7 @@ class Ticket < ActiveRecord::Base
   DENIED = 3
   FAILED = 4
   EXPIRED = 5
+  OPEN_STATUSES = [ QUEUED, CHALLENGE_SENT ]
   
   ERROR_INVALID_TO = 101
   ERROR_INVALID_FROM = 102
@@ -49,10 +51,14 @@ class Ticket < ActiveRecord::Base
   
   # Scopes
   scope :opened, where( :status => [ QUEUED, CHALLENGE_SENT ] )
-  scope :closed, where( :status => [ CONFIRMED, DENIED, FAILED, EXPIRED ] )
+  scope :closed, where( 'status not in (?)', [ QUEUED, CHALLENGE_SENT ] )
   scope :today, where( "tickets.created_at >= ? and tickets.created_at <= ?", DateTime.now.beginning_of_day, DateTime.now.end_of_day )
   scope :yesterday, where( "tickets.created_at >= ? and tickets.created_at <= ?", DateTime.yesterday.beginning_of_day, DateTime.yesterday.end_of_day )
   
+  def self.normalize_message( msg )
+    return msg.gsub(/[$£€¥]/, '').to_ascii.gsub(/[^[:alnum:]]/,'').downcase
+  end
+
   ##
   # Update expiry based upon seconds to live
   def update_expiry_time_based_on_seconds_to_live
@@ -70,9 +76,21 @@ class Ticket < ActiveRecord::Base
   end
   
   ##
+  # Is the ticket currently open? Based upon the ticket's status.
+  def is_open?
+    return [ QUEUED, CHALLENGE_SENT ].include? self.status
+  end
+  
+  ##
+  # Is the ticket currently closed? Based upon the ticket's status.
+  def is_closed?
+    return !self.is_open?
+  end
+  
+  ##
   # Send challenge SMS message. This will construct the appropriate SMS 'envelope' and pass to the +Ticket's+ +Account+. This will also convert
   # the results into a message, to be held for reference.
-  def send_challenge( force_resend = false )
+  def send_challenge_message( force_resend = false )
   
     # Abort if message already sent and we do not want to force a resend
     return nil if self.has_challenge_been_sent? and !force_resend
@@ -110,7 +128,7 @@ class Ticket < ActiveRecord::Base
   
   ##
   # Send reply SMS message, based upon the +Ticket's+ current state. This will construct the appropriate SMS 'envelope' and pass to the +Ticket's+ +Account+.
-  def send_reply( force_resend = false )
+  def send_reply_message( force_resend = false )
   
     # Abort if message already sent and we do not want to force a resend
     return if self.has_reply_been_sent? and !force_resend
@@ -147,4 +165,5 @@ class Ticket < ActiveRecord::Base
   def has_reply_been_sent?
     return !self.reply_sent.nil?
   end
+
 end

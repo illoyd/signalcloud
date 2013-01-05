@@ -30,7 +30,7 @@ class SendChallengeJob < Struct.new( :ticket_id, :force_resend, :quiet )
     # This will automatically create the message
     say( 'Sending initial challenge message.' )
     begin
-      message = ticket.send_challenge()
+      message = ticket.send_challenge_message()
 
       # Create a 'pending' transaction
       ticket.appliance.account.transactions.create({

@@ -47,6 +47,7 @@ gem 'cancan'
 gem 'attr_encrypted'
 gem 'kaminari'
 gem 'phony'
+gem 'stringex'
 
 # Add rspec
 group :test, :development do
