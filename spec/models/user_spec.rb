@@ -40,7 +40,7 @@ describe User do
       
       # Combine all roles (will create an array of arrays)
       role_sets = []
-      (0..(User::ROLES.size)).each { |x| role_sets += User::ROLES.permutation(x).to_a }
+      (0..(User::ROLES.size)).each { |x| role_sets += User::ROLES.combination(x).to_a }
       
       # Check every role set
       role_sets.each do |role_set|
