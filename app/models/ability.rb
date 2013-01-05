@@ -84,6 +84,7 @@ class Ability
     # Index and show for primary objects
     can :read, [ Appliance, PhoneNumber, PhoneDirectory ], { account_id: user.account_id }
     can :read, [ Ticket ], { appliance: { account_id: user.account_id } }
+    can :read, [ Message ], { ticket: { appliance: { account_id: user.account_id } } }
     
     # Show for owning account
     can :show, [ Account ], { id: user.account_id }
@@ -123,7 +124,12 @@ class Ability
     can [:create, :destroy], PhoneDirectoryEntry, { phone_directory: { account_id: user.account_id } }
   end
   
-  def grant_force_tickets_privileges(user)
+  def grant_manage_transactions_privileges(user)
+    # All for account phone directories
+    can :read, Transaction, { account_id: user.account_id }
+  end
+  
+  def grant_force_ticket_privileges(user)
     # Allow forcing tickets
     can [:force], Ticket, { appliance: { account_id: user.account_id } }
   end
