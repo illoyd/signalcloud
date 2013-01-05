@@ -59,6 +59,26 @@ describe Ticket do
     end
   end
   
+  describe '.has_errored?' do
+    it 'should not be errored' do
+      ticket = tickets( :test_ticket )
+      # Open statuses
+      [ Ticket::QUEUED, Ticket::CHALLENGE_SENT, Ticket::CONFIRMED, Ticket::DENIED, Ticket::FAILED, Ticket::EXPIRED ].each do |status|
+        ticket.status = status
+        ticket.has_errored?.should == false
+      end
+    end
+    it 'should be errored' do
+      ticket = tickets( :test_ticket )
+      # Closed statuses
+      [ Ticket::ERROR_INVALID_TO, Ticket::ERROR_INVALID_FROM, Ticket::ERROR_BLACKLISTED_TO, Ticket::ERROR_NOT_SMS_CAPABLE, Ticket::ERROR_CANNOT_ROUTE, Ticket::ERROR_SMS_QUEUE_FULL ].each do |status|
+        ticket.status = status
+        ticket.has_errored?.should == true
+        ticket.is_closed?.should == true
+      end
+    end
+  end
+  
   describe '.normalize_message' do
 
     it 'should handle normal text' do

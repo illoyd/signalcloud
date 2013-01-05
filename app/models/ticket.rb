@@ -19,6 +19,7 @@ class Ticket < ActiveRecord::Base
   ERROR_NOT_SMS_CAPABLE = 103
   ERROR_CANNOT_ROUTE = 104
   ERROR_SMS_QUEUE_FULL = 106
+  ERROR_STATUSES = [ ERROR_INVALID_TO, ERROR_INVALID_FROM, ERROR_BLACKLISTED_TO, ERROR_NOT_SMS_CAPABLE, ERROR_CANNOT_ROUTE, ERROR_SMS_QUEUE_FULL ]
 
   attr_accessible :seconds_to_live, :appliance_id, :actual_answer, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry
   attr_accessor :seconds_to_live
@@ -85,6 +86,12 @@ class Ticket < ActiveRecord::Base
   # Is the ticket currently closed? Based upon the ticket's status.
   def is_closed?
     return !self.is_open?
+  end
+  
+  ##
+  # Is the ticket currently in an error state? Based upon the ticket's status.
+  def has_errored?
+    return Ticket::ERROR_STATUSES.include? self.status
   end
   
   ##
