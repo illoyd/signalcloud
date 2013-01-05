@@ -21,6 +21,44 @@ describe Ticket do
     
   end
   
+  describe '.is_open?' do
+    it 'should be open' do
+      ticket = tickets( :test_ticket )
+      # Open statuses
+      [ Ticket::QUEUED, Ticket::CHALLENGE_SENT ].each do |status|
+        ticket.status = status
+        ticket.is_open?.should == true
+      end
+    end
+    it 'should not be open' do
+      ticket = tickets( :test_ticket )
+      # Closed statuses
+      [ Ticket::CONFIRMED, Ticket::DENIED, Ticket::FAILED, Ticket::EXPIRED ].each do |status|
+        ticket.status = status
+        ticket.is_open?.should == false
+      end
+    end
+  end
+  
+  describe '.is_closed?' do
+    it 'should be closed' do
+      ticket = tickets( :test_ticket )
+      # Open statuses
+      [ Ticket::QUEUED, Ticket::CHALLENGE_SENT ].each do |status|
+        ticket.status = status
+        ticket.is_closed?.should == false
+      end
+    end
+    it 'should not be closed' do
+      ticket = tickets( :test_ticket )
+      # Closed statuses
+      [ Ticket::CONFIRMED, Ticket::DENIED, Ticket::FAILED, Ticket::EXPIRED ].each do |status|
+        ticket.status = status
+        ticket.is_closed?.should == true
+      end
+    end
+  end
+  
   describe '.normalize_message' do
 
     it 'should handle normal text' do

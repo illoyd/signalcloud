@@ -78,7 +78,7 @@ class Ticket < ActiveRecord::Base
   ##
   # Is the ticket currently open? Based upon the ticket's status.
   def is_open?
-    return [ QUEUED, CHALLENGE_SENT ].include? self.status
+    return Ticket::OPEN_STATUSES.include? self.status
   end
   
   ##
