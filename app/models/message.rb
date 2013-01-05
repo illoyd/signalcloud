@@ -12,8 +12,8 @@ class Message < ActiveRecord::Base
   belongs_to :ticket, inverse_of: :messages
   
   ##
-  # Transactions for this message - usually only one, but may be more
-  has_many :transactions, as: :item
+  # Transactions for this message - only one!
+  has_one :transaction, as: :item
   
   # Validations
   validates_presence_of :ticket_id, :twilio_sid, :payload

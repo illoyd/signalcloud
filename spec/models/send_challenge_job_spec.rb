@@ -37,8 +37,11 @@ describe SendChallengeJob do
   describe '.perform' do
     it 'should perform when ticket has not been sent yet' do
       @appliance = appliances(:test_appliance)
+
       @ticket = @appliance.open_ticket( to_number: Twilio::VALID_NUMBER, expected_confirmed_answer: 'YES' )
       @ticket.save!
+
+      # Get counts
       messages_count = @ticket.messages.count
       transactions_count = @ticket.appliance.account.transactions.count
       

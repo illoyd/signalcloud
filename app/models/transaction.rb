@@ -2,6 +2,10 @@ class Transaction < ActiveRecord::Base
 
   PENDING = 0
   SETTLED = 1
+  
+  OUTBOUND_SMS_NARRATIVE = 'Outbound SMS'
+  INBOUND_SMS_NARRATIVE = 'Inbound SMS'
+  INBOUND_CALL_NARRATIVE = 'Inbound Phone Call'
 
   attr_accessible :narrative, :value, :settled_at, :account_id, :item_id, :item_type, :account, :item
   

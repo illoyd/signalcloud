@@ -31,13 +31,7 @@ class SendChallengeJob < Struct.new( :ticket_id, :force_resend, :quiet )
     say( 'Sending initial challenge message.' )
     begin
       message = ticket.send_challenge_message()
-
-      # Create a 'pending' transaction
-      ticket.appliance.account.transactions.create({
-        item: message,
-        narrative: 'Outbound SMS'
-      }) 
-    
+      message.save!
       say( 'Received response %s.' % [message.twilio_sid] )
     rescue => ex
       say( 'FAILED to send message: %s.' % [ex.message], Logger::ERROR )

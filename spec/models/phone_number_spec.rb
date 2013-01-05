@@ -78,5 +78,57 @@ describe PhoneNumber do
       @account.phone_numbers.count.should == count_of_phone_numbers
     end
   end
+  
+  # Manage costs
+  describe '.cost' do
+    it 'interprete nil to 0' do
+      phone_number = phone_numbers(:test_us)
+      phone_number.our_cost = nil
+      phone_number.provider_cost = nil
+      phone_number.cost.should == 0
+    end
+    it 'accept 0, number' do
+      phone_number = phone_numbers(:test_us)
+      phone_number.our_cost = 0
+      phone_number.provider_cost = 1.3
+      phone_number.cost.should == 1.3
+    end
+    it 'accept number, 0' do
+      phone_number = phone_numbers(:test_us)
+      phone_number.our_cost = 2.5
+      phone_number.provider_cost = 0
+      phone_number.cost.should == 2.5
+    end
+    it 'accept number, number' do
+      phone_number = phone_numbers(:test_us)
+      phone_number.our_cost = 2.5
+      phone_number.provider_cost = 1.3
+      phone_number.cost.should == 3.8
+    end
+    it 'accept number, number' do
+      phone_number = phone_numbers(:test_us)
+      phone_number.our_cost = 2.5
+      phone_number.provider_cost = 1.3
+      phone_number.cost.should == 3.8
+    end
+    it 'accept -number, number' do
+      phone_number = phone_numbers(:test_us)
+      phone_number.our_cost = -2.5
+      phone_number.provider_cost = 1.3
+      phone_number.cost.should == -1.2
+    end
+    it 'accept number, -number' do
+      phone_number = phone_numbers(:test_us)
+      phone_number.our_cost = 2.5
+      phone_number.provider_cost = -1.3
+      phone_number.cost.should == 1.2
+    end
+    it 'accept -number, -number' do
+      phone_number = phone_numbers(:test_us)
+      phone_number.our_cost = -2.5
+      phone_number.provider_cost = -1.3
+      phone_number.cost.should == -3.8
+    end
+  end
 
 end

@@ -90,7 +90,7 @@ describe Transaction do
 
     it "should create a new pending transaction from scratch" do
       # Count the number of transactions for the message
-      original_transaction_count = @message.transactions.count
+      original_transaction_count = @account.transactions.count
       
       # Create a new transaction from scratch
       transaction = Transaction.create( account: @account, item: @message, narrative: 'Trial assignment' )
@@ -100,14 +100,15 @@ describe Transaction do
       transaction.item.should eq(@message)
       transaction.item_id.should == @message.id
       transaction.item_type.should == @message.class.name
+      transaction.narrative.should == 'Trial assignment'
       
       # Count of transactions should have increased by 1
-      @message.transactions.count.should == original_transaction_count + 1
+      @account.transactions.count.should == original_transaction_count + 1
     end
 
     it "should create a new pending transaction from account" do
       # Count the number of transactions for the message
-      original_transaction_count = @message.transactions.count
+      original_transaction_count = @account.transactions.count
       
       # Create a new transaction from scratch
       transaction = @account.transactions.create( item: @message, narrative: 'Trial assignment' )
@@ -119,12 +120,12 @@ describe Transaction do
       transaction.item_type.should == @message.class.name
       
       # Count of transactions should have increased by 1
-      @message.transactions.count.should == original_transaction_count + 1
+      @account.transactions.count.should == original_transaction_count + 1
     end
 
     it "should create a new settled transaction from scratch" do
       # Count the number of transactions for the message
-      original_transaction_count = @message.transactions.count
+      original_transaction_count = @account.transactions.count
       
       # Make an expected settled_at datetime
       expected_settled_at = DateTime.now
@@ -140,12 +141,12 @@ describe Transaction do
       transaction.item_type.should == @message.class.name
       
       # Count of transactions should have increased by 1
-      @message.transactions.count.should == original_transaction_count + 1
+      @account.transactions.count.should == original_transaction_count + 1
     end
 
     it "should create a new settled transaction from account" do
       # Count the number of transactions for the message
-      original_transaction_count = @message.transactions.count
+      original_transaction_count = @account.transactions.count
       
       # Make an expected settled_at datetime
       expected_settled_at = DateTime.now
@@ -161,7 +162,7 @@ describe Transaction do
       transaction.item_type.should == @message.class.name
       
       # Count of transactions should have increased by 1
-      @message.transactions.count.should == original_transaction_count + 1
+      @account.transactions.count.should == original_transaction_count + 1
     end
 
   end

@@ -107,6 +107,7 @@ class Ticket < ActiveRecord::Base
     begin
       results = self.appliance.account.send_sms( self.to_number, self.from_number, self.question )
       message = self.messages.create!( twilio_sid: results.sid, payload: results.to_property_hash )
+      transaction = message.build_transaction( account: self.appliance.account, narrative: 'Outbound SMS' )
       return message
 
     rescue Twilio::REST::RequestError => ex
@@ -151,8 +152,14 @@ class Ticket < ActiveRecord::Base
       when EXPIRED
         self.expired_reply
     end
+    
+    # Send message via account
     self.appliance.account.send_sms( self.to_number, self.from_number, reply_body )
-    return self.messages.create( twilio_sid: results.sid, payload: results.to_property_hash );
+    
+    # Construct the message and the related pending transaction object
+    message = self.messages.create( twilio_sid: results.sid, payload: results.to_property_hash )
+    transaction = message.build_transaction( account: self.appliance.account, narrative: Transaction::OUTBOUND_SMS_NARRATIVE )
+    return message
   end
   
   ##

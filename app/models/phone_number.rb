@@ -25,7 +25,7 @@ class PhoneNumber < ActiveRecord::Base
   before_save :normalize_phone_number
 
   def cost
-    return self.provider_cost + self.our_cost
+    return ( self.provider_cost || 0 ) + ( self.our_cost || 0 )
   end
 
   def buy
