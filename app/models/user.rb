@@ -12,7 +12,7 @@ class User < ActiveRecord::Base
   
   validates_presence_of :first_name, :last_name, :roles_mask, :account_id
 
-  ROLES = [ :shadow_account, :manage_account, :manage_users, :manage_appliances, :manage_phone_numbers, :manage_phone_directories, :force_tickets, :start_ticket ]
+  ROLES = [ :shadow_account, :manage_account, :manage_users, :manage_appliances, :manage_phone_numbers, :manage_phone_directories, :force_ticket, :start_ticket, :manage_transactions ]
 
   def method_missing(sym, *args, &block)
     if /^can_(.+)\?$/.match(sym) and User::ROLES.include?($1.to_sym)
