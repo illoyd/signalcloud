@@ -13,3 +13,17 @@ test_appliance:
   encrypted_denied_reply: "<%= Appliance.encrypt :denied_reply, 'The other right answer!' %>"
   encrypted_failed_reply: "<%= Appliance.encrypt :failed_reply, 'Wrong answer!' %>"
   encrypted_expired_reply: "<%= Appliance.encrypt :expired_reply, 'Took too long!' %>"
+
+dedicated_appliance:
+  account: dedicated_account
+  label: A dedicated appliance
+  description: A simple coffee maker
+  phone_directory: dedicated_directory
+  seconds_to_live: 180
+  encrypted_question: "<%= Appliance.encrypt :question, 'Hello, I am a question.' %>"
+  encrypted_expected_confirmed_answer: "<%= Appliance.encrypt :expected_confirmed_answer, 'yes' %>"
+  encrypted_expected_denied_answer: "<%= Appliance.encrypt :expected_denied_answer, 'no' %>"
+  encrypted_confirmed_reply: "<%= Appliance.encrypt :confirmed_reply, 'Right answer!' %>"
+  encrypted_denied_reply: "<%= Appliance.encrypt :denied_reply, 'The other right answer!' %>"
+  encrypted_failed_reply: "<%= Appliance.encrypt :failed_reply, 'Wrong answer!' %>"
+  encrypted_expired_reply: "<%= Appliance.encrypt :expired_reply, 'Took too long!' %>"

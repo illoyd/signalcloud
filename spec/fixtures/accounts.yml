@@ -8,3 +8,12 @@ test_account:
   account_plan: test_plan
   encrypted_twilio_account_sid: "<%= Account.encrypt :twilio_account_sid, ENV['TWILIO_TEST_ACCOUNT_SID'] %>"
   encrypted_twilio_auth_token: "<%= Account.encrypt :twilio_auth_token, ENV['TWILIO_TEST_AUTH_TOKEN'] %>"
+
+dedicated_account:
+  account_sid: dedicated_account
+  auth_token: secret_test
+  label: Dedicatd Account
+  balance: 500.00
+  account_plan: dedicated_plan
+  encrypted_twilio_account_sid: "<%= Account.encrypt :twilio_account_sid, ENV['TWILIO_TEST_ACCOUNT_SID'] %>"
+  encrypted_twilio_auth_token: "<%= Account.encrypt :twilio_auth_token, ENV['TWILIO_TEST_AUTH_TOKEN'] %>"

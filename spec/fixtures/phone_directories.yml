@@ -4,3 +4,8 @@ test_directory:
   account: test_account
   label: My Test Directory
   description: A general purpose test directory
+
+dedicated_directory:
+  account: dedicated_account
+  label: A dedicated directory
+  description: A general purpose test directory

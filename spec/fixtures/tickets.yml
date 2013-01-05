@@ -17,7 +17,7 @@ TO_NOT_SMS_CAPABLE_NO ||= '+15005550009'
 %>
 
 test_ticket:
-  appliance: :test_appliance
+  appliance: test_appliance
   status: 0
   encrypted_from_number: '<%= Ticket.encrypt(:from_number, FROM_VALID_NO) %>'
   encrypted_to_number: '<%= Ticket.encrypt(:to_number, TO_VALID_NO) %>'
@@ -38,7 +38,7 @@ test_ticket:
   reply_sms_sid: nil
 
 test_ticket_invalid_to:
-  appliance: :test_appliance
+  appliance: test_appliance
   status: 0
   encrypted_from_number: '<%= Ticket.encrypt(:from_number, FROM_VALID_NO) %>'
   encrypted_to_number: '<%= Ticket.encrypt(:to_number, "+15005550001") %>'
@@ -52,7 +52,7 @@ test_ticket_invalid_to:
   encrypted_expired_reply: '<%= Ticket.encrypt(:expired_reply, "Expired!") %>'
 
 test_ticket_cannot_route_to:
-  appliance: :test_appliance
+  appliance: test_appliance
   status: 0
   encrypted_from_number: '<%= Ticket.encrypt(:from_number, FROM_VALID_NO) %>'
   encrypted_to_number: '<%= Ticket.encrypt(:to_number, TO_CANNOT_ROUTE_NO) %>'
@@ -66,7 +66,7 @@ test_ticket_cannot_route_to:
   encrypted_expired_reply: '<%= Ticket.encrypt(:expired_reply, "Expired!") %>'
 
 test_ticket_international_to:
-  appliance: :test_appliance
+  appliance: test_appliance
   status: 0
   encrypted_from_number: '<%= Ticket.encrypt(:from_number, FROM_VALID_NO) %>'
   encrypted_to_number: '<%= Ticket.encrypt(:to_number, TO_INTERNATIONAL_NOT_AUTH_NO) %>'
@@ -80,7 +80,7 @@ test_ticket_international_to:
   encrypted_expired_reply: '<%= Ticket.encrypt(:expired_reply, "Expired!") %>'
 
 test_ticket_blacklisted_to:
-  appliance: :test_appliance
+  appliance: test_appliance
   status: 0
   encrypted_from_number: '<%= Ticket.encrypt(:from_number, FROM_VALID_NO) %>'
   encrypted_to_number: '<%= Ticket.encrypt(:to_number, TO_BLACKLISTED_NO) %>'
@@ -94,7 +94,7 @@ test_ticket_blacklisted_to:
   encrypted_expired_reply: '<%= Ticket.encrypt(:expired_reply, "Expired!") %>'
 
 test_ticket_not_sms_capable_to:
-  appliance: :test_appliance
+  appliance: test_appliance
   status: 0
   encrypted_from_number: '<%= Ticket.encrypt(:from_number, FROM_VALID_NO) %>'
   encrypted_to_number: '<%= Ticket.encrypt(:to_number, TO_NOT_SMS_CAPABLE_NO) %>'
@@ -108,7 +108,7 @@ test_ticket_not_sms_capable_to:
   encrypted_expired_reply: '<%= Ticket.encrypt(:expired_reply, "Expired!") %>'
 
 test_ticket_invalid_from:
-  appliance: :test_appliance
+  appliance: test_appliance
   status: 0
   encrypted_from_number: '<%= Ticket.encrypt(:from_number, FROM_INVALID_NO) %>'
   encrypted_to_number: '<%= Ticket.encrypt(:to_number, TO_VALID_NO) %>'
@@ -122,7 +122,7 @@ test_ticket_invalid_from:
   encrypted_expired_reply: '<%= Ticket.encrypt(:expired_reply, "Expired!") %>'
 
 test_ticket_not_sms_capable_from:
-  appliance: :test_appliance
+  appliance: test_appliance
   status: 0
   encrypted_from_number: '<%= Ticket.encrypt(:from_number, FROM_NOT_SMS_CAPABLE_NO) %>'
   encrypted_to_number: '<%= Ticket.encrypt(:to_number, TO_VALID_NO) %>'
@@ -136,7 +136,7 @@ test_ticket_not_sms_capable_from:
   encrypted_expired_reply: '<%= Ticket.encrypt(:expired_reply, "Expired!") %>'
 
 test_ticket_sms_queue_full_from:
-  appliance: :test_appliance
+  appliance: test_appliance
   status: 0
   encrypted_from_number: '<%= Ticket.encrypt(:from_number, FROM_FULL_SMS_QUEUE_NO) %>'
   encrypted_to_number: '<%= Ticket.encrypt(:to_number, TO_VALID_NO) %>'
@@ -148,3 +148,24 @@ test_ticket_sms_queue_full_from:
   encrypted_denied_reply: '<%= Ticket.encrypt(:denied_reply, "Other right!") %>'
   encrypted_failed_reply: '<%= Ticket.encrypt(:failed_reply, "Wrong!") %>'
   encrypted_expired_reply: '<%= Ticket.encrypt(:expired_reply, "Expired!") %>'
+
+dedicated_ticket:
+  appliance: dedicated_appliance
+  status: 0
+  encrypted_from_number: '<%= Ticket.encrypt(:from_number, FROM_VALID_NO) %>'
+  encrypted_to_number: '<%= Ticket.encrypt(:to_number, TO_VALID_NO) %>'
+  expiry: '<%= 180.seconds.from_now %>'
+  encrypted_question: '<%= Ticket.encrypt(:question, "Question") %>'
+  encrypted_expected_confirmed_answer: '<%= Ticket.encrypt(:expected_confirmed_answer, "yes") %>'
+  encrypted_expected_denied_answer: '<%= Ticket.encrypt(:expected_denied_answer, "no") %>'
+  encrypted_actual_answer: nil
+  encrypted_confirmed_reply: '<%= Ticket.encrypt(:confirmed_reply, "Right!") %>'
+  encrypted_denied_reply: '<%= Ticket.encrypt(:denied_reply, "Other right!") %>'
+  encrypted_failed_reply: '<%= Ticket.encrypt(:failed_reply, "Wrong!") %>'
+  encrypted_expired_reply: '<%= Ticket.encrypt(:expired_reply, "Expired!") %>'
+  challenge_sent: nil
+  challenge_sms_sid: nil
+  response_received: nil
+  response_sms_sid: nil
+  reply_sent: nil
+  reply_sms_sid: nil

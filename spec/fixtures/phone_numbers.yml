@@ -20,3 +20,10 @@ test_uk:
   twilio_phone_number_sid: 'TEMP-BBBBBBBBBBBBBBBBBBBBBBBBBBBBB'
   provider_cost: 2.0
   our_cost: 0.5
+
+dedicated_phone_number:
+  account: dedicated_account
+  encrypted_number: "<%= PhoneNumber.encrypt :number, Phony.normalize('+12123456789') %>"
+  twilio_phone_number_sid: 'TEMP-DDDDDDDDDDDDDDDDDDDDDDDDDDDDD'
+  provider_cost: 0.0
+  our_cost: 4.5

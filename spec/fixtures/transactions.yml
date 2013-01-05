@@ -33,3 +33,10 @@ outbound_sms_settled:
   narrative: 'Outbound SMS'
   value: 0.044
   settled_at: <%= DateTime.now %>
+
+dedicated_outbound_sms_1:
+  account: dedicated_account
+  item: dedicated_ticket_challenge (Message)
+  narrative: 'Outbound SMS'
+  value: 0.055
+  settled_at: <%= DateTime.now %>
