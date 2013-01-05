@@ -27,14 +27,20 @@ class User < ActiveRecord::Base
   end
   
   def roles=(new_roles)
-    new_roles.map! { |entry| entry.to_sym }
-    self.roles_mask = (new_roles & ROLES).map { |r| 2**ROLES.index(r) }.inject(0, :+)
+    #new_roles.map! { |entry| entry.to_sym }
+    #self.roles_mask = (new_roles & ROLES).map { |r| 2**ROLES.index(r) }.inject(0, :+)
+    self.roles_mask = User.translate_roles( new_roles )
   end
   
   def roles
     ROLES.reject do |r|
       ((roles_mask || 0) & 2**ROLES.index(r)).zero?
     end
+  end
+  
+  def self.translate_roles( new_roles )
+    new_roles.map! { |entry| entry.to_sym }
+    return (new_roles & ROLES).map { |r| 2**ROLES.index(r) }.inject(0, :+)
   end
 
 end
