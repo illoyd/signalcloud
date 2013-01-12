@@ -370,7 +370,6 @@ describe Ticket do
       end
 
       it "because FROM has a full SMS queue" do
-        pending 'Holding while fixing TO'
         ticket = tickets(:test_ticket_sms_queue_full_from)
         original_message_count = ticket.messages.count
         original_transaction_count = ticket.appliance.account.transactions.count

@@ -51,10 +51,7 @@ class MessageSendingError < MessageError
   end
 end
 
-class CriticalMessageSendingError < MessageError
-  def initialize(message, original = nil, code = nil)
-    super( 'Ticket encountered a critical error while sending (code %i).' % [code], message, original, code )
-  end
+class CriticalMessageSendingError < MessageSendingError
 end
 
 class InvalidTicketStateError < TicketError

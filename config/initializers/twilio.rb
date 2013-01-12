@@ -35,7 +35,7 @@ module Twilio
   
   ##
   # Critical error codes - these should never occur in a production environment
-  ERR_INTERNATIONAL_NOT_ENABLED = 21203
+  ERR_INTERNATIONAL_NOT_ENABLED = 21408
 
   ##
   # REST API interface

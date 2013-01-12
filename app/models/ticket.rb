@@ -144,6 +144,15 @@ class Ticket < ActiveRecord::Base
     rescue Ticketplease::MessageSendingError => ex
       # Set message status
       self.challenge_status = ex.code
+      
+      # Log as appropriate
+      if ex.is_a?( Ticketplease::CriticalMessageSendingError )
+        logger.error 'Ticket %i encountered critical error while sending challenge message (code %i)!' % [ self.id, self.challenge_status ]
+      else
+        logger.info 'Ticket %i encountered error while sending challenge message (code %i).' % [ self.id, self.challenge_status ]
+      end
+      
+      # Rethrow
       raise ex
 
     ensure
@@ -166,6 +175,11 @@ class Ticket < ActiveRecord::Base
     rescue Ticketplease::MessageSendingError => ex
       # Set message status
       self.reply_status = ex.code
+      if ex.is_a?( Ticketplease::CriticalMessageSendingError )
+        logger.error 'Ticket %i encountered critical error while sending reply message (code %i)!' % [ self.id, self.challenge_status ]
+      else
+        logger.info 'Ticket %i encountered error while sending reply message (code %i)!' % [ self.id, self.challenge_status ]
+      end
       raise ex
 
     ensure
