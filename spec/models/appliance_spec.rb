@@ -10,7 +10,7 @@ describe Appliance do
       
       ticket = appliance.open_ticket( to_number: Twilio::VALID_NUMBER )
       ticket.save
-      ticket.to_number.should == Phony::normalize( Twilio::VALID_NUMBER )
+      ticket.to_number.should == Twilio::VALID_NUMBER
       
     end
     

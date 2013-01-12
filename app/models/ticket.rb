@@ -25,8 +25,11 @@ class Ticket < ActiveRecord::Base
   ERROR_CANNOT_ROUTE = 104
   ERROR_SMS_QUEUE_FULL = 106
   ERROR_INTERNATIONAL = 107
+  ERROR_MISSING_BODY = 108
+  ERROR_BODY_TOO_LARGE = 109
   ERROR_UNKNOWN = 127
-  ERROR_STATUSES = [ ERROR_INVALID_TO, ERROR_INVALID_FROM, ERROR_BLACKLISTED_TO, ERROR_NOT_SMS_CAPABLE, ERROR_CANNOT_ROUTE, ERROR_SMS_QUEUE_FULL, ERROR_INTERNATIONAL, ERROR_UNKNOWN ]
+  ERROR_STATUSES = [ ERROR_INVALID_TO, ERROR_INVALID_FROM, ERROR_BLACKLISTED_TO, ERROR_NOT_SMS_CAPABLE, ERROR_CANNOT_ROUTE, ERROR_SMS_QUEUE_FULL, ERROR_INTERNATIONAL, ERROR_MISSING_BODY, ERROR_BODY_TOO_LARGE, ERROR_UNKNOWN ]
+  CRITICAL_ERRORS = [ ERROR_MISSING_BODY, ERROR_BODY_TOO_LARGE, ERROR_INTERNATIONAL ]
 
   attr_accessible :seconds_to_live, :appliance_id, :actual_answer, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry
   attr_accessor :seconds_to_live
@@ -140,15 +143,18 @@ class Ticket < ActiveRecord::Base
     
     # Send the message, catching any errors
     begin
-      return self.send_message( self.question, force_resend )
+      message = self.send_message( self.question, force_resend )
+      self.status = QUEUED
       self.challenge_status = QUEUED
+      return message
 
     rescue Ticketplease::MessageSendingError => ex
       # Set message status
+      self.status = ex.code
       self.challenge_status = ex.code
       
       # Log as appropriate
-      if ex.is_a?( Ticketplease::CriticalMessageSendingError )
+      if ex.instance_of?( Ticketplease::CriticalMessageSendingError )
         logger.error 'Ticket %i encountered critical error while sending challenge message (code %i)!' % [ self.id, self.challenge_status ]
       else
         logger.info 'Ticket %i encountered error while sending challenge message (code %i).' % [ self.id, self.challenge_status ]
@@ -159,7 +165,7 @@ class Ticket < ActiveRecord::Base
 
     ensure
       # Always save self
-      self.save!
+      self.save
     end
 
   end
@@ -171,22 +177,27 @@ class Ticket < ActiveRecord::Base
     
     # Send the message, catching any errors
     begin
-      return self.send_message( self.select_reply_message_to_send, force_resend )
+      message = self.send_message( self.select_reply_message_to_send, force_resend )
       self.reply_status = QUEUED
+      return message
 
     rescue Ticketplease::MessageSendingError => ex
       # Set message status
       self.reply_status = ex.code
-      if ex.is_a?( Ticketplease::CriticalMessageSendingError )
+      
+      # Log as appropriate
+      if ex.instance_of?( Ticketplease::CriticalMessageSendingError )
         logger.error 'Ticket %i encountered critical error while sending reply message (code %i)!' % [ self.id, self.challenge_status ]
       else
         logger.info 'Ticket %i encountered error while sending reply message (code %i)!' % [ self.id, self.challenge_status ]
       end
+      
+      # Rethrow
       raise ex
 
     ensure
       # Always save self
-      self.save!
+      self.save
     end
 
   end
@@ -205,22 +216,16 @@ class Ticket < ActiveRecord::Base
       message = self.messages.build( twilio_sid: results.sid, payload: results.to_property_hash )
       transaction = message.build_transaction( account: self.appliance.account, narrative: Transaction::OUTBOUND_SMS_NARRATIVE )
       
-      # Update the ticket's status (includes both the main status as well as the challenge/reply )
-      self.status = PENDING
-      self.challenge_status = PENDING
-
       # Return the completed message
       return message
 
     rescue Twilio::REST::RequestError => ex
-      self.status = Ticket.translate_twilio_error_to_ticket_status ex.code
-      case self.status
-        when ERROR_INTERNATIONAL, ERROR_UNKNOWN
-          raise Ticketplease::CriticalMessageSendingError.new( message, ex, self.status ) # Rethrow as a critical error
-        else
-          raise Ticketplease::MessageSendingError.new( message, ex, self.status ) # Rethrow in nice wrapper error
+      error_code = Ticket.translate_twilio_error_to_ticket_status ex.code
+      if CRITICAL_ERRORS.include? error_code
+        raise Ticketplease::CriticalMessageSendingError.new( message, ex, error_code ) # Rethrow as a critical error
+      else
+        raise Ticketplease::MessageSendingError.new( message, ex, error_code ) # Rethrow in nice wrapper error
       end
-
     end
 
   end
@@ -247,9 +252,9 @@ class Ticket < ActiveRecord::Base
   # Translate a given Twilio error message into a ticket status message
   def self.translate_twilio_error_to_ticket_status( error_code )
     return case error_code
-      when Twilio::ERR_INVALID_TO_PHONE_NUMBER
+      when Twilio::ERR_INVALID_TO_PHONE_NUMBER, Twilio::ERR_SMS_TO_REQUIRED
         ERROR_INVALID_TO
-      when Twilio::ERR_INVALID_FROM_PHONE_NUMBER
+      when Twilio::ERR_INVALID_FROM_PHONE_NUMBER, Twilio::ERR_SMS_FROM_REQUIRED
         ERROR_INVALID_FROM
       when Twilio::ERR_FROM_PHONE_NUMBER_NOT_SMS_CAPABLE, Twilio::ERR_TO_PHONE_NUMBER_NOT_VALID_MOBILE
         ERROR_NOT_SMS_CAPABLE
@@ -261,6 +266,10 @@ class Ticket < ActiveRecord::Base
         ERROR_BLACKLISTED_TO
       when Twilio::ERR_INTERNATIONAL_NOT_ENABLED
         ERROR_INTERNATIONAL
+      when Twilio::ERR_SMS_BODY_REQUIRED
+        ERROR_MISSING_BODY
+      when Twilio::ERR_SMS_BODY_EXCEEDS_MAXIMUM_LENGTH
+        ERROR_BODY_TOO_LARGE
       else
         ERROR_UNKNOWN
       end
