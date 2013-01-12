@@ -20,8 +20,9 @@ class Ticket < ActiveRecord::Base
   ERROR_NOT_SMS_CAPABLE = 103
   ERROR_CANNOT_ROUTE = 104
   ERROR_SMS_QUEUE_FULL = 106
-  ERROR_UNKNOWN = 999
-  ERROR_STATUSES = [ ERROR_INVALID_TO, ERROR_INVALID_FROM, ERROR_BLACKLISTED_TO, ERROR_NOT_SMS_CAPABLE, ERROR_CANNOT_ROUTE, ERROR_SMS_QUEUE_FULL, ERROR_UNKNOWN ]
+  ERROR_INTERNATIONAL = 107
+  ERROR_UNKNOWN = 127
+  ERROR_STATUSES = [ ERROR_INVALID_TO, ERROR_INVALID_FROM, ERROR_BLACKLISTED_TO, ERROR_NOT_SMS_CAPABLE, ERROR_CANNOT_ROUTE, ERROR_SMS_QUEUE_FULL, ERROR_INTERNATIONAL, ERROR_UNKNOWN ]
 
   attr_accessible :seconds_to_live, :appliance_id, :actual_answer, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry
   attr_accessor :seconds_to_live
@@ -48,6 +49,8 @@ class Ticket < ActiveRecord::Base
   validates :to_number, phone_number: true
   validates :from_number, phone_number: true
   #validates_numericality_of :seconds_to_live
+  validates_numericality_of :challenge_status, allow_nil: true, integer_only: true, greater_than_or_equal_to: 0
+  validates_numericality_of :reply_status, allow_nil: true, integer_only: true, greater_than_or_equal_to: 0
   
   # Scopes
   scope :opened, where( :status => [ QUEUED, CHALLENGE_SENT ] )
@@ -71,8 +74,8 @@ class Ticket < ActiveRecord::Base
   ##
   # Normalize phone numbers using the Phony library.
   def normalize_phone_numbers
-    self.to_number = Phony.normalize(self.to_number)
-    self.from_number = Phony.normalize(self.from_number)
+    self.to_number = '+' + Phony.normalize(self.to_number)
+    self.from_number = '+' + Phony.normalize(self.from_number)
   end
   
   ##
@@ -131,7 +134,7 @@ class Ticket < ActiveRecord::Base
   def send_challenge_message( force_resend = false )
 
     # Abort if message already sent and we do not want to force a resend
-    raise Ticketplease::MessageAlreadySentError unless ( force_resend || !self.has_challenge_been_sent? )
+    raise Ticketplease::ChallengeAlreadySentError unless ( force_resend || !self.has_challenge_been_sent? )
     
     # Send the message, catching any errors
     begin
@@ -140,7 +143,7 @@ class Ticket < ActiveRecord::Base
 
     rescue Ticketplease::MessageSendingError => ex
       # Set message status
-      self.challenge_status = FAILED
+      self.challenge_status = ex.code
       raise ex
 
     ensure
@@ -153,7 +156,7 @@ class Ticket < ActiveRecord::Base
   def send_reply_message( force_resend = false )
 
     # Abort if message already sent and we do not want to force a resend
-    raise Ticketplease::MessageAlreadySentError unless ( force_resend || !self.has_reply_been_sent? )
+    raise Ticketplease::ReplyAlreadySentError unless ( force_resend || !self.has_reply_been_sent? )
     
     # Send the message, catching any errors
     begin
@@ -162,7 +165,7 @@ class Ticket < ActiveRecord::Base
 
     rescue Ticketplease::MessageSendingError => ex
       # Set message status
-      self.reply_status = FAILED
+      self.reply_status = ex.code
       raise ex
 
     ensure
@@ -175,13 +178,15 @@ class Ticket < ActiveRecord::Base
   ##
   # Send challenge SMS message. This will construct the appropriate SMS 'envelope' and pass to the +Ticket's+ +Account+. This will also convert
   # the results into a message, to be held for reference.
-  def send_message( force_resend = false )
+  def send_message( message_body, force_resend = false )
   
     # Otherwise, continue to send SMS and store the results
     message = nil
+    #message_to = '+%s' % self.to_number
+    #message_from = '+%s' % self.from_number
     begin
       # Send the SMS
-      results = self.appliance.account.send_sms( self.to_number, self.from_number, self.select_next_message_to_send() )
+      results = self.appliance.account.send_sms( self.to_number, self.from_number, message_body )
 
       # Build a message and transaction to hold the results
       message = self.messages.build( twilio_sid: results.sid, payload: results.to_property_hash )
@@ -191,13 +196,13 @@ class Ticket < ActiveRecord::Base
 
     rescue Twilio::REST::RequestError => ex
       self.status = Ticket.translate_twilio_error_to_ticket_status ex.code
-      message.payload = { to: self.to_number, from: self.from_number, body: message_body, status: ex.status, code: ex.code, message: ex.message }
-      self.save!
-      raise Ticketplease::MessageSendingError.new( message, ex ) # Rethrow error
+      case self.status
+        when ERROR_INTERNATIONAL, ERROR_UNKNOWN
+          raise Ticketplease::CriticalMessageSendingError.new( message, ex, self.status ) # Rethrow as a critical error
+        else
+          raise Ticketplease::MessageSendingError.new( message, ex, self.status ) # Rethrow in nice wrapper error
+      end
 
-    ensure
-      # Save everything
-      message.save!
     end
 
     # Return the completed message
@@ -267,6 +272,8 @@ class Ticket < ActiveRecord::Base
         ERROR_CANNOT_ROUTE
       when Twilio::ERR_TO_PHONE_NUMBER_IS_BLACKLISTED
         ERROR_BLACKLISTED_TO
+      when Twilio::ERR_INTERNATIONAL_NOT_ENABLED
+        ERROR_INTERNATIONAL
       else
         ERROR_UNKNOWN
       end

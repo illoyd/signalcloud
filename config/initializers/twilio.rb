@@ -32,6 +32,10 @@ module Twilio
   ERR_FROM_PHONE_NUMBER_EXCEEDED_QUEUE_SIZE = 21611
   ERR_TO_PHONE_NUMBER_CANNOT_RECEIVE_SMS = 21612
   ERR_TO_PHONE_NUMBER_NOT_VALID_MOBILE = 21614
+  
+  ##
+  # Critical error codes - these should never occur in a production environment
+  ERR_INTERNATIONAL_NOT_ENABLED = 21203
 
   ##
   # REST API interface

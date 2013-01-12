@@ -5,7 +5,7 @@ class CreateTickets < ActiveRecord::Migration
     create_table :tickets do |t|
       #t.column :id, :bigint, null: false
       t.references :appliance, null: false
-      t.integer :status, null: false, default: 0, limit: 4
+      t.integer :status, null: false, default: 0, limit: 2
       t.string :encrypted_from_number, null: false
       t.string :encrypted_to_number, null: false
       t.datetime :expiry, null: false
@@ -18,10 +18,10 @@ class CreateTickets < ActiveRecord::Migration
       t.string :encrypted_failed_reply, null: false
       t.string :encrypted_expired_reply, null: false
       t.datetime :challenge_sent
-      t.integer :challenge_status
+      t.integer :challenge_status, limit: 2
       t.datetime :response_received
       t.datetime :reply_sent
-      t.integer :reply_status
+      t.integer :reply_status, limit: 2
 
       t.timestamps
     end

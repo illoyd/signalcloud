@@ -137,7 +137,7 @@ ActiveRecord::Schema.define(:version => 20121220210403) do
 
   create_table "tickets", :force => true do |t|
     t.integer  "appliance_id",                                                    :null => false
-    t.integer  "status",                              :limit => 4, :default => 0, :null => false
+    t.integer  "status",                              :limit => 2, :default => 0, :null => false
     t.string   "encrypted_from_number",                                           :null => false
     t.string   "encrypted_to_number",                                             :null => false
     t.datetime "expiry",                                                          :null => false
@@ -150,8 +150,10 @@ ActiveRecord::Schema.define(:version => 20121220210403) do
     t.string   "encrypted_failed_reply",                                          :null => false
     t.string   "encrypted_expired_reply",                                         :null => false
     t.datetime "challenge_sent"
+    t.integer  "challenge_status",                    :limit => 2
     t.datetime "response_received"
     t.datetime "reply_sent"
+    t.integer  "reply_status",                        :limit => 2
     t.datetime "created_at",                                                      :null => false
     t.datetime "updated_at",                                                      :null => false
   end

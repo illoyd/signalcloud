@@ -206,12 +206,12 @@ describe Ticket do
     end
   end
   
-  describe ".send_next_message" do
+  describe ".send_challenge_message" do
 
     it "should send challenge" do
       ticket = tickets(:test_ticket)
       original_message_count = ticket.messages.count
-      expect{ @message = ticket.send_next_message() }.to_not raise_error
+      expect{ @message = ticket.send_challenge_message() }.to_not raise_error
       @message.body.should == ticket.question
       @message.to_number.should == ticket.to_number
       @message.from_number.should == ticket.from_number
@@ -225,105 +225,170 @@ describe Ticket do
       it "because invalid TO" do
         ticket = tickets(:test_ticket_invalid_to)
         original_message_count = ticket.messages.count
-        expect{ @message = ticket.send_next_message() }.to raise_error( Ticketplease::TicketSendingError )
-        ticket.status.should == Ticket::ERROR_INVALID_TO
-        @message.body.should == ticket.question
-        @message.to_number.should == ticket.to_number
-        @message.from_number.should == ticket.from_number
+        original_transaction_count = ticket.appliance.account.transactions.count
         
-        # Was a new message saved?
-        ticket.messages.count.should == original_message_count + 1
+        # Run command and expect an error
+        expect{ @message = ticket.send_challenge_message() }.to raise_error do |ex|
+          ex.should be_a( Ticketplease::MessageSendingError )
+          ex.code.should == Ticket::ERROR_INVALID_TO
+        end
+        
+        # Verify that the ticket is now in an error status
+        ticket.has_errored?.should == true
+        ticket.status.should == Ticket::ERROR_INVALID_TO
+        ticket.challenge_status.should == Ticket::ERROR_INVALID_TO
+        
+        # The message and transaction count should not increase
+        ticket.messages.count.should == original_message_count
+        ticket.appliance.account.transactions.count.should == original_transaction_count
       end
 
       it "because routing is not possible" do
         ticket = tickets(:test_ticket_cannot_route_to)
         original_message_count = ticket.messages.count
-        expect{ @message = ticket.send_next_message() }.to raise_error( Ticketplease::TicketSendingError )
+        original_transaction_count = ticket.appliance.account.transactions.count
+
+        # Run command and expect an error
+        expect{ @message = ticket.send_challenge_message() }.to raise_error do |ex|
+          ex.should be_a( Ticketplease::MessageSendingError )
+          ex.code.should == Ticket::ERROR_CANNOT_ROUTE
+        end
+
+        # Verify that the ticket is now in an error status
+        ticket.has_errored?.should == true
         ticket.status.should == Ticket::ERROR_CANNOT_ROUTE
-        @message.body.should == ticket.question
-        @message.to_number.should == ticket.to_number
-        @message.from_number.should == ticket.from_number
+        ticket.challenge_status.should == Ticket::ERROR_CANNOT_ROUTE
         
-        # Was a new message saved?
-        ticket.messages.count.should == original_message_count + 1
+        # The message and transaction count should not increase
+        ticket.messages.count.should == original_message_count
+        ticket.appliance.account.transactions.count.should == original_transaction_count
       end
 
       it "because international support is disabled" do
         ticket = tickets(:test_ticket_international_to)
         original_message_count = ticket.messages.count
-        expect{ @message = ticket.send_next_message() }.to raise_error(Twilio::REST::RequestError)
-        ticket.status.should == Ticket::ERROR_INVALID_TO
-        @message.body.should == ticket.question
-        @message.to_number.should == ticket.to_number
-        @message.from_number.should == ticket.from_number
+        original_transaction_count = ticket.appliance.account.transactions.count
+
+        # Run command and expect an error
+        expect{ @message = ticket.send_challenge_message() }.to raise_error do |ex|
+          ex.should be_a( Ticketplease::CriticalMessageSendingError )
+          ex.code.should == Ticket::ERROR_INTERNATIONAL
+        end
         
-        # Was a new message saved?
-        ticket.messages.count.should == original_message_count + 1
+        # Verify that the ticket is now in an error status
+        ticket.has_errored?.should == true
+        ticket.status.should == Ticket::ERROR_INTERNATIONAL
+        ticket.challenge_status.should == Ticket::ERROR_INTERNATIONAL
+        
+        # The message and transaction count should not increase
+        ticket.messages.count.should == original_message_count
+        ticket.appliance.account.transactions.count.should == original_transaction_count
       end
 
       it "because TO is on blacklist" do
         ticket = tickets(:test_ticket_blacklisted_to)
         original_message_count = ticket.messages.count
-        expect{ @message = ticket.send_next_message() }.to raise_error( Ticketplease::TicketSendingError )
+        original_transaction_count = ticket.appliance.account.transactions.count
+
+        # Run command and expect an error
+        expect{ @message = ticket.send_challenge_message() }.to raise_error do |ex|
+          ex.should be_a( Ticketplease::MessageSendingError )
+          ex.code.should == Ticket::ERROR_BLACKLISTED_TO
+        end
+
+        # Verify that the ticket is now in an error status
+        ticket.has_errored?.should == true
         ticket.status.should == Ticket::ERROR_BLACKLISTED_TO
-        @message.body.should == ticket.question
-        @message.to_number.should == ticket.to_number
-        @message.from_number.should == ticket.from_number
+        ticket.challenge_status.should == Ticket::ERROR_BLACKLISTED_TO
         
-        # Was a new message saved?
-        ticket.messages.count.should == original_message_count + 1
+        # The message and transaction count should not increase
+        ticket.messages.count.should == original_message_count
+        ticket.appliance.account.transactions.count.should == original_transaction_count
       end
 
       it "because TO is not SMS capable" do
         ticket = tickets(:test_ticket_not_sms_capable_to)
         original_message_count = ticket.messages.count
-        expect{ @message = ticket.send_next_message() }.to raise_error( Ticketplease::TicketSendingError )
+        original_transaction_count = ticket.appliance.account.transactions.count
+
+        # Run command and expect an error
+        expect{ @message = ticket.send_challenge_message() }.to raise_error do |ex|
+          ex.should be_a( Ticketplease::MessageSendingError )
+          ex.code.should == Ticket::ERROR_NOT_SMS_CAPABLE
+        end
+
+        # Verify that the ticket is now in an error status
+        ticket.has_errored?.should == true
         ticket.status.should == Ticket::ERROR_NOT_SMS_CAPABLE
-        @message.body.should == ticket.question
-        @message.to_number.should == ticket.to_number
-        @message.from_number.should == ticket.from_number
+        ticket.challenge_status.should == Ticket::ERROR_NOT_SMS_CAPABLE
         
-        # Was a new message saved?
-        ticket.messages.count.should == original_message_count + 1
+        # The message and transaction count should not increase
+        ticket.messages.count.should == original_message_count
+        ticket.appliance.account.transactions.count.should == original_transaction_count
       end
 
       it "because invalid FROM" do
         ticket = tickets(:test_ticket_invalid_from)
         original_message_count = ticket.messages.count
-        expect{ @message = ticket.send_next_message() }.to raise_error( Ticketplease::TicketSendingError )
+        original_transaction_count = ticket.appliance.account.transactions.count
+
+        # Run command and expect an error
+        expect{ @message = ticket.send_challenge_message() }.to raise_error do |ex|
+          ex.should be_a( Ticketplease::MessageSendingError )
+          ex.code.should == Ticket::ERROR_INVALID_FROM
+        end
+
+        # Verify that the ticket is now in an error status
+        ticket.has_errored?.should == true
         ticket.status.should == Ticket::ERROR_INVALID_FROM
-        @message.body.should == ticket.question
-        @message.to_number.should == ticket.to_number
-        @message.from_number.should == ticket.from_number
+        ticket.challenge_status.should == Ticket::ERROR_INVALID_FROM
         
-        # Was a new message saved?
-        ticket.messages.count.should == original_message_count + 1
+        # The message and transaction count should not increase
+        ticket.messages.count.should == original_message_count
+        ticket.appliance.account.transactions.count.should == original_transaction_count
       end
 
       it "because FROM is not SMS capable" do
         ticket = tickets(:test_ticket_not_sms_capable_from)
         original_message_count = ticket.messages.count
-        expect{ @message = ticket.send_next_message() }.to raise_error( Ticketplease::TicketSendingError )
+        original_transaction_count = ticket.appliance.account.transactions.count
+
+        # Run command and expect an error
+        expect{ @message = ticket.send_challenge_message() }.to raise_error do |ex|
+          ex.should be_a( Ticketplease::MessageSendingError )
+          ex.code.should == Ticket::ERROR_NOT_SMS_CAPABLE
+        end
+
+        # Verify that the ticket is now in an error status
+        ticket.has_errored?.should == true
         ticket.status.should == Ticket::ERROR_NOT_SMS_CAPABLE
-        @message.body.should == ticket.question
-        @message.to_number.should == ticket.to_number
-        @message.from_number.should == ticket.from_number
+        ticket.challenge_status.should == Ticket::ERROR_NOT_SMS_CAPABLE
         
-        # Was a new message saved?
-        ticket.messages.count.should == original_message_count + 1
+        # The message and transaction count should not increase
+        ticket.messages.count.should == original_message_count
+        ticket.appliance.account.transactions.count.should == original_transaction_count
       end
 
       it "because FROM has a full SMS queue" do
+        pending 'Holding while fixing TO'
         ticket = tickets(:test_ticket_sms_queue_full_from)
         original_message_count = ticket.messages.count
-        expect{ @message = ticket.send_next_message() }.to raise_error( Ticketplease::TicketSendingError )
+        original_transaction_count = ticket.appliance.account.transactions.count
+
+        # Run command and expect an error
+        expect{ @message = ticket.send_challenge_message() }.to raise_error do |ex|
+          ex.should be_a( Ticketplease::MessageSendingError )
+          ex.code.should == Ticket::ERROR_SMS_QUEUE_FULL
+        end
+
+        # Verify that the ticket is now in an error status
+        ticket.has_errored?.should == true
         ticket.status.should == Ticket::ERROR_SMS_QUEUE_FULL
-        @message.body.should == ticket.question
-        @message.to_number.should == ticket.to_number
-        @message.from_number.should == ticket.from_number
+        ticket.challenge_status.should == Ticket::ERROR_SMS_QUEUE_FULL
         
-        # Was a new message saved?
-        ticket.messages.count.should == original_message_count + 1
+        # The message and transaction count should not increase
+        ticket.messages.count.should == original_message_count
+        ticket.appliance.account.transactions.count.should == original_transaction_count
       end
 
     end
