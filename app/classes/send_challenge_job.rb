@@ -8,14 +8,6 @@
 #
 class SendChallengeJob < Struct.new( :ticket_id, :force_resend, :quiet )
 
-  cattr_accessor :logger
-
-    self.logger = if defined?(Rails)
-      Rails.logger
-    elsif defined?(RAILS_DEFAULT_LOGGER)
-      RAILS_DEFAULT_LOGGER
-    end
-
   def perform
     # Get the ticket
     ticket = self.find_ticket()
@@ -29,10 +21,13 @@ class SendChallengeJob < Struct.new( :ticket_id, :force_resend, :quiet )
       say( 'Received response %s.' % [message.twilio_sid] )
       
       # Create and enqueue a new expiration job
-      DelayedJob::enqueue ExpireTicketJob.new( ticket.id, false, self.quiet )
+      Delayed::Job::enqueue ExpireTicketJob.new( ticket.id, false, self.quiet )
 
-    rescue Ticketplease::MessageAlreadySentError => ex
+    rescue Ticketplease::ChallengeAlreadySentError => ex
       say( 'Skipping as message has already been sent.' )
+    
+    rescue Ticketplease::MessageSendingError => ex
+      say( ex.message, Logger::WARN )
     
     rescue => ex
       say( 'FAILED to send message: %s.' % [ex.message], Logger::ERROR )
@@ -57,7 +52,7 @@ class SendChallengeJob < Struct.new( :ticket_id, :force_resend, :quiet )
   def say(text, level = Logger::INFO)
     text = "[SendChallengeJob(#{self.ticket_id})] #{text}"
     puts text unless self.quiet
-    self.logger.add level, "#{Time.now.strftime('%FT%T%z')}: #{text}" if self.logger
+    Delayed::Worker.logger.add( level, "#{Time.now.strftime('%FT%T%z')}: #{text}" ) if Delayed::Worker.logger
   end
 
 end

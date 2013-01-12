@@ -51,13 +51,14 @@ describe SendChallengeJob do
       Delayed::Job.count.should == job_count + 1
       
       # Now, work that job!
-      expect{ @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
+      expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
       @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-      Delayed::Job.count.should == 0
+      Delayed::Job.count.should == 1 # It should enqueue another job (an expire job)
       
       # Check that the ticket status is updated
-      @ticket.status.should == Ticket::CHALLENGE_SENT
-      @ticket.challenge_sent.should_not be_nil
+      @ticket.reload
+      @ticket.status.should == Ticket::QUEUED
+      @ticket.challenge_status.should == Ticket::QUEUED
 
       # Check that a message and a transaction were built
       @ticket.messages.count.should == messages_count + 1
@@ -68,6 +69,7 @@ describe SendChallengeJob do
       @appliance = appliances(:test_appliance)
       @ticket = @appliance.open_ticket( to_number: Twilio::VALID_NUMBER, expected_confirmed_answer: 'YES' )
       @ticket.challenge_sent = DateTime.now # Forces job to 'pretend' it has been sent successfully
+      @ticket.challenge_status = Ticket::SENT
       @ticket.status = Ticket::CHALLENGE_SENT
       @ticket.save!
 
@@ -83,13 +85,14 @@ describe SendChallengeJob do
       Delayed::Job.count.should == job_count + 1
       
       # Now, work that job!
-      expect{ @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
+      expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
       @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
       Delayed::Job.count.should == 0
       
       # Check that the ticket status is updated
+      @ticket.reload
       @ticket.status.should == Ticket::CHALLENGE_SENT
-      @ticket.challenge_sent.should_not be_nil
+      @ticket.challenge_status.should == Ticket::SENT
 
       # Check that a message and a transaction were NOT built
       @ticket.messages.count.should == messages_count
@@ -113,13 +116,14 @@ describe SendChallengeJob do
       Delayed::Job.count.should == job_count + 1
       
       # Now, work that job! - No error, but will close out the job
-      expect{ @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
+      expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
       @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
       Delayed::Job.count.should == 0
       
       # Check that the ticket status is updated
+      @ticket.reload
       @ticket.status.should == Ticket::ERROR_INVALID_TO
-      @ticket.challenge_sent.should_not be_nil
+      @ticket.challenge_status.should == Ticket::ERROR_INVALID_TO
 
       # Check that a message and a transaction were NOT built
       @ticket.messages.count.should == messages_count

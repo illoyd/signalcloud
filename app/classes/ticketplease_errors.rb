@@ -32,10 +32,10 @@ class TicketError < TicketpleaseError
 end
 
 class MessageError < TicketpleaseError
-  attr_accessor :message
-  def initialize( msg, message, original = nil, code = nil )
+  attr_accessor :ticket_message
+  def initialize( msg, ticket_message, original = nil, code = nil )
     super( msg, original, code )
-    self.message = message
+    self.ticket_message = ticket_message
   end
 end
 
