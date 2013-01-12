@@ -31,11 +31,8 @@ test_ticket:
   encrypted_failed_reply: '<%= Ticket.encrypt(:failed_reply, "Wrong!") %>'
   encrypted_expired_reply: '<%= Ticket.encrypt(:expired_reply, "Expired!") %>'
   challenge_sent: nil
-  challenge_sms_sid: nil
   response_received: nil
-  response_sms_sid: nil
   reply_sent: nil
-  reply_sms_sid: nil
 
 test_ticket_invalid_to:
   appliance: test_appliance
@@ -164,8 +161,5 @@ dedicated_ticket:
   encrypted_failed_reply: '<%= Ticket.encrypt(:failed_reply, "Wrong!") %>'
   encrypted_expired_reply: '<%= Ticket.encrypt(:expired_reply, "Expired!") %>'
   challenge_sent: nil
-  challenge_sms_sid: nil
   response_received: nil
-  response_sms_sid: nil
   reply_sent: nil
-  reply_sms_sid: nil

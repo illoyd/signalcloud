@@ -87,13 +87,14 @@ ActiveRecord::Schema.define(:version => 20121220210403) do
   add_index "delayed_jobs", ["priority", "run_at"], :name => "delayed_jobs_priority"
 
   create_table "messages", :force => true do |t|
-    t.integer  "ticket_id",                                                                      :null => false
-    t.string   "twilio_sid",        :limit => 34,                                                :null => false
-    t.decimal  "provider_cost",                   :precision => 6, :scale => 4, :default => 0.0, :null => false
-    t.decimal  "our_cost",                        :precision => 6, :scale => 4, :default => 0.0, :null => false
-    t.text     "encrypted_payload",                                                              :null => false
-    t.datetime "created_at",                                                                     :null => false
-    t.datetime "updated_at",                                                                     :null => false
+    t.integer  "ticket_id",                                                                               :null => false
+    t.string   "twilio_sid",                 :limit => 34
+    t.decimal  "provider_cost",                            :precision => 6, :scale => 4, :default => 0.0, :null => false
+    t.decimal  "our_cost",                                 :precision => 6, :scale => 4, :default => 0.0, :null => false
+    t.text     "encrypted_payload"
+    t.text     "encrypted_callback_payload"
+    t.datetime "created_at",                                                                              :null => false
+    t.datetime "updated_at",                                                                              :null => false
   end
 
   add_index "messages", ["ticket_id"], :name => "index_messages_on_ticket_id"
@@ -135,27 +136,24 @@ ActiveRecord::Schema.define(:version => 20121220210403) do
   add_index "phone_numbers", ["encrypted_number"], :name => "index_phone_numbers_on_encrypted_number"
 
   create_table "tickets", :force => true do |t|
-    t.integer  "appliance_id",                                                     :null => false
-    t.integer  "status",                              :limit => 4,  :default => 0, :null => false
-    t.string   "encrypted_from_number",                                            :null => false
-    t.string   "encrypted_to_number",                                              :null => false
-    t.datetime "expiry",                                                           :null => false
-    t.string   "encrypted_question",                                               :null => false
-    t.string   "encrypted_expected_confirmed_answer",                              :null => false
-    t.string   "encrypted_expected_denied_answer",                                 :null => false
+    t.integer  "appliance_id",                                                    :null => false
+    t.integer  "status",                              :limit => 4, :default => 0, :null => false
+    t.string   "encrypted_from_number",                                           :null => false
+    t.string   "encrypted_to_number",                                             :null => false
+    t.datetime "expiry",                                                          :null => false
+    t.string   "encrypted_question",                                              :null => false
+    t.string   "encrypted_expected_confirmed_answer",                             :null => false
+    t.string   "encrypted_expected_denied_answer",                                :null => false
     t.string   "encrypted_actual_answer"
-    t.string   "encrypted_confirmed_reply",                                        :null => false
-    t.string   "encrypted_denied_reply",                                           :null => false
-    t.string   "encrypted_failed_reply",                                           :null => false
-    t.string   "encrypted_expired_reply",                                          :null => false
+    t.string   "encrypted_confirmed_reply",                                       :null => false
+    t.string   "encrypted_denied_reply",                                          :null => false
+    t.string   "encrypted_failed_reply",                                          :null => false
+    t.string   "encrypted_expired_reply",                                         :null => false
     t.datetime "challenge_sent"
-    t.string   "challenge_sms_sid",                   :limit => 34
     t.datetime "response_received"
-    t.string   "response_sms_sid",                    :limit => 34
     t.datetime "reply_sent"
-    t.string   "reply_sms_sid",                       :limit => 34
-    t.datetime "created_at",                                                       :null => false
-    t.datetime "updated_at",                                                       :null => false
+    t.datetime "created_at",                                                      :null => false
+    t.datetime "updated_at",                                                      :null => false
   end
 
   add_index "tickets", ["appliance_id"], :name => "index_tickets_on_appliance_id"
