@@ -2,9 +2,7 @@ require 'spec_helper'
 
 describe SendChallengeJob do
   fixtures :account_plans, :accounts, :phone_numbers, :phone_directories, :phone_directory_entries, :appliances, :tickets
-  
-  # it { should allow_mass_assignment_of(:ticket_id) }
-  
+
   describe '.new' do
     it 'should create new without forced resend' do
       expected_ticket = tickets(:test_ticket)
@@ -35,9 +33,9 @@ describe SendChallengeJob do
   end
   
   describe '.perform' do
+
     it 'should perform when ticket has not been sent yet' do
       @appliance = appliances(:test_appliance)
-
       @ticket = @appliance.open_ticket( to_number: Twilio::VALID_NUMBER, expected_confirmed_answer: 'YES' )
       @ticket.save!
 
@@ -53,16 +51,81 @@ describe SendChallengeJob do
       Delayed::Job.count.should == job_count + 1
       
       # Now, work that job!
-      expect{ @work_results = Delayed::Worker.new.work_off }.to_not raise_error
-      @work_results.sum.should == 1 # Should have only processed one job before exiting
-      @work_results.second.should == 0 # Check for failures first
-      @work_results.first.should == 1 # Then check for success
+      expect{ @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
+      @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
       Delayed::Job.count.should == 0
+      
+      # Check that the ticket status is updated
+      @ticket.status.should == Ticket::CHALLENGE_SENT
+      @ticket.challenge_sent.should_not be_nil
 
       # Check that a message and a transaction were built
       @ticket.messages.count.should == messages_count + 1
       @ticket.appliance.account.transactions.count.should == transactions_count + 1
     end
+
+    it 'should not perform when ticket has already been sent' do
+      @appliance = appliances(:test_appliance)
+      @ticket = @appliance.open_ticket( to_number: Twilio::VALID_NUMBER, expected_confirmed_answer: 'YES' )
+      @ticket.challenge_sent = DateTime.now # Forces job to 'pretend' it has been sent successfully
+      @ticket.status = Ticket::CHALLENGE_SENT
+      @ticket.save!
+
+      # Get counts
+      messages_count = @ticket.messages.count
+      transactions_count = @ticket.appliance.account.transactions.count
+      
+      # Capture job count, enqueue job, and check that it has been added
+      Delayed::Job.count.should == 0
+      job_count = Delayed::Job.count
+      job = SendChallengeJob.new( @ticket.id, false, true )
+      Delayed::Job.enqueue job
+      Delayed::Job.count.should == job_count + 1
+      
+      # Now, work that job!
+      expect{ @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
+      @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
+      Delayed::Job.count.should == 0
+      
+      # Check that the ticket status is updated
+      @ticket.status.should == Ticket::CHALLENGE_SENT
+      @ticket.challenge_sent.should_not be_nil
+
+      # Check that a message and a transaction were NOT built
+      @ticket.messages.count.should == messages_count
+      @ticket.appliance.account.transactions.count.should == transactions_count
+    end
+
+    it 'should perform with error handling' do
+      @appliance = appliances(:test_appliance)
+      @ticket = @appliance.open_ticket( to_number: Twilio::INVALID_NUMBER, expected_confirmed_answer: 'YES' )
+      @ticket.save!
+
+      # Get counts
+      messages_count = @ticket.messages.count
+      transactions_count = @ticket.appliance.account.transactions.count
+      
+      # Capture job count, enqueue job, and check that it has been added
+      Delayed::Job.count.should == 0
+      job_count = Delayed::Job.count
+      job = SendChallengeJob.new( @ticket.id, false, true )
+      Delayed::Job.enqueue job
+      Delayed::Job.count.should == job_count + 1
+      
+      # Now, work that job! - No error, but will close out the job
+      expect{ @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
+      @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
+      Delayed::Job.count.should == 0
+      
+      # Check that the ticket status is updated
+      @ticket.status.should == Ticket::ERROR_INVALID_TO
+      @ticket.challenge_sent.should_not be_nil
+
+      # Check that a message and a transaction were NOT built
+      @ticket.messages.count.should == messages_count
+      @ticket.appliance.account.transactions.count.should == transactions_count
+    end
+
   end
   
 end

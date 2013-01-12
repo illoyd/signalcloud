@@ -20,12 +20,6 @@ class SendChallengeJob < Struct.new( :ticket_id, :force_resend, :quiet )
     # Get the ticket
     ticket = self.find_ticket()
     
-    # Abort if ticket has already been sent AND this is not a forced resend
-    if ticket.has_challenge_been_sent? && !self.force_resend?
-      say( 'Skipping as message has already been sent.' )
-      return true
-    end
-    
     # Send the SMS if not already sent
     # This will automatically create the message
     say( 'Sending initial challenge message.' )
@@ -33,9 +27,17 @@ class SendChallengeJob < Struct.new( :ticket_id, :force_resend, :quiet )
       message = ticket.send_challenge_message()
       message.save!
       say( 'Received response %s.' % [message.twilio_sid] )
+      
+      # Create and enqueue a new expiration job
+      DelayedJob::enqueue ExpireTicketJob.new( ticket.id, false, self.quiet )
+
+    rescue Ticketplease::MessageAlreadySentError => ex
+      say( 'Skipping as message has already been sent.' )
+    
     rescue => ex
       say( 'FAILED to send message: %s.' % [ex.message], Logger::ERROR )
       raise ex
+
     end
 
   end

@@ -5,12 +5,13 @@ class Ticket < ActiveRecord::Base
   before_save :normalize_phone_numbers
 
   # Constants
-  QUEUED = 0
-  CHALLENGE_SENT = 1
-  CONFIRMED = 2
-  DENIED = 3
-  FAILED = 4
-  EXPIRED = 5
+  PENDING = 0
+  QUEUED = 1
+  CHALLENGE_SENT = 2
+  CONFIRMED = 3
+  DENIED = 4
+  FAILED = 5
+  EXPIRED = 6
   OPEN_STATUSES = [ QUEUED, CHALLENGE_SENT ]
   
   ERROR_INVALID_TO = 101
@@ -19,7 +20,8 @@ class Ticket < ActiveRecord::Base
   ERROR_NOT_SMS_CAPABLE = 103
   ERROR_CANNOT_ROUTE = 104
   ERROR_SMS_QUEUE_FULL = 106
-  ERROR_STATUSES = [ ERROR_INVALID_TO, ERROR_INVALID_FROM, ERROR_BLACKLISTED_TO, ERROR_NOT_SMS_CAPABLE, ERROR_CANNOT_ROUTE, ERROR_SMS_QUEUE_FULL ]
+  ERROR_UNKNOWN = 999
+  ERROR_STATUSES = [ ERROR_INVALID_TO, ERROR_INVALID_FROM, ERROR_BLACKLISTED_TO, ERROR_NOT_SMS_CAPABLE, ERROR_CANNOT_ROUTE, ERROR_SMS_QUEUE_FULL, ERROR_UNKNOWN ]
 
   attr_accessible :seconds_to_live, :appliance_id, :actual_answer, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry
   attr_accessor :seconds_to_live
@@ -94,44 +96,116 @@ class Ticket < ActiveRecord::Base
     return Ticket::ERROR_STATUSES.include? self.status
   end
   
+  def send_message( message, force_resend = false )
+  end
+  
+  ##
+  # Choose the appropriate message to send based upon the ticket's status.
+  # If the ticket does not have a message ready, due to the ticket's status, raise a
+  # +MessageAlreadySentError+.
+  def select_next_message_to_send()
+    return case self.status
+      when PENDING, QUEUED, CHALLENGE_SENT
+        self.question
+      when CONFIRMED
+        self.confirmed_reply
+      when DENIED
+        self.denied_reply
+      when FAILED
+        self.failed_reply
+      when EXPIRED
+        self.expired_reply
+      else
+        raise InvalidTicketStateError()
+      end
+  end
+  
+  def should_send_next_message?()
+    return case self.status
+      when PENDING, QUEUED
+        !self.has_challenge_been_sent?
+      when CONFIRMED, DENIED, FAILED, EXPIRED
+        !self.has_reply_been_sent?
+      else
+        false
+      end
+  end
+  
+  def send_challenge_message( force_resend = false )
+
+    # Abort if message already sent and we do not want to force a resend
+    raise Ticketplease::MessageAlreadySentError unless ( force_resend || !self.has_challenge_been_sent? )
+    
+    # Send the message, catching any errors
+    begin
+      return self.send_message( self.question, force_resend )
+      self.challenge_status = QUEUED
+
+    rescue Ticketplease::MessageSendingError => ex
+      # Set message status
+      self.challenge_status = FAILED
+      raise ex
+
+    ensure
+      # Always save self
+      self.save!
+    end
+
+  end
+  
+  def send_reply_message( force_resend = false )
+
+    # Abort if message already sent and we do not want to force a resend
+    raise Ticketplease::MessageAlreadySentError unless ( force_resend || !self.has_reply_been_sent? )
+    
+    # Send the message, catching any errors
+    begin
+      return self.send_message( self.select_reply_message_to_send, force_resend )
+      self.reply_status = QUEUED
+
+    rescue Ticketplease::MessageSendingError => ex
+      # Set message status
+      self.reply_status = FAILED
+      raise ex
+
+    ensure
+      # Always save self
+      self.save!
+    end
+
+  end
+  
   ##
   # Send challenge SMS message. This will construct the appropriate SMS 'envelope' and pass to the +Ticket's+ +Account+. This will also convert
   # the results into a message, to be held for reference.
-  def send_challenge_message( force_resend = false )
+  def send_message( force_resend = false )
   
-    # Abort if message already sent and we do not want to force a resend
-    return nil if self.has_challenge_been_sent? and !force_resend
-    
     # Otherwise, continue to send SMS and store the results
-    #message = nil
+    message = nil
     begin
-      results = self.appliance.account.send_sms( self.to_number, self.from_number, self.question )
-      message = self.messages.create!( twilio_sid: results.sid, payload: results.to_property_hash )
+      # Send the SMS
+      results = self.appliance.account.send_sms( self.to_number, self.from_number, self.select_next_message_to_send() )
+
+      # Build a message and transaction to hold the results
+      message = self.messages.build( twilio_sid: results.sid, payload: results.to_property_hash )
       transaction = message.build_transaction( account: self.appliance.account, narrative: 'Outbound SMS' )
-      return message
+      
+      # Update the ticket's status (includes both the main status as well as the challenge/reply )
 
     rescue Twilio::REST::RequestError => ex
-      self.status = case ex.code
-        when 21211
-          ERROR_INVALID_TO
-        when 21212
-          ERROR_INVALID_FROM
-        when 21606, 21614
-          ERROR_NOT_SMS_CAPABLE
-        when 21611
-          ERROR_SMS_QUEUE_FULL
-        when 21612
-          ERROR_CANNOT_ROUTE
-        when 21610
-          ERROR_BLACKLISTED_TO
-        else
-          raise ex
-      end
-      self.save
-      return nil
+      self.status = Ticket.translate_twilio_error_to_ticket_status ex.code
+      message.payload = { to: self.to_number, from: self.from_number, body: message_body, status: ex.status, code: ex.code, message: ex.message }
+      self.save!
+      raise Ticketplease::MessageSendingError.new( message, ex ) # Rethrow error
+
+    ensure
+      # Save everything
+      message.save!
     end
 
-    #return message    
+    # Return the completed message
+    return message
+
   end
   
   ##
@@ -178,6 +252,27 @@ class Ticket < ActiveRecord::Base
   # Has the challenge message already been sent to the recipient?
   def has_reply_been_sent?
     return !self.reply_sent.nil?
+  end
+  
+  ##
+  # Translate a given Twilio error message into a ticket status message
+  def self.translate_twilio_error_to_ticket_status( error_code )
+    return case error_code
+      when Twilio::ERR_INVALID_TO_PHONE_NUMBER
+        ERROR_INVALID_TO
+      when Twilio::ERR_INVALID_FROM_PHONE_NUMBER
+        ERROR_INVALID_FROM
+      when Twilio::ERR_FROM_PHONE_NUMBER_NOT_SMS_CAPABLE, Twilio::ERR_TO_PHONE_NUMBER_NOT_VALID_MOBILE
+        ERROR_NOT_SMS_CAPABLE
+      when Twilio::ERR_FROM_PHONE_NUMBER_EXCEEDED_QUEUE_SIZE
+        ERROR_SMS_QUEUE_FULL
+      when Twilio::ERR_TO_PHONE_NUMBER_CANNOT_RECEIVE_SMS
+        ERROR_CANNOT_ROUTE
+      when Twilio::ERR_TO_PHONE_NUMBER_IS_BLACKLISTED
+        ERROR_BLACKLISTED_TO
+      else
+        ERROR_UNKNOWN
+      end
   end
 
 end
