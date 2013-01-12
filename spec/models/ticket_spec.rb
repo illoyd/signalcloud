@@ -394,4 +394,116 @@ describe Ticket do
 
   end
 
+  describe ".send_reply_message" do
+  
+    context 'valid to and from numbers' do
+      before(:each) do
+        # Prepare a ticket by pretending it has already been sent
+        @ticket = tickets(:test_ticket)
+        @ticket.challenge_sent = DateTime.now
+        @ticket.challenge_status = Ticket::SENT
+
+        # Get counts for later use
+        @original_message_count = @ticket.messages.count
+        @original_transaction_count = @ticket.appliance.account.transactions.count
+      end
+
+      context 'reply not already sent' do
+        after(:each) do
+          # Check the message for content
+          @message.should_not be_nil()
+          @message.to_number.should == @ticket.to_number
+          @message.from_number.should == @ticket.from_number
+        
+          # Message and transaction should not increase
+          @ticket.messages.count.should == @original_message_count + 1
+          @ticket.appliance.account.transactions.count.should == @original_transaction_count + 1
+        end
+
+        it "should send confirmed reply" do
+          # Configure status to pick proper message
+          @ticket.status = Ticket::CONFIRMED
+  
+          # Prepare and send message
+          expect{ @message = @ticket.send_reply_message() }.to_not raise_error
+          @message.body.should == @ticket.confirmed_reply
+        end
+
+        it "should send denied reply" do
+          # Configure status to pick proper message
+          @ticket.status = Ticket::DENIED
+  
+          # Prepare and send message
+          expect{ @message = @ticket.send_reply_message() }.to_not raise_error
+          @message.body.should == @ticket.denied_reply
+        end
+
+        it "should send failed reply" do
+          # Configure status to pick proper message
+          @ticket.status = Ticket::FAILED
+  
+          # Prepare and send message
+          expect{ @message = @ticket.send_reply_message() }.to_not raise_error
+          @message.body.should == @ticket.failed_reply
+        end
+
+        it "should send expired reply" do
+          # Configure status to pick proper message
+          @ticket.status = Ticket::EXPIRED
+  
+          # Prepare and send message
+          expect{ @message = @ticket.send_reply_message() }.to_not raise_error
+          @message.body.should == @ticket.expired_reply
+        end
+      end
+    
+      context 'reply already sent' do
+        before(:each) do
+          # Trick ticket into thinking it has already sent a reply
+          @ticket.reply_sent = DateTime.now
+          @ticket.reply_status = Ticket::SENT
+        end
+        after(:each) do
+          # Message and transaction should not increase
+          @ticket.messages.count.should == @original_message_count
+          @ticket.appliance.account.transactions.count.should == @original_transaction_count
+        end
+        
+        it "should not re-send confirmation reply" do
+          # Configure status to pick proper message and trick it into thinking it has already been sent
+          @ticket.status = Ticket::CONFIRMED
+  
+          # Prepare and send message
+          expect{ @message = @ticket.send_reply_message() }.to raise_error( Ticketplease::ReplyAlreadySentError )
+        end
+        
+        it "should not re-send denied reply" do
+          # Configure status to pick proper message and trick it into thinking it has already been sent
+          @ticket.status = Ticket::DENIED
+  
+          # Prepare and send message
+          expect{ @message = @ticket.send_reply_message() }.to raise_error( Ticketplease::ReplyAlreadySentError )
+        end
+        
+        it "should not re-send failed reply" do
+          # Configure status to pick proper message and trick it into thinking it has already been sent
+          @ticket.status = Ticket::FAILED
+  
+          # Prepare and send message
+          expect{ @message = @ticket.send_reply_message() }.to raise_error( Ticketplease::ReplyAlreadySentError )
+        end
+        
+        it "should not re-send expired reply" do
+          # Configure status to pick proper message and trick it into thinking it has already been sent
+          @ticket.status = Ticket::EXPIRED
+  
+          # Prepare and send message
+          expect{ @message = @ticket.send_reply_message() }.to raise_error( Ticketplease::ReplyAlreadySentError )
+        end
+      end
+    
+    end
+
+  end
+
 end

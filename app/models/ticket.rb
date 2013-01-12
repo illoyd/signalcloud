@@ -4,7 +4,7 @@ class Ticket < ActiveRecord::Base
   before_validation :update_expiry_time_based_on_seconds_to_live
   before_save :normalize_phone_numbers
 
-  # Constants
+  # Status constants
   PENDING = 0
   QUEUED = 1
   CHALLENGE_SENT = 2
@@ -14,6 +14,10 @@ class Ticket < ActiveRecord::Base
   EXPIRED = 6
   OPEN_STATUSES = [ QUEUED, CHALLENGE_SENT ]
   
+  # SMS status constants
+  SENT = CHALLENGE_SENT
+  
+  # Error constants
   ERROR_INVALID_TO = 101
   ERROR_INVALID_FROM = 102
   ERROR_BLACKLISTED_TO = 105
@@ -103,10 +107,8 @@ class Ticket < ActiveRecord::Base
   # Choose the appropriate message to send based upon the ticket's status.
   # If the ticket does not have a message ready, due to the ticket's status, raise a
   # +MessageAlreadySentError+.
-  def select_next_message_to_send()
+  def select_reply_message_to_send()
     return case self.status
-      when PENDING, QUEUED, CHALLENGE_SENT
-        self.question
       when CONFIRMED
         self.confirmed_reply
       when DENIED
@@ -116,7 +118,7 @@ class Ticket < ActiveRecord::Base
       when EXPIRED
         self.expired_reply
       else
-        raise InvalidTicketStateError()
+        raise Ticketplease::InvalidTicketStateError(self)
       end
   end
   
@@ -134,7 +136,7 @@ class Ticket < ActiveRecord::Base
   def send_challenge_message( force_resend = false )
 
     # Abort if message already sent and we do not want to force a resend
-    raise Ticketplease::ChallengeAlreadySentError unless ( force_resend || !self.has_challenge_been_sent? )
+    raise Ticketplease::ChallengeAlreadySentError.new(self) unless ( force_resend || !self.has_challenge_been_sent? )
     
     # Send the message, catching any errors
     begin
@@ -165,7 +167,7 @@ class Ticket < ActiveRecord::Base
   def send_reply_message( force_resend = false )
 
     # Abort if message already sent and we do not want to force a resend
-    raise Ticketplease::ReplyAlreadySentError unless ( force_resend || !self.has_reply_been_sent? )
+    raise Ticketplease::ReplyAlreadySentError.new(self) unless ( force_resend || !self.has_reply_been_sent? )
     
     # Send the message, catching any errors
     begin
@@ -193,20 +195,22 @@ class Ticket < ActiveRecord::Base
   # Send challenge SMS message. This will construct the appropriate SMS 'envelope' and pass to the +Ticket's+ +Account+. This will also convert
   # the results into a message, to be held for reference.
   def send_message( message_body, force_resend = false )
-  
-    # Otherwise, continue to send SMS and store the results
+
     message = nil
-    #message_to = '+%s' % self.to_number
-    #message_from = '+%s' % self.from_number
     begin
       # Send the SMS
       results = self.appliance.account.send_sms( self.to_number, self.from_number, message_body )
 
       # Build a message and transaction to hold the results
       message = self.messages.build( twilio_sid: results.sid, payload: results.to_property_hash )
-      transaction = message.build_transaction( account: self.appliance.account, narrative: 'Outbound SMS' )
+      transaction = message.build_transaction( account: self.appliance.account, narrative: Transaction::OUTBOUND_SMS_NARRATIVE )
       
       # Update the ticket's status (includes both the main status as well as the challenge/reply )
+      self.status = PENDING
+      self.challenge_status = PENDING
+
+      # Return the completed message
+      return message
 
     rescue Twilio::REST::RequestError => ex
       self.status = Ticket.translate_twilio_error_to_ticket_status ex.code
@@ -219,39 +223,8 @@ class Ticket < ActiveRecord::Base
 
     end
 
-    # Return the completed message
-    return message
-
   end
-  
-  ##
-  # Send reply SMS message, based upon the +Ticket's+ current state. This will construct the appropriate SMS 'envelope' and pass to the +Ticket's+ +Account+.
-  def send_reply_message( force_resend = false )
-  
-    # Abort if message already sent and we do not want to force a resend
-    return if self.has_reply_been_sent? and !force_resend
     
-    # Otherwise, continue to send SMS and store the results
-    reply_body = case self.status
-      when CONFIRMED
-        self.confirmed_reply
-      when DENIED
-        self.denied_reply
-      when FAILED
-        self.failed_reply
-      when EXPIRED
-        self.expired_reply
-    end
-    
-    # Send message via account
-    self.appliance.account.send_sms( self.to_number, self.from_number, reply_body )
-    
-    # Construct the message and the related pending transaction object
-    message = self.messages.create( twilio_sid: results.sid, payload: results.to_property_hash )
-    transaction = message.build_transaction( account: self.appliance.account, narrative: Transaction::OUTBOUND_SMS_NARRATIVE )
-    return message
-  end
-  
   ##
   # Has the challenge message already been sent to the recipient?
   def has_challenge_been_sent?
