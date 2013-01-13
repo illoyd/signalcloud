@@ -143,10 +143,10 @@ class Ticket < ActiveRecord::Base
     
     # Send the message, catching any errors
     begin
-      message = self.send_message( self.question, force_resend )
+      messages = self.send_message( self.question, force_resend )
       self.status = QUEUED
       self.challenge_status = QUEUED
-      return message
+      return ( messages.is_a?(Array) and messages.size == 1 ) ? messages.first : messages
 
     rescue Ticketplease::MessageSendingError => ex
       # Set message status
@@ -177,9 +177,9 @@ class Ticket < ActiveRecord::Base
     
     # Send the message, catching any errors
     begin
-      message = self.send_message( self.select_reply_message_to_send, force_resend )
+      messages = self.send_message( self.select_reply_message_to_send, force_resend )
       self.reply_status = QUEUED
-      return message
+      return ( messages.is_a?(Array) and messages.size == 1 ) ? messages.first : messages
 
     rescue Ticketplease::MessageSendingError => ex
       # Set message status
@@ -206,6 +206,19 @@ class Ticket < ActiveRecord::Base
   # Send challenge SMS message. This will construct the appropriate SMS 'envelope' and pass to the +Ticket's+ +Account+. This will also convert
   # the results into a message, to be held for reference.
   def send_message( message_body, force_resend = false )
+  
+    # Throw an error if message body is nil
+    raise Ticketplease::CriticalMessageSendingError.new( nil, nil, Ticket::ERROR_MISSING_BODY ) if message_body.nil? or message_body.blank?
+  
+    # Do an initial clean-up on the body
+    message_body.strip!
+  
+    # Select a chunking strategy for the message, based on size. If the length is greater than the chunking size, then iterate as separate
+    # messages, combining as an array.
+    if message_body.length > Message.select_message_chunk_size( message_body )
+      strategy = Message.select_message_chunking_strategy( message_body )
+      return message_body.scan( strategy ).map { |part| self.send_message(part, force_resend) }
+    end
 
     message = nil
     begin

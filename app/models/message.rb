@@ -1,3 +1,4 @@
+# encoding: UTF-8
 class Message < ActiveRecord::Base
   attr_accessible :our_cost, :provider_cost, :ticket_id, :payload, :twilio_sid
   
@@ -21,6 +22,30 @@ class Message < ActiveRecord::Base
   validates_numericality_of :provider_cost, allow_null: true
   validates_length_of :twilio_sid, is: Twilio::SID_LENGTH
   validates_uniqueness_of :twilio_sid
+  
+  SMS_CHARSET = /\A[ @Δ0¡P¿p£_!1AQaq$Φ"2BRbr¥Γ#3CScsèΛ¤4DTdtéΩ%5EUeuùΠ&6FVfvìΨ'7GWgwòΣ\(8HXhxÇΘ\)9IYiy\nΞ*:JZjzØ\e+;KÄkäøÆ,<LÖlö\ræ=MÑmñÅß.>NÜnüåÉ\/?O§oà-]+\Z/
+  SMS_CBS_MAX_LENGTH = 160
+  SMS_UTF_MAX_LENGTH = 70
+
+  def self.is_sms_charset?( message )
+    !(SMS_CHARSET =~ message).nil?
+  end
+  
+  ##
+  # Select the message chunking size, based on SMS character set.
+  def self.select_message_chunk_size( message )
+    return is_sms_charset?( message ) ? SMS_CBS_MAX_LENGTH : SMS_UTF_MAX_LENGTH
+  end
+  
+  ##
+  # Select the regular expression to use, based on the message chunk size.
+  def self.select_message_chunking_strategy( message )
+    if is_sms_charset?( message )
+      /.{1,160}/
+    else
+      /.{1,70}/
+    end
+  end
   
   ##
   # Update costs based on message payload from provider
