@@ -5,6 +5,7 @@ class Account < ActiveRecord::Base
   # Encrypted attributes
   attr_encrypted :twilio_account_sid, key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :twilio_auth_token, key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :freshbooks_id, key: ATTR_ENCRYPTED_SECRET
 
   # References
   belongs_to :account_plan, inverse_of: :accounts
@@ -14,6 +15,7 @@ class Account < ActiveRecord::Base
   has_many :phone_directories, inverse_of: :account
   has_many :phone_numbers, inverse_of: :account
   has_many :transactions, inverse_of: :account
+  has_one :primary_address, as
   
   before_validation :ensure_account_sid_and_token
   validates_presence_of :account_sid, :auth_token, :label
@@ -52,15 +54,58 @@ class Account < ActiveRecord::Base
     return @twilio_validator
   end
   
-  def create_initial_resources
-
-    # Create first directory
-    default_directory = self.phone_directories.build label: 'Default Directory'
+  ##
+  # Get the current client's Freshbook account, using the Freshbook global module.
+  # In Freshbooks parlance, this is a 'Client'
+  def freshbooks_client
+    Freshbooks.account.client.get client_id: self.freshbooks_id
+  end
   
-    # Build first appliance
-    default_appliance = default_directory.appliances.build label: 'Default Appliance'
-    default_appliance.account = self
+  def create_freshbooks_client
+    raise 'Freshbooks client already configured' unless self.freshbooks_id.nil?
     
+    # Construct the complete client dataset to be passed to Freshbooks
+    contact = self.users.primary
+    client_data = {
+      organisation: self.organisation,
+      currency_code: 'USD',
+      # VAT details
+      vat_name: self.vat_name,
+      vat_number: self.vat_number,
+      # Add primary contact
+      first_name: contact.first_name,
+      last_name: contact.last_name,
+      username: contact.email,
+      email: contact.email,
+      work_phone: self.primary_address.work_phone,
+      # Add primary address
+      p_street1: self.primary_address.line1,
+      p_street2: self.primary_address.line2,
+      p_city: self.primary_address.city,
+      p_state: self.primary_address.state,
+      p_country: self.primary_address.country,
+      p_code: self.primary_address.postalcode,
+      # Add secondary address
+      s_street1: self.secondary_address.line1,
+      s_street2: self.secondary_address.line2,
+      s_city: self.secondary_address.city,
+      s_state: self.secondary_address.state,
+      s_country: self.secondary_address.country,
+      s_code: self.secondary_address.postalcode,
+      # Manage all contacts
+      contacts: []
+    }
+    
+    # Save to Freshbooks
+    response = Freshbooks.account.client.create(client_data)
+    self.freshbooks_id = response(:client_id)
+  end
+  
+  ##
+  # Create starting 'default' directory and appliance for a newly created account
+  def create_initial_resources
+    default_directory = self.phone_directories.build label: 'Default Directory'
+    default_appliance = self.appliances.build label: 'Default Appliance', default_directory_id: default_directory.id
   end
   
   def default_appliance
