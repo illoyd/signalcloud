@@ -48,6 +48,7 @@ gem 'attr_encrypted'
 gem 'kaminari'
 gem 'phony'
 gem 'stringex'
+gem 'ruby-freshbooks'
 
 # Add rspec
 group :test, :development do
