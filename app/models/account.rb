@@ -15,8 +15,14 @@ class Account < ActiveRecord::Base
   has_many :phone_directories, inverse_of: :account
   has_many :phone_numbers, inverse_of: :account
   has_many :transactions, inverse_of: :account
-  has_one :primary_address, as
+  has_one :primary_address, class_name: 'Address', autosave: true, dependent: :destroy
+  hsa_one :secondary_address, class_name: 'Address', autosave: true, dependent: :destroy
   
+  # Nested resources
+  accepts_nested_attributes_for :primary_address
+  accepts_nested_attributes_for :secondary_address
+  
+  # Validations
   before_validation :ensure_account_sid_and_token
   validates_presence_of :account_sid, :auth_token, :label
   validates_uniqueness_of :account_sid
@@ -56,7 +62,7 @@ class Account < ActiveRecord::Base
   
   ##
   # Get the current client's Freshbook account, using the Freshbook global module.
-  # In Freshbooks parlance, this is a 'Client'
+  # In Freshbooks parlance, this is a 'Client' object.
   def freshbooks_client
     Freshbooks.account.client.get client_id: self.freshbooks_id
   end
