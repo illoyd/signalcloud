@@ -15,7 +15,7 @@ class Ticket < ActiveRecord::Base
   OPEN_STATUSES = [ QUEUED, CHALLENGE_SENT ]
   
   # SMS status constants
-  SENT = CHALLENGE_SENT
+  # SENT = CHALLENGE_SENT
   
   # Error constants
   ERROR_INVALID_TO = 101
@@ -259,6 +259,14 @@ class Ticket < ActiveRecord::Base
   # Has the challenge message already been sent to the recipient?
   def has_reply_been_sent?
     return !self.reply_sent.nil?
+  end
+  
+  def has_outstanding_challenge_messages?
+    return self.messages.where( 'kind = ? and status != ?', Message::CHALLENGE, Message::SENT ).any?
+  end
+  
+  def has_outstanding_reply_messages?
+    return self.messages.where( 'kind = ? and status != ?', Message::REPLY, Message::SENT ).any?
   end
   
   ##

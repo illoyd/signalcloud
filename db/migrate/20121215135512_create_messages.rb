@@ -3,6 +3,9 @@ class CreateMessages < ActiveRecord::Migration
     create_table :messages do |t|
       t.references :ticket, null: false
       t.string :twilio_sid, limit: Twilio::SID_LENGTH
+      t.string :kind, limit: 1
+      t.integer :status, limit: 2, default: 0, null: false
+      t.datetime :sent_at
       t.decimal :provider_cost, null: false, default: 0, precision: 6, scale: 4
       t.decimal :our_cost, null: false, default: 0, precision: 6, scale: 4
       t.text :encrypted_payload
@@ -14,5 +17,7 @@ class CreateMessages < ActiveRecord::Migration
     # Indices
     add_index :messages, :ticket_id
     add_index :messages, :updated_at
+    add_index :messages, :kind
+    add_index :messages, :status
   end
 end

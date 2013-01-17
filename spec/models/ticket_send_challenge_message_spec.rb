@@ -116,7 +116,7 @@ describe Ticket do
         # Trick ticket into thinking it has already sent a message
         subject.status = Ticket::CHALLENGE_SENT
         subject.challenge_sent = DateTime.now
-        subject.challenge_status = Ticket::SENT
+        subject.challenge_status = Message::SENT
         
         # Attempt to send message
         expect{ @message = subject.send_challenge_message() }.to raise_error( Ticketplease::ChallengeAlreadySentError )

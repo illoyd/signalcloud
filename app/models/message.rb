@@ -4,9 +4,23 @@ class Message < ActiveRecord::Base
   
   before_save :update_costs
   
+  SMS_CHARSET = /\A[ @Δ0¡P¿p£_!1AQaq$Φ"2BRbr¥Γ#3CScsèΛ¤4DTdtéΩ%5EUeuùΠ&6FVfvìΨ'7GWgwòΣ\(8HXhxÇΘ\)9IYiy\nΞ*:JZjzØ\e+;KÄkäøÆ,<LÖlö\ræ=MÑmñÅß.>NÜnüåÉ\/?O§oà-]+\Z/
+  SMS_CBS_MAX_LENGTH = 160
+  SMS_UTF_MAX_LENGTH = 70
+  
+  CHALLENGE = 'c'
+  REPLY = 'r'
+  
+  PENDING = 0
+  QUEUED = 1
+  SENDING = 2
+  SENT = 3
+  FAILED = 4
+
   ##
   # Encrypted payload. Serialised using JSON
   attr_encrypted :payload, key: ATTR_ENCRYPTED_SECRET, marshal: true, marshaler: JSON
+  attr_encrypted :callback_payload, key: ATTR_ENCRYPTED_SECRET, marshal: true, marshaler: JSON
 
   ##
   # Parent ticket, of which this message is part of the conversation
@@ -15,18 +29,16 @@ class Message < ActiveRecord::Base
   ##
   # Transactions for this message - only one!
   has_one :transaction, as: :item
-  
+
   # Validations
   validates_presence_of :ticket_id, :twilio_sid, :payload
   validates_numericality_of :our_cost, allow_null: true
   validates_numericality_of :provider_cost, allow_null: true
   validates_length_of :twilio_sid, is: Twilio::SID_LENGTH
   validates_uniqueness_of :twilio_sid
+  validates_inclusion_of :kind, in: %w( c r ), allow_nil: true
+  validates_inclusion_of :status, in: [ PENDING, QUEUED, SENDING, SENT, FAILED ]
   
-  SMS_CHARSET = /\A[ @Δ0¡P¿p£_!1AQaq$Φ"2BRbr¥Γ#3CScsèΛ¤4DTdtéΩ%5EUeuùΠ&6FVfvìΨ'7GWgwòΣ\(8HXhxÇΘ\)9IYiy\nΞ*:JZjzØ\e+;KÄkäøÆ,<LÖlö\ræ=MÑmñÅß.>NÜnüåÉ\/?O§oà-]+\Z/
-  SMS_CBS_MAX_LENGTH = 160
-  SMS_UTF_MAX_LENGTH = 70
-
   def self.is_sms_charset?( message )
     !(SMS_CHARSET =~ message).nil?
   end
@@ -110,6 +122,20 @@ class Message < ActiveRecord::Base
   # Internal cost
   def internal_provider_cost
     return self.cached_payload[:price]
+  end
+  
+  ##
+  # Query the Twilio status of this message.
+  def twilio_status
+    self.ticket.appliance.account.twilio_account.sms.messages.get( self.twilio_sid )
+  end
+  
+  def is_challenge?
+    self.kind == CHALLENGE
+  end
+  
+  def is_reply?
+    self.kind == REPLY
   end
   
 end

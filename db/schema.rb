@@ -89,6 +89,9 @@ ActiveRecord::Schema.define(:version => 20121220210403) do
   create_table "messages", :force => true do |t|
     t.integer  "ticket_id",                                                                               :null => false
     t.string   "twilio_sid",                 :limit => 34
+    t.string   "kind",                       :limit => 1
+    t.integer  "status",                     :limit => 2,                                :default => 0,   :null => false
+    t.datetime "sent_at"
     t.decimal  "provider_cost",                            :precision => 6, :scale => 4, :default => 0.0, :null => false
     t.decimal  "our_cost",                                 :precision => 6, :scale => 4, :default => 0.0, :null => false
     t.text     "encrypted_payload"
@@ -97,6 +100,8 @@ ActiveRecord::Schema.define(:version => 20121220210403) do
     t.datetime "updated_at",                                                                              :null => false
   end
 
+  add_index "messages", ["kind"], :name => "index_messages_on_kind"
+  add_index "messages", ["status"], :name => "index_messages_on_status"
   add_index "messages", ["ticket_id"], :name => "index_messages_on_ticket_id"
   add_index "messages", ["updated_at"], :name => "index_messages_on_updated_at"
 

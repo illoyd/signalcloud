@@ -69,7 +69,7 @@ describe SendChallengeJob do
       @appliance = appliances(:test_appliance)
       @ticket = @appliance.open_ticket( to_number: Twilio::VALID_NUMBER, expected_confirmed_answer: 'YES' )
       @ticket.challenge_sent = DateTime.now # Forces job to 'pretend' it has been sent successfully
-      @ticket.challenge_status = Ticket::SENT
+      @ticket.challenge_status = Message::SENT
       @ticket.status = Ticket::CHALLENGE_SENT
       @ticket.save!
 
@@ -92,7 +92,7 @@ describe SendChallengeJob do
       # Check that the ticket status is updated
       @ticket.reload
       @ticket.status.should == Ticket::CHALLENGE_SENT
-      @ticket.challenge_status.should == Ticket::SENT
+      @ticket.challenge_status.should == Message::SENT
 
       # Check that a message and a transaction were NOT built
       @ticket.messages.count.should == messages_count
