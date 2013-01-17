@@ -14,7 +14,7 @@ describe Ticket do
         @ticket = tickets(:test_ticket)
         @ticket.status = Ticket::CHALLENGE_SENT
         @ticket.challenge_sent = DateTime.now
-        @ticket.challenge_status = Ticket::SENT
+        @ticket.challenge_status = Message::SENT
 
         # Get counts for later use
         @original_message_count = @ticket.messages.count
@@ -84,7 +84,7 @@ describe Ticket do
         before(:each) do
           # Trick ticket into thinking it has already sent a reply
           @ticket.reply_sent = DateTime.now
-          @ticket.reply_status = Ticket::SENT
+          @ticket.reply_status = Message::SENT
         end
         after(:each) do
           # Message and transaction should not increase
@@ -132,7 +132,7 @@ describe Ticket do
         # Prepare a ticket by pretending it has already been sent
         subject.status = Ticket::CHALLENGE_SENT
         subject.challenge_sent = DateTime.now
-        subject.challenge_status = Ticket::SENT
+        subject.challenge_status = Message::SENT
 
         # Get counts for later use
         @original_message_count = subject.messages.count
@@ -188,7 +188,7 @@ describe Ticket do
       before(:each) do
         subject.status = Ticket::CONFIRMED
         subject.challenge_sent = DateTime.now
-        subject.challenge_status = Ticket::SENT
+        subject.challenge_status = Message::SENT
         @original_message_count = subject.messages.count
         @original_transaction_count = subject.appliance.account.transactions.count
       end
