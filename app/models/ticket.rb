@@ -50,6 +50,7 @@ class Ticket < ActiveRecord::Base
   belongs_to :appliance, inverse_of: :tickets
   has_many :messages, inverse_of: :ticket
   has_many :transactions, as: :item
+  delegate :account, :to => :appliance, :allow_nil => true
   
   # Validation
   validates_presence_of :appliance_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry
@@ -101,9 +102,6 @@ class Ticket < ActiveRecord::Base
   # Is the ticket currently in an error state? Based upon the ticket's status.
   def has_errored?
     return Ticket::ERROR_STATUSES.include? self.status
-  end
-  
-  def send_message( message, force_resend = false )
   end
   
   ##

@@ -11,6 +11,35 @@ describe Transaction do
     it { should validate_numericality_of( :value ) }
   end
   
+  describe '.ensure_account' do
+    it 'should refresh account when called' do
+      tt = transactions(:outbound_sms_pending)
+      tt.account_id.should == messages(:test_ticket_challenge).account.id
+      tt.account_id = nil
+      tt.account_id.should be_nil
+      tt.ensure_account
+      tt.account_id.should == messages(:test_ticket_challenge).account.id
+    end
+    it 'should reset account when item changes' do
+      tt = transactions(:outbound_sms_pending)
+      tt.account.should eq(accounts(:test_account))
+      tt.item.should eq(messages(:test_ticket_challenge))
+      tt.item = messages(:dedicated_ticket_challenge)
+      tt.ensure_account
+      tt.item.should eq(messages(:dedicated_ticket_challenge))
+      tt.account.should eq(accounts(:dedicated_account))
+    end
+    it 'should reset account when saved' do
+      tt = transactions(:outbound_sms_pending)
+      tt.account.should eq(accounts(:test_account))
+      tt.item.should eq(messages(:test_ticket_challenge))
+      tt.item = messages(:dedicated_ticket_challenge)
+      expect { tt.save! }.to_not raise_error
+      tt.item.should eq(messages(:dedicated_ticket_challenge))
+      tt.account.should eq(accounts(:dedicated_account))
+    end
+  end
+  
   describe ".is_pending?" do
     it "should be true if settled_at is blank" do
       tt = transactions(:outbound_sms_pending)
