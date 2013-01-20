@@ -10,16 +10,17 @@ class Transaction < ActiveRecord::Base
   attr_accessible :narrative, :value, :settled_at, :account_id, :item_id, :item_type, :account, :item
   
   belongs_to :account, inverse_of: :transactions
-  belongs_to :item, polymorphic: true
+  belongs_to :item, polymorphic: true #, autosave: true
   
   validates_presence_of :account_id, :item_id, :item_type, :narrative
   validates_numericality_of :value, allow_nil: true
+  
+  before_validation :ensure_account
   
   ##
   # Find all transactions which have not been confirmed
   # This usually implies that the 'value' may change based upon the provider's response.
   scope :pending, where( 'settled_at is null' )
-  
   
   ##
   # Find all transactions which have been confirmed.
@@ -39,6 +40,12 @@ class Transaction < ActiveRecord::Base
   # Simple test if status is settled (e.g. has been confirmed by the provider)
   def is_settled?
     return !self.settled_at.nil?
+  end
+  
+  ##
+  # Ensure that the parent account is the same as the item's account
+  def ensure_account
+    self.account = self.item.account if self.item.respond_to?(:account)
   end
 
 end

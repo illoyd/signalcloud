@@ -25,10 +25,12 @@ class Message < ActiveRecord::Base
   ##
   # Parent ticket, of which this message is part of the conversation
   belongs_to :ticket, inverse_of: :messages
+  delegate :account, :to => :ticket, :allow_nil => true
   
   ##
   # Transactions for this message - only one!
-  has_one :transaction, as: :item
+  has_one :transaction, as: :item, autosave: true
+
 
   # Validations
   validates_presence_of :ticket_id, :twilio_sid, :payload
