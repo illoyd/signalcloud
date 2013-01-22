@@ -2,6 +2,8 @@ require 'spec_helper'
 
 describe SendChallengeJob do
   fixtures :account_plans, :accounts, :phone_numbers, :phone_directories, :phone_directory_entries, :appliances, :tickets
+  before { VCR.insert_cassette 'send_challenge_job', record: :new_episodes }
+  after { VCR.eject_cassette }
 
   describe '.new' do
     it 'should create new without forced resend' do

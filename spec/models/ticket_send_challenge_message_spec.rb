@@ -5,7 +5,9 @@ require 'spec_helper'
 # Split out the +send_challenge_message+ function for ease of use
 describe Ticket do
   fixtures :account_plans, :accounts, :appliances, :tickets
-  
+  before { VCR.insert_cassette 'ticket_send_challenge_message', record: :new_episodes }
+  after { VCR.eject_cassette }
+
   describe ".send_challenge_message" do  
 
     context 'with not already sent' do
