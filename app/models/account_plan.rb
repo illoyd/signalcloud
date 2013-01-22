@@ -1,9 +1,15 @@
 class AccountPlan < ActiveRecord::Base
+  ARREARS = 1
+  CREDIT = 0
+
   # Attributes
-  attr_accessible :default, :call_in_add, :call_in_mult, :label, :month, :phone_add, :phone_mult, :sms_in_add, :sms_in_mult, :sms_out_add, :sms_out_mult
+  attr_accessible :plan_kind, :default, :call_in_add, :call_in_mult, :label, :month, :phone_add, :phone_mult, :sms_in_add, :sms_in_mult, :sms_out_add, :sms_out_mult
   
   # Relationships
   has_many :accounts, inverse_of: :account_plan
+  
+  # Validations
+  validates_inclusion_of :plan_kind, [ ARREARS, CREDIT ]
   
   ##
   # Calculate the cost of a phone number, based on the cost from the provider
@@ -27,6 +33,12 @@ class AccountPlan < ActiveRecord::Base
   # Calculate the cost of an inbound phone call, based on the cost from the provider
   def calculate_inbound_call_cost( provider_cost )
     return self.call_in_add + self.call_in_mult * provider_cost
+  end
+  
+  ##
+  # Is this plan payable in arrears?
+  def is_payable_in_arrears?
+    return self.plan_kind == ARREARS
   end
 
 end

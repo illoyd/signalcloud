@@ -15,6 +15,7 @@ class Account < ActiveRecord::Base
   has_many :phone_directories, inverse_of: :account
   has_many :phone_numbers, inverse_of: :account
   has_many :transactions, inverse_of: :account
+  has_many :invoices, inverse_of: :account
   has_one :primary_address, class_name: 'Address', autosave: true, dependent: :destroy
   hsa_one :secondary_address, class_name: 'Address', autosave: true, dependent: :destroy
   
@@ -102,9 +103,43 @@ class Account < ActiveRecord::Base
       contacts: []
     }
     
-    # Save to Freshbooks
+    # Instruct Freshbooks API to create the account, then save the resulting ID
     response = Freshbooks.account.client.create(client_data)
-    self.freshbooks_id = response(:client_id)
+    self.freshbooks_id = response[:client_id]
+    self.save!
+  end
+  
+  def create_freshbook_invoice( to_date=nil, from_date=nil )
+    from_date ||= (self.invoices.last.to_date + 1.day).beginning_of_day
+    to_date ||= DateTime.yesterday.end_of_day
+    
+    # Capture appropriate data from ledger and activities
+    invoice_lines = []
+    self.ledger_entries.where( 'ledger_entries.created_at >= ? and ledger_entries.created_at <= ?', from_date, to_date ).group(:narrative).sum(:value).each do |key,value|
+      invoice_lines << { line: { 
+        name: key,
+        # description: entry.narrative,
+        unit_cost: value,
+        quantity: 1
+      }
+    end
+  
+    # Create a new invoice data structure
+    invoice_data = {
+      return_uri: 'http://app.ticketpleaseapp.com',
+      lines: invoice_lines
+    }
+    invoice_data[:po_number] = self.purchase_order unless self.purchase_order.blank?
+    invoice_data[:notes] = 'This invoice is provided for information purposes only. No payment is due.' unless self.account_plan.payable_in_arrears?
+    
+    # Save away
+    response = Freshbooks.account.invoice.create(invoice_data)
+    invoice = self.invoices.build freshbooks_id: response[:invoice_id], from_date: from_date, to_date: to_date
+    response = Freshbooks.account.invoice.get(invoice.freshbooks_id)
+    invoice.public_link = response[:links][:client_view]
+    invoice.internal_link = resonse[:links][:view]
+    invoice.save!
+    return invoice
   end
   
   ##
@@ -113,7 +148,7 @@ class Account < ActiveRecord::Base
     default_directory = self.phone_directories.build label: 'Default Directory'
     default_appliance = self.appliances.build label: 'Default Appliance', default_directory_id: default_directory.id
   end
-  
+
   def default_appliance
     self.appliances.find_by_default( true )
   end
