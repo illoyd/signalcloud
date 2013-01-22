@@ -1,6 +1,6 @@
 # encoding: UTF-8
 class Message < ActiveRecord::Base
-  attr_accessible :our_cost, :provider_cost, :ticket_id, :payload, :twilio_sid
+  attr_accessible :our_cost, :provider_cost, :ticket_id, :payload, :twilio_sid, :message_kind
   
   before_save :update_costs
   
@@ -43,7 +43,7 @@ class Message < ActiveRecord::Base
   validates_numericality_of :provider_cost, allow_null: true
   validates_length_of :twilio_sid, is: Twilio::SID_LENGTH
   validates_uniqueness_of :twilio_sid
-  validates_inclusion_of :kind, in: %w( c r ), allow_nil: true
+  validates_inclusion_of :message_kind, in: [ CHALLENGE, REPLY ], allow_nil: true
   validates_inclusion_of :status, in: [ PENDING, QUEUED, SENDING, SENT, FAILED ]
   
   ##
@@ -142,13 +142,13 @@ class Message < ActiveRecord::Base
   ##
   # Is this message a challenge?
   def is_challenge?
-    self.kind == CHALLENGE
+    self.message_kind == CHALLENGE
   end
   
   ##
   # Is this message a reply?
   def is_reply?
-    self.kind == REPLY
+    self.message_kind == REPLY
   end
   
   def build_ledger_entry( attributes={} )
