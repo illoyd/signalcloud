@@ -260,11 +260,11 @@ class Ticket < ActiveRecord::Base
   end
   
   def has_outstanding_challenge_messages?
-    return self.messages.where( 'kind = ? and status != ?', Message::CHALLENGE, Message::SENT ).any?
+    return self.messages.where( 'message_kind = ? and status != ?', Message::CHALLENGE, Message::SENT ).any?
   end
   
   def has_outstanding_reply_messages?
-    return self.messages.where( 'kind = ? and status != ?', Message::REPLY, Message::SENT ).any?
+    return self.messages.where( 'message_kind = ? and status != ?', Message::REPLY, Message::SENT ).any?
   end
   
   ##

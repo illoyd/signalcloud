@@ -47,7 +47,7 @@ class UpdateMessageStatusJob < Struct.new( :callback_values, :quiet )
     
     # Check and close the ticket's phase if appropriate
     ticket = message.ticket
-    case message.kind
+    case message.message_kind
       when Message::CHALLENGE
         unless ticket.has_outstanding_challenge_messages?
           ticket.challenge_sent = self.callback_values[:date_sent]
