@@ -39,3 +39,10 @@ RSpec.configure do |config|
   #     --seed 1234
   config.order = "random"
 end
+
+#VCR config
+VCR.configure do |c|
+  c.cassette_library_dir = 'spec/fixtures/vcr_cassettes'
+  c.default_cassette_options = { :record => :new_episodes, match_requests_on: [:method, :uri, :query, :body] }
+  c.hook_into :webmock
+end
