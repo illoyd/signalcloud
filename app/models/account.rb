@@ -112,7 +112,6 @@ class Account < ActiveRecord::Base
   def create_freshbook_invoice( to_date=nil, from_date=nil )
     from_date ||= (self.invoices.last.to_date + 1.day).beginning_of_day
     to_date ||= DateTime.yesterday.end_of_day
-    
     invoice = self.invoices.build from_date: from_date, to_date: to_date
     invoice.create_invoice!
   end
