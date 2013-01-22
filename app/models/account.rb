@@ -113,33 +113,8 @@ class Account < ActiveRecord::Base
     from_date ||= (self.invoices.last.to_date + 1.day).beginning_of_day
     to_date ||= DateTime.yesterday.end_of_day
     
-    # Capture appropriate data from ledger and activities
-    invoice_lines = []
-    self.ledger_entries.where( 'ledger_entries.created_at >= ? and ledger_entries.created_at <= ?', from_date, to_date ).group(:narrative).sum(:value).each do |key,value|
-      invoice_lines << { line: { 
-        name: key,
-        # description: entry.narrative,
-        unit_cost: value,
-        quantity: 1
-      }
-    end
-  
-    # Create a new invoice data structure
-    invoice_data = {
-      return_uri: 'http://app.ticketpleaseapp.com',
-      lines: invoice_lines
-    }
-    invoice_data[:po_number] = self.purchase_order unless self.purchase_order.blank?
-    invoice_data[:notes] = 'This invoice is provided for information purposes only. No payment is due.' unless self.account_plan.payable_in_arrears?
-    
-    # Save away
-    response = Freshbooks.account.invoice.create(invoice_data)
-    invoice = self.invoices.build freshbooks_id: response[:invoice_id], from_date: from_date, to_date: to_date
-    response = Freshbooks.account.invoice.get(invoice.freshbooks_id)
-    invoice.public_link = response[:links][:client_view]
-    invoice.internal_link = resonse[:links][:view]
-    invoice.save!
-    return invoice
+    invoice = self.invoices.build from_date: from_date, to_date: to_date
+    invoice.create_invoice!
   end
   
   ##
