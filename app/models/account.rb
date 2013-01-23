@@ -17,7 +17,7 @@ class Account < ActiveRecord::Base
   has_many :transactions, inverse_of: :account
   has_many :invoices, inverse_of: :account
   has_one :primary_address, class_name: 'Address', autosave: true, dependent: :destroy
-  hsa_one :secondary_address, class_name: 'Address', autosave: true, dependent: :destroy
+  has_one :secondary_address, class_name: 'Address', autosave: true, dependent: :destroy
   
   # Nested resources
   accepts_nested_attributes_for :primary_address
@@ -27,7 +27,7 @@ class Account < ActiveRecord::Base
   before_validation :ensure_account_sid_and_token
   validates_presence_of :account_sid, :auth_token, :label
   validates_uniqueness_of :account_sid
-  before_create :create_initial_resources
+  after_create :create_initial_resources
     
   def ensure_account_sid_and_token
     self.account_sid ||= SecureRandom.hex(16)
@@ -119,8 +119,8 @@ class Account < ActiveRecord::Base
   ##
   # Create starting 'default' directory and appliance for a newly created account
   def create_initial_resources
-    default_directory = self.phone_directories.build label: 'Default Directory'
-    default_appliance = self.appliances.build label: 'Default Appliance', default_directory_id: default_directory.id
+    default_directory = self.phone_directories.create label: 'Default Directory'
+    default_appliance = self.appliances.create label: 'Default Appliance', phone_directory_id: default_directory.id
   end
 
   def default_appliance
