@@ -9,7 +9,7 @@ class AccountPlan < ActiveRecord::Base
   has_many :accounts, inverse_of: :account_plan
   
   # Validations
-  validates_inclusion_of :plan_kind, [ ARREARS, CREDIT ]
+  validates_inclusion_of :plan_kind, in: [ ARREARS, CREDIT ]
   
   ##
   # Calculate the cost of a phone number, based on the cost from the provider

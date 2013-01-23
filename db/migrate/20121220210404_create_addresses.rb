@@ -13,7 +13,7 @@ class CreateAddresses < ActiveRecord::Migration
     end
     
     # Add indices
-    add_index :addresses, :account
+    add_index :addresses, :account_id
     add_index :addresses, :country
   end
 end

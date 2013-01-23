@@ -1,10 +1,7 @@
-class Message < ActiveRecord::Base
+class Invoice < ActiveRecord::Base
   attr_accessible :freshbooks_id, :date_from, :date_to
   
-  belongs_to :account, inverse_of :invoices
-  
-  alias :create_invoice :create_freshbooks_invoice
-  alias :create_invoice! :create_freshbooks_invoice!
+  belongs_to :account, inverse_of: :invoices
   
   def has_invoice?
     !self.freshbooks_id.nil?
@@ -39,14 +36,14 @@ class Message < ActiveRecord::Base
   end
   
   def apply_freshbooks_credit( ledger_entry )
-    response = Freshbooks.account.payment.create {
+    response = Freshbooks.account.payment.create({
       invoice_id: self.freshbooks_id,
       client_id: self.account.freshbooks_id,
       amount: ledger_entry.value,
       date: ledger_entry.created_at,
       type: 'Credit',
       notes: ledger_entry.narrative
-    }
+    })
   end
   
   def create_freshbooks_invoice
@@ -56,18 +53,15 @@ class Message < ActiveRecord::Base
     invoice_lines = []
     self.debit_ledger_entries.select( 'narrative, sum(value) as value, count(*) as quantity' ).group(:narrative, :value).each do |entry|
       invoice_lines << { line: { 
-        name: '%s at %0.4f' % [entry.narrative, -entry.value]
+        name: '%s at %0.4f' % [entry.narrative, -entry.value],
         # description: entry.narrative,
         unit_cost: -entry.value,
         quantity: entry.quantity
-      }
+      }}
     end
   
     # Create a new invoice data structure
-    invoice_data = {
-      return_uri: account_path( self.account ),
-      lines: invoice_lines
-    }
+    invoice_data = { return_uri: account_path( self.account ), lines: invoice_lines }
     invoice_data[:po_number] = self.purchase_order unless self.purchase_order.blank?
     invoice_data[:notes] = 'This invoice is provided for information purposes only. No payment is due.' unless self.account_plan.payable_in_arrears?
     
@@ -83,5 +77,8 @@ class Message < ActiveRecord::Base
     self.create_freshbooks_invoice
     self.save!
   end
+  
+  alias :create_invoice :create_freshbooks_invoice
+  alias :create_invoice! :create_freshbooks_invoice!
   
 end

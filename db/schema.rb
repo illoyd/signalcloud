@@ -11,22 +11,23 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121220210403) do
+ActiveRecord::Schema.define(:version => 20121220210404) do
 
   create_table "account_plans", :force => true do |t|
-    t.string   "label",                                                         :null => false
-    t.boolean  "default",                                    :default => false, :null => false
-    t.decimal  "month",        :precision => 6, :scale => 4, :default => 0.0,   :null => false
-    t.decimal  "phone_add",    :precision => 6, :scale => 4, :default => 0.0,   :null => false
-    t.decimal  "phone_mult",   :precision => 6, :scale => 4, :default => 0.0,   :null => false
-    t.decimal  "call_in_add",  :precision => 6, :scale => 4, :default => 0.0,   :null => false
-    t.decimal  "call_in_mult", :precision => 6, :scale => 4, :default => 0.0,   :null => false
-    t.decimal  "sms_in_add",   :precision => 6, :scale => 4, :default => 0.0,   :null => false
-    t.decimal  "sms_in_mult",  :precision => 6, :scale => 4, :default => 0.0,   :null => false
-    t.decimal  "sms_out_add",  :precision => 6, :scale => 4, :default => 0.0,   :null => false
-    t.decimal  "sms_out_mult", :precision => 6, :scale => 4, :default => 0.0,   :null => false
-    t.datetime "created_at",                                                    :null => false
-    t.datetime "updated_at",                                                    :null => false
+    t.string   "label",                                                                      :null => false
+    t.boolean  "default",                                                 :default => false, :null => false
+    t.integer  "plan_kind",    :limit => 1,                               :default => 0,     :null => false
+    t.decimal  "month",                     :precision => 6, :scale => 4, :default => 0.0,   :null => false
+    t.decimal  "phone_add",                 :precision => 6, :scale => 4, :default => 0.0,   :null => false
+    t.decimal  "phone_mult",                :precision => 6, :scale => 4, :default => 0.0,   :null => false
+    t.decimal  "call_in_add",               :precision => 6, :scale => 4, :default => 0.0,   :null => false
+    t.decimal  "call_in_mult",              :precision => 6, :scale => 4, :default => 0.0,   :null => false
+    t.decimal  "sms_in_add",                :precision => 6, :scale => 4, :default => 0.0,   :null => false
+    t.decimal  "sms_in_mult",               :precision => 6, :scale => 4, :default => 0.0,   :null => false
+    t.decimal  "sms_out_add",               :precision => 6, :scale => 4, :default => 0.0,   :null => false
+    t.decimal  "sms_out_mult",              :precision => 6, :scale => 4, :default => 0.0,   :null => false
+    t.datetime "created_at",                                                                 :null => false
+    t.datetime "updated_at",                                                                 :null => false
   end
 
   create_table "accounts", :force => true do |t|
@@ -35,9 +36,13 @@ ActiveRecord::Schema.define(:version => 20121220210403) do
     t.string   "label",                                                                       :null => false
     t.decimal  "balance",                      :precision => 8, :scale => 4, :default => 0.0, :null => false
     t.integer  "account_plan_id",                                                             :null => false
+    t.string   "purchase_order"
     t.string   "encrypted_twilio_account_sid"
     t.string   "encrypted_twilio_auth_token"
     t.string   "twilio_application_sid"
+    t.string   "encrypted_freshbooks_id"
+    t.integer  "primary_address_id"
+    t.integer  "secondary_address_id"
     t.text     "description"
     t.datetime "created_at",                                                                  :null => false
     t.datetime "updated_at",                                                                  :null => false
@@ -46,6 +51,21 @@ ActiveRecord::Schema.define(:version => 20121220210403) do
   add_index "accounts", ["account_sid"], :name => "index_accounts_on_account_sid", :unique => true
   add_index "accounts", ["encrypted_twilio_account_sid"], :name => "index_accounts_on_encrypted_twilio_account_sid"
   add_index "accounts", ["label"], :name => "index_accounts_on_label"
+
+  create_table "addresses", :force => true do |t|
+    t.integer  "account_id"
+    t.string   "line1"
+    t.string   "line2"
+    t.string   "city",       :null => false
+    t.string   "region"
+    t.string   "postcode"
+    t.string   "country",    :null => false
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "addresses", ["account_id"], :name => "index_addresses_on_account_id"
+  add_index "addresses", ["country"], :name => "index_addresses_on_country"
 
   create_table "appliances", :force => true do |t|
     t.integer  "account_id",                                             :null => false
