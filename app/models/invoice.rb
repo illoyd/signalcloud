@@ -12,7 +12,7 @@ class Invoice < ActiveRecord::Base
   ##
   # Automatically filter the available universe of ledger entries into this invoice's time period.
   def ledger_entries
-    self.account.ledger_entries.where( 'ledger_entries.created_at >= ? and ledger_entries.created_at <= ?', self.from_date, self.to_date )
+    self.account.ledger_entries.where( 'ledger_entries.created_at >= ? and ledger_entries.created_at <= ?', self.date_from, self.date_to )
   end
   
   ##
