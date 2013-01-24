@@ -3,30 +3,49 @@ class Invoice < ActiveRecord::Base
   
   belongs_to :account, inverse_of: :invoices
   
+  ##
+  # Does this invoice have an associated invoice in the finance system?
   def has_invoice?
     !self.freshbooks_id.nil?
   end
 
+  ##
+  # Automatically filter the available universe of ledger entries into this invoice's time period.
   def ledger_entries
     self.account.ledger_entries.where( 'ledger_entries.created_at >= ? and ledger_entries.created_at <= ?', self.from_date, self.to_date )
   end
   
+  ##
+  # Calculate the sum of all ledger entries for this invoice's period.
+  # At the moment, this is not cached, so use it sparingly.
+  def balance
+    self.ledger_entries.sum(:value)
+  end
+  
+  ##
+  # Automaticaly create, save, and send the freshbook invoice.
   def create_and_send_freshbooks_invoice!
     self.create_freshbooks_invoice!
     self.send_freshbooks_invoice!
   end
   
+  ##
+  # Send this invoice from the finance system.
   def send_freshbooks_invoice!
     raise 'Invoice not created' unless self.has_invoice?
     Freshbooks.account.invoice.send_by_email( invoice_id: self.freshbooks_id )
   end
   
+  ##
+  # Apply all credits for this period to the account.
   def apply_freshbooks_credits()
     self.ledger_entries.credits.select( 'narrative, sum(value) as value, created_at' ).group(:narrative).each do |entry|
       self.apply_freshbooks_credit( entry )
     end
   end
   
+  ##
+  # Apply a single credit to this invoice.
   def apply_freshbooks_credit( ledger_entry )
     response = Freshbooks.account.payment.create({
       invoice_id: self.freshbooks_id,
@@ -38,6 +57,8 @@ class Invoice < ActiveRecord::Base
     })
   end
   
+  ##
+  # Create a single invoice in the financial system without saving.
   def create_freshbooks_invoice
     raise 'Invoice already created' if self.has_invoice?
     
@@ -55,16 +76,20 @@ class Invoice < ActiveRecord::Base
     # Create a new invoice data structure
     invoice_data = { return_uri: account_path( self.account ), lines: invoice_lines }
     invoice_data[:po_number] = self.purchase_order unless self.purchase_order.blank?
-    invoice_data[:notes] = 'This invoice is provided for information purposes only. No payment is due.' unless self.account_plan.payable_in_arrears?
+    invoice_data[:notes] = 'This invoice is provided for information purposes only. No payment is due.' if self.balance >= 0
     
     # Update this invoice with all needed data
     response = Freshbooks.account.invoice.create(invoice_data)
     self.freshbooks_id = response[:invoice_id]
-    response = Freshbooks.account.invoice.get(self.freshbooks_id)
+    
+    # Requery invoice - why? because Freshbooks doesn't send back all the data we expect!
+    response = Freshbooks.account.invoice.get(self.freshbooks_id) unless response.include?(:links)
     self.public_link = response[:links][:client_view]
     self.internal_link = resonse[:links][:view]
   end
   
+  ##
+  # Create a new invoice in the financial system, saving afterwards.
   def create_freshbooks_invoice!
     self.create_freshbooks_invoice
     self.save!
