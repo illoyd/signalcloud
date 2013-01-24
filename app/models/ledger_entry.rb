@@ -43,11 +43,19 @@ class LedgerEntry < ActiveRecord::Base
 
   ##
   # Get all entries created today.
-  scope :today, where( "ledger_entries.created_at >= ? and ledger_entries.created_at <= ?", DateTime.now.beginning_of_day, DateTime.now.end_of_day )
+  scope :today, ->{ where( "ledger_entries.created_at >= ? and ledger_entries.created_at <= ?", DateTime.now.beginning_of_day, DateTime.now.end_of_day ) }
   
   ##
   # Get all entries created yesterday.
-  scope :yesterday, where( "ledger_entries.created_at >= ? and ledger_entries.created_at <= ?", DateTime.yesterday.beginning_of_day, DateTime.yesterday.end_of_day )
+  scope :yesterday, ->{ where( "ledger_entries.created_at >= ? and ledger_entries.created_at <= ?", DateTime.yesterday.beginning_of_day, DateTime.yesterday.end_of_day ) }
+  
+  ##
+  # Get all debits (negative or zero) charges
+  scope :debits, where( 'value <= 0' )
+
+  ##
+  # Get all credits (positive) charges
+  scope :credits, where( 'value > 0' )
 
   ##
   # Simple test if status is pending (e.g. has not been confirmed by the provider)

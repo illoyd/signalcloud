@@ -11,14 +11,6 @@ class Invoice < ActiveRecord::Base
     self.account.ledger_entries.where( 'ledger_entries.created_at >= ? and ledger_entries.created_at <= ?', self.from_date, self.to_date )
   end
   
-  def debit_ledger_entries
-    self.ledger_entries.where( 'value <= 0' )
-  end
-  
-  def credit_ledger_entries
-    self.ledger_entries.where( 'value > 0' )
-  end
-  
   def create_and_send_freshbooks_invoice!
     self.create_freshbooks_invoice!
     self.send_freshbooks_invoice!
@@ -30,7 +22,7 @@ class Invoice < ActiveRecord::Base
   end
   
   def apply_freshbooks_credits()
-    self.credit_ledger_entries.select( 'narrative, sum(value) as value, created_at' ).group(:narrative).each do |entry|
+    self.ledger_entries.credits.select( 'narrative, sum(value) as value, created_at' ).group(:narrative).each do |entry|
       self.apply_freshbooks_credit( entry )
     end
   end
@@ -51,7 +43,7 @@ class Invoice < ActiveRecord::Base
     
     # Capture appropriate data from ledger and activities
     invoice_lines = []
-    self.debit_ledger_entries.select( 'narrative, sum(value) as value, count(*) as quantity' ).group(:narrative, :value).each do |entry|
+    self.ledger_entries.debits.select( 'narrative, sum(value) as value, count(*) as quantity' ).group(:narrative, :value).each do |entry|
       invoice_lines << { line: { 
         name: '%s at %0.4f' % [entry.narrative, -entry.value],
         # description: entry.narrative,
