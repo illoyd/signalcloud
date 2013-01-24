@@ -3,6 +3,9 @@ class CreateInvoices < ActiveRecord::Migration
     create_table :invoices do |t|
       t.references :account
       t.integer :freshbooks_id
+      t.string :purchase_order
+      t.string :public_link
+      t.string :internal_link
       t.datetime :date_from, null: false
       t.datetime :date_to, null: false
 
