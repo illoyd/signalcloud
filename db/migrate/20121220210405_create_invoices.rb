@@ -8,6 +8,7 @@ class CreateInvoices < ActiveRecord::Migration
       t.string :internal_link
       t.datetime :date_from, null: false
       t.datetime :date_to, null: false
+      t.datetime :sent_at
 
       t.timestamps
     end

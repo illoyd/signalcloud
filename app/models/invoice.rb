@@ -3,6 +3,8 @@ class Invoice < ActiveRecord::Base
   
   belongs_to :account, inverse_of: :invoices
   
+  validates_presence_of :account_id, :date_from, :date_to
+  
   ##
   # Does this invoice have an associated invoice in the finance system?
   def has_invoice?
@@ -25,15 +27,17 @@ class Invoice < ActiveRecord::Base
   ##
   # Automaticaly create, save, and send the freshbook invoice.
   def create_and_send_freshbooks_invoice!
-    self.create_freshbooks_invoice!
+    self.create_freshbooks_invoice
     self.send_freshbooks_invoice!
   end
   
   ##
   # Send this invoice from the finance system.
   def send_freshbooks_invoice!
-    raise 'Invoice not created' unless self.has_invoice?
+    raise Ticketplease::ClientInvoiceNotCreatedError.new unless self.has_invoice?
     Freshbooks.account.invoice.send_by_email( invoice_id: self.freshbooks_id )
+    self.sent_at = DateTime.now
+    self.save!
   end
   
   ##
@@ -60,7 +64,7 @@ class Invoice < ActiveRecord::Base
   ##
   # Create a single invoice in the financial system without saving.
   def create_freshbooks_invoice
-    raise 'Invoice already created' if self.has_invoice?
+    raise Ticketplease::ClientInvoiceAlreadyCreatedError.new if self.has_invoice?
     
     # Capture appropriate data from ledger and activities
     invoice_lines = []

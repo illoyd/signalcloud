@@ -73,4 +73,17 @@ class ReplyAlreadySentError < TicketError
   end
 end
 
+class ClientInvoiceNotCreatedError < TicketError
+  def initialize(ticket, original = nil, code = nil)
+    super( 'The ticket reply has already been sent. Use force_resend to resend the message.', ticket, original, code )
+  end
+end
+
+class ClientInvoiceAlreadyCreatedError < TicketError
+  def initialize(ticket, original = nil, code = nil)
+    super( 'The ticket reply has already been sent. Use force_resend to resend the message.', ticket, original, code )
+  end
+end
+
+
 end
