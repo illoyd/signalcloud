@@ -160,5 +160,4 @@ class Message < ActiveRecord::Base
     return ledger_entry
   end
 
->>>>>>> freshbooks_integration
 end
