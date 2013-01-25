@@ -48,6 +48,7 @@ gem 'attr_encrypted'
 gem 'kaminari'
 gem 'phony'
 gem 'stringex'
+gem 'ruby-freshbooks'
 
 # Add rspec
 group :test, :development do
@@ -60,5 +61,7 @@ end
 # Add shoulda matchers
 group :test do
 	gem 'shoulda-matchers'
+	gem 'vcr'
+	gem 'webmock'
 end
 

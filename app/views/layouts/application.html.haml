@@ -60,11 +60,11 @@
                       %a{ :href => tickets_path }
                         = icon( :tickets )
                         Tickets
-                  - if can? :index, Transaction
+                  - if can? :index, LedgerEntry
                     %li
-                      %a{ :href => transactions_path }
-                        = icon( :transactions )
-                        Transactions
+                      %a{ :href => ledger_entries_path }
+                        = icon( :ledger_entries )
+                        Ledger
               %li
                 %a{ :href => "#" }
                   %i.icon-bar-chart  

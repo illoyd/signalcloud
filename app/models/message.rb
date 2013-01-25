@@ -1,6 +1,6 @@
 # encoding: UTF-8
 class Message < ActiveRecord::Base
-  attr_accessible :our_cost, :provider_cost, :ticket_id, :payload, :twilio_sid
+  attr_accessible :our_cost, :provider_cost, :ticket_id, :payload, :twilio_sid, :message_kind
   
   before_save :update_costs
   
@@ -18,19 +18,26 @@ class Message < ActiveRecord::Base
   FAILED = 4
 
   ##
-  # Encrypted payload. Serialised using JSON
+  # Encrypted payload. Serialised using JSON.
   attr_encrypted :payload, key: ATTR_ENCRYPTED_SECRET, marshal: true, marshaler: JSON
   attr_encrypted :callback_payload, key: ATTR_ENCRYPTED_SECRET, marshal: true, marshaler: JSON
 
   ##
-  # Parent ticket, of which this message is part of the conversation
+  # Encrypted callback. payload. Serialised using JSON.
+  attr_encrypted :callback_payload, key: ATTR_ENCRYPTED_SECRET, marshal: true, marshaler: JSON
+
+  ##
+  # Parent ticket, of which this message is part of the conversation.
   belongs_to :ticket, inverse_of: :messages
   delegate :account, :to => :ticket, :allow_nil => true
   
   ##
-  # Transactions for this message - only one!
-  has_one :transaction, as: :item, autosave: true
-
+  # Chain up to parent's account.
+  delegate :account, :to => :ticket, :allow_nil => true
+  
+  ##
+  # LedgerEntry for this message.
+  has_one :ledger_entry, as: :item, autosave: true
 
   # Validations
   validates_presence_of :ticket_id, :twilio_sid, :payload
@@ -38,9 +45,11 @@ class Message < ActiveRecord::Base
   validates_numericality_of :provider_cost, allow_null: true
   validates_length_of :twilio_sid, is: Twilio::SID_LENGTH
   validates_uniqueness_of :twilio_sid
-  validates_inclusion_of :kind, in: %w( c r ), allow_nil: true
+  validates_inclusion_of :message_kind, in: [ CHALLENGE, REPLY ], allow_nil: true
   validates_inclusion_of :status, in: [ PENDING, QUEUED, SENDING, SENT, FAILED ]
   
+  ##
+  # Is the given string composed solely of basic SMS characters?
   def self.is_sms_charset?( message )
     !(SMS_CHARSET =~ message).nil?
   end
@@ -132,12 +141,24 @@ class Message < ActiveRecord::Base
     self.ticket.appliance.account.twilio_account.sms.messages.get( self.twilio_sid )
   end
   
+  ##
+  # Is this message a challenge?
   def is_challenge?
-    self.kind == CHALLENGE
+    self.message_kind == CHALLENGE
   end
   
+  ##
+  # Is this message a reply?
   def is_reply?
-    self.kind == REPLY
+    self.message_kind == REPLY
   end
   
+  def build_ledger_entry( attributes={} )
+    ledger_entry = super(attributes)
+    ledger_entry.account = self.account
+    #ledger_entry.item = self
+    return ledger_entry
+  end
+
+>>>>>>> freshbooks_integration
 end

@@ -49,7 +49,8 @@ class Ticket < ActiveRecord::Base
   # Relationships
   belongs_to :appliance, inverse_of: :tickets
   has_many :messages, inverse_of: :ticket
-  has_many :transactions, as: :item
+  #has_many :ledger_entries, as: :item
+
   delegate :account, :to => :appliance, :allow_nil => true
   
   # Validation
@@ -138,13 +139,13 @@ class Ticket < ActiveRecord::Base
 
     # Abort if message already sent and we do not want to force a resend
     raise Ticketplease::ChallengeAlreadySentError.new(self) unless ( force_resend || !self.has_challenge_been_sent? )
-    
+
     # Send the message, catching any errors
     begin
-      messages = self.send_message( self.question, force_resend )
+      sent_messages = self.send_message( self.question, force_resend )
       self.status = QUEUED
       self.challenge_status = QUEUED
-      return ( messages.is_a?(Array) and messages.size == 1 ) ? messages.first : messages
+      return sent_messages
 
     rescue Ticketplease::MessageSendingError => ex
       # Set message status
@@ -160,12 +161,15 @@ class Ticket < ActiveRecord::Base
       
       # Rethrow
       raise ex
-
-    ensure
-      # Always save self
-      self.save
     end
-
+  end
+  
+  def send_challenge_message!( force_resend = false )
+    begin
+      self.send_challenge_message(force_resend)
+    ensure
+      self.save!
+    end
   end
   
   def send_reply_message( force_resend = false )
@@ -175,9 +179,9 @@ class Ticket < ActiveRecord::Base
     
     # Send the message, catching any errors
     begin
-      messages = self.send_message( self.select_reply_message_to_send, force_resend )
+      sent_messages = self.send_message( self.select_reply_message_to_send, force_resend )
       self.reply_status = QUEUED
-      return ( messages.is_a?(Array) and messages.size == 1 ) ? messages.first : messages
+      return sent_messages
 
     rescue Ticketplease::MessageSendingError => ex
       # Set message status
@@ -192,55 +196,49 @@ class Ticket < ActiveRecord::Base
       
       # Rethrow
       raise ex
-
-    ensure
-      # Always save self
-      self.save
     end
-
+  end
+  
+  def send_reply_message!( force_resend = false )
+    begin
+      self.send_reply_message(force_resend)
+    ensure
+      self.save!
+    end
   end
   
   ##
   # Send challenge SMS message. This will construct the appropriate SMS 'envelope' and pass to the +Ticket's+ +Account+. This will also convert
   # the results into a message, to be held for reference.
   def send_message( message_body, force_resend = false )
-  
-    # Throw an error if message body is nil
-    raise Ticketplease::CriticalMessageSendingError.new( nil, nil, Ticket::ERROR_MISSING_BODY ) if message_body.nil? or message_body.blank?
+    raise Ticketplease::CriticalMessageSendingError.new( nil, nil, Ticket::ERROR_MISSING_BODY ) if message_body.blank?
   
     # Do an initial clean-up on the body
     message_body.strip!
   
-    # Select a chunking strategy for the message, based on size. If the length is greater than the chunking size, then iterate as separate
-    # messages, combining as an array.
-    if message_body.length > Message.select_message_chunk_size( message_body )
-      strategy = Message.select_message_chunking_strategy( message_body )
-      return message_body.scan( strategy ).map { |part| self.send_message(part, force_resend) }
-    end
-
-    message = nil
     begin
-      # Send the SMS
-      results = self.appliance.account.send_sms( self.to_number, self.from_number, message_body )
-
-      # Build a message and transaction to hold the results
-      message = self.messages.build( twilio_sid: results.sid, payload: results.to_property_hash )
-      transaction = message.build_transaction( account: self.appliance.account, narrative: Transaction::OUTBOUND_SMS_NARRATIVE )
-      
-      # Return the completed message
-      return message
+      chunking_strategy = Message.select_message_chunking_strategy( message_body )
+      return message_body.scan( chunking_strategy ).map do |message_part|
+        # Send the SMS
+        results = self.appliance.account.send_sms( self.to_number, self.from_number, message_part )
+  
+        # Build a message and ledger_entry to hold the results
+        sent_message = self.messages.build( twilio_sid: results.sid, payload: results.to_property_hash )
+        ledger_entry = sent_message.build_ledger_entry( narrative: LedgerEntry::OUTBOUND_SMS_NARRATIVE )
+        sent_message
+      end
 
     rescue Twilio::REST::RequestError => ex
       error_code = Ticket.translate_twilio_error_to_ticket_status ex.code
       if CRITICAL_ERRORS.include? error_code
-        raise Ticketplease::CriticalMessageSendingError.new( message, ex, error_code ) # Rethrow as a critical error
+        raise Ticketplease::CriticalMessageSendingError.new( message_body, ex, error_code ) # Rethrow as a critical error
       else
-        raise Ticketplease::MessageSendingError.new( message, ex, error_code ) # Rethrow in nice wrapper error
+        raise Ticketplease::MessageSendingError.new( message_body, ex, error_code ) # Rethrow in nice wrapper error
       end
     end
 
   end
-    
+  
   ##
   # Has the challenge message already been sent to the recipient?
   def has_challenge_been_sent?
@@ -260,11 +258,11 @@ class Ticket < ActiveRecord::Base
   end
   
   def has_outstanding_challenge_messages?
-    return self.messages.where( 'kind = ? and status != ?', Message::CHALLENGE, Message::SENT ).any?
+    return self.messages.where( 'message_kind = ? and status != ?', Message::CHALLENGE, Message::SENT ).any?
   end
   
   def has_outstanding_reply_messages?
-    return self.messages.where( 'kind = ? and status != ?', Message::REPLY, Message::SENT ).any?
+    return self.messages.where( 'message_kind = ? and status != ?', Message::REPLY, Message::SENT ).any?
   end
   
   ##

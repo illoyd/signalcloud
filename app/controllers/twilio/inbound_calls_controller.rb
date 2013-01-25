@@ -1,4 +1,4 @@
-class Twilio::InboundCallController < ApplicationController
+class Twilio::InboundCallsController < ApplicationController
 
   respond_to :xml
   before_filter :authenticate_account!, :authenticate_twilio!

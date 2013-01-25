@@ -36,18 +36,17 @@ class UpdateMessageStatusJob < Struct.new( :callback_values, :quiet )
         message.status = Message::QUEUED
     end
     
-    # Update the transaction
-    transaction = message.transaction
-    transaction.value = message.cost
-    transaction.settled_at = self.callback_values[:date_sent]
+    # Update the ledger_entry
+    ledger_entry = message.ledger_entry
+    ledger_entry.value = message.cost
+    ledger_entry.settled_at = self.callback_values[:date_sent]
 
-    # Save as a db transaction
+    # Save as a db ledger_entry
     message.save!
-    #transaction.save!
     
     # Check and close the ticket's phase if appropriate
     ticket = message.ticket
-    case message.kind
+    case message.message_kind
       when Message::CHALLENGE
         unless ticket.has_outstanding_challenge_messages?
           ticket.challenge_sent = self.callback_values[:date_sent]
@@ -59,7 +58,7 @@ class UpdateMessageStatusJob < Struct.new( :callback_values, :quiet )
           ticket.reply_status = Message::SENT
         end
     end
-    ticket.save
+    ticket.save!
   end
   
   ##

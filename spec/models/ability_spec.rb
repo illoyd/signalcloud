@@ -2,7 +2,7 @@ require 'spec_helper'
 require "cancan/matchers"
 
 describe User, '.abilities' do
-  fixtures :accounts, :users, :phone_numbers, :phone_directories, :phone_directory_entries, :appliances, :tickets, :messages, :transactions
+  fixtures :accounts, :users, :phone_numbers, :phone_directories, :phone_directory_entries, :appliances, :tickets, :messages, :ledger_entries
 
   #subject { ability }
   #let(:ability){ Ability.new(user) }
@@ -56,10 +56,10 @@ describe User, '.abilities' do
     it{ should have_ability({show: true, edit: false, update: false, destroy: false}, for: messages(:test_ticket_challenge)) }
     it{ should_not have_ability(:manage, for: messages(:dedicated_ticket_challenge)) }
     
-    # Test transactions
-    it{ should_not have_ability(:manage, for: Transaction) }
-    it{ should_not have_ability(:manage, for: transactions(:outbound_sms_1)) }
-    it{ should_not have_ability(:manage, for: transactions(:dedicated_outbound_sms_1)) }
+    # Test ledger_entries
+    it{ should_not have_ability(:manage, for: LedgerEntry) }
+    it{ should_not have_ability(:manage, for: ledger_entries(:outbound_sms_1)) }
+    it{ should_not have_ability(:manage, for: ledger_entries(:dedicated_outbound_sms_1)) }
   end
   
   context "can shadow account" do
@@ -128,10 +128,10 @@ describe User, '.abilities' do
     it{ should_not have_ability(:manage, for: tickets(:dedicated_ticket)) }
   end
   
-  context 'can manage transactions' do
-    subject { users(:manage_transactions_permissions_user) }
-    it{ should have_ability({index: true, show: true, new: false, create: false, edit: false, update: false, destroy: false}, for: transactions(:outbound_sms_1)) }
-    it{ should_not have_ability(:manage, for: transactions(:dedicated_outbound_sms_1)) }
+  context 'can manage ledger_entries' do
+    subject { users(:manage_ledger_entries_permissions_user) }
+    it{ should have_ability({index: true, show: true, new: false, create: false, edit: false, update: false, destroy: false}, for: ledger_entries(:outbound_sms_1)) }
+    it{ should_not have_ability(:manage, for: ledger_entries(:dedicated_outbound_sms_1)) }
   end
   
 end

@@ -15,6 +15,9 @@
 /tmp
 /doc
 
+# Ignore VCR recordings (used in testing)
+/spec/fixtures/vcr_cassettes
+
 # Ignore secret files
 .env
 

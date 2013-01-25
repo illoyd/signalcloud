@@ -1,4 +1,4 @@
-class Twilio::SmsCallbackController < ApplicationController
+class Twilio::SmsCallbacksController < ApplicationController
 
   respond_to :xml
   before_filter :authenticate_account!, :authenticate_twilio!

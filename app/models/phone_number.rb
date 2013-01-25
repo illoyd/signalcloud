@@ -11,8 +11,8 @@ class PhoneNumber < ActiveRecord::Base
   has_many :phone_directories, through: :phone_directory_entries
 
   ##
-  # Transactions for this message - usually only one, but may be more
-  has_many :transactions, as: :item
+  # LedgerEntries for this message - usually one per month
+  has_many :ledger_entries, as: :item
 
   validates_presence_of :account_id, :twilio_phone_number_sid, :number
   validates_numericality_of :our_cost, :provider_cost, :account_id

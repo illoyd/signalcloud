@@ -5,6 +5,7 @@ class Account < ActiveRecord::Base
   # Encrypted attributes
   attr_encrypted :twilio_account_sid, key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :twilio_auth_token, key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :freshbooks_id, key: ATTR_ENCRYPTED_SECRET
 
   # References
   belongs_to :account_plan, inverse_of: :accounts
@@ -13,12 +14,20 @@ class Account < ActiveRecord::Base
   has_many :tickets, through: :appliances
   has_many :phone_directories, inverse_of: :account
   has_many :phone_numbers, inverse_of: :account
-  has_many :transactions, inverse_of: :account
+  has_many :ledger_entries, inverse_of: :account
+  has_many :invoices, inverse_of: :account
+  has_one :primary_address, class_name: 'Address', autosave: true, dependent: :destroy
+  has_one :secondary_address, class_name: 'Address', autosave: true, dependent: :destroy
   
+  # Nested resources
+  accepts_nested_attributes_for :primary_address
+  accepts_nested_attributes_for :secondary_address
+  
+  # Validations
   before_validation :ensure_account_sid_and_token
   validates_presence_of :account_sid, :auth_token, :label
   validates_uniqueness_of :account_sid
-  before_create :create_initial_resources
+  after_create :create_initial_resources
     
   def ensure_account_sid_and_token
     self.account_sid ||= SecureRandom.hex(16)
@@ -52,17 +61,68 @@ class Account < ActiveRecord::Base
     return @twilio_validator
   end
   
-  def create_initial_resources
-
-    # Create first directory
-    default_directory = self.phone_directories.build label: 'Default Directory'
-  
-    # Build first appliance
-    default_appliance = default_directory.appliances.build label: 'Default Appliance'
-    default_appliance.account = self
-    
+  ##
+  # Get the current client's Freshbook account, using the Freshbook global module.
+  # In Freshbooks parlance, this is a 'Client' object.
+  def freshbooks_client
+    Freshbooks.account.client.get client_id: self.freshbooks_id
   end
   
+  def create_freshbooks_client
+    raise 'Freshbooks client already configured' unless self.freshbooks_id.nil?
+    
+    # Construct the complete client dataset to be passed to Freshbooks
+    contact = self.users.primary
+    client_data = {
+      organisation: self.organisation,
+      currency_code: 'USD',
+      # VAT details
+      vat_name: self.vat_name,
+      vat_number: self.vat_number,
+      # Add primary contact
+      first_name: contact.first_name,
+      last_name: contact.last_name,
+      username: contact.email,
+      email: contact.email,
+      work_phone: self.primary_address.work_phone,
+      # Add primary address
+      p_street1: self.primary_address.line1,
+      p_street2: self.primary_address.line2,
+      p_city: self.primary_address.city,
+      p_state: self.primary_address.state,
+      p_country: self.primary_address.country,
+      p_code: self.primary_address.postalcode,
+      # Add secondary address
+      s_street1: self.secondary_address.line1,
+      s_street2: self.secondary_address.line2,
+      s_city: self.secondary_address.city,
+      s_state: self.secondary_address.state,
+      s_country: self.secondary_address.country,
+      s_code: self.secondary_address.postalcode,
+      # Manage all contacts
+      contacts: []
+    }
+    
+    # Instruct Freshbooks API to create the account, then save the resulting ID
+    response = Freshbooks.account.client.create(client_data)
+    self.freshbooks_id = response[:client_id]
+    self.save!
+  end
+  
+  def create_freshbook_invoice( to_date=nil, from_date=nil )
+    from_date ||= (self.invoices.last.to_date + 1.day).beginning_of_day
+    to_date ||= DateTime.yesterday.end_of_day
+    invoice = self.invoices.build from_date: from_date, to_date: to_date
+    invoice.create_invoice!
+  end
+  
+  ##
+  # Create starting 'default' directory and appliance for a newly created account
+  def create_initial_resources
+    default_directory = self.phone_directories.create label: 'Default Directory'
+    default_appliance = self.appliances.create label: 'Default Appliance', phone_directory_id: default_directory.id
+  end
+
   def default_appliance
     self.appliances.find_by_default( true )
   end

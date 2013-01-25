@@ -5,6 +5,8 @@ require 'spec_helper'
 # Split out the +send_challenge_message+ function for ease of use
 describe Ticket do
   fixtures :account_plans, :accounts, :appliances, :tickets
+  before { VCR.insert_cassette 'ticket_send_reply_message', record: :new_episodes }
+  after { VCR.eject_cassette }
   
   describe ".send_reply_message" do
   
@@ -18,7 +20,7 @@ describe Ticket do
 
         # Get counts for later use
         @original_message_count = @ticket.messages.count
-        @original_transaction_count = @ticket.appliance.account.transactions.count
+        @original_ledger_entry_count = @ticket.appliance.account.ledger_entries.count
       end
 
       context 'reply not already sent' do
@@ -28,9 +30,9 @@ describe Ticket do
           @message.to_number.should == @ticket.to_number
           @message.from_number.should == @ticket.from_number
         
-          # Message and transaction should increase
+          # Message and ledger_entry should increase
           @ticket.messages.count.should == @original_message_count + 1
-          @ticket.appliance.account.transactions.count.should == @original_transaction_count + 1
+          @ticket.appliance.account.ledger_entries.count.should == @original_ledger_entry_count + 1
         end
 
         it "should send confirmed reply" do
@@ -38,7 +40,8 @@ describe Ticket do
           @ticket.status = Ticket::CONFIRMED
   
           # Prepare and send message
-          expect{ @message = @ticket.send_reply_message() }.to_not raise_error
+          expect{ @message = @ticket.send_reply_message!() }.to_not raise_error
+          @message = @message.first
           @message.body.should == @ticket.confirmed_reply
         end
 
@@ -47,7 +50,8 @@ describe Ticket do
           @ticket.status = Ticket::DENIED
   
           # Prepare and send message
-          expect{ @message = @ticket.send_reply_message() }.to_not raise_error
+          expect{ @message = @ticket.send_reply_message!() }.to_not raise_error
+          @message = @message.first
           @message.body.should == @ticket.denied_reply
         end
 
@@ -56,7 +60,8 @@ describe Ticket do
           @ticket.status = Ticket::FAILED
   
           # Prepare and send message
-          expect{ @message = @ticket.send_reply_message() }.to_not raise_error
+          expect{ @message = @ticket.send_reply_message!() }.to_not raise_error
+          @message = @message.first
           @message.body.should == @ticket.failed_reply
         end
 
@@ -65,7 +70,8 @@ describe Ticket do
           @ticket.status = Ticket::EXPIRED
   
           # Prepare and send message
-          expect{ @message = @ticket.send_reply_message() }.to_not raise_error
+          expect{ @message = @ticket.send_reply_message!() }.to_not raise_error
+          @message = @message.first
           @message.body.should == @ticket.expired_reply
         end
 
@@ -75,7 +81,8 @@ describe Ticket do
           @ticket.confirmed_reply = "こんにちは"
   
           # Prepare and send message
-          expect{ @message = @ticket.send_reply_message() }.to_not raise_error
+          expect{ @message = @ticket.send_reply_message!() }.to_not raise_error
+          @message = @message.first
           @message.body.should == @ticket.confirmed_reply
         end
       end
@@ -87,9 +94,9 @@ describe Ticket do
           @ticket.reply_status = Message::SENT
         end
         after(:each) do
-          # Message and transaction should not increase
+          # Message and ledger_entry should not increase
           @ticket.messages.count.should == @original_message_count
-          @ticket.appliance.account.transactions.count.should == @original_transaction_count
+          @ticket.appliance.account.ledger_entries.count.should == @original_ledger_entry_count
         end
         
         it "should not re-send confirmation reply" do
@@ -97,7 +104,7 @@ describe Ticket do
           @ticket.status = Ticket::CONFIRMED
   
           # Prepare and send message
-          expect{ @message = @ticket.send_reply_message() }.to raise_error( Ticketplease::ReplyAlreadySentError )
+          expect{ @message = @ticket.send_reply_message!() }.to raise_error( Ticketplease::ReplyAlreadySentError )
         end
         
         it "should not re-send denied reply" do
@@ -105,7 +112,7 @@ describe Ticket do
           @ticket.status = Ticket::DENIED
   
           # Prepare and send message
-          expect{ @message = @ticket.send_reply_message() }.to raise_error( Ticketplease::ReplyAlreadySentError )
+          expect{ @message = @ticket.send_reply_message!() }.to raise_error( Ticketplease::ReplyAlreadySentError )
         end
         
         it "should not re-send failed reply" do
@@ -113,7 +120,7 @@ describe Ticket do
           @ticket.status = Ticket::FAILED
   
           # Prepare and send message
-          expect{ @message = @ticket.send_reply_message() }.to raise_error( Ticketplease::ReplyAlreadySentError )
+          expect{ @message = @ticket.send_reply_message!() }.to raise_error( Ticketplease::ReplyAlreadySentError )
         end
         
         it "should not re-send expired reply" do
@@ -121,7 +128,7 @@ describe Ticket do
           @ticket.status = Ticket::EXPIRED
   
           # Prepare and send message
-          expect{ @message = @ticket.send_reply_message() }.to raise_error( Ticketplease::ReplyAlreadySentError )
+          expect{ @message = @ticket.send_reply_message!() }.to raise_error( Ticketplease::ReplyAlreadySentError )
         end
       end
     end
@@ -136,7 +143,7 @@ describe Ticket do
 
         # Get counts for later use
         @original_message_count = subject.messages.count
-        @original_transaction_count = subject.appliance.account.transactions.count
+        @original_ledger_entry_count = subject.appliance.account.ledger_entries.count
       end
 
       it 'has a 161-long confirmed reply' do
@@ -145,13 +152,13 @@ describe Ticket do
         subject.confirmed_reply = 'Mumblecore messenger bag fashion axe whatever pitchfork, squid sapiente banksy cosby sweater enim vegan mcsweeney\'s carles chambray. Stumptown twee single-origin'
 
         # Run command and expect an array of messages
-        expect{ @messages = subject.send_reply_message() }.to_not raise_error
+        expect{ @messages = subject.send_reply_message!() }.to_not raise_error
         @messages.should be_a(Array)
         @messages.size.should == 2
 
-        # Message and transaction should increase
+        # Message and ledger_entry should increase
         subject.messages.count.should == @original_message_count + 2
-        subject.appliance.account.transactions.count.should == @original_transaction_count + 2
+        subject.appliance.account.ledger_entries.count.should == @original_ledger_entry_count + 2
       end
       it 'has a super long confirmed reply' do
         # Configure status to pick proper message and trick it into thinking it has already been sent
@@ -159,13 +166,13 @@ describe Ticket do
         subject.confirmed_reply = 'Mumblecore messenger bag fashion axe whatever pitchfork, squid sapiente banksy cosby sweater enim vegan mcsweeney\'s carles chambray. Stumptown twee single-origin coffee next level, echo park elit quis minim sed blue bottle. Single-origin coffee leggings cliche, farm-to-table try-hard ullamco wes anderson narwhal literally hella nisi actually. Retro whatever semiotics odd future 8-bit, polaroid letterpress non consectetur seitan cosby sweater. Pariatur fanny pack proident, carles skateboard scenester voluptate. Sunt consequat jean shorts chambray bushwick, lo-fi next level dolor yr. Wayfarers swag keffiyeh, williamsburg lo-fi tonx put a bird on it tumblr keytar YOLO fashion axe pug tempor delectus.'
 
         # Run command and expect an array of messages
-        expect{ @messages = subject.send_reply_message() }.to_not raise_error
+        expect{ @messages = subject.send_reply_message!() }.to_not raise_error
         @messages.should be_a(Array)
         @messages.size.should == 5
 
-        # Message and transaction should increase
+        # Message and ledger_entry should increase
         subject.messages.count.should == @original_message_count + 5
-        subject.appliance.account.transactions.count.should == @original_transaction_count + 5
+        subject.appliance.account.ledger_entries.count.should == @original_ledger_entry_count + 5
       end
 
       it "should send long UTF-8 confirmed reply" do
@@ -174,13 +181,13 @@ describe Ticket do
         subject.confirmed_reply = "こんにちは" * 20
 
         # Prepare and send message
-        expect{ @messages = subject.send_reply_message() }.to_not raise_error
+        expect{ @messages = subject.send_reply_message!() }.to_not raise_error
         @messages.should be_a(Array)
         @messages.size.should == 2
 
-        # Message and transaction should increase
+        # Message and ledger_entry should increase
         subject.messages.count.should == @original_message_count + 2
-        subject.appliance.account.transactions.count.should == @original_transaction_count + 2
+        subject.appliance.account.ledger_entries.count.should == @original_ledger_entry_count + 2
       end
     end
 
@@ -190,7 +197,7 @@ describe Ticket do
         subject.challenge_sent = DateTime.now
         subject.challenge_status = Message::SENT
         @original_message_count = subject.messages.count
-        @original_transaction_count = subject.appliance.account.transactions.count
+        @original_ledger_entry_count = subject.appliance.account.ledger_entries.count
       end
       after(:each) do
         # Ticket should have certain status - ticket is ok, but reply should be failed!
@@ -198,9 +205,9 @@ describe Ticket do
         subject.reply_status.should == @expected_error
         subject.has_errored?.should == false
 
-        # Message and transaction should not increase
+        # Message and ledger_entry should not increase
         subject.messages.count.should == @original_message_count
-        subject.appliance.account.transactions.count.should == @original_transaction_count
+        subject.appliance.account.ledger_entries.count.should == @original_ledger_entry_count
       end
       
       describe 'malformed body' do
@@ -237,7 +244,7 @@ describe Ticket do
           @expected_error = Ticket::ERROR_INVALID_TO
 
           # Run command and expect an error
-          expect{ @message = subject.send_reply_message() }.to raise_error { |ex|
+          expect{ @message = subject.send_reply_message!() }.to raise_error { |ex|
             ex.should be_an_instance_of( Ticketplease::MessageSendingError )
             ex.code.should == @expected_error
           }
@@ -250,7 +257,7 @@ describe Ticket do
           @expected_error = Ticket::ERROR_CANNOT_ROUTE
 
           # Run command and expect an error
-          expect{ @message = subject.send_reply_message() }.to raise_error { |ex|
+          expect{ @message = subject.send_reply_message!() }.to raise_error { |ex|
             ex.should be_an_instance_of( Ticketplease::MessageSendingError )
             ex.code.should == @expected_error
           }
@@ -263,7 +270,7 @@ describe Ticket do
           @expected_error = Ticket::ERROR_INTERNATIONAL
 
           # Run command and expect an error
-          expect{ @message = subject.send_reply_message() }.to raise_error { |ex|
+          expect{ @message = subject.send_reply_message!() }.to raise_error { |ex|
             ex.should be_an_instance_of( Ticketplease::CriticalMessageSendingError )
             ex.code.should == @expected_error
           }
@@ -276,7 +283,7 @@ describe Ticket do
           @expected_error = Ticket::ERROR_BLACKLISTED_TO
 
           # Run command and expect an error
-          expect{ @message = subject.send_reply_message() }.to raise_error { |ex|
+          expect{ @message = subject.send_reply_message!() }.to raise_error { |ex|
             ex.should be_an_instance_of( Ticketplease::MessageSendingError )
             ex.code.should == @expected_error
           }
@@ -289,7 +296,7 @@ describe Ticket do
           @expected_error = Ticket::ERROR_NOT_SMS_CAPABLE
 
           # Run command and expect an error
-          expect{ @message = subject.send_reply_message() }.to raise_error { |ex|
+          expect{ @message = subject.send_reply_message!() }.to raise_error { |ex|
             ex.should be_an_instance_of( Ticketplease::MessageSendingError )
             ex.code.should == @expected_error
           }
@@ -302,7 +309,7 @@ describe Ticket do
           @expected_error = Ticket::ERROR_INVALID_FROM
 
           # Run command and expect an error
-          expect{ @message = subject.send_reply_message() }.to raise_error { |ex|
+          expect{ @message = subject.send_reply_message!() }.to raise_error { |ex|
             ex.should be_an_instance_of( Ticketplease::MessageSendingError )
             ex.code.should == @expected_error
           }
@@ -315,7 +322,7 @@ describe Ticket do
           @expected_error = Ticket::ERROR_NOT_SMS_CAPABLE
 
           # Run command and expect an error
-          expect{ @message = subject.send_reply_message() }.to raise_error { |ex|
+          expect{ @message = subject.send_reply_message!() }.to raise_error { |ex|
             ex.should be_an_instance_of( Ticketplease::MessageSendingError )
             ex.code.should == @expected_error
           }
@@ -328,7 +335,7 @@ describe Ticket do
           @expected_error = Ticket::ERROR_SMS_QUEUE_FULL
 
           # Run command and expect an error
-          expect{ @message = subject.send_reply_message() }.to raise_error { |ex|
+          expect{ @message = subject.send_reply_message!() }.to raise_error { |ex|
             ex.should be_an_instance_of( Ticketplease::MessageSendingError )
             ex.code.should == @expected_error
           }

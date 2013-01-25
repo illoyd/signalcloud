@@ -64,7 +64,7 @@ Ticketplease::Application.routes.draw do
     end
   end
 
-  resources :transactions, only: [ :index, :show ]
+  resources :ledger_entries, only: [ :index, :show ]
 
   resources :phone_numbers, only: [ :index, :show ] do
     collection do
@@ -83,7 +83,7 @@ Ticketplease::Application.routes.draw do
   #  resources :appliances
   #  resources :tickets, only: [ :index, :new, :create, :show ]
   #  resources :messages, only: [ :show ]
-  #  resources :transactions, only: [ :index, :show ]
+  #  resources :ledger_entries, only: [ :index, :show ]
   #  resources :phone_numbers, only: [ :index, :create ]
   #  resources :phone_directories
   #end
@@ -92,7 +92,7 @@ Ticketplease::Application.routes.draw do
   namespace :twilio do
     resource :inbound_call, only: [ :create ], :defaults => { :format => 'xml' }
     resource :inbound_sms, only: [ :create ], :defaults => { :format => 'xml' }
-    resource :sms_callback, only: [:create], defaults: { format: 'xml' }
+    resource :sms_callback, only: [ :create ], defaults: { format: 'xml' }
   end
 
   resources :accounts, only: [:index] do

@@ -21,12 +21,12 @@
       / Balance Used Today
       %li.span3
         .thumbnail.tile
-          %p.information= "%0.2f" % @account.transactions.today.sum(:value)
+          %p.information= "%0.2f" % @account.ledger_entries.today.sum(:value)
           %p.information-label Used today
       / Balance Used Today
       %li.span3
         .thumbnail.tile
-          %p.information= "%0.2f" % @account.transactions.yesterday.sum(:value)
+          %p.information= "%0.2f" % @account.ledger_entries.yesterday.sum(:value)
           %p.information-label Used yesterday
       / Open Tickets
       %li.span3

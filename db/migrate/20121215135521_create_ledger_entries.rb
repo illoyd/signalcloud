@@ -1,6 +1,6 @@
-class CreateTransactions < ActiveRecord::Migration
+class CreateLedgerEntries < ActiveRecord::Migration
   def change
-    create_table :transactions do |t|
+    create_table :ledger_entries do |t|
       t.references :account
       t.references :item, :polymorphic => true
       t.string :narrative, null: false

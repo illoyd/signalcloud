@@ -31,8 +31,8 @@ class ExpireTicketJob < Struct.new( :ticket_id, :force_resend, :quiet )
       ticket.reply_sent = DateTime.now
       ticket.save
 
-      # Create a 'pending' transaction
-      ticket.appliance.account.transactions.create({
+      # Create a 'pending' ledger_entry
+      ticket.appliance.account.ledger_entries.create({
         item: message,
         narrative: 'Outbound SMS'
       }) 

@@ -17,9 +17,8 @@ class SendChallengeJob < Struct.new( :ticket_id, :force_resend, :quiet )
     # This will automatically create the message
     say( 'Sending initial challenge message.' )
     begin
-      message = ticket.send_challenge_message()
-      message.save!
-      say( 'Received response %s.' % [message.twilio_sid] )
+      messages = ticket.send_challenge_message!()
+      say( 'Received response %s.' % [messages.first.twilio_sid] )
       
       # Create and enqueue a new expiration job
       Delayed::Job::enqueue ExpireTicketJob.new( ticket.id, false, self.quiet )
