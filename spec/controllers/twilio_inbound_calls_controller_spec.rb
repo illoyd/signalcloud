@@ -2,8 +2,8 @@ require 'spec_helper'
 describe Twilio::InboundCallsController do
   fixtures :accounts, :phone_numbers
   let(:account) { accounts(:test_account) }
-  let(:phone_number) { phone_number(:test_phone_number) }
-  let(:inbound_post_params) { { phone_number: phone_number.phone_number } } 
+  let(:phone_number) { phone_numbers(:test_us) }
+  let(:inbound_post_params) { { phone_number: phone_number.number } } 
 
   def build_twilio_signature( post_params )
     signature = account.twilio_validator.build_signature_for( twilio_inbound_sms_url, post_params )
@@ -22,9 +22,9 @@ describe Twilio::InboundCallsController do
 
   describe 'POST create' do
     context 'when not passing HTTP DIGEST' do
-      it 'responds with forbidden' do
+      it 'responds with unauthorised' do
         post :create, inbound_post_params
-        response.status.should eq( :forbidden )
+        response.status.should eq( 401 )
       end
     end
     
@@ -33,7 +33,7 @@ describe Twilio::InboundCallsController do
         it 'responds with forbidden' do
           authenticate_with_http_digest account.account_sid, account.auth_token, DIGEST_REALM
           post :create, inbound_post_params
-          response.status.should eq( :forbidden )
+          response.status.should eq( 403 )
         end
       end
 
@@ -42,7 +42,7 @@ describe Twilio::InboundCallsController do
           authenticate_with_http_digest account.account_sid, account.auth_token, DIGEST_REALM
           inject_twilio_signature( inbound_post_params )
           post :create, inbound_post_params
-          response.status.should eq( :success )
+          response.status.should eq( 200 )
         end
       end
     end
