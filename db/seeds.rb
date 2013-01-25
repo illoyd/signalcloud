@@ -53,9 +53,9 @@ test_user = test_account.users.create first_name: 'Jane', last_name: 'Doe', emai
 
 # Add example data for the test account
 test_numbers = {
-  US: test_account.phone_numbers.create( number: Twilio::VALID_NUMBER, twilio_phone_number_sid: 'XX'+SecureRandom.hex(16) ),
-  CA: test_account.phone_numbers.create( number: '17127005678', twilio_phone_number_sid: 'XX'+SecureRandom.hex(16) ),
-  GB: test_account.phone_numbers.create( number: '447540123456', twilio_phone_number_sid: 'XX'+SecureRandom.hex(16) )
+  US: test_account.phone_numbers.create!( number: Twilio::VALID_NUMBER, twilio_phone_number_sid: 'XX'+SecureRandom.hex(16) ),
+  CA: test_account.phone_numbers.create!( number: '17127005678', twilio_phone_number_sid: 'XX'+SecureRandom.hex(16) ),
+  GB: test_account.phone_numbers.create!( number: '447540123456', twilio_phone_number_sid: 'XX'+SecureRandom.hex(16) )
 }
 
 example_directory = test_account.phone_directories.create label: 'Example Directory', description: 'Example description.'

@@ -21,7 +21,7 @@ class PhoneNumber < ActiveRecord::Base
   ITALIAN = 'it'
   LANGUAGES = [ AMERICAN_ENGLISH, BRITISH_ENGLISH, SPANISH, FRENCH, GERMAN, ITALIAN ]
 
-  attr_accessible :number, :twilio_phone_number_sid, :account_id, :our_cost, :provider_cost, :unsolicited_sms_action, :unsolicited_sms_message, :unsolicited_call_action, unsolicited_call_message, :unsolicited_call_language, :unsolicited_call_voice
+  attr_accessible :number, :twilio_phone_number_sid, :account_id, :our_cost, :provider_cost, :unsolicited_sms_action, :unsolicited_sms_message, :unsolicited_call_action, :unsolicited_call_message, :unsolicited_call_language, :unsolicited_call_voice
   
   attr_encrypted :number, key: ATTR_ENCRYPTED_SECRET
   
@@ -42,14 +42,14 @@ class PhoneNumber < ActiveRecord::Base
   validates :number, :phone_number => true
   
   validates_inclusion_of :unsolicited_sms_action, in: [ IGNORE, REPLY ]
-  validates_presence_of :unsolicited_sms_message, if: should_reply_to_unsolicited_sms?
+  validates_presence_of :unsolicited_sms_message, if: :'should_reply_to_unsolicited_sms?'
   
   validates_inclusion_of :unsolicited_call_action, in: [ REJECT, BUSY, REPLY ]
-  validates_presence_of :unsolicited_call_message, if: :should_reply_to_unsolicited_call?
-  validates_presence_of :unsolicited_call_language, if: :should_reply_to_unsolicited_call?
-  validates_presence_of :unsolicited_call_voice, if: :should_reply_to_unsolicited_call?
-  validates_inclusion_of :unsolicited_call_language, in: LANGUAGES, if: :should_reply_to_unsolicited_call?
-  validates_inclusion_of :unsolicited_call_voice, in: VOICES, if: :should_reply_to_unsolicited_call?
+  validates_presence_of :unsolicited_call_message, if: :'should_reply_to_unsolicited_call?'
+  validates_presence_of :unsolicited_call_language, if: :'should_reply_to_unsolicited_call?'
+  validates_presence_of :unsolicited_call_voice, if: :'should_reply_to_unsolicited_call?'
+  validates_inclusion_of :unsolicited_call_language, allow_nil: true, in: LANGUAGES, if: :'should_reply_to_unsolicited_call?'
+  validates_inclusion_of :unsolicited_call_voice, allow_nil: true, in: VOICES, if: :'should_reply_to_unsolicited_call?'
   
   before_save :normalize_phone_number
 
@@ -69,6 +69,10 @@ class PhoneNumber < ActiveRecord::Base
     self.number = Phony.normalize self.number
   end
   
+  def should_reply_to_unsolicited_sms?
+    self.unsolicited_sms_action == REPLY
+  end
+
   def should_reject_unsolicited_call?
     self.unsolicited_call_action == REJECT
   end

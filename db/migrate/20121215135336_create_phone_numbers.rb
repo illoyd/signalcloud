@@ -4,7 +4,7 @@ class CreatePhoneNumbers < ActiveRecord::Migration
       t.references :account, null: false
       t.string :encrypted_number, null: false
       t.string :twilio_phone_number_sid, null: false, length: Twilio::SID_LENGTH
-      t.integer :unsolicited_sms_action, null: false, default: PhoneNumber::REPLY, limit: 1
+      t.integer :unsolicited_sms_action, null: false, default: PhoneNumber::IGNORE, limit: 1
       t.string :unsolicited_sms_message
       t.integer :unsolicited_call_action, null: false, default: PhoneNumber::REJECT, limit: 1
       t.string :unsolicited_call_message
