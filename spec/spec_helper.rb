@@ -48,9 +48,9 @@ end
 
 ##
 # Authenticate helper
-class ActionController::TestCase
-  require 'digest/md5'
-  include Devise::TestHelpers
+#class ActionController::TestCase
+#  require 'digest/md5'
+#  include Devise::TestHelpers
 
   def authenticate_with_http_digest(user = nil, password = nil, realm = nil)
     ActionController::Base.class_eval { include ActionController::Testing }
@@ -72,4 +72,4 @@ class ActionController::TestCase
       end
     )
   end
-end
+#end
