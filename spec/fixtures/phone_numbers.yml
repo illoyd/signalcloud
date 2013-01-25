@@ -27,3 +27,24 @@ dedicated_phone_number:
   twilio_phone_number_sid: 'TEMP-DDDDDDDDDDDDDDDDDDDDDDDDDDDDD'
   provider_cost: 0.0
   our_cost: 4.5
+
+reject_phone_number:
+  account: dedicated_account
+  encrypted_number: "<%= PhoneNumber.encrypt :number, Phony.normalize('+12129876781') %>"
+  twilio_phone_number_sid: "<%= 'P1' + SecureRandom.hex(16) %>"
+  provider_cost: 1.0
+  our_cost: 1.0
+
+busy_phone_number:
+  account: dedicated_account
+  encrypted_number: "<%= PhoneNumber.encrypt :number, Phony.normalize('+12129876782') %>"
+  twilio_phone_number_sid: "<%= 'P2' + SecureRandom.hex(16) %>"
+  provider_cost: 1.0
+  our_cost: 1.0
+
+message_phone_number:
+  account: dedicated_account
+  encrypted_number: "<%= PhoneNumber.encrypt :number, Phony.normalize('+12129876783') %>"
+  twilio_phone_number_sid: "<%= 'P3' + SecureRandom.hex(16) %>"
+  provider_cost: 1.0
+  our_cost: 1.0

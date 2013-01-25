@@ -21,7 +21,7 @@ class Twilio::InboundCallsController < ApplicationController
         r.Reject reason: 'busy'
       
       # Play a message
-      elsif phone_number.should_play_message_for_unsolicited_call?
+      elsif phone_number.should_reply_to_unsolicited_call?
         r.Say phone_number.unsolicited_message, voice: phone_number.unsolicited_voice, language: phone_number.unsolicited_language
         r.Hangup
       
