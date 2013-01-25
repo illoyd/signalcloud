@@ -86,6 +86,17 @@ ActiveRecord::Schema.define(:version => 20121220210403) do
 
   add_index "delayed_jobs", ["priority", "run_at"], :name => "delayed_jobs_priority"
 
+  create_table "ledger_entries", :force => true do |t|
+    t.integer  "account_id"
+    t.integer  "item_id"
+    t.string   "item_type"
+    t.string   "narrative",                                                 :null => false
+    t.decimal  "value",      :precision => 6, :scale => 4, :default => 0.0
+    t.datetime "settled_at"
+    t.datetime "created_at",                                                :null => false
+    t.datetime "updated_at",                                                :null => false
+  end
+
   create_table "messages", :force => true do |t|
     t.integer  "ticket_id",                                                                               :null => false
     t.string   "twilio_sid",                 :limit => 34
@@ -167,17 +178,6 @@ ActiveRecord::Schema.define(:version => 20121220210403) do
   add_index "tickets", ["encrypted_from_number"], :name => "index_tickets_on_encrypted_from_number"
   add_index "tickets", ["encrypted_to_number"], :name => "index_tickets_on_encrypted_to_number"
   add_index "tickets", ["status"], :name => "index_tickets_on_status"
-
-  create_table "transactions", :force => true do |t|
-    t.integer  "account_id"
-    t.integer  "item_id"
-    t.string   "item_type"
-    t.string   "narrative",                                                 :null => false
-    t.decimal  "value",      :precision => 6, :scale => 4, :default => 0.0
-    t.datetime "settled_at"
-    t.datetime "created_at",                                                :null => false
-    t.datetime "updated_at",                                                :null => false
-  end
 
   create_table "users", :force => true do |t|
     t.integer  "account_id"

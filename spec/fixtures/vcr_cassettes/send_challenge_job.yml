@@ -1,0 +1,82 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://AC87d5ea262c3f4a0434b5699adae2e911:291d6cf97529bf97b9008b1d4332df76@api.twilio.com/2010-04-01/Accounts/AC87d5ea262c3f4a0434b5699adae2e911/SMS/Messages.json
+    body:
+      encoding: US-ASCII
+      string: To=%2b15005550001&From=%2b15005550006&Body=Hello%2c%20I%20am%20a%20question.
+    headers:
+      Accept:
+      - application/json
+      Accept-Charset:
+      - utf-8
+      User-Agent:
+      - twilio-ruby/3.9.0
+      Content-Type:
+      - application/x-www-form-urlencoded
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Tue, 22 Jan 2013 20:38:55 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '156'
+      Connection:
+      - close
+      Etag:
+      - ''
+      Last-Modified:
+      - ''
+    body:
+      encoding: US-ASCII
+      string: ! '{"status":400,"message":"The ''To'' number +15005550001 is not a
+        valid phone number.","code":21211,"more_info":"http:\/\/www.twilio.com\/docs\/errors\/21211"}'
+    http_version: !!null 
+  recorded_at: Tue, 22 Jan 2013 20:38:58 GMT
+- request:
+    method: post
+    uri: https://AC87d5ea262c3f4a0434b5699adae2e911:291d6cf97529bf97b9008b1d4332df76@api.twilio.com/2010-04-01/Accounts/AC87d5ea262c3f4a0434b5699adae2e911/SMS/Messages.json
+    body:
+      encoding: US-ASCII
+      string: To=%2b15005550006&From=%2b15005550006&Body=Hello%2c%20I%20am%20a%20question.
+    headers:
+      Accept:
+      - application/json
+      Accept-Charset:
+      - utf-8
+      User-Agent:
+      - twilio-ruby/3.9.0
+      Content-Type:
+      - application/x-www-form-urlencoded
+  response:
+    status:
+      code: 201
+      message: Created
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Tue, 22 Jan 2013 20:38:57 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '493'
+      Connection:
+      - close
+      Etag:
+      - ''
+    body:
+      encoding: US-ASCII
+      string: ! '{"sid":"SMe3e124fca72f73529c59eebf4d0bd33c","date_created":"Tue,
+        22 Jan 2013 20:38:57 +0000","date_updated":"Tue, 22 Jan 2013 20:38:57 +0000","date_sent":null,"account_sid":"AC87d5ea262c3f4a0434b5699adae2e911","to":"+15005550006","from":"+15005550006","body":"Hello,
+        I am a question.","status":"queued","direction":"outbound-api","api_version":"2010-04-01","price":null,"uri":"\/2010-04-01\/Accounts\/AC87d5ea262c3f4a0434b5699adae2e911\/SMS\/Messages\/SMe3e124fca72f73529c59eebf4d0bd33c.json"}'
+    http_version: !!null 
+  recorded_at: Tue, 22 Jan 2013 20:38:59 GMT
+recorded_with: VCR 2.4.0

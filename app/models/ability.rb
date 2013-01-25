@@ -58,8 +58,8 @@ class Ability
 #         can :manage, [ Appliance, PhoneNumber, PhoneDirectory ], { account_id: user.account_id }
 #         can [ :read, :create, :update ], [ Ticket ], { appliance: { account_id: user.account_id } }
 #         
-#         # Can see transactions
-#         can :read, Transaction, { account_id: user.account_id }
+#         # Can see ledger_entries
+#         can :read, LedgerEntry, { account_id: user.account_id }
 # 
 #         # Can manage own account users
 #         can :manage, User, { account_id: user.account_id }
@@ -124,9 +124,9 @@ class Ability
     can [:create, :destroy], PhoneDirectoryEntry, { phone_directory: { account_id: user.account_id } }
   end
   
-  def grant_manage_transactions_privileges(user)
+  def grant_manage_ledger_entries_privileges(user)
     # All for account phone directories
-    can :read, Transaction, { account_id: user.account_id }
+    can :read, LedgerEntry, { account_id: user.account_id }
   end
   
   def grant_force_ticket_privileges(user)

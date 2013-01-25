@@ -2,6 +2,8 @@ require 'spec_helper'
 
 describe UpdateMessageStatusJob do
   fixtures :account_plans, :accounts, :phone_numbers, :phone_directories, :phone_directory_entries, :appliances, :tickets, :messages
+  before { VCR.insert_cassette 'update_message_status_job', record: :new_episodes }
+  after { VCR.eject_cassette }
 
   describe '.new' do
     it 'should create new' do
@@ -12,7 +14,7 @@ describe UpdateMessageStatusJob do
   end
   
   describe '.perform' do
-    it 'should update challenge message and transaction' do
+    it 'should update challenge message and ledger_entry' do
       #pending 'Testing child processes first'
       @message = messages(:test_ticket_challenge)
       @message.callback_payload.should be_nil()
@@ -37,12 +39,11 @@ describe UpdateMessageStatusJob do
       @message.callback_payload.should_not be_nil()
       @message.status.should == Message::SENT
       
-      # Check that the message's transaction has been properly massaged
-      @message.transaction(true).settled_at.should == date_sent
+      # Check that the message's ledger_entry has been properly massaged
+      @message.ledger_entry(true).settled_at.should == date_sent
       
       # Check that the message's ticket has been refreshed
-      @message.ticket(true).status.should == Ticket::CHALLENGE_SENT
-      @message.ticket.challenge_status.should == Message::SENT
+      @message.ticket(true).challenge_status.should == Message::SENT
       @message.ticket.challenge_sent.should == date_sent
     end
   end

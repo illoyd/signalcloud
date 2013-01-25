@@ -43,7 +43,7 @@ describe SendChallengeJob do
 
       # Get counts
       messages_count = @ticket.messages.count
-      transactions_count = @ticket.appliance.account.transactions.count
+      ledger_entries_count = @ticket.appliance.account.ledger_entries.count
       
       # Capture job count, enqueue job, and check that it has been added
       Delayed::Job.count.should == 0
@@ -62,9 +62,9 @@ describe SendChallengeJob do
       @ticket.status.should == Ticket::QUEUED
       @ticket.challenge_status.should == Ticket::QUEUED
 
-      # Check that a message and a transaction were built
+      # Check that a message and a ledger_entry were built
       @ticket.messages.count.should == messages_count + 1
-      @ticket.appliance.account.transactions.count.should == transactions_count + 1
+      @ticket.appliance.account.ledger_entries.count.should == ledger_entries_count + 1
     end
 
     it 'should not perform when ticket has already been sent' do
@@ -77,7 +77,7 @@ describe SendChallengeJob do
 
       # Get counts
       messages_count = @ticket.messages.count
-      transactions_count = @ticket.appliance.account.transactions.count
+      ledger_entries_count = @ticket.appliance.account.ledger_entries.count
       
       # Capture job count, enqueue job, and check that it has been added
       Delayed::Job.count.should == 0
@@ -96,9 +96,9 @@ describe SendChallengeJob do
       @ticket.status.should == Ticket::CHALLENGE_SENT
       @ticket.challenge_status.should == Message::SENT
 
-      # Check that a message and a transaction were NOT built
+      # Check that a message and a ledger_entry were NOT built
       @ticket.messages.count.should == messages_count
-      @ticket.appliance.account.transactions.count.should == transactions_count
+      @ticket.appliance.account.ledger_entries.count.should == ledger_entries_count
     end
 
     it 'should perform with error handling' do
@@ -108,7 +108,7 @@ describe SendChallengeJob do
 
       # Get counts
       messages_count = @ticket.messages.count
-      transactions_count = @ticket.appliance.account.transactions.count
+      ledger_entries_count = @ticket.appliance.account.ledger_entries.count
       
       # Capture job count, enqueue job, and check that it has been added
       Delayed::Job.count.should == 0
@@ -124,12 +124,12 @@ describe SendChallengeJob do
       
       # Check that the ticket status is updated
       @ticket.reload
-      @ticket.status.should == Ticket::ERROR_INVALID_TO
       @ticket.challenge_status.should == Ticket::ERROR_INVALID_TO
+      @ticket.status.should == Ticket::ERROR_INVALID_TO
 
-      # Check that a message and a transaction were NOT built
+      # Check that a message and a ledger_entry were NOT built
       @ticket.messages.count.should == messages_count
-      @ticket.appliance.account.transactions.count.should == transactions_count
+      @ticket.appliance.account.ledger_entries.count.should == ledger_entries_count
     end
 
   end

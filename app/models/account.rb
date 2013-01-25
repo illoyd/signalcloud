@@ -14,7 +14,7 @@ class Account < ActiveRecord::Base
   has_many :tickets, through: :appliances
   has_many :phone_directories, inverse_of: :account
   has_many :phone_numbers, inverse_of: :account
-  has_many :transactions, inverse_of: :account
+  has_many :ledger_entries, inverse_of: :account
   has_many :invoices, inverse_of: :account
   has_one :primary_address, class_name: 'Address', autosave: true, dependent: :destroy
   hsa_one :secondary_address, class_name: 'Address', autosave: true, dependent: :destroy

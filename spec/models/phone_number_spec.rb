@@ -9,6 +9,8 @@ AVAILABLE_AREACODE = '500'
 
 describe PhoneNumber do
   fixtures :accounts, :phone_numbers
+  before { VCR.insert_cassette 'phone_number', record: :new_episodes }
+  after { VCR.eject_cassette }
   
   before :each do
     #@phone_number = phone_numbers(:test)

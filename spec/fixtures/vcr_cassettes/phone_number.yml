@@ -1,0 +1,120 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://AC87d5ea262c3f4a0434b5699adae2e911:291d6cf97529bf97b9008b1d4332df76@api.twilio.com/2010-04-01/Accounts/AC87d5ea262c3f4a0434b5699adae2e911/IncomingPhoneNumbers.json
+    body:
+      encoding: US-ASCII
+      string: PhoneNumber=%2b15005550000
+    headers:
+      Accept:
+      - application/json
+      Accept-Charset:
+      - utf-8
+      User-Agent:
+      - twilio-ruby/3.9.0
+      Content-Type:
+      - application/x-www-form-urlencoded
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Tue, 22 Jan 2013 20:38:51 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '128'
+      Connection:
+      - close
+      Etag:
+      - ''
+      Last-Modified:
+      - ''
+    body:
+      encoding: US-ASCII
+      string: ! '{"status":400,"message":"+15005550000 is not available","code":21422,"more_info":"http:\/\/www.twilio.com\/docs\/errors\/21422"}'
+    http_version: !!null 
+  recorded_at: Tue, 22 Jan 2013 20:38:53 GMT
+- request:
+    method: post
+    uri: https://AC87d5ea262c3f4a0434b5699adae2e911:291d6cf97529bf97b9008b1d4332df76@api.twilio.com/2010-04-01/Accounts/AC87d5ea262c3f4a0434b5699adae2e911/IncomingPhoneNumbers.json
+    body:
+      encoding: US-ASCII
+      string: PhoneNumber=%2b15005550001
+    headers:
+      Accept:
+      - application/json
+      Accept-Charset:
+      - utf-8
+      User-Agent:
+      - twilio-ruby/3.9.0
+      Content-Type:
+      - application/x-www-form-urlencoded
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Tue, 22 Jan 2013 20:38:51 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '133'
+      Connection:
+      - close
+      Etag:
+      - ''
+      Last-Modified:
+      - ''
+    body:
+      encoding: US-ASCII
+      string: ! '{"status":400,"message":"+15005550001 is not a valid number","code":21421,"more_info":"http:\/\/www.twilio.com\/docs\/errors\/21421"}'
+    http_version: !!null 
+  recorded_at: Tue, 22 Jan 2013 20:38:54 GMT
+- request:
+    method: post
+    uri: https://AC87d5ea262c3f4a0434b5699adae2e911:291d6cf97529bf97b9008b1d4332df76@api.twilio.com/2010-04-01/Accounts/AC87d5ea262c3f4a0434b5699adae2e911/IncomingPhoneNumbers.json
+    body:
+      encoding: US-ASCII
+      string: PhoneNumber=%2b15005550006
+    headers:
+      Accept:
+      - application/json
+      Accept-Charset:
+      - utf-8
+      User-Agent:
+      - twilio-ruby/3.9.0
+      Content-Type:
+      - application/x-www-form-urlencoded
+  response:
+    status:
+      code: 201
+      message: Created
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Tue, 22 Jan 2013 20:38:52 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '768'
+      Connection:
+      - close
+      Etag:
+      - ''
+    body:
+      encoding: US-ASCII
+      string: ! '{"sid":"PNc28889c8290034eb4159de65dd498c99","account_sid":"AC87d5ea262c3f4a0434b5699adae2e911","friendly_name":"(500)
+        555-0006","phone_number":"+15005550006","voice_url":"","voice_method":"POST","voice_fallback_url":"","voice_fallback_method":"POST","voice_caller_id_lookup":false,"date_created":"Tue,
+        22 Jan 2013 20:38:52 +0000","date_updated":"Tue, 22 Jan 2013 20:38:52 +0000","sms_url":"","sms_method":"POST","sms_fallback_url":"","sms_fallback_method":"POST","capabilities":{"voice":false,"sms":false},"status_callback":"","status_callback_method":"POST","api_version":"2010-04-01","voice_application_sid":"","sms_application_sid":"","uri":"\/2010-04-01\/Accounts\/AC87d5ea262c3f4a0434b5699adae2e911\/IncomingPhoneNumbers\/PNc28889c8290034eb4159de65dd498c99.json"}'
+    http_version: !!null 
+  recorded_at: Tue, 22 Jan 2013 20:38:55 GMT
+recorded_with: VCR 2.4.0

@@ -74,9 +74,9 @@ force_ticket_permissions_user:
   email: force_ticket@test.com
   roles_mask: <%= User.translate_roles [ :force_ticket ] %>
 
-manage_transactions_permissions_user:
+manage_ledger_entries_permissions_user:
   account: test_account
   first_name: Default
   last_name: Guy
-  email: transactions@test.com
-  roles_mask: <%= User.translate_roles [ :manage_transactions ] %>
+  email: ledger_entries@test.com
+  roles_mask: <%= User.translate_roles [ :manage_ledger_entries ] %>
