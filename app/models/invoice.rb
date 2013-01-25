@@ -68,7 +68,7 @@ class Invoice < ActiveRecord::Base
     
     # Capture appropriate data from ledger and activities
     invoice_lines = []
-    self.ledger_entries.debits.select( 'narrative, sum(value) as value, count(*) as quantity' ).group(:narrative, :value).each do |entry|
+    self.ledger_entries.debits.select( 'narrative, value, count(*) as quantity' ).group(:narrative, :value).each do |entry|
       invoice_lines << { line: { 
         name: '%s at %0.4f' % [entry.narrative, -entry.value],
         # description: entry.narrative,
@@ -78,18 +78,18 @@ class Invoice < ActiveRecord::Base
     end
   
     # Create a new invoice data structure
-    invoice_data = { return_uri: account_path( self.account ), lines: invoice_lines }
+    invoice_data = { return_uri: 'http://app.ticketpleaseapp.com', lines: invoice_lines }
     invoice_data[:po_number] = self.purchase_order unless self.purchase_order.blank?
     invoice_data[:notes] = 'This invoice is provided for information purposes only. No payment is due.' if self.balance >= 0
     
     # Update this invoice with all needed data
     response = Freshbooks.account.invoice.create(invoice_data)
-    self.freshbooks_id = response[:invoice_id]
+    self.freshbooks_id = response['invoice_id']
     
     # Requery invoice - why? because Freshbooks doesn't send back all the data we expect!
-    response = Freshbooks.account.invoice.get(self.freshbooks_id) unless response.include?(:links)
-    self.public_link = response[:links][:client_view]
-    self.internal_link = resonse[:links][:view]
+    response = Freshbooks.account.invoice.get(self.freshbooks_id) unless response['invoice'].include?('links')
+    self.public_link = response['invoice']['links']['client_view']
+    self.internal_link = resonse['invoice']['links']['view']
   end
   
   ##
@@ -101,5 +101,6 @@ class Invoice < ActiveRecord::Base
   
   alias :create_invoice :create_freshbooks_invoice
   alias :create_invoice! :create_freshbooks_invoice!
+  alias :send_invoice! :send_freshbooks_invoice!
   
 end
