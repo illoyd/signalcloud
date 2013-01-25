@@ -73,15 +73,15 @@ class ReplyAlreadySentError < TicketError
   end
 end
 
-class ClientInvoiceNotCreatedError < TicketError
-  def initialize(ticket, original = nil, code = nil)
-    super( 'The ticket reply has already been sent. Use force_resend to resend the message.', ticket, original, code )
+class ClientInvoiceNotCreatedError < TicketpleaseError
+  def initialize(original = nil, code = nil)
+    super( 'The invoice has not been created in the financial system.', original, code )
   end
 end
 
-class ClientInvoiceAlreadyCreatedError < TicketError
-  def initialize(ticket, original = nil, code = nil)
-    super( 'The ticket reply has already been sent. Use force_resend to resend the message.', ticket, original, code )
+class ClientInvoiceAlreadyCreatedError < TicketpleaseError
+  def initialize(original = nil, code = nil)
+    super( 'The invoice has already been created in the financial system.', original, code )
   end
 end
 
