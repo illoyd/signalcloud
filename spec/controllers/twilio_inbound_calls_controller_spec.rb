@@ -1,22 +1,24 @@
 require 'spec_helper'
 describe Twilio::InboundCallsController do
+  render_views
   fixtures :accounts, :phone_numbers
   let(:account) { accounts(:test_account) }
   let(:phone_number) { phone_numbers(:test_us) }
   let(:inbound_post_params) { { phone_number: phone_number.number } } 
 
   def build_twilio_signature( post_params )
-    signature = account.twilio_validator.build_signature_for( twilio_inbound_sms_url, post_params )
+    signature = account.twilio_validator.build_signature_for( twilio_inbound_call_url, post_params )
     return signature
   end
   
   def inject_twilio_signature( post_params )
-    request.env['HTTP_X_TWILIO_SIGNATURE'] = build_twilio_signature( inbound_post_params )
+    request.env['HTTP_X_TWILIO_SIGNATURE'] = build_twilio_signature( post_params )
+    #request.env['ACCEPT'] = 'xml'
   end
   
-  def build_post_params( phone_number_sym=nil, params=nil )
+  def build_post_params( phone_number_sym=nil, params={} )
     params = inbound_post_params if params.nil?
-    params[:phone_number] = phone_numbers(phone_number_sym.to_sym).phone_number if phone_number_sym.nil?
+    params[:phone_number] = phone_numbers(phone_number_sym.to_sym).number unless phone_number_sym.nil?
     params
   end
 
@@ -39,6 +41,7 @@ describe Twilio::InboundCallsController do
 
       context 'when passing message auth header' do
         it 'responds with success' do
+          #authenticate_with_http_digest account.account_sid, account.auth_token, DIGEST_REALM
           authenticate_with_http_digest account.account_sid, account.auth_token, DIGEST_REALM
           inject_twilio_signature( inbound_post_params )
           post :create, inbound_post_params
@@ -50,22 +53,27 @@ describe Twilio::InboundCallsController do
     context 'when responding to inbound call' do
       before {
         authenticate_with_http_digest account.account_sid, account.auth_token, DIGEST_REALM
-        inject_twilio_signature( inbound_post_params )
       }
+      let(:reject_params) { build_post_params(:reject_phone_number) }
+      let(:busy_params) { build_post_params(:busy_phone_number) }
+      let(:message_params) { build_post_params(:message_phone_number) }
       it 'responds with REJECT verb' do
-        post :create, build_post_params(:reject_phone_number)
-        response.body.should match( /Reject/ )
-        response.body.should match( /rejected/ )
+        inject_twilio_signature( reject_params )
+        post :create, reject_params
+        response.body.should include( 'Reject' )
+        response.body.should include( 'rejected' )
       end
       it 'responds with BUSY verb' do
-        post :create, build_post_params(:busy_phone_number)
-        response.body.should match( /Reject/ )
-        response.body.should match( /busy/ )
+        inject_twilio_signature( busy_params )
+        post :create, busy_params
+        response.body.should include( 'Reject' )
+        response.body.should include( 'busy' )
       end
       it 'responds with SAY verb' do
-        post :create, build_post_params(:message_phone_number)
-        response.body.should match( /Say/ )
-        response.body.should match( /Hangup/ )
+        inject_twilio_signature( message_params )
+        post :create, message_params
+        response.body.should include( 'Say' )
+        response.body.should include( 'Hangup' )
       end
     end
   end

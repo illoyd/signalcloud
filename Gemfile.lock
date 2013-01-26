@@ -63,6 +63,8 @@ GEM
     erubis (2.7.0)
     execjs (1.4.0)
       multi_json (~> 1.0)
+    factory_girl (4.2.0)
+      activesupport (>= 3.0.0)
     haml (3.1.7)
     hike (1.2.1)
     httparty (0.10.0)
@@ -181,6 +183,7 @@ DEPENDENCIES
   coffee-rails (~> 3.2.1)
   delayed_job_active_record
   devise
+  factory_girl
   haml
   jquery-rails
   kaminari

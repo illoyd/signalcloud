@@ -64,6 +64,8 @@ class Invoice < ActiveRecord::Base
   ##
   # Create a single invoice in the financial system without saving.
   def create_freshbooks_invoice
+    raise Ticketplease::AccountNotAssociatedError.new if self.account.nil?
+    raise Ticketplease::FreshBooksAccountNotConfiguredError.new if self.account.freshbooks_id.nil?
     raise Ticketplease::ClientInvoiceAlreadyCreatedError.new if self.has_invoice?
     
     # Capture appropriate data from ledger and activities
@@ -84,10 +86,11 @@ class Invoice < ActiveRecord::Base
     
     # Update this invoice with all needed data
     response = Freshbooks.account.invoice.create(invoice_data)
+    raise 'create invoice failed' unless response.include?('invoice_id')
     self.freshbooks_id = response['invoice_id']
     
     # Requery invoice - why? because Freshbooks doesn't send back all the data we expect!
-    response = Freshbooks.account.invoice.get(self.freshbooks_id) unless response['invoice'].include?('links')
+    response = Freshbooks.account.invoice.get(self.freshbooks_id) unless response.include?('invoice') and response['invoice'].include?('links')
     self.public_link = response['invoice']['links']['client_view']
     self.internal_link = resonse['invoice']['links']['view']
   end

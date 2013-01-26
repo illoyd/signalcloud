@@ -34,6 +34,7 @@ reject_phone_number:
   twilio_phone_number_sid: "<%= 'P1' + SecureRandom.hex(16) %>"
   provider_cost: 1.0
   our_cost: 1.0
+  unsolicited_call_action: 0
 
 busy_phone_number:
   account: dedicated_account
@@ -41,6 +42,7 @@ busy_phone_number:
   twilio_phone_number_sid: "<%= 'P2' + SecureRandom.hex(16) %>"
   provider_cost: 1.0
   our_cost: 1.0
+  unsolicited_call_action: 1
 
 message_phone_number:
   account: dedicated_account
@@ -48,3 +50,7 @@ message_phone_number:
   twilio_phone_number_sid: "<%= 'P3' + SecureRandom.hex(16) %>"
   provider_cost: 1.0
   our_cost: 1.0
+  unsolicited_call_action: 2
+  unsolicited_call_language: en
+  unsolicited_call_voice: woman
+  unsolicited_call_message: Hi there

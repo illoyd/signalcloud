@@ -19,6 +19,9 @@ RSpec.configure do |config|
   # config.mock_with :mocha
   # config.mock_with :flexmock
   # config.mock_with :rr
+  
+  # Mix-in the FactoryGirl methods
+  config.include FactoryGirl::Syntax::Methods
 
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
@@ -38,6 +41,9 @@ RSpec.configure do |config|
   # the seed, which is printed after each run.
   #     --seed 1234
   config.order = "random"
+  
+  # Include auth digest helper
+  config.include AuthSpecHelpers, :type => :controller
 end
 
 VCR.configure do |c|
@@ -46,11 +52,13 @@ VCR.configure do |c|
   c.hook_into :webmock
 end
 
+FactoryGirl.find_definitions
+
 ##
 # Authenticate helper
-#class ActionController::TestCase
-#  require 'digest/md5'
-#  include Devise::TestHelpers
+class ActionController::TestCase
+ require 'digest/md5'
+ #include Devise::TestHelpers
 
   def authenticate_with_http_digest(user = nil, password = nil, realm = nil)
     ActionController::Base.class_eval { include ActionController::Testing }
@@ -60,11 +68,11 @@ end
 
       def process_with_new_base_test(request, response)
         credentials = {
-	  :uri => request.url,
-	  :realm => "#{realm}",
-	  :username => "#{user}",
-	  :nonce => ActionController::HttpAuthentication::Digest.nonce(request.env['action_dispatch.secret_token']),
-	  :opaque => ActionController::HttpAuthentication::Digest.opaque(request.env['action_dispatch.secret_token'])
+      	  :uri => request.url,
+      	  :realm => "#{realm}",
+      	  :username => "#{user}",
+      	  :nonce => ActionController::HttpAuthentication::Digest.nonce(request.env['action_dispatch.secret_token']),
+      	  :opaque => ActionController::HttpAuthentication::Digest.opaque(request.env['action_dispatch.secret_token'])
         }
         request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Digest.encode_credentials(request.request_method, credentials, "#{password}", false)
 
@@ -72,4 +80,4 @@ end
       end
     )
   end
-#end
+end

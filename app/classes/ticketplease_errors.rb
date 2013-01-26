@@ -23,6 +23,14 @@ class AccountNotAssociatedError < TicketpleaseError
   end
 end
 
+##
+# Thrown whenever the given item does not have a FreshBooks account yet.
+class FreshBooksAccountNotConfiguredError < TicketpleaseError
+  def initialize( original = nil, code = nil )
+    super( 'FreshBooks account not created.', original, code )
+  end
+end
+
 class TicketError < TicketpleaseError
   attr_accessor :ticket
   def initialize( msg, ticket, original = nil, code = nil )

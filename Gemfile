@@ -63,5 +63,6 @@ group :test do
 	gem 'shoulda-matchers'
 	gem 'vcr'
 	gem 'webmock'
+	gem 'factory_girl'
 end
 

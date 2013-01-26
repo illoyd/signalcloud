@@ -9,27 +9,39 @@ describe Invoice do
     it { should validate_presence_of( attribute ) }
   end
   
-  context 'when freshbooks_id is set' do
-    subject { invoices(:test_sent_invoice) }
+  context 'when invoice has not been created' do
+    subject { build(:invoice, account: create(:test_account)) }
+
+    it { should_not have_invoice }
+
+    it 'creates invoice' do
+      expect { subject.create_invoice! }.to_not raise_error()
+    end
+
+    it 'raises error if sent' do
+      expect { subject.send_invoice! }.to raise_error(Ticketplease::ClientInvoiceNotCreatedError)
+    end
+  end
+  
+  context 'when invoice has been created' do
+    subject { build(:invoice, freshbooks_id: 1, account: create(:test_account)) }
+
     it { should have_invoice }
+
     it 'raises error if created' do
       expect { subject.create_invoice! }.to raise_error(Ticketplease::ClientInvoiceAlreadyCreatedError)
     end
+
     it 'sends invoice' do
       expect { subject.send_invoice! }.to_not raise_error()
       subject.sent_at.should_not be_nil
     end
   end
   
-  context 'when freshbooks_id is not set' do
-    subject { invoices(:test_unsent_invoice) }
-    it { should_not have_invoice }
-    it 'creates invoice' do
-      expect { subject.create_invoice! }.to_not raise_error()
-    end
-    it 'raises error if sent' do
-      expect { subject.send_invoice! }.to raise_error(Ticketplease::ClientInvoiceNotCreatedError)
-    end
+  context 'when invoice has not been sent' do
+  end
+  
+  context 'when invoice has been sent' do
   end
   
 end

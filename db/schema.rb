@@ -37,6 +37,8 @@ ActiveRecord::Schema.define(:version => 20121220210405) do
     t.decimal  "balance",                      :precision => 8, :scale => 4, :default => 0.0, :null => false
     t.integer  "account_plan_id",                                                             :null => false
     t.string   "purchase_order"
+    t.string   "vat_name"
+    t.string   "vat_number"
     t.string   "encrypted_twilio_account_sid"
     t.string   "encrypted_twilio_auth_token"
     t.string   "twilio_application_sid"
@@ -60,6 +62,7 @@ ActiveRecord::Schema.define(:version => 20121220210405) do
     t.string   "region"
     t.string   "postcode"
     t.string   "country",    :null => false
+    t.string   "work_phone"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end

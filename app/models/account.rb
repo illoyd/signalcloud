@@ -1,6 +1,6 @@
 class Account < ActiveRecord::Base
   # General attributes
-  attr_accessible :account_sid, :account_plan, :auth_token, :balance, :label, :account_plan_id, :description
+  attr_accessible :account_sid, :account_plan, :auth_token, :balance, :label, :account_plan_id, :description, :vat_name, :vat_number
   
   # Encrypted attributes
   attr_encrypted :twilio_account_sid, key: ATTR_ENCRYPTED_SECRET
@@ -72,13 +72,10 @@ class Account < ActiveRecord::Base
     raise 'Freshbooks client already configured' unless self.freshbooks_id.nil?
     
     # Construct the complete client dataset to be passed to Freshbooks
-    contact = self.users.primary
+    contact = self.users.first
     client_data = {
-      organisation: self.organisation,
+      organisation: self.label,
       currency_code: 'USD',
-      # VAT details
-      vat_name: self.vat_name,
-      vat_number: self.vat_number,
       # Add primary contact
       first_name: contact.first_name,
       last_name: contact.last_name,
@@ -89,23 +86,27 @@ class Account < ActiveRecord::Base
       p_street1: self.primary_address.line1,
       p_street2: self.primary_address.line2,
       p_city: self.primary_address.city,
-      p_state: self.primary_address.state,
+      p_state: self.primary_address.region,
       p_country: self.primary_address.country,
-      p_code: self.primary_address.postalcode,
+      p_code: self.primary_address.postcode,
       # Add secondary address
       s_street1: self.secondary_address.line1,
       s_street2: self.secondary_address.line2,
       s_city: self.secondary_address.city,
-      s_state: self.secondary_address.state,
+      s_state: self.secondary_address.region,
       s_country: self.secondary_address.country,
-      s_code: self.secondary_address.postalcode,
+      s_code: self.secondary_address.postcode,
       # Manage all contacts
       contacts: []
     }
     
+    # Insert VAT data if appropriate
+    client_data[:vat_name] unless self.vat_name.blank?
+    client_data[:vat_number] unless self.vat_number.blank?
+    
     # Instruct Freshbooks API to create the account, then save the resulting ID
     response = Freshbooks.account.client.create(client_data)
-    self.freshbooks_id = response[:client_id]
+    self.freshbooks_id = response['client_id']
     self.save!
   end
   
