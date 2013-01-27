@@ -1,5 +1,5 @@
 RSpec::Matchers.define :have_content_type do |content_type|
-  CONTENT_HEADER_MATCHER = /^(.*?)(?:; charset=(.*))?$/
+  CONTENT_HEADER_MATCHER ||= /^(.*?)(?:; charset=(.*))?$/
  
   chain :with_charset do |charset|
     @charset = charset
