@@ -80,19 +80,20 @@ class Invoice < ActiveRecord::Base
     end
   
     # Create a new invoice data structure
-    invoice_data = { return_uri: 'http://app.ticketpleaseapp.com', lines: invoice_lines }
+    invoice_data = { client_id: self.account.freshbooks_id, return_uri: 'http://app.ticketpleaseapp.com' }
+    invoice_data[:lines] = invoice_lines unless invoice_lines.empty?
     invoice_data[:po_number] = self.purchase_order unless self.purchase_order.blank?
     invoice_data[:notes] = 'This invoice is provided for information purposes only. No payment is due.' if self.balance >= 0
     
     # Update this invoice with all needed data
-    response = Freshbooks.account.invoice.create(invoice_data)
+    response = Freshbooks.account.invoice.create({ invoice: invoice_data })
     raise 'create invoice failed' unless response.include?('invoice_id')
     self.freshbooks_id = response['invoice_id']
     
     # Requery invoice - why? because Freshbooks doesn't send back all the data we expect!
-    response = Freshbooks.account.invoice.get(self.freshbooks_id) unless response.include?('invoice') and response['invoice'].include?('links')
+    response = Freshbooks.account.invoice.get({ invoice_id: self.freshbooks_id }) unless response.include?('invoice') and response['invoice'].include?('links')
     self.public_link = response['invoice']['links']['client_view']
-    self.internal_link = resonse['invoice']['links']['view']
+    self.internal_link = response['invoice']['links']['view']
   end
   
   ##
