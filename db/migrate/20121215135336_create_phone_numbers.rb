@@ -8,8 +8,8 @@ class CreatePhoneNumbers < ActiveRecord::Migration
       t.string :unsolicited_sms_message
       t.integer :unsolicited_call_action, null: false, default: PhoneNumber::REJECT, limit: 1
       t.string :unsolicited_call_message
-      t.string :unsolicited_call_language
-      t.string :unsolicited_call_voice
+      t.string :unsolicited_call_language, default: PhoneNumber::AMERICAN_ENGLISH
+      t.string :unsolicited_call_voice, default: PhoneNumber::WOMAN_VOICE
       t.decimal :provider_cost, null: false, default: 0, precision: 6, scale: 4
       t.decimal :our_cost, null: false, default: 0, precision: 6, scale: 4
 
