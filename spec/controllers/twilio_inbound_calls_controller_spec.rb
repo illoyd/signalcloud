@@ -80,7 +80,6 @@ describe Twilio::InboundCallsController do
         response.body.should include( reply_number.unsolicited_call_message )
       end
       it 'responds with xml' do
-        authenticate_with_http_digest account.account_sid, account.auth_token, DIGEST_REALM
         inject_twilio_signature( inbound_post_params )
         post :create, inbound_post_params
         response.should have_content_type('application/xml')

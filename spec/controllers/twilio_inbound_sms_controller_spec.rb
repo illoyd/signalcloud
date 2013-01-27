@@ -48,22 +48,20 @@ describe Twilio::InboundSmsController do
     end
     
     context 'when responding to inbound sms' do
-      it 'responds with blank TwiML' do
+      before {
         authenticate_with_http_digest account.account_sid, account.auth_token, DIGEST_REALM
         inject_twilio_signature( inbound_post_params )
+      }
+      it 'responds with blank TwiML' do
         post :create, inbound_post_params
         response.body.should include('<Response/>')
       end
       it 'adds a job to process request' do
         expect {
-          authenticate_with_http_digest account.account_sid, account.auth_token, DIGEST_REALM
-          inject_twilio_signature( inbound_post_params )
           post :create, inbound_post_params
         }.to change{Delayed::Job.count}.by(1)
       end
       it 'responds with xml' do
-        authenticate_with_http_digest account.account_sid, account.auth_token, DIGEST_REALM
-        inject_twilio_signature( inbound_post_params )
         post :create, inbound_post_params
         response.should have_content_type('application/xml')
       end
