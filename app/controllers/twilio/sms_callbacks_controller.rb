@@ -7,7 +7,7 @@ class Twilio::SmsCallbacksController < ApplicationController
   # POST /twilio/inbound_sms
   # POST /twilio/inbound_sms.xml
   def create
-    # Build a new update message job
+    # Build a new update message job using the passed parameters
     Delayed::Job.enqueue UpdateMessageJob.new( params )
     
     # Return a blank response

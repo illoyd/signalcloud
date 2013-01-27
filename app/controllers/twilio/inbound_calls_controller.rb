@@ -8,10 +8,11 @@ class Twilio::InboundCallsController < ApplicationController
   # POST /account_plans.json
   def create
     # Find the phone number
-    phone_number = PhoneNumber.find_by_number( params[:phone_number] )
+    phone_number = nil
+    normalized_phone_number = Phony.normalize(params[:Called])
+    phone_number = PhoneNumber.find_by_number( normalized_phone_number )
     
-    puts params[:phone_number]
-    puts phone_number
+    # TODO: Add record of inbound calls
 
     # Respond with an appropriate action
     twiml = Twilio::TwiML::Response.new do |r|
