@@ -19,30 +19,34 @@ describe PhoneNumber do
 
   # Manage all validations
   describe "validations" do
-    # Account...
+    # Allow mass assignment
+    [ :account_id, :twilio_phone_number_sid, :number, :our_cost, :provider_cost ].each do |entry|
+      it { should allow_mass_assignment_of(entry) }
+    end
+    
+    # Belong-To
     it { should belong_to(:account) }
-    it { should validate_presence_of(:account_id) }
-    it { should validate_numericality_of(:account_id) }
-    it { should allow_mass_assignment_of( :account_id ) }
 
-    # Other relationships
-    it { should have_many(:phone_directories) }
-    it { should have_many(:phone_directory_entries) }
+    # Have-Many
+    [ :phone_directories, :phone_directory_entries ].each do |entry|
+      it { should have_many(entry) }
+    end
     
-    # Values and attributes
-    it { should validate_presence_of(:twilio_phone_number_sid) }
-    it { should allow_mass_assignment_of( :twilio_phone_number_sid ) }
+    # Validate presence
+    [ :account_id, :twilio_phone_number_sid, :number ].each do |entry|
+      it { should validate_presence_of(entry) }
+    end
+    
+    # Validate numericality
+    [ :account_id, :our_cost, :provider_cost ].each do |entry|
+      it { should validate_numericality_of(entry) }
+    end
+        
+    # Uniqueness
     it { should validate_uniqueness_of(:twilio_phone_number_sid) }
-    it { should ensure_length_of(:twilio_phone_number_sid).is_equal_to(Twilio::SID_LENGTH) }
-
-    it { should allow_mass_assignment_of( :number ) }
-    it { should validate_presence_of(:number) }
     
-    it { should allow_mass_assignment_of( :our_cost ) }
-    it { should validate_numericality_of(:our_cost) }
-
-    it { should validate_numericality_of(:provider_cost) }
-    it { should allow_mass_assignment_of( :provider_cost ) }
+    # Twilio SID
+    it { should ensure_length_of(:twilio_phone_number_sid).is_equal_to(Twilio::SID_LENGTH) }
   end
 
   # Manage creation
@@ -81,8 +85,42 @@ describe PhoneNumber do
     end
   end
   
+  describe 'unsolicited call helpers' do
+    context 'when action is REJECT' do
+      subject { build(:phone_number, unsolicited_call_action: PhoneNumber::REJECT) }
+      its(:'should_reject_unsolicited_call?') { should be_true }
+      its(:'should_play_busy_for_unsolicited_call?') { should be_false }
+      its(:'should_reply_to_unsolicited_call?') { should be_false }
+    end
+    context 'when action is BUSY' do
+      subject { build(:phone_number, unsolicited_call_action: PhoneNumber::BUSY) }
+      its(:'should_reject_unsolicited_call?') { should be_false }
+      its(:'should_play_busy_for_unsolicited_call?') { should be_true }
+      its(:'should_reply_to_unsolicited_call?') { should be_false }
+    end
+    context 'when action is REPLY' do
+      subject { build(:phone_number, unsolicited_call_action: PhoneNumber::REPLY) }
+      its(:'should_reject_unsolicited_call?') { should be_false }
+      its(:'should_play_busy_for_unsolicited_call?') { should be_false }
+      its(:'should_reply_to_unsolicited_call?') { should be_true }
+    end
+  end
+  
+  describe 'unsolicited sms helpers' do
+    context 'when action is IGNORE' do
+      subject { build(:phone_number, unsolicited_sms_action: PhoneNumber::IGNORE) }
+      its(:'should_ignore_unsolicited_sms?') { should be_true }
+      its(:'should_reply_to_unsolicited_sms?') { should be_false }
+    end
+    context 'when action is REPLY' do
+      subject { build(:phone_number, unsolicited_sms_action: PhoneNumber::REPLY) }
+      its(:'should_ignore_unsolicited_sms?') { should be_false }
+      its(:'should_reply_to_unsolicited_sms?') { should be_true }
+    end
+  end
+  
   # Manage costs
-  describe '.cost' do
+  describe '#cost' do
     it 'interprete nil to 0' do
       phone_number = phone_numbers(:test_us)
       phone_number.our_cost = nil
