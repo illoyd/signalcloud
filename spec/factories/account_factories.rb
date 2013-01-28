@@ -3,7 +3,7 @@ FactoryGirl.define do
   factory :account do
     account_sid         { SecureRandom.hex(16) }
     auth_token          { SecureRandom.hex(16) }
-    label               'White House'
+    label               'Test Account'
     balance             9.99
     twilio_account_sid  { 'AC' + SecureRandom.hex(16) }
     twilio_auth_token   { SecureRandom.hex(16) }
@@ -19,9 +19,10 @@ FactoryGirl.define do
     end
 
     factory :test_account do
-      freshbooks_id       2
+      label               'White House'
       twilio_account_sid  { ENV['TWILIO_TEST_ACCOUNT_SID'] }
       twilio_auth_token   { ENV['TWILIO_TEST_AUTH_TOKEN'] }
+      freshbooks_id       2
     end
     
   end
