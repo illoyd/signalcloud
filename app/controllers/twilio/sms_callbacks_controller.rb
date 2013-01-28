@@ -11,7 +11,7 @@ class Twilio::SmsCallbacksController < ApplicationController
     Delayed::Job.enqueue UpdateMessageJob.new( params )
     
     # Return a blank response
-    render :xml => Twilio::TwiML::Response.new, :status => :created
+    render :xml => Twilio::TwiML::Response.new
   end
 
 end
