@@ -29,7 +29,6 @@ class Message < ActiveRecord::Base
   ##
   # Parent ticket, of which this message is part of the conversation.
   belongs_to :ticket, inverse_of: :messages
-  delegate :account, :to => :ticket, :allow_nil => true
   
   ##
   # Chain up to parent's account.
