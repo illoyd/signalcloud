@@ -46,7 +46,7 @@ class UpdateMessageStatusJob < Struct.new( :callback_values, :quiet )
     # Update the ledger_entry
     ledger_entry = message.ledger_entry
     ledger_entry.value = message.cost
-    ledger_entry.settled_at = self.callback_values[:date_sent] if [SMS_STATUS_SENT, SMS_STATUS_QUEUED].include? message.status
+    ledger_entry.settled_at = self.callback_values[:date_sent] #if [SMS_STATUS_SENT, SMS_STATUS_QUEUED].include? message.status
 
     # Save as a db ledger_entry
     message.save!
