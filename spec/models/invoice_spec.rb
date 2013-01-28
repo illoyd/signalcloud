@@ -1,16 +1,18 @@
 require 'spec_helper'
 
 describe Invoice do
-  fixtures :accounts, :invoices, :ledger_entries
+  #fixtures :accounts, :invoices, :ledger_entries
   before { VCR.insert_cassette 'invoices', record: :new_episodes }
   after { VCR.eject_cassette }
+  
+  let(:account) { create_freshbooks_account() }
 
   [ :account_id, :date_from, :date_to ].each do |attribute|
     it { should validate_presence_of( attribute ) }
   end
   
   context 'when invoice has not been created' do
-    subject { build(:invoice, account: create(:test_account)) }
+    subject { build(:invoice, account: account) }
 
     it { should_not have_invoice }
 
@@ -24,7 +26,7 @@ describe Invoice do
   end
   
   context 'when invoice has been created' do
-    subject { build(:invoice, freshbooks_id: 1, account: create(:test_account)) }
+    subject { build(:invoice, freshbooks_id: 1, account: account) }
 
     it { should have_invoice }
 
@@ -39,9 +41,11 @@ describe Invoice do
   end
   
   context 'when invoice has not been sent' do
+    pending
   end
   
   context 'when invoice has been sent' do
+    pending
   end
   
 end
