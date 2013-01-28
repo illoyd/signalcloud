@@ -23,7 +23,10 @@ class UpdateMessageStatusJob < Struct.new( :callback_values, :quiet )
     message = Message.find_by_twilio_sid!( self.callback_values[:sms_sid] )
 
     # If the status data does not contain all the needed data, query it, 
-    status = message.twilio_status if self.requires_requerying_sms_status?
+    if self.requires_requerying_sms_status?
+      status = message.twilio_status
+      self.callback_values.merge!( status )
+    end
     
     # Update the message
     message.provider_cost = self.callback_values[:price]
@@ -80,7 +83,7 @@ class UpdateMessageStatusJob < Struct.new( :callback_values, :quiet )
   ##
   # Standardise the callback values by converting to a string, stripping, and underscoring.
   def standardise_callback_values( values=nil )
-    values = self.callback_values if values.nil?
+    values = self.callback_values.dup if values.nil?
     standardised = HashWithIndifferentAccess.new
     values.each { |key,value| standardised[key.to_s.strip.underscore] = value }
     return standardised
