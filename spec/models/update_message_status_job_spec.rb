@@ -69,35 +69,35 @@ describe UpdateMessageStatusJob do
   describe '.requires_requerying_status?' do
     it 'should require requerying (1)' do
       job = UpdateMessageStatusJob.new( { sms_sid: 'xxx' } )
-      job.requires_requerying_status?( job.callback_values ).should == true
+      job.requires_requerying_sms_status?( job.callback_values ).should be_true
     end
     it 'should require requerying (2)' do
       job = UpdateMessageStatusJob.new( { sms_status: 'pending' } )
-      job.requires_requerying_status?( job.callback_values ).should == true
+      job.requires_requerying_sms_status?( job.callback_values ).should be_true
     end
     it 'should require requerying (3)' do
       job = UpdateMessageStatusJob.new( { price: 0.01 } )
-      job.requires_requerying_status?( job.callback_values ).should == true
+      job.requires_requerying_sms_status?( job.callback_values ).should be_true
     end
     it 'should require requerying (4)' do
       job = UpdateMessageStatusJob.new( { sms_sid: 'xxx', sms_status: 'pending' } )
-      job.requires_requerying_status?( job.callback_values ).should == true
+      job.requires_requerying_sms_status?( job.callback_values ).should be_true
     end
     it 'should require requerying (5)' do
       job = UpdateMessageStatusJob.new( { sms_sid: 'xxx', price: 0.04 } )
-      job.requires_requerying_status?( job.callback_values ).should == true
+      job.requires_requerying_sms_status?( job.callback_values ).should be_true
     end
     it 'should require requerying (6)' do
       job = UpdateMessageStatusJob.new( { sms_status: 'pending', price: 0.04 } )
-      job.requires_requerying_status?( job.callback_values ).should == true
+      job.requires_requerying_sms_status?( job.callback_values ).should be_true
     end
     it 'should not require requerying' do
       job = UpdateMessageStatusJob.new( { sms_sid: 'xxx', sms_status: 'sent', price: 0.01, date_sent: DateTime.now } )
-      job.requires_requerying_status?( job.callback_values ).should == false
+      job.requires_requerying_sms_status?( job.callback_values ).should be_false
     end
     it 'should not require requerying although it has lots more data than required' do
       job = UpdateMessageStatusJob.new( { sms_sid: 'xxx', sms_status: 'sent', price: 0.01, ostriches: true, walruses: false, date_sent: DateTime.now } )
-      job.requires_requerying_status?( job.callback_values ).should == false
+      job.requires_requerying_sms_status?( job.callback_values ).should be_false
     end
   end
 
