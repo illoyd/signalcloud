@@ -25,14 +25,14 @@ test_ticket:
   encrypted_question: '<%= Ticket.encrypt(:question, "Question") %>'
   encrypted_expected_confirmed_answer: '<%= Ticket.encrypt(:expected_confirmed_answer, "yes") %>'
   encrypted_expected_denied_answer: '<%= Ticket.encrypt(:expected_denied_answer, "no") %>'
-  encrypted_actual_answer: nil
+  #encrypted_actual_answer: nil
   encrypted_confirmed_reply: '<%= Ticket.encrypt(:confirmed_reply, "Right!") %>'
   encrypted_denied_reply: '<%= Ticket.encrypt(:denied_reply, "Other right!") %>'
   encrypted_failed_reply: '<%= Ticket.encrypt(:failed_reply, "Wrong!") %>'
   encrypted_expired_reply: '<%= Ticket.encrypt(:expired_reply, "Expired!") %>'
-  challenge_sent: nil
-  response_received: nil
-  reply_sent: nil
+  #challenge_sent: nil
+  #response_received: nil
+  #reply_sent: nil
 
 test_ticket_invalid_to:
   appliance: test_appliance
@@ -155,11 +155,11 @@ dedicated_ticket:
   encrypted_question: '<%= Ticket.encrypt(:question, "Question") %>'
   encrypted_expected_confirmed_answer: '<%= Ticket.encrypt(:expected_confirmed_answer, "yes") %>'
   encrypted_expected_denied_answer: '<%= Ticket.encrypt(:expected_denied_answer, "no") %>'
-  encrypted_actual_answer: nil
+  #encrypted_actual_answer: nil
   encrypted_confirmed_reply: '<%= Ticket.encrypt(:confirmed_reply, "Right!") %>'
   encrypted_denied_reply: '<%= Ticket.encrypt(:denied_reply, "Other right!") %>'
   encrypted_failed_reply: '<%= Ticket.encrypt(:failed_reply, "Wrong!") %>'
   encrypted_expired_reply: '<%= Ticket.encrypt(:expired_reply, "Expired!") %>'
-  challenge_sent: nil
-  response_received: nil
-  reply_sent: nil
+  #challenge_sent: nil
+  #response_received: nil
+  #reply_sent: nil

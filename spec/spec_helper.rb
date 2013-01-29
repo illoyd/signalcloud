@@ -118,8 +118,8 @@ def random_uk_number()
   '44%04d%03d%03d' % [ rand_i(2000, 9999), rand_i(000, 999), rand_i(000, 999) ]
 end
 
-def random_cost( min=0.01, max=100.99 )
-  rand_f(0.01, 100.99).round(2)
+def random_cost( min=0.01, max=99.99, round=2 )
+  rand_f(min, max).round(round)
 end
 
 alias random_price random_cost

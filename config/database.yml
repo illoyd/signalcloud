@@ -6,7 +6,7 @@
 development:
   # adapter: sqlite3
   adapter: postgresql
-  encoding: unicode
+  encoding: utf8
   # database: db/development.sqlite3
   database: ticketplease_dev
   pool: 5
@@ -20,7 +20,7 @@ development:
 test:
   # adapter: sqlite3
   adapter: postgresql
-  encoding: unicode
+  encoding: utf8
   # database: db/test.sqlite3
   database: ticketplease_test
   pool: 5
@@ -31,7 +31,7 @@ test:
 production:
   # adapter: sqlite3
   adapter: postgresql
-  encoding: unicode
+  encoding: utf8
   # database: db/production.sqlite3
   database: ticketplease
   pool: 5

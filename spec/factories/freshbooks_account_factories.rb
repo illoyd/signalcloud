@@ -1,14 +1,14 @@
-def create_freshbooks_account()
+def create_freshbooks_account(tickets_count=20)
   # Create account - this creates the entire universe of activity
   account = FactoryGirl.create :freshbooks_account
   appliance = FactoryGirl.create :freshbooks_appliance, account: account, phone_directory: account.phone_directories.first
 
   # Build interation history
   # appliance = account.appliances.last
-  pp appliance
+  # pp appliance
   
   phone_number = account.phone_numbers.first
-  20.times do
+  tickets_count.times do
     ticket = appliance.open_ticket( to_number: random_us_number(), from_number: phone_number.number )
     ticket.save!
     ticket.status = Ticket::STATUSES.sample

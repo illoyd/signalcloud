@@ -110,88 +110,90 @@ describe LedgerEntry do
   
   describe ".new" do
   
-    before(:each) do
+    #before(:each) do
       # Get all needed objects in the ownership chain
-      @account = accounts(:test_account)
-      @ticket = @account.tickets.first
-      @message = @ticket.messages.first
-    end
+      #@account = accounts(:test_account)
+      #@ticket = @account.tickets.first
+      #@message = @ticket.messages.first
+    #end
+
+    let(:account) { create_freshbooks_account(10) }
+    #let(:ticket)  { account.tickets.first }
+    let(:message) { account.tickets.where( status: [Ticket::CHALLENGE_SENT, Ticket::CONFIRMED, Ticket::DENIED, Ticket::FAILED, Ticket::EXPIRED] ).first.messages.first }
 
     it "should create a new pending ledger_entry from scratch" do
       # Count the number of ledger_entries for the message
-      original_ledger_entry_count = @account.ledger_entries.count
+      original_ledger_entry_count = account.ledger_entries.count
       
       # Create a new ledger_entry from scratch
-      ledger_entry = LedgerEntry.create( account: @account, item: @message, narrative: 'Trial assignment' )
+      ledger_entry = LedgerEntry.create( account: account, item: message, narrative: 'Trial assignment' )
       ledger_entry.is_pending?.should == true
       ledger_entry.is_settled?.should == false
-      ledger_entry.account.should eq(@account)
-      ledger_entry.item.should eq(@message)
-      ledger_entry.item_id.should == @message.id
-      ledger_entry.item_type.should == @message.class.name
+      ledger_entry.account.should eq(account)
+      ledger_entry.item.should eq(message)
+      ledger_entry.item_id.should == message.id
+      ledger_entry.item_type.should == message.class.name
       ledger_entry.narrative.should == 'Trial assignment'
       
       # Count of ledger_entries should have increased by 1
-      @account.ledger_entries.count.should == original_ledger_entry_count + 1
+      account.ledger_entries.count.should == original_ledger_entry_count + 1
     end
 
     it "should create a new pending ledger_entry from account" do
-      # Count the number of ledger_entries for the message
-      original_ledger_entry_count = @account.ledger_entries.count
+      message.should_not be_nil
       
       # Create a new ledger_entry from scratch
-      ledger_entry = @account.ledger_entries.create( item: @message, narrative: 'Trial assignment' )
-      ledger_entry.is_pending?.should == true
-      ledger_entry.is_settled?.should == false
-      ledger_entry.account.should eq(@account)
-      ledger_entry.item.should eq(@message)
-      ledger_entry.item_id.should == @message.id
-      ledger_entry.item_type.should == @message.class.name
-      
-      # Count of ledger_entries should have increased by 1
-      @account.ledger_entries.count.should == original_ledger_entry_count + 1
+      expect {
+        ledger_entry = account.ledger_entries.create( item: message, narrative: 'Trial assignment' )
+        ledger_entry.is_pending?.should == true
+        ledger_entry.is_settled?.should == false
+        ledger_entry.account.should eq(account)
+        ledger_entry.item.should eq(message)
+        ledger_entry.item_id.should == message.id
+        ledger_entry.item_type.should == message.class.name        
+      }.to change{ account.ledger_entries.count }.by(1)
     end
 
     it "should create a new settled ledger_entry from scratch" do
       # Count the number of ledger_entries for the message
-      original_ledger_entry_count = @account.ledger_entries.count
+      original_ledger_entry_count = account.ledger_entries.count
       
       # Make an expected settled_at datetime
       expected_settled_at = DateTime.now
       
       # Create a new ledger_entry from scratch
-      ledger_entry = LedgerEntry.create( account: @account, item: @message, narrative: 'Trial assignment', settled_at: expected_settled_at )
+      ledger_entry = LedgerEntry.create( account: account, item: message, narrative: 'Trial assignment', settled_at: expected_settled_at )
       ledger_entry.settled_at.should == expected_settled_at
       ledger_entry.is_pending?.should == false
       ledger_entry.is_settled?.should == true
-      ledger_entry.account.should eq(@account)
-      ledger_entry.item.should eq(@message)
-      ledger_entry.item_id.should == @message.id
-      ledger_entry.item_type.should == @message.class.name
+      ledger_entry.account.should eq(account)
+      ledger_entry.item.should eq(message)
+      ledger_entry.item_type.should == message.class.name
+      ledger_entry.item_id.should == message.id
       
       # Count of ledger_entries should have increased by 1
-      @account.ledger_entries.count.should == original_ledger_entry_count + 1
+      account.ledger_entries.count.should == original_ledger_entry_count + 1
     end
 
     it "should create a new settled ledger_entry from account" do
       # Count the number of ledger_entries for the message
-      original_ledger_entry_count = @account.ledger_entries.count
+      original_ledger_entry_count = account.ledger_entries.count
       
       # Make an expected settled_at datetime
       expected_settled_at = DateTime.now
       
       # Create a new ledger_entry from scratch
-      ledger_entry = @account.ledger_entries.create( item: @message, narrative: 'Trial assignment', settled_at: expected_settled_at )
+      ledger_entry = account.ledger_entries.create( item: message, narrative: 'Trial assignment', settled_at: expected_settled_at )
       ledger_entry.settled_at.should == expected_settled_at
       ledger_entry.is_pending?.should == false
       ledger_entry.is_settled?.should == true
-      ledger_entry.account.should eq(@account)
-      ledger_entry.item.should eq(@message)
-      ledger_entry.item_id.should == @message.id
-      ledger_entry.item_type.should == @message.class.name
+      ledger_entry.account.should eq(account)
+      ledger_entry.item.should eq(message)
+      ledger_entry.item_id.should == message.id
+      ledger_entry.item_type.should == message.class.name
       
       # Count of ledger_entries should have increased by 1
-      @account.ledger_entries.count.should == original_ledger_entry_count + 1
+      account.ledger_entries.count.should == original_ledger_entry_count + 1
     end
 
   end

@@ -17,10 +17,10 @@ class CreateTickets < ActiveRecord::Migration
       t.text :encrypted_denied_reply, null: false
       t.text :encrypted_failed_reply, null: false
       t.text :encrypted_expired_reply, null: false
-      t.datetime :challenge_sent
+      t.datetime :challenge_sent, null: true
       t.integer :challenge_status, limit: 2
-      t.datetime :response_received
-      t.datetime :reply_sent
+      t.datetime :response_received, null: true
+      t.datetime :reply_sent, null: true
       t.integer :reply_status, limit: 2
 
       t.timestamps
