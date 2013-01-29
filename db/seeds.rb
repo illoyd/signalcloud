@@ -17,15 +17,15 @@ def rand_i( min, max )
 end
 
 def random_us_number()
-  '1%03d%03d%04d' % [ rand_i(201, 799), rand_i(100, 999), rand_i(0001, 9999) ]
+  '+1%03d%03d%04d' % [ rand_i(201, 799), rand_i(100, 999), rand_i(0001, 9999) ]
 end
 
 def random_ca_number()
-  '1%03d%03d%04d' % [ rand_i(201, 799), rand_i(100, 999), rand_i(0001, 9999) ]
+  '+1%03d%03d%04d' % [ rand_i(201, 799), rand_i(100, 999), rand_i(0001, 9999) ]
 end
 
 def random_uk_number()
-  '44%04d%03d%03d' % [ rand_i(2000, 9999), rand_i(000, 999), rand_i(000, 999) ]
+  '+44%04d%03d%03d' % [ rand_i(2000, 9999), rand_i(000, 999), rand_i(000, 999) ]
 end
 
 def random_answer()
@@ -62,7 +62,7 @@ example_directory = test_account.phone_directories.create label: 'Example Direct
 example_directory.phone_directory_entries.create phone_number_id: test_numbers[:US].id
 test_numbers.each { |country,number| example_directory.phone_directory_entries.create country: country, phone_number_id: number.id }
 
-example_appliance = test_account.appliances.create({ label: 'Example Appliance', default: true, phone_directory_id: example_directory.id, seconds_to_live: 180,
+example_appliance = test_account.appliances.create!({ label: 'Example Appliance', default: true, phone_directory_id: example_directory.id, seconds_to_live: 180,
   description: 'Example appliance for handling possibly fraudulent charges to a debit card.',
   question: 'Hello from Friendly Bank. We recently detected a possibly fraudulent charge using your debit card. To protect you, we have temporarily blocked the card. If you are making this purchase and would like us to unlock the card, please reply to this number with the amount of the transaction. If you believe this charge is fraudulent, please reply NO and we will contact you about next steps.',
   expected_denied_answer: 'NO',
@@ -79,11 +79,11 @@ example_appliance = test_account.appliances.create({ label: 'Example Appliance',
 end
 10.times do 
   ticket = example_appliance.open_ticket( to_number: random_ca_number(), expected_confirmed_answer: random_answer() )
-  ticket.status = rand_i(0, 5)
+  ticket.status = rand_i( 0, 5 )
   ticket.save!
 end
 5.times do 
   ticket = example_appliance.open_ticket( to_number: random_uk_number(), expected_confirmed_answer: random_answer() )
-  ticket.status = rand_i(0, 5)
+  ticket.status = rand_i( 0, 5 )
   ticket.save!
 end

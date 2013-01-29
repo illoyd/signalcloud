@@ -16,8 +16,8 @@ ActiveRecord::Schema.define(:version => 20121220210405) do
   create_table "account_plans", :force => true do |t|
     t.string   "label",                                                                      :null => false
     t.boolean  "default",                                                 :default => false, :null => false
-    t.integer  "plan_kind",    :limit => 1,                               :default => 0,     :null => false
-    t.decimal  "month",                     :precision => 6, :scale => 4, :default => 0.0,   :null => false
+    t.integer  "plan_kind",    :limit => 2,                               :default => 0,     :null => false
+    t.decimal  "month",                     :precision => 8, :scale => 4, :default => 0.0,   :null => false
     t.decimal  "phone_add",                 :precision => 6, :scale => 4, :default => 0.0,   :null => false
     t.decimal  "phone_mult",                :precision => 6, :scale => 4, :default => 0.0,   :null => false
     t.decimal  "call_in_add",               :precision => 6, :scale => 4, :default => 0.0,   :null => false
@@ -39,10 +39,10 @@ ActiveRecord::Schema.define(:version => 20121220210405) do
     t.string   "purchase_order"
     t.string   "vat_name"
     t.string   "vat_number"
-    t.string   "encrypted_twilio_account_sid"
-    t.string   "encrypted_twilio_auth_token"
+    t.text     "encrypted_twilio_account_sid"
+    t.text     "encrypted_twilio_auth_token"
     t.string   "twilio_application_sid"
-    t.string   "encrypted_freshbooks_id"
+    t.text     "encrypted_freshbooks_id"
     t.integer  "primary_address_id"
     t.integer  "secondary_address_id"
     t.text     "description"
@@ -77,14 +77,14 @@ ActiveRecord::Schema.define(:version => 20121220210405) do
     t.integer  "seconds_to_live",                     :default => 180,   :null => false
     t.boolean  "default",                             :default => false, :null => false
     t.boolean  "active",                              :default => true,  :null => false
-    t.string   "encrypted_question"
-    t.string   "encrypted_expected_confirmed_answer"
-    t.string   "encrypted_expected_denied_answer"
-    t.string   "encrypted_confirmed_reply"
-    t.string   "encrypted_denied_reply"
-    t.string   "encrypted_failed_reply"
-    t.string   "encrypted_expired_reply"
     t.text     "description"
+    t.text     "encrypted_question"
+    t.text     "encrypted_expected_confirmed_answer"
+    t.text     "encrypted_expected_denied_answer"
+    t.text     "encrypted_confirmed_reply"
+    t.text     "encrypted_denied_reply"
+    t.text     "encrypted_failed_reply"
+    t.text     "encrypted_expired_reply"
     t.datetime "created_at",                                             :null => false
     t.datetime "updated_at",                                             :null => false
   end
@@ -179,11 +179,11 @@ ActiveRecord::Schema.define(:version => 20121220210405) do
 
   create_table "phone_numbers", :force => true do |t|
     t.integer  "account_id",                                                                                :null => false
-    t.string   "encrypted_number",                                                                          :null => false
+    t.text     "encrypted_number",                                                                          :null => false
     t.string   "twilio_phone_number_sid",                                                                   :null => false
-    t.integer  "unsolicited_sms_action",    :limit => 1,                               :default => 3,       :null => false
+    t.integer  "unsolicited_sms_action",    :limit => 2,                               :default => 3,       :null => false
     t.string   "unsolicited_sms_message"
-    t.integer  "unsolicited_call_action",   :limit => 1,                               :default => 0,       :null => false
+    t.integer  "unsolicited_call_action",   :limit => 2,                               :default => 0,       :null => false
     t.string   "unsolicited_call_message"
     t.string   "unsolicited_call_language",                                            :default => "en"
     t.string   "unsolicited_call_voice",                                               :default => "woman"
@@ -199,17 +199,17 @@ ActiveRecord::Schema.define(:version => 20121220210405) do
   create_table "tickets", :force => true do |t|
     t.integer  "appliance_id",                                                    :null => false
     t.integer  "status",                              :limit => 2, :default => 0, :null => false
-    t.string   "encrypted_from_number",                                           :null => false
-    t.string   "encrypted_to_number",                                             :null => false
+    t.text     "encrypted_from_number",                                           :null => false
+    t.text     "encrypted_to_number",                                             :null => false
     t.datetime "expiry",                                                          :null => false
-    t.string   "encrypted_question",                                              :null => false
-    t.string   "encrypted_expected_confirmed_answer",                             :null => false
-    t.string   "encrypted_expected_denied_answer",                                :null => false
-    t.string   "encrypted_actual_answer"
-    t.string   "encrypted_confirmed_reply",                                       :null => false
-    t.string   "encrypted_denied_reply",                                          :null => false
-    t.string   "encrypted_failed_reply",                                          :null => false
-    t.string   "encrypted_expired_reply",                                         :null => false
+    t.text     "encrypted_question",                                              :null => false
+    t.text     "encrypted_expected_confirmed_answer",                             :null => false
+    t.text     "encrypted_expected_denied_answer",                                :null => false
+    t.text     "encrypted_actual_answer"
+    t.text     "encrypted_confirmed_reply",                                       :null => false
+    t.text     "encrypted_denied_reply",                                          :null => false
+    t.text     "encrypted_failed_reply",                                          :null => false
+    t.text     "encrypted_expired_reply",                                         :null => false
     t.datetime "challenge_sent"
     t.integer  "challenge_status",                    :limit => 2
     t.datetime "response_received"

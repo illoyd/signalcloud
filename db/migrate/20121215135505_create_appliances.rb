@@ -7,14 +7,14 @@ class CreateAppliances < ActiveRecord::Migration
       t.integer :seconds_to_live, default: 180, null: false
       t.boolean :default, default: false, null: false
       t.boolean :active, default: true, null: false
-      t.string :encrypted_question
-      t.string :encrypted_expected_confirmed_answer
-      t.string :encrypted_expected_denied_answer
-      t.string :encrypted_confirmed_reply
-      t.string :encrypted_denied_reply
-      t.string :encrypted_failed_reply
-      t.string :encrypted_expired_reply
       t.text :description
+      t.text :encrypted_question
+      t.text :encrypted_expected_confirmed_answer
+      t.text :encrypted_expected_denied_answer
+      t.text :encrypted_confirmed_reply
+      t.text :encrypted_denied_reply
+      t.text :encrypted_failed_reply
+      t.text :encrypted_expired_reply
 
       t.timestamps
     end
