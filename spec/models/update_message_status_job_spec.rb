@@ -4,6 +4,26 @@ describe UpdateMessageStatusJob do
   fixtures :account_plans, :accounts, :phone_numbers, :phone_directories, :phone_directory_entries, :appliances, :tickets, :messages
   before { VCR.insert_cassette 'update_message_status_job', record: :new_episodes }
   after { VCR.eject_cassette }
+  
+  def create_message_update_payload( message, body=nil, reply=false, others={} )
+    body = message.ticket.question if body.nil?
+    {
+      'AccountSid' => message.ticket.account.twilio_account_sid,
+      'SmsSid' =>     message.twilio_sid,
+      'ApiVersion' => '2010-04-01',
+      'From' =>       reply ? message.ticket.to_number : message.ticket.from_number,
+      'To' =>	        reply ? message.ticket.from_number : message.ticket.to_number,
+      'Body' =>       body,
+      'SmsStatus' =>	'sent'
+    }.merge(others)
+  end
+  
+  def create_extended_message_update_payload( message, body=nil, reply=false )
+    return create_message_update_payload( message, body, reply ).merge!({
+      'Price' =>  -0.04,
+      'DateSent' => DateTime.now
+    })
+  end
 
   describe '.new' do
     it 'should create new' do
@@ -14,37 +34,67 @@ describe UpdateMessageStatusJob do
   end
   
   describe '.perform' do
-    it 'should update challenge message and ledger_entry' do
-      #pending 'Testing child processes first'
-      @message = messages(:test_ticket_challenge)
-      @message.callback_payload.should be_nil()
-      
-      # Construct a callback payload
-      date_sent = 15.seconds.ago
-      payload = { sms_sid: @message.twilio_sid, date_sent: date_sent, sms_status: 'sent', price: 0.04 }
-
-      # Capture job count, enqueue job, and check that it has been added
-      Delayed::Job.count.should == 0
-      job = UpdateMessageStatusJob.new( payload )
-      Delayed::Job.enqueue job
-      Delayed::Job.count.should == 1
-      
-      # Now, work that job!
-      expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
-      @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-      Delayed::Job.count.should == 0 # Queue should be empty
-      
-      # Check that the message has been properly massaged
-      @message.reload
-      @message.callback_payload.should_not be_nil()
-      @message.status.should == Message::SENT
-      
-      # Check that the message's ledger_entry has been properly massaged
-      @message.ledger_entry(true).settled_at.should == date_sent
-      
-      # Check that the message's ticket has been refreshed
-      @message.ticket(true).challenge_status.should == Message::SENT
-      @message.ticket.challenge_sent.should == date_sent
+    let(:date_sent) { 15.seconds.ago }
+    let(:payload) { create_message_update_payload message, nil, false, { 'Price' => -0.04, 'DateSent' => date_sent } }
+    context 'with challenge message' do
+      let(:message) { create(:challenge_message, twilio_sid: 'SM1f3eb5e1e6e7e00ad9d0b415a08efb58') }
+      it 'updates challenge message and ledger_entry' do
+        message.callback_payload.should be_nil()
+  
+        # Capture job count, enqueue job, and check that it has been added
+        expect {
+          job = UpdateMessageStatusJob.new( payload )
+          Delayed::Job.enqueue job
+        }.to change{Delayed::Job.count}.from(0).to(1)
+        
+        # Now, work that job!
+        expect {
+          expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
+          @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
+        }.to change{Delayed::Job.count}.from(1).to(0)
+        
+        # Check that the message has been properly massaged
+        message.reload
+        message.callback_payload.should_not be_nil()
+        message.status.should == Message::SENT
+        
+        # Check that the message's ledger_entry has been properly massaged
+        message.ledger_entry(true).settled_at.should == date_sent
+        
+        # Check that the message's ticket has been refreshed
+        message.ticket(true).challenge_status.should == Message::SENT
+        message.ticket.challenge_sent.should == date_sent
+      end
+    end
+    context 'with reply message' do
+      let(:message) { create(:reply_message, twilio_sid: 'SM1f3eb5e1e6e7e00ad9d0b415a08efb58') }
+      it 'updates reply message and ledger_entry' do
+        message.callback_payload.should be_nil()
+  
+        # Capture job count, enqueue job, and check that it has been added
+        expect {
+          job = UpdateMessageStatusJob.new( payload )
+          Delayed::Job.enqueue job
+        }.to change{Delayed::Job.count}.from(0).to(1)
+        
+        # Now, work that job!
+        expect {
+          expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
+          @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
+        }.to change{Delayed::Job.count}.from(1).to(0)
+        
+        # Check that the message has been properly massaged
+        message.reload
+        message.callback_payload.should_not be_nil()
+        message.status.should == Message::SENT
+        
+        # Check that the message's ledger_entry has been properly massaged
+        message.ledger_entry(true).settled_at.should == date_sent
+        
+        # Check that the message's ticket has been refreshed
+        message.ticket(true).reply_status.should == Message::SENT
+        message.ticket.reply_sent.should == date_sent
+      end
     end
   end
   

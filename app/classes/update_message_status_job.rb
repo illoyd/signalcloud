@@ -22,11 +22,8 @@ class UpdateMessageStatusJob < Struct.new( :callback_values, :quiet )
     # Get the original message and update
     message = Message.find_by_twilio_sid!( self.callback_values[:sms_sid] )
 
-    # If the status data does not contain all the needed data, query it, 
-    if self.requires_requerying_sms_status?
-      status = message.twilio_status
-      self.callback_values.merge!( status )
-    end
+    # If the status data does not contain all the needed data, query it
+    self.callback_values.merge!( message.twilio_status ) if self.requires_requerying_sms_status?
     
     # Update the message
     message.provider_cost = self.callback_values[:price]

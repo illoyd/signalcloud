@@ -35,36 +35,46 @@ describe SendChallengeJob do
   end
   
   describe '.perform' do
+    let(:appliance) { appliances(:test_appliance) }
+    let(:ticket) { appliance.open_ticket( to_number: Twilio::VALID_NUMBER, expected_confirmed_answer: 'YES' ) }
 
     it 'should perform when ticket has not been sent yet' do
-      @appliance = appliances(:test_appliance)
-      @ticket = @appliance.open_ticket( to_number: Twilio::VALID_NUMBER, expected_confirmed_answer: 'YES' )
-      @ticket.save!
+      #@appliance = appliances(:test_appliance)
+      #@ticket = appliance.open_ticket( to_number: Twilio::VALID_NUMBER, expected_confirmed_answer: 'YES' )
+      ticket.save!
 
       # Get counts
-      messages_count = @ticket.messages.count
-      ledger_entries_count = @ticket.appliance.account.ledger_entries.count
+#       messages_count = ticket.messages.count
+#       ledger_entries_count = ticket.appliance.account.ledger_entries.count
+      expect { # Messages count
+        expect { # Ledger entry count
+          # Capture job count, enqueue job, and check that it has been added
+          expect {
+            job = SendChallengeJob.new( ticket.id, false, true )
+            Delayed::Job.enqueue job
+          }.to change{Delayed::Job.count}.from(0).to(1)
+          
+          # Now, work that job!
+          expect{
+            expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
+            @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
+          }.to_not change{Delayed::Job.count}.from(1).to(0)          
+
+        }.to change{ticket.appliance.account.ledger_entries.count}.by(1)
+      }.to change{ticket.messages.count}.by(1)
       
-      # Capture job count, enqueue job, and check that it has been added
-      Delayed::Job.count.should == 0
-      job_count = Delayed::Job.count
-      job = SendChallengeJob.new( @ticket.id, false, true )
-      Delayed::Job.enqueue job
-      Delayed::Job.count.should == job_count + 1
-      
-      # Now, work that job!
-      expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
-      @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-      Delayed::Job.count.should == 1 # It should enqueue another job (an expire job)
+#       expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
+#       @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
+#       Delayed::Job.count.should == 1 # It should enqueue another job (an expire job)
       
       # Check that the ticket status is updated
-      @ticket.reload
-      @ticket.status.should == Ticket::QUEUED
-      @ticket.challenge_status.should == Ticket::QUEUED
+      ticket.reload
+      ticket.status.should == Ticket::QUEUED
+      ticket.challenge_status.should == Ticket::QUEUED
 
       # Check that a message and a ledger_entry were built
-      @ticket.messages.count.should == messages_count + 1
-      @ticket.appliance.account.ledger_entries.count.should == ledger_entries_count + 1
+      #@ticket.messages.count.should == messages_count + 1
+      #@ticket.appliance.account.ledger_entries.count.should == ledger_entries_count + 1
     end
 
     it 'should not perform when ticket has already been sent' do
