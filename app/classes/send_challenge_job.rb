@@ -23,11 +23,11 @@ class SendChallengeJob < Struct.new( :ticket_id, :force_resend, :quiet )
       # Create and enqueue a new expiration job
       Delayed::Job.enqueue ExpireTicketJob.new( ticket.id, false, self.quiet ), run_at: ticket.expiry
 
-    #rescue Ticketplease::ChallengeAlreadySentError => ex
-    #  say( 'Skipping as message has already been sent.' )
+    rescue Ticketplease::ChallengeAlreadySentError => ex
+     say( 'Skipping as message has already been sent.' )
     
-    #rescue Ticketplease::MessageSendingError => ex
-    #  say( ex.message, Logger::WARN )
+    rescue Ticketplease::MessageSendingError => ex
+     say( ex.message, Logger::WARN )
     
     rescue => ex
       say( 'FAILED to send message: %s.' % [ex.message], Logger::ERROR )

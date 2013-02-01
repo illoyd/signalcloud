@@ -12,6 +12,38 @@ FactoryGirl.define do
     denied_reply              'The other right answer!'
     failed_reply              'Wrong answer!'
     expired_reply             'Took too long!'
+    
+    trait :challenge_sent do
+      status                  Ticket::CHALLENGE_SENT
+      challenge_sent          { DateTime.now }
+      challenge_status        Message::SENT
+    end
+
+    trait :response_received do
+      response_received       { DateTime.now }
+    end
+
+    trait :reply_sent do
+      reply_sent              { DateTime.now }
+      reply_status            Message::SENT
+    end
+
+    trait :confirmed do
+      status                  Ticket::CONFIRMED
+    end
+
+    trait :denied do
+      status                  Ticket::DENIED
+    end
+
+    trait :failed do
+      status                  Ticket::FAILED
+    end
+
+    trait :expired do
+      status                  Ticket::EXPIRED
+    end
+
   end
 
 end
