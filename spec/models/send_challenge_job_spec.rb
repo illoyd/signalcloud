@@ -96,7 +96,7 @@ describe SendChallengeJob do
 
     it 'should perform with error handling' do
       @appliance = appliances(:test_appliance)
-      @ticket = @appliance.open_ticket( to_number: Twilio::INVALID_NUMBER, expected_confirmed_answer: 'YES' )
+      @ticket = @appliance.open_ticket( to_number: Twilio::INVALID_NUMBER, from_number: Twilio::VALID_NUMBER, expected_confirmed_answer: 'YES' )
       @ticket.save!
 
       # Get counts
