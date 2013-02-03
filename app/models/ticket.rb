@@ -139,17 +139,6 @@ class Ticket < ActiveRecord::Base
       end
   end
   
-  def should_send_next_message?()
-    return case self.status
-      when PENDING, QUEUED
-        !self.has_challenge_been_sent?
-      when CONFIRMED, DENIED, FAILED, EXPIRED
-        !self.has_reply_been_sent?
-      else
-        false
-      end
-  end
-  
   def send_challenge_message( force_resend = false )
 
     # Abort if message already sent and we do not want to force a resend
