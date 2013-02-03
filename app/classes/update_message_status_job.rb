@@ -24,12 +24,12 @@ class UpdateMessageStatusJob < Struct.new( :callback_values, :quiet )
 
     # If the status data does not contain all the needed data, query it
     self.callback_values.merge!( message.twilio_status ) if self.requires_requerying_sms_status?
+    self.standardise_callback_values!
     
-    # Update the message
-    message.provider_cost = self.callback_values[:price]
-    message.our_cost = message.ticket.appliance.account.account_plan.calculate_outbound_sms_cost( message.provider_cost )
+    # Attach the callback payload
     message.callback_payload = self.callback_values
-    
+
+    # Update the message's status
     case self.callback_values[:sms_status]
       when SMS_STATUS_SENT
         message.status = Message::SENT
@@ -40,11 +40,17 @@ class UpdateMessageStatusJob < Struct.new( :callback_values, :quiet )
         message.status = Message::QUEUED
     end
     
-    # Update the ledger_entry
-    ledger_entry = message.ledger_entry
-    ledger_entry.value = message.cost
-    ledger_entry.settled_at = self.callback_values[:date_sent] #if [SMS_STATUS_SENT, SMS_STATUS_QUEUED].include? message.status
+    # Update price if available
+    if self.callback_values.include? :price and !self.callback_values[:price].nil?
+      message.provider_cost = self.callback_values[:price]
+      message.our_cost = message.ticket.appliance.account.account_plan.calculate_outbound_sms_cost( message.provider_cost )
 
+      # Update the ledger_entry
+      ledger_entry = message.ledger_entry
+      ledger_entry.value = message.cost
+      ledger_entry.settled_at = self.callback_values[:date_sent] || DateTime.now #if [SMS_STATUS_SENT, SMS_STATUS_QUEUED].include? message.status
+    end
+    
     # Save as a db ledger_entry
     message.save!
     
@@ -55,8 +61,10 @@ class UpdateMessageStatusJob < Struct.new( :callback_values, :quiet )
         unless ticket.has_outstanding_challenge_messages?
           ticket.challenge_sent = self.callback_values[:date_sent]
           ticket.challenge_status = Message::SENT
+          ticket.status = Ticket::CHALLENGE_SENT
         else
           ticket.challenge_status = Message::SENDING
+          ticket.status = Ticket::QUEUED
         end 
       when Message::REPLY
         unless ticket.has_outstanding_reply_messages?
@@ -89,5 +97,5 @@ class UpdateMessageStatusJob < Struct.new( :callback_values, :quiet )
   def standardise_callback_values!()
     self.callback_values = self.standardise_callback_values( self.callback_values )
   end
-
+  
 end
