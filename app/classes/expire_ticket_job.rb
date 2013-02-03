@@ -19,7 +19,7 @@ class ExpireTicketJob < Struct.new( :ticket_id, :force_resend, :quiet )
     # Retry expiration later if ticket has not expired
     # say( 'Ticket is open? %s and is expired? %s' % [ ticket.is_open?, ticket.expiry <= DateTime.now ] )
     if ticket.is_open? and !ticket.is_expired?
-      say( 'Ticket not expired; enqueueing new expire job.' )
+      say( 'Ticket not expired; enqueueing new expire job.', Logger::DEBUG )
       Delayed::Job.enqueue ExpireTicketJob.new( ticket.id ), run_at: ticket.expiry
       return true
     end
@@ -36,7 +36,7 @@ class ExpireTicketJob < Struct.new( :ticket_id, :force_resend, :quiet )
       say( 'Sent expiration message (Twilio: %s).' % [messages.first.twilio_sid] )
 
     rescue Ticketplease::ReplyAlreadySentError => ex
-     say( 'Skipping as message has already been sent.' )
+     say( 'Skipping as message has already been sent.', Logger::DEBUG )
     
     rescue Ticketplease::MessageSendingError => ex
      say( ex.message, Logger::WARN )
