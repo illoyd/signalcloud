@@ -99,6 +99,15 @@ class PhoneTools < Struct
       return components.first.to_i == NANP_CODE && NANP_OTHER_CODES.include?( components.second.to_i )
     end
     
+    def self.united_kingdom?( number )
+      # Fail if not a plausible number
+      return false unless Phony.plausible? number
+      
+      # Divide into components and check for non-Canadian, non-Other area codes
+      components = Phony.split( Phony.normalize(number) )
+      return components.first.to_i == GB_CODE
+    end
+    
     #alias other_nanp_country? not_canadian_or_united_states?
 
   #end
