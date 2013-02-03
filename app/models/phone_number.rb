@@ -66,7 +66,7 @@ class PhoneNumber < ActiveRecord::Base
   end
 
   def normalize_phone_number
-    self.number = Phony.normalize self.number
+    self.number = PhoneTools.normalize self.number
   end
   
   def should_ignore_unsolicited_sms?

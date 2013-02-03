@@ -77,7 +77,7 @@ class Ticket < ActiveRecord::Base
   ##
   # Noramlise phone numbers for consistency before using with the database or searching.
   def self.normalize_phone_number( pn )
-    '+' + Phony.normalize(pn)
+    '+' + PhoneTools.normalize(pn)
   end
   
   ##
@@ -90,7 +90,7 @@ class Ticket < ActiveRecord::Base
   end
   
   ##
-  # Normalize phone numbers using the Phony library. Intended to be used with +before_save+ callbacks.
+  # Normalize phone numbers. Intended to be used with +before_save+ callbacks.
   def normalize_phone_numbers
     self.to_number = Ticket.normalize_phone_number(self.to_number)
     self.from_number = Ticket.normalize_phone_number(self.from_number)

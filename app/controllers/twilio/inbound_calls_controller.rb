@@ -9,7 +9,7 @@ class Twilio::InboundCallsController < ApplicationController
   def create
     # Find the phone number
     phone_number = nil
-    normalized_phone_number = Phony.normalize(params[:Called])
+    normalized_phone_number = PhoneTools.normalize(params[:Called])
     phone_number = PhoneNumber.find_by_number( normalized_phone_number )
     
     # TODO: Add record of inbound calls

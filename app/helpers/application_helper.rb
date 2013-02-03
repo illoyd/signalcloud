@@ -18,7 +18,7 @@ module ApplicationHelper
   end
   
   def humanize_phone_number( number )
-    Phony.formatted( Phony.normalize( number ) )
+    PhoneTools.humanize( number )
   end
 
 end
