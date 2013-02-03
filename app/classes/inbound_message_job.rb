@@ -10,21 +10,34 @@ class InboundMessageJob < Struct.new( :callback_values, :quiet )
   include Talkable
 
   def perform
-    # Intuit the appropriate ticket based upon the TO and FROM
-    # In this situation, we SWAP the given TO and FROM, as this is a reply from the user
-    # Tickets are always from: ticketplease, to: the recepient
-    tickets = Ticket.where( to_number: self.callback_values[:from], from_number: self.callback_values[:to], status: Ticket::CHALLENGE_SENT )
     
     # For each ticket, test and update
-    tickets.each { |ticket| self.update_ticket ticket }
+    self.applicable_tickets.each { |ticket| self.update_ticket ticket }
 
     # Get the original message and update
     message = Message.find_by_twilio_sid( callback_values[:sid] )
-    message.provider_cost = callback_values[:price]
-    message.our_cost = message.ticket.account.account_plan.calculate_cost( message.provider_cost )
     message.payload = callback_values
-    message.ledger_entry.cost = message.cost
+
+    if callback_values.include? :price and !callback_values[:price].nil?    
+      message.provider_cost = callback_values[:price]
+      message.our_cost = message.ticket.account.account_plan.calculate_cost( message.provider_cost )
+      message.ledger_entry.cost = message.cost
+    end
+
     message.save!
+  end
+
+  ##  
+  # Intuit the appropriate ticket based upon the TO and FROM.
+  # In this situation, we SWAP the given TO and FROM, as this is a reply from the user. Tickets are always from: ticketplease, to: the recepient.
+  def applicable_tickets()
+    normalized_to_number = Ticket.normalize_phone_number self.callback_values[:to]
+    normalized_from_number = Ticket.normalize_phone_number self.callback_values[:from]
+    tickets = Ticket.where({
+      encrypted_to_number: Ticket.encrypt( :to_number, normalized_from_number ),
+      encrypted_from_number: Ticket.encrypt( :from_number, normalized_to_number ),
+      status: Ticket::CHALLENGE_SENT
+      })
   end
   
   def update_ticket( ticket )
@@ -38,12 +51,12 @@ class InboundMessageJob < Struct.new( :callback_values, :quiet )
       when ticket.normalized_expected_denied_answer
         Ticket::DENIED
       else
-        Ticket::FAIELD
+        Ticket::FAILED
       end
     
     # Save the ticket and send an outbound message
-    ticket.save
-    ticket.send_reply_message()
+    # ticket.save
+    ticket.send_reply_message!()
   end
 
 end
