@@ -9,13 +9,6 @@ describe Ticket do
   it { [ :seconds_to_live, :appliance_id, :actual_answer, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry ].each { |param| should allow_mass_assignment_of(param) } }
   it { [:appliance_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry].each { |param| should validate_presence_of(param) } }
   
-  describe "test phony" do
-    Phony.normalize('+41 44 364 35 33').should == '41443643533'
-    Phony.plausible?('41 44 364 35 33').should == true
-    Phony.plausible?('+41 44 364 35 33').should == true
-    Phony.plausible?('+414436435 33').should == true
-  end
-  
   describe '.is_open?' do
     it 'should be open' do
       ticket = tickets( :test_ticket )

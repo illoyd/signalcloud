@@ -1,4 +1,0 @@
-describe "Phony" do
-
-
-end
