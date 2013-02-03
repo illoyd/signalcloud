@@ -28,26 +28,6 @@ class PhoneDirectory < ActiveRecord::Base
   end
   
   def select_from_number( to_number )
-    # Attempt to map the given number into a country
-    components = PhoneTools.componentize to_number
-
-    # Read first component - this is usually the country code
-    country = case components.first.to_i
-      # For North American numbers, look at second component
-      when PhoneTools::NANP_CODE
-        if PhoneTools.other_nanp_country?(components.second.to_i)
-          PhoneDirectoryEntry::DEFAULT
-        elsif PhoneTools.canadian?(components.second.to_i)
-          PhoneDirectoryEntry::CA
-        else
-          PhoneDirectoryEntry::US
-        end
-      when PhoneTools::GB_CODE
-        PhoneDirectoryEntry::GB
-      else
-        PhoneDirectoryEntry::DEFAULT
-    end
-    
     country = self.country_for_number to_number
 
     # Return a random entry from the given country set
