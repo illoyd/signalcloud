@@ -1,5 +1,5 @@
 -# UI variables
-- ticket_link = new_appliance_ticket_path( @appliance.nil? ? @account.default_appliance : @appliance )
+- ticket_path = new_appliance_ticket_path( @appliance.nil? ? @account.default_appliance : @appliance )
 
 / Page header
 .row
@@ -19,7 +19,7 @@
     = appliance_dropdown_list( @account, @appliance )
     = status_dropdown_list( @account, @appliance, params[:status] )
     - if can? :new, Ticket
-      .pull-right= link_to 'Start a new ticket', ticket_link, :class=>'btn btn-success btn-mini'
+      .pull-right= link_to 'Start a new ticket', ticket_path, :class=>'btn btn-success btn-mini'
 
 / Page body
 .row

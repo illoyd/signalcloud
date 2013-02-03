@@ -125,7 +125,9 @@ class Account < ActiveRecord::Base
   end
 
   def default_appliance
-    self.appliances.find_by_default( true )
+    app = self.appliances.find_by_default( true )
+    app = self.appliances.first if app.nil?
+    app
   end
   
   def ticket_statistics
