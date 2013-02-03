@@ -16,5 +16,9 @@ module ApplicationHelper
     options = { class: 'header-icon' }.merge options
     icon( kind, options )
   end
+  
+  def humanize_phone_number( number )
+    Phony.formatted( Phony.normalize( number ) )
+  end
 
 end

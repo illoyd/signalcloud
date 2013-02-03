@@ -61,8 +61,8 @@
             - if @multiappliance
               %td= link_to ticket.appliance.label, ticket.appliance
             %td= link_to human_ticket_status(ticket.status), ticket
-            %td= Phony.formatted( ticket.from_number )
-            %td= Phony.formatted( ticket.to_number )
+            %td= humanize_phone_number Phony.normalize ticket.from_number
+            %td= humanize_phone_number Phony.normalize ticket.to_number
             %td= ticket.expiry
             %td= ticket.challenge_sent ? icon(:ok) : ''
             %td= ticket.response_received ? icon(:ok) : ''

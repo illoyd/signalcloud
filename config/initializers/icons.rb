@@ -14,4 +14,4 @@ ICONS = {
   show: 'search',
   edit: 'pencil',
   delete: 'trash'
-}.freeze
+}.with_indifferent_access.freeze

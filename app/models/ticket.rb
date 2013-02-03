@@ -68,12 +68,20 @@ class Ticket < ActiveRecord::Base
   scope :today, where( "tickets.created_at >= ? and tickets.created_at <= ?", DateTime.now.beginning_of_day, DateTime.now.end_of_day )
   scope :yesterday, where( "tickets.created_at >= ? and tickets.created_at <= ?", DateTime.yesterday.beginning_of_day, DateTime.yesterday.end_of_day )
   
+  ##
+  # Standardise all messages for easier comparisons and matching.
   def self.normalize_message( msg )
     return msg.gsub(/[$£€¥]/, '').to_ascii.gsub(/[^[:alnum:]]/,'').downcase
   end
 
   ##
-  # Update expiry based upon seconds to live
+  # Noramlise phone numbers for consistency before using with the database or searching.
+  def self.normalize_phone_number( pn )
+    '+' + Phony.normalize(pn)
+  end
+  
+  ##
+  # Update expiry based upon seconds to live. Intended to be used with +before_save+ callbacks.
   def update_expiry_time_based_on_seconds_to_live
     unless self.seconds_to_live.nil?
       ss = ( Float(self.seconds_to_live) rescue nil )
@@ -82,10 +90,10 @@ class Ticket < ActiveRecord::Base
   end
   
   ##
-  # Normalize phone numbers using the Phony library.
+  # Normalize phone numbers using the Phony library. Intended to be used with +before_save+ callbacks.
   def normalize_phone_numbers
-    self.to_number = '+' + Phony.normalize(self.to_number)
-    self.from_number = '+' + Phony.normalize(self.from_number)
+    self.to_number = Ticket.normalize_phone_number(self.to_number)
+    self.from_number = Ticket.normalize_phone_number(self.from_number)
   end
   
   ##
