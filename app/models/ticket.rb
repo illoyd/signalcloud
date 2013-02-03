@@ -109,6 +109,12 @@ class Ticket < ActiveRecord::Base
   end
   
   ##
+  # Check if ticket is open and if the ticket's expiry is in the past
+  def is_expired?
+    return self.expiry <= DateTime.now
+  end
+  
+  ##
   # Is the ticket currently in an error state? Based upon the ticket's status.
   def has_errored?
     return Ticket::ERROR_STATUSES.include? self.status
