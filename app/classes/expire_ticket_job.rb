@@ -13,36 +13,39 @@ class ExpireTicketJob < Struct.new( :ticket_id, :force_resend, :quiet )
     # Get the ticket
     ticket = self.find_ticket()
     
-    # Abort if ticket has already been closed AND this is not a forced resend
-    if ticket.is_closed? && !self.force_resend?
-      say( 'Skipping as ticket has already been closed.' )
+    # If the ticket is closed, short-circuit and stop
+    return true if ticket.is_closed?
+    
+    # Retry expiration later if ticket has not expired
+    # say( 'Ticket is open? %s and is expired? %s' % [ ticket.is_open?, ticket.expiry <= DateTime.now ] )
+    if ticket.is_open? and !ticket.is_expired?
+      say( 'Ticket not expired; enqueueing new expire job.' )
+      Delayed::Job.enqueue ExpireTicketJob.new( ticket.id ), run_at: ticket.expiry
       return true
     end
-    
+
     # Set ticket to expired
     ticket.status = Ticket::EXPIRED
     ticket.save
     
     # Send the expiration SMS if not already sent.
     # This will automatically create the associated message
-    say( 'Sending expiration message.' )
+    say( 'Attempting to send expiration message.', Logger::DEBUG )
     begin
-      message = ticket.send_reply_message()
-      ticket.reply_sent = DateTime.now
-      ticket.save
+      messages = ticket.send_reply_message!()
+      say( 'Sent expiration message (Twilio: %s).' % [messages.first.twilio_sid] )
 
-      # Create a 'pending' ledger_entry
-      ticket.appliance.account.ledger_entries.create({
-        item: message,
-        narrative: 'Outbound SMS'
-      }) 
+    rescue Ticketplease::ReplyAlreadySentError => ex
+     say( 'Skipping as message has already been sent.' )
     
-      say( 'Twilio ID: %s, status: %s' % [message.twilio_sid, message.status] )
+    rescue Ticketplease::MessageSendingError => ex
+     say( ex.message, Logger::WARN )
+    
     rescue => ex
-      say( 'FAILED to send expiration message: %s; %s.' % [ex.message, message.payload], Logger::ERROR )
+      say( 'FAILED to send message: %s.' % [ex.message], Logger::ERROR )
       raise ex
-    end
 
+    end
   end
   
   def find_ticket()
