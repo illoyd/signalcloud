@@ -12,7 +12,7 @@ class Ticket < ActiveRecord::Base
   DENIED = 4
   FAILED = 5
   EXPIRED = 6
-  OPEN_STATUSES = [ QUEUED, CHALLENGE_SENT ]
+  OPEN_STATUSES = [ PENDING, QUEUED, CHALLENGE_SENT ]
   STATUSES = [ PENDING, QUEUED, CHALLENGE_SENT, CONFIRMED, DENIED, FAILED, EXPIRED ]
   
   # SMS status constants
@@ -63,8 +63,8 @@ class Ticket < ActiveRecord::Base
   validates_numericality_of :reply_status, allow_nil: true, integer_only: true, greater_than_or_equal_to: 0
   
   # Scopes
-  scope :opened, where( :status => [ QUEUED, CHALLENGE_SENT ] )
-  scope :closed, where( 'status not in (?)', [ QUEUED, CHALLENGE_SENT ] )
+  scope :opened, where( :status => OPEN_STATUSES )
+  scope :closed, where( 'status not in (?)', OPEN_STATUSES )
   scope :today, where( "tickets.created_at >= ? and tickets.created_at <= ?", DateTime.now.beginning_of_day, DateTime.now.end_of_day )
   scope :yesterday, where( "tickets.created_at >= ? and tickets.created_at <= ?", DateTime.yesterday.beginning_of_day, DateTime.yesterday.end_of_day )
   
