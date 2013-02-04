@@ -82,6 +82,33 @@ class ActionController::TestCase
   end
 end
 
+def enqueue_and_work_jobs( jobs, options={} )
+  jobs = [ jobs ] if !jobs.is_a?(Array)
+  options.reverse_merge! existing_jobs: 0, queued_jobs: jobs.size, remaining_jobs: 0, successes: jobs.size, failures: 0, expected_error: nil
+  enqueue_jobs( jobs, options )
+  work_jobs( jobs.size, options )
+end
+
+def enqueue_jobs( jobs, options={} )
+  jobs = [ jobs ] if !jobs.is_a?(Array)
+  options.reverse_merge! existing_jobs: 0, queued_jobs: jobs.size
+  expect {
+    jobs.each { |job| Delayed::Job.enqueue job }
+  }.to change{Delayed::Job.count}.from(options[:existing_jobs]).to(options[:queued_jobs])
+end
+
+def work_jobs( jobs, options={} )
+  options.reverse_merge! successes: jobs, failures: 0, queued_jobs: jobs, remaining_jobs: 0, expected_error: nil
+  expect {
+    if options[:expected_error].nil?
+      expect { @work_results = Delayed::Worker.new.work_off(jobs) }.to_not raise_error
+    else
+      expect { @work_results = Delayed::Worker.new.work_off(jobs) }.to raise_error(options[:expected_error])
+    end
+    @work_results.should eq( [ options[:successes], options[:failures] ] ) # One success, zero failures
+  }.to change{Delayed::Job.count}.from(options[:queued_jobs]).to(options[:remaining_jobs])
+end
+
 def rand_datetime(from, to=Time.now)
   Time.at(rand_in_range(from.to_f, to.to_f))
 end

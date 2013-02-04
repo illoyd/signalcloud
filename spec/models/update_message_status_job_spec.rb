@@ -33,12 +33,175 @@ describe UpdateMessageStatusJob do
     end
   end
   
-  describe '.perform' do
+  describe '#perform' do
     let(:date_sent) { 15.seconds.ago }
     let(:payload) { create_message_update_payload message, nil, false, { 'Price' => -0.04, 'DateSent' => date_sent } }
-
-    context 'with queued message' do
+    let(:queued_payload) { create_message_update_payload message, nil, false, { 'SmsStatus' => 'queued', 'Price' => nil, 'DateSent' => nil } }
+    let(:sending_payload) { create_message_update_payload message, nil, false, { 'SmsStatus' => 'sending', 'Price' => nil, 'DateSent' => nil } }
+    let(:sent_payload) { create_message_update_payload message, nil, false, { 'SmsStatus' => 'sent', 'Price' => -0.04, 'DateSent' => date_sent } }
+    
+    context 'when challenge has been sent' do
       let(:message) { create(:challenge_message, twilio_sid: 'SM1f3eb5e1e6e7e00ad9d0b415a08efb58') }
+
+      context 'and message is queued' do
+        it 'updates message payload' do
+          enqueue_and_work_jobs UpdateMessageStatusJob.new( queued_payload )
+          message.reload
+          message.callback_payload.should_not be_nil
+        end
+        it 'updates message status' do
+          enqueue_and_work_jobs UpdateMessageStatusJob.new( queued_payload )
+          message.reload
+          message.status.should == Message::QUEUED
+        end
+        it 'updates message sent_at' do
+          enqueue_and_work_jobs UpdateMessageStatusJob.new( queued_payload )
+          message.reload
+          message.sent_at.should be_nil
+        end
+        it 'updates ticket status' do
+          enqueue_and_work_jobs UpdateMessageStatusJob.new( queued_payload )
+          message.ticket(true).status.should == Ticket::QUEUED
+        end
+        it 'does not settle ledger entry' do
+          enqueue_and_work_jobs UpdateMessageStatusJob.new( queued_payload )
+          message.ledger_entry(true).settled_at.should be_nil
+        end
+        it 'does not update ledger entry costs' do
+          enqueue_and_work_jobs UpdateMessageStatusJob.new( queued_payload )
+          message.ledger_entry(true).value.should == 0.0
+        end
+      end
+
+      context 'and message is sending' do
+        it 'updates message callback' do
+          enqueue_and_work_jobs UpdateMessageStatusJob.new( sending_payload )
+          message.reload
+          message.callback_payload.should_not be_nil()
+        end
+        it 'updates message status' do
+          enqueue_and_work_jobs UpdateMessageStatusJob.new( sending_payload )
+          message.reload
+          message.status.should == Message::SENDING
+        end
+        it 'does not update message sent_at' do
+          enqueue_and_work_jobs UpdateMessageStatusJob.new( sending_payload )
+          message.reload
+          message.sent_at.should be_nil
+        end
+        it 'updates ticket status' do
+          enqueue_and_work_jobs UpdateMessageStatusJob.new( sending_payload )
+          message.ticket(true).status.should == Ticket::QUEUED
+        end
+        it 'does not settle ledger entry' do
+          enqueue_and_work_jobs UpdateMessageStatusJob.new( sending_payload )
+          message.ledger_entry(true).settled_at.should be_nil
+        end
+        it 'does not update ledger entry costs' do
+          enqueue_and_work_jobs UpdateMessageStatusJob.new( sending_payload )
+          message.ledger_entry(true).value.should == 0.0
+        end
+      end
+
+      context 'and message is sent' do
+        it 'updates message payload' do
+          enqueue_and_work_jobs UpdateMessageStatusJob.new( sent_payload )
+          message.reload
+          message.callback_payload.should_not be_nil()
+        end
+        it 'updates message status' do
+          enqueue_and_work_jobs UpdateMessageStatusJob.new( sent_payload )
+          message.reload
+          message.status.should == Message::SENT
+        end
+        it 'updates message sent_at' do
+          enqueue_and_work_jobs UpdateMessageStatusJob.new( sent_payload )
+          message.reload
+          message.sent_at.should_not be_nil
+        end
+        it 'updates ticket status' do
+          enqueue_and_work_jobs UpdateMessageStatusJob.new( sent_payload )
+          message.ticket(true).status.should == Ticket::CHALLENGE_SENT
+        end
+        it 'settles ledger entry' do
+          enqueue_and_work_jobs UpdateMessageStatusJob.new( sent_payload )
+          message.ledger_entry(true).settled_at.should_not be_nil
+        end
+        it 'updates ledger entry costs' do
+          enqueue_and_work_jobs UpdateMessageStatusJob.new( sent_payload )
+          message.reload
+          message.ledger_entry(true).value.should == message.cost
+        end
+      end
+    end
+    
+    context 'when reply has been sent' do
+    end
+
+    context 'with queued challenge message' do
+      let(:message) { create(:challenge_message, twilio_sid: 'SM1f3eb5e1e6e7e00ad9d0b415a08efb58') }
+      let(:extended_payload) { create_message_update_payload message, nil, false, { 'SmsStatus' => 'queued', 'Price' => nil, 'DateSent' => nil } }
+      it 'updates message' do
+        message.callback_payload.should be_nil()
+  
+        # Capture job count, enqueue job, and check that it has been added
+        enqueue_jobs UpdateMessageStatusJob.new( extended_payload )
+#         expect {
+#           Delayed::Job.enqueue UpdateMessageStatusJob.new( extended_payload )
+#         }.to change{Delayed::Job.count}.from(0).to(1)
+        
+        # Now, work that job!
+        work_jobs 1 #, 1, 0
+#         expect {
+#           expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
+#           @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
+#         }.to change{Delayed::Job.count}.from(1).to(0)
+        
+        # Check that the message has been properly massaged
+        message.reload
+        message.callback_payload.should_not be_nil()
+        message.status.should == Message::QUEUED
+        
+        # Check that the message's ledger_entry has been properly massaged
+        message.ledger_entry(true).settled_at.should be_nil
+        
+        # Check that the message's ticket is still queued
+        message.ticket(true).status.should == Ticket::QUEUED
+      end
+    end
+
+    context 'with sending challenge message' do
+      let(:message) { create(:challenge_message, twilio_sid: 'SM1f3eb5e1e6e7e00ad9d0b415a08efb58') }
+      let(:extended_payload) { create_message_update_payload message, nil, false, { 'SmsStatus' => 'sending', 'Price' => nil, 'DateSent' => nil } }
+      it 'updates message' do
+        message.callback_payload.should be_nil()
+  
+        # Capture job count, enqueue job, and check that it has been added
+        expect {
+          Delayed::Job.enqueue UpdateMessageStatusJob.new( extended_payload )
+        }.to change{Delayed::Job.count}.from(0).to(1)
+        
+        # Now, work that job!
+        expect {
+          expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
+          @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
+        }.to change{Delayed::Job.count}.from(1).to(0)
+        
+        # Check that the message has been properly massaged
+        message.reload
+        message.callback_payload.should_not be_nil()
+        message.status.should == Message::SENDING
+        
+        # Check that the message's ledger_entry has been properly massaged
+        message.ledger_entry(true).settled_at.should be_nil
+        
+        # Check that the message's ticket is queued
+        message.ticket(true).status.should == Ticket::QUEUED
+      end
+    end
+
+    context 'with queued reply message' do
+      let(:message) { create(:reply_message, twilio_sid: 'SM1f3eb5e1e6e7e00ad9d0b415a08efb58') }
       let(:extended_payload) { create_message_update_payload message, nil, false, { 'SmsStatus' => 'queued', 'Price' => nil, 'DateSent' => nil } }
       it 'updates message' do
         message.callback_payload.should be_nil()
@@ -57,7 +220,7 @@ describe UpdateMessageStatusJob do
         # Check that the message has been properly massaged
         message.reload
         message.callback_payload.should_not be_nil()
-        message.status.should == Message::QUEUED
+        message.status.should == Message::CHALLENGE_SENT
         
         # Check that the message's ledger_entry has been properly massaged
         message.ledger_entry(true).settled_at.should be_nil
@@ -67,8 +230,8 @@ describe UpdateMessageStatusJob do
       end
     end
 
-    context 'with sending message' do
-      let(:message) { create(:challenge_message, twilio_sid: 'SM1f3eb5e1e6e7e00ad9d0b415a08efb58') }
+    context 'with sending reply message' do
+      let(:message) { create(:reply_message, twilio_sid: 'SM1f3eb5e1e6e7e00ad9d0b415a08efb58') }
       let(:extended_payload) { create_message_update_payload message, nil, false, { 'SmsStatus' => 'sending', 'Price' => nil, 'DateSent' => nil } }
       it 'updates message' do
         message.callback_payload.should be_nil()
@@ -159,7 +322,7 @@ describe UpdateMessageStatusJob do
     end
   end
   
-  describe '.standardise_callback_values' do
+  describe '#standardise_callback_values' do
     let(:payload) { { sms_sid: 'xxx', sms_status: 'sent', price: 0.01, Test: 'my test', 'HelloThere' => 'hi' } }
     let(:standardised_payload) { { 'sms_sid' => 'xxx', 'sms_status' => 'sent', 'price' => 0.01, 'test' => 'my test', 'hello_there' => 'hi' } }
     subject { UpdateMessageStatusJob.new( payload ) }
@@ -167,7 +330,7 @@ describe UpdateMessageStatusJob do
     its(:standardise_callback_values) { should eq( standardised_payload ) }
   end
   
-  describe '.standardise_callback_values!' do
+  describe '#standardise_callback_values!' do
     it 'should update own callback values' do
       expected_payload = { sms_sid: 'yyy', price: 0.04, sms_status: 'sending' }
       job = UpdateMessageStatusJob.new( expected_payload )
@@ -177,7 +340,7 @@ describe UpdateMessageStatusJob do
     end
   end
   
-  describe '.requires_requerying_status?' do
+  describe '#requires_requerying_status?' do
     it 'should require requerying (1)' do
       job = UpdateMessageStatusJob.new( { sms_sid: 'xxx' } )
       job.requires_requerying_sms_status?( job.callback_values ).should be_true

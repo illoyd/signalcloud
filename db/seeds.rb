@@ -54,13 +54,13 @@ test_user = test_account.users.create first_name: 'Jane', last_name: 'Doe', emai
 # Add example data for the test account
 test_numbers = {
   US: test_account.phone_numbers.create!( number: Twilio::VALID_NUMBER, twilio_phone_number_sid: 'XX'+SecureRandom.hex(16) ),
-  CA: test_account.phone_numbers.create!( number: '17127005678', twilio_phone_number_sid: 'XX'+SecureRandom.hex(16) ),
-  GB: test_account.phone_numbers.create!( number: '447540123456', twilio_phone_number_sid: 'XX'+SecureRandom.hex(16) )
+  CA: test_account.phone_numbers.create!( number: '+17127005678', twilio_phone_number_sid: 'XX'+SecureRandom.hex(16) ),
+  GB: test_account.phone_numbers.create!( number: '+447540123456', twilio_phone_number_sid: 'XX'+SecureRandom.hex(16) )
 }
 
 example_directory = test_account.phone_directories.create label: 'Example Directory', description: 'Example description.'
-example_directory.phone_directory_entries.create phone_number_id: test_numbers[:US].id
-test_numbers.each { |country,number| example_directory.phone_directory_entries.create country: country, phone_number_id: number.id }
+example_directory.phone_directory_entries.create phone_number_id: test_numbers[:US].id, country: nil
+#test_numbers.each { |country,number| example_directory.phone_directory_entries.create country: country, phone_number_id: number.id }
 
 example_appliance = test_account.appliances.create!({ label: 'Example Appliance', default: true, phone_directory_id: example_directory.id, seconds_to_live: 180,
   description: 'Example appliance for handling possibly fraudulent charges to a debit card.',

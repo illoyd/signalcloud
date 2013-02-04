@@ -61,6 +61,7 @@ class PhoneTools < Struct
     end
     
     def self.plausible?(number)
+      #number = number.number if number.is_a?(PhoneNumber)
       Phony.plausible? number
     end
     

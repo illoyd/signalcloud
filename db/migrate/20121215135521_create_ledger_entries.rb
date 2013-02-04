@@ -4,7 +4,7 @@ class CreateLedgerEntries < ActiveRecord::Migration
       t.references :account
       t.references :item, :polymorphic => true
       t.string :narrative, null: false
-      t.decimal :value, default: 0, precision: 8, scale: 4
+      t.decimal :value, precision: 8, scale: 4, default: 0.0, null: false
       t.datetime :settled_at
 
       t.timestamps
