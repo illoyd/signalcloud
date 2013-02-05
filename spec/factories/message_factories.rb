@@ -2,9 +2,9 @@ FactoryGirl.define do
 
   factory :message do
     ticket
-    status        Message::SENT
-    provider_cost { random_price() }
-    our_cost      { random_price() }
+    status        Message::QUEUED
+    provider_cost 0.0 # Don't use random costs { random_price() }
+    our_cost      0.0 # Don't use random costs { random_price() }
     twilio_sid    { 'SM' + SecureRandom.hex(16) }
     payload       { {
                       "sid" => twilio_sid,
@@ -23,16 +23,39 @@ FactoryGirl.define do
                   } }
     
     after(:create) do |message, evaluator|
-      FactoryGirl.create(:ledger_entry, account: message.ticket.appliance.account, item: message, value: message.provider_cost + message.our_cost, narrative: LedgerEntry::OUTBOUND_SMS_NARRATIVE )
+      FactoryGirl.create(:ledger_entry, account: message.ticket.appliance.account, item: message, value: message.cost, narrative: LedgerEntry::OUTBOUND_SMS_NARRATIVE )
     end
 
     factory :challenge_message do
-      message_kind  Message::CHALLENGE
+      challenge
     end
 
     factory :reply_message do
+      reply
+    end
+
+    trait :challenge do
+      message_kind  Message::CHALLENGE
+    end
+
+    trait :reply do
       message_kind  Message::REPLY
     end
+    
+    trait :sending do
+      status        Message::SENDING
+    end
+    
+    trait :sent do
+      status        Message::SENT
+    end
+    
+    trait :settled do
+      sent
+      provider_cost { random_price() }
+      our_cost      { random_price() }
+    end
+
   end
 
 end
