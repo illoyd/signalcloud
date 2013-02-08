@@ -212,21 +212,23 @@ describe UpdateMessageStatusJob do
         }.to change{Delayed::Job.count}.from(0).to(1)
         
         # Now, work that job!
-        expect {
-          expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
-          @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-        }.to change{Delayed::Job.count}.from(1).to(0)
-        
-        # Check that the message has been properly massaged
-        message.reload
-        message.callback_payload.should_not be_nil()
-        message.status.should == Message::CHALLENGE_SENT
-        
-        # Check that the message's ledger_entry has been properly massaged
-        message.ledger_entry(true).settled_at.should be_nil
+        expect { # Do not change message's ticket's status
+          expect {
+            expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
+            @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
+          }.to change{Delayed::Job.count}.from(1).to(0)
+          
+          # Check that the message has been properly massaged
+          message.reload
+          message.callback_payload.should_not be_nil()
+          message.status.should == Message::QUEUED
+          
+          # Check that the message's ledger_entry has been properly massaged
+          message.ledger_entry(true).settled_at.should be_nil
+        }.to_not change{message.ticket(true).status}
         
         # Check that the message's ticket is still queued
-        message.ticket(true).status.should == Ticket::QUEUED
+        #message.ticket(true).status.should == Ticket::QUEUED
       end
     end
 
@@ -242,25 +244,26 @@ describe UpdateMessageStatusJob do
         }.to change{Delayed::Job.count}.from(0).to(1)
         
         # Now, work that job!
-        expect {
-          expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
-          @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-        }.to change{Delayed::Job.count}.from(1).to(0)
-        
-        # Check that the message has been properly massaged
-        message.reload
-        message.callback_payload.should_not be_nil()
-        message.status.should == Message::SENDING
-        
-        # Check that the message's ledger_entry has been properly massaged
-        message.ledger_entry(true).settled_at.should be_nil
-        
-        # Check that the message's ticket is queued
-        message.ticket(true).status.should == Ticket::QUEUED
+        expect { # Do not change message's ticket's status
+          expect {
+            expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
+            @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
+          }.to change{Delayed::Job.count}.from(1).to(0)
+          
+          # Check that the message has been properly massaged
+          message.reload
+          message.callback_payload.should_not be_nil()
+          message.status.should == Message::SENDING
+          
+          # Check that the message's ledger_entry has been properly massaged
+          message.ledger_entry(true).settled_at.should be_nil
+          
+          # Check that the message's ticket is queued
+        }.to_not change{message.ticket(true).status}
       end
     end
 
-    context 'with challenge message' do
+    context 'with sent challenge message' do
       let(:message) { create(:challenge_message, twilio_sid: 'SM1f3eb5e1e6e7e00ad9d0b415a08efb58') }
       it 'updates challenge message and ledger_entry' do
         message.callback_payload.should be_nil()
@@ -290,7 +293,7 @@ describe UpdateMessageStatusJob do
         message.ticket.challenge_sent.should == date_sent
       end
     end
-    context 'with reply message' do
+    context 'with sent reply message' do
       let(:message) { create(:reply_message, twilio_sid: 'SM1f3eb5e1e6e7e00ad9d0b415a08efb58') }
       it 'updates reply message and ledger_entry' do
         message.callback_payload.should be_nil()
