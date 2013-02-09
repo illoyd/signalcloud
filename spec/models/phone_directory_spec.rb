@@ -225,9 +225,6 @@ describe PhoneDirectory do
       end
       
       it 'selects a default number for a Trinidad number' do
-        directory.phone_directory_entries.where( country: PhoneDirectoryEntry::DEFAULT ).each do |entry|
-          puts '%s: %s' % [ entry.country, entry.phone_number_id ]
-        end
         default_numbers.should include( directory.select_from_number( tt_number ).id )
       end
       
