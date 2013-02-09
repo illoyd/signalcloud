@@ -28,7 +28,7 @@ class Account < ActiveRecord::Base
   validates_presence_of :account_sid, :auth_token, :label
   validates_uniqueness_of :account_sid
   after_create :create_initial_resources
-    
+  
   def ensure_account_sid_and_token
     self.account_sid ||= SecureRandom.hex(16)
     self.auth_token ||= SecureRandom.hex(16)
@@ -67,54 +67,69 @@ class Account < ActiveRecord::Base
   end
   
   ##
-  # Get the current client's Freshbook account, using the Freshbook global module.
-  # In Freshbooks parlance, this is a 'Client' object.
+  # Get the current client's FreshBook account, using the FreshBook global module.
+  # In FreshBooks parlance, this is a 'Client' object.
   def freshbooks_client
+    raise Ticketplease::MissingFreshBooksClientError.new if self.freshbooks_id.blank?
     Freshbooks.account.client.get client_id: self.freshbooks_id
   end
   
+  ##
+  # Create a new FreshBooks client for this account. This method will throw an error if a FreshBooks client already exists.
   def create_freshbooks_client
-    raise 'Freshbooks client already configured' unless self.freshbooks_id.nil?
+    raise Ticketplease::FreshBooksClientAlreadyExistsError.new unless self.freshbooks_id.nil?
+    raise Ticketplease::FreshBooksError.new( 'Missing a primary contact.' ) if self.primary_address.nil?
     
     # Construct the complete client dataset to be passed to Freshbooks
     contact = self.users.first
     client_data = {
       organisation: self.label,
-      currency_code: 'USD',
-      # Add primary contact
-      first_name: contact.first_name,
-      last_name: contact.last_name,
-      username: contact.email,
-      email: contact.email,
-      work_phone: self.primary_address.work_phone,
-      # Add primary address
-      p_street1: self.primary_address.line1,
-      p_street2: self.primary_address.line2,
-      p_city: self.primary_address.city,
-      p_state: self.primary_address.region,
-      p_country: self.primary_address.country,
-      p_code: self.primary_address.postcode,
-      # Add secondary address
-      s_street1: self.secondary_address.line1,
-      s_street2: self.secondary_address.line2,
-      s_city: self.secondary_address.city,
-      s_state: self.secondary_address.region,
-      s_country: self.secondary_address.country,
-      s_code: self.secondary_address.postcode,
-      # Manage all contacts
-      contacts: []
+      currency_code: Freshbooks::DEFAULT_CURRENCY
     }
+    
+    # Insert primary address if appropriate
+    unless self.primary_address.nil?
+      client_data.merge!({
+        # Add primary contact
+        first_name: self.primary_address.first_name,
+        last_name:  self.primary_address.last_name,
+        username:   self.primary_address.email,
+        email:      self.primary_address.email,
+        work_phone: self.primary_address.work_phone,
+        # Add address
+        p_street1:  self.primary_address.line1,
+        p_street2:  self.primary_address.line2,
+        p_city:     self.primary_address.city,
+        p_state:    self.primary_address.region,
+        p_country:  self.primary_address.country,
+        p_code:     self.primary_address.postcode
+      })
+    end
+    
+    # Insert secondary address if appropriate
+    unless self.secondary_address.nil?
+      client_data.merge!({
+        s_street1:  self.secondary_address.line1,
+        s_street2:  self.secondary_address.line2,
+        s_city:     self.secondary_address.city,
+        s_state:    self.secondary_address.region,
+        s_country:  self.secondary_address.country,
+        s_code:     self.secondary_address.postcode
+      })
+    end
     
     # Insert VAT data if appropriate
     client_data[:vat_name] unless self.vat_name.blank?
     client_data[:vat_number] unless self.vat_number.blank?
     
-    # Instruct Freshbooks API to create the account, then save the resulting ID
+    # Instruct FreshBooks API to create the account, then save the resulting ID
     response = Freshbooks.account.client.create(client_data)
     self.freshbooks_id = response['client_id']
     self.save!
   end
   
+  ##
+  # Generate a new FreshBooks invoice.
   def create_freshbook_invoice( to_date=nil, from_date=nil )
     from_date ||= (self.invoices.last.to_date + 1.day).beginning_of_day
     to_date ||= DateTime.yesterday.end_of_day
@@ -129,8 +144,10 @@ class Account < ActiveRecord::Base
     default_appliance = self.appliances.create label: 'Default Appliance', phone_directory_id: default_directory.id
   end
 
+  ##
+  # Return the default appliance for this account, or the first appliance if no default is set.
   def default_appliance
-    app = self.appliances.find_by_default( true )
+    app = self.appliances.where( default: true ).first
     app = self.appliances.first if app.nil?
     app
   end

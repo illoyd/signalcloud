@@ -2,6 +2,9 @@ class CreateAddresses < ActiveRecord::Migration
   def change
     create_table :addresses do |t|
       t.references :account
+      t.string :first_name
+      t.string :last_name
+      t.string :email
       t.string :line1
       t.string :line2
       t.string :city, null: false

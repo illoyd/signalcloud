@@ -1,6 +1,9 @@
 ##
 # Extend the Freshbooks API to include a direct request to the currently configured account
 module Freshbooks
+
+  DEFAULT_CURRENCY = 'USD'
+
   ##
   # Request the current account; expects +ENV['FRESHBOOKS_API_ENDPOINT=']+ and +ENV['FRESHBOOKS_API_TOKEN']+
   # to be defined in the environment.

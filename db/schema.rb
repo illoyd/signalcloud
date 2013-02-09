@@ -56,6 +56,9 @@ ActiveRecord::Schema.define(:version => 20121220210405) do
 
   create_table "addresses", :force => true do |t|
     t.integer  "account_id"
+    t.string   "first_name"
+    t.string   "last_name"
+    t.string   "email"
     t.string   "line1"
     t.string   "line2"
     t.string   "city",       :null => false
