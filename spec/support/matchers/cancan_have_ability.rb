@@ -22,4 +22,16 @@ RSpec::Matchers.define :have_ability do |ability_hash, options = {}|
     target               = options[:for]
     message              = "expected User:#{user} to have ability:#{ability_hash} for #{target}, but actual result is #{@ability_result}"
   end
+  
+  description do
+    case ability_hash.try(:size)
+      when 0, nil
+        'have no abilities'
+      when 1
+        "have ability #{ability_hash.keys.first}: #{ability_hash.values.first}"
+      else
+        ability_string = ability_hash.to_a.map{ |ability| '%s: %s' % ability }.join( ', ' )
+        "have abilities #{ability_string}"
+    end
+  end
 end
