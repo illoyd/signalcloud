@@ -19,13 +19,13 @@ ActiveRecord::Schema.define(:version => 20121220210405) do
     t.integer  "plan_kind",    :limit => 2,                               :default => 0,     :null => false
     t.decimal  "month",                     :precision => 8, :scale => 4, :default => 0.0,   :null => false
     t.decimal  "phone_add",                 :precision => 6, :scale => 4, :default => 0.0,   :null => false
-    t.decimal  "phone_mult",                :precision => 6, :scale => 4, :default => 0.0,   :null => false
+    t.decimal  "phone_mult",                :precision => 6, :scale => 4, :default => 1.0,   :null => false
     t.decimal  "call_in_add",               :precision => 6, :scale => 4, :default => 0.0,   :null => false
-    t.decimal  "call_in_mult",              :precision => 6, :scale => 4, :default => 0.0,   :null => false
+    t.decimal  "call_in_mult",              :precision => 6, :scale => 4, :default => 1.0,   :null => false
     t.decimal  "sms_in_add",                :precision => 6, :scale => 4, :default => 0.0,   :null => false
-    t.decimal  "sms_in_mult",               :precision => 6, :scale => 4, :default => 0.0,   :null => false
+    t.decimal  "sms_in_mult",               :precision => 6, :scale => 4, :default => 1.0,   :null => false
     t.decimal  "sms_out_add",               :precision => 6, :scale => 4, :default => 0.0,   :null => false
-    t.decimal  "sms_out_mult",              :precision => 6, :scale => 4, :default => 0.0,   :null => false
+    t.decimal  "sms_out_mult",              :precision => 6, :scale => 4, :default => 1.0,   :null => false
     t.datetime "created_at",                                                                 :null => false
     t.datetime "updated_at",                                                                 :null => false
   end
