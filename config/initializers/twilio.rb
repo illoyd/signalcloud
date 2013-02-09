@@ -22,6 +22,14 @@ module Twilio
   ##
   # Twilio's standardised SID length. This is effectively an identifier (2) and random (32) string.
   SID_LENGTH = 34
+  
+  ##
+  # SMS direction label for inbound messages.
+  SMS_INBOUND_API = 'inbound-api'
+  
+  ##
+  # SMS direction label for outbound messages.
+  SMS_OUTBOUND_API = 'outbound-api'
 
   ##
   # Error codes

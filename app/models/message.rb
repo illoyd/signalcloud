@@ -83,9 +83,9 @@ class Message < ActiveRecord::Base
       
       # Update our costs based upon the direction of the message
       self.our_cost = case self.direction
-        when 'outbound-api'
+        when SMS_OUTBOUND_API
           plan.calculcate_outbound_sms_cost( self.provider_cost )
-        when 'inbound-api'
+        when SMS_INBOUND_API
           plan.calculate_inbound_sms_cost( self.provider_cost )
       end
     end
