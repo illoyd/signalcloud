@@ -61,7 +61,6 @@ class PhoneTools < Struct
     end
     
     def self.plausible?(number)
-      #number = number.number if number.is_a?(PhoneNumber)
       Phony.plausible? number
     end
     
@@ -78,7 +77,7 @@ class PhoneTools < Struct
       return false unless Phony.plausible? number
       
       # Divide into components and check for non-Canadian, non-Other area codes
-      components = Phony.split( Phony.normalize(number) )
+      components = componentize(number)
       return components.first.to_i == NANP_CODE && !(NANP_CANADIAN_CODES + NANP_OTHER_CODES).include?( components.second.to_i )
     end
     
@@ -87,7 +86,7 @@ class PhoneTools < Struct
       return false unless Phony.plausible? number
       
       # Divide into components and check for Canadian area codes
-      components = Phony.split( Phony.normalize(number) )
+      components = componentize(number)
       return components.first.to_i == NANP_CODE && NANP_CANADIAN_CODES.include?( components.second.to_i )
     end
     
@@ -96,7 +95,7 @@ class PhoneTools < Struct
       return false unless Phony.plausible? number
       
       # Divide into components and check for Canadian area codes
-      components = Phony.split( Phony.normalize(number) )
+      components = componentize(number)
       return components.first.to_i == NANP_CODE && NANP_OTHER_CODES.include?( components.second.to_i )
     end
     
@@ -105,7 +104,7 @@ class PhoneTools < Struct
       return false unless Phony.plausible? number
       
       # Divide into components and check for non-Canadian, non-Other area codes
-      components = Phony.split( Phony.normalize(number) )
+      components = componentize(number)
       return components.first.to_i == GB_CODE
     end
     
