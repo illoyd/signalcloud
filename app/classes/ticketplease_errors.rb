@@ -24,6 +24,24 @@ class AccountNotAssociatedError < TicketpleaseError
 end
 
 ##
+# Twilio Error!
+class TwilioError < TicketpleaseError; end
+
+##
+# Thrown whenever a Twilio client is requested but not configured.
+class MissingTwilioAccountError < TwilioError
+  def initialize( original = nil, code = nil )
+    super( 'Twilio account not configured.', original, code )
+  end
+end
+
+##
+# Thrown if attempting to create a Twilio account for an Account which already has a Twilio account.
+class TwilioAccountAlreadyExistsError < TwilioError
+  def initialize( original = nil, code = nil )
+    super( 'Twilio account already exists.', original, code )
+  end
+end
 # Thrown whenever the given item does not have a FreshBooks account yet.
 class FreshBooksAccountNotConfiguredError < TicketpleaseError
   def initialize( original = nil, code = nil )

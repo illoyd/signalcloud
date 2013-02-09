@@ -1,8 +1,8 @@
 require 'spec_helper'
 describe Twilio::InboundCallsController do
-  render_views
-  fixtures :accounts, :phone_numbers
-  let(:account) { accounts(:test_account) }
+  # render_views
+  # fixtures :accounts, :phone_numbers
+  let(:account) { create(:test_account, :test_twilio) }
   let(:phone_number) { create( :phone_number, account: account ) }
   let(:inbound_post_params) { { Called: phone_number.number } }
 

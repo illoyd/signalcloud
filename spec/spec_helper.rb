@@ -83,27 +83,27 @@ class ActionController::TestCase
 end
 
 def enqueue_and_work_jobs( jobs, options={} )
-  jobs = [ jobs ] if !jobs.is_a?(Array)
-  options.reverse_merge! existing_jobs: 0, queued_jobs: jobs.size, remaining_jobs: 0, successes: jobs.size, failures: 0, expected_error: nil
+  jobs = [ jobs ] unless jobs.is_a?(Array)
+  #options.reverse_merge! existing_jobs: 0, queued_jobs: jobs.size, remaining_jobs: 0, successes: jobs.size, failures: 0, expected_error: nil
   enqueue_jobs( jobs, options )
   work_jobs( jobs.size, options )
 end
 
 def enqueue_jobs( jobs, options={} )
-  jobs = [ jobs ] if !jobs.is_a?(Array)
+  jobs = [ jobs ] unless jobs.is_a?(Array)
   options.reverse_merge! existing_jobs: 0, queued_jobs: jobs.size
   expect {
     jobs.each { |job| Delayed::Job.enqueue job }
   }.to change{Delayed::Job.count}.from(options[:existing_jobs]).to(options[:queued_jobs])
 end
 
-def work_jobs( jobs, options={} )
-  options.reverse_merge! successes: jobs, failures: 0, queued_jobs: jobs, remaining_jobs: 0, expected_error: nil
+def work_jobs( job_count, options={} )
+  options.reverse_merge! successes: job_count, failures: 0, queued_jobs: job_count, remaining_jobs: 0, expected_error: nil
   expect {
     if options[:expected_error].nil?
-      expect { @work_results = Delayed::Worker.new.work_off(jobs) }.to_not raise_error
+      expect { @work_results = Delayed::Worker.new.work_off(job_count) }.to_not raise_error
     else
-      expect { @work_results = Delayed::Worker.new.work_off(jobs) }.to raise_error(options[:expected_error])
+      expect { @work_results = Delayed::Worker.new.work_off(job_count) }.to raise_error(options[:expected_error])
     end
     @work_results.should eq( [ options[:successes], options[:failures] ] ) # One success, zero failures
   }.to change{Delayed::Job.count}.from(options[:queued_jobs]).to(options[:remaining_jobs])

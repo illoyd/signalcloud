@@ -44,19 +44,24 @@ class Account < ActiveRecord::Base
     )
   end
   
+  ##
+  # Return a Twilio Client.
   def twilio_client
-    # TODO: Add error if twilio account details are not defined
+    raise Ticketplease::MissingTwilioAccountError.new if self.twilio_account_sid.blank? or self.twilio_auth_token.blank?
     @twilio_client ||= Twilio::REST::Client.new self.twilio_account_sid, self.twilio_auth_token
     return @twilio_client
   end
   
+  ##
+  # Return a Twilio Account.
   def twilio_account
-    # TODO: Add error if twilio account details are not defined
     return self.twilio_client.account
   end
   
+  ##
+  # Return a Twilio Validator.
   def twilio_validator
-    # TODO: Add error if twilio account details are not defined
+    raise Ticketplease::MissingTwilioAccountError.new if self.twilio_account_sid.blank? or self.twilio_auth_token.blank?
     @twilio_validator ||= Twilio::Util::RequestValidator.new self.twilio_auth_token
     return @twilio_validator
   end
