@@ -21,7 +21,7 @@ class SendChallengeJob < Struct.new( :ticket_id, :force_resend )
       say( 'Received response %s.' % [messages.first.twilio_sid] )
       
       # Create and enqueue a new expiration job
-      Delayed::Job.enqueue ExpireTicketJob.new( ticket.id, false, self.quiet ), run_at: ticket.expiry
+      Delayed::Job.enqueue ExpireTicketJob.new( ticket.id, self.force_resend ), run_at: ticket.expiry
 
     rescue Ticketplease::ChallengeAlreadySentError => ex
      say( 'Skipping as message has already been sent.' )
