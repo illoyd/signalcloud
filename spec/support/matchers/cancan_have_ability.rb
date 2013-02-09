@@ -24,14 +24,18 @@ RSpec::Matchers.define :have_ability do |ability_hash, options = {}|
   end
   
   description do
-    case ability_hash.try(:size)
+    ability_string = case ability_hash.try(:size)
       when 0, nil
-        'have no abilities'
+        "have no abilities"
       when 1
         "have ability #{ability_hash.keys.first}: #{ability_hash.values.first}"
       else
         ability_string = ability_hash.to_a.map{ |ability| '%s: %s' % ability }.join( ', ' )
         "have abilities #{ability_string}"
     end
+    if options.fetch(:for)
+      ability_string += options[:for].is_a?(Class) ? " for #{options[:for].name}" : " for instance of #{options[:for].class.name}"
+    end
+    ability_string
   end
 end
