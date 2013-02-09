@@ -6,7 +6,7 @@
 #
 # This class is intended for use with Delayed::Job.
 #
-class UpdateMessageStatusJob < Struct.new( :callback_values, :quiet )
+class UpdateMessageStatusJob < Struct.new( :callback_values )
   include Talkable
   
   REQUIRED_KEYS = [ :sms_sid, :price, :sms_status, :date_sent ]

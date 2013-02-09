@@ -1,5 +1,11 @@
 module Talkable
 
+  attr_writer :quiet
+  
+  def quiet
+    @quiet.nil? ? true : @quiet
+  end
+
   def say( text, level = Logger::DEBUG )
     text = "[#{self.class.name}(#{self.ticket_id})] #{text}"
     puts text unless self.quiet

@@ -50,7 +50,7 @@ describe SendChallengeJob do
 
           # Capture job count, enqueue job, and check that it has been added
           expect {
-            job = SendChallengeJob.new( ticket.id, false, true )
+            job = SendChallengeJob.new( ticket.id, false )
             Delayed::Job.enqueue job
           }.to change{Delayed::Job.count}.from(0).to(1)
           
@@ -75,7 +75,7 @@ describe SendChallengeJob do
 
           # Capture job count, enqueue job, and check that it has been added
           expect {
-            job = SendChallengeJob.new( sent_ticket.id, false, true )
+            job = SendChallengeJob.new( sent_ticket.id, false )
             Delayed::Job.enqueue job
           }.to change{Delayed::Job.count}.from(0).to(1)
 
@@ -106,7 +106,7 @@ describe SendChallengeJob do
       # Capture job count, enqueue job, and check that it has been added
       Delayed::Job.count.should == 0
       job_count = Delayed::Job.count
-      job = SendChallengeJob.new( @ticket.id, false, true )
+      job = SendChallengeJob.new( @ticket.id, false )
       Delayed::Job.enqueue job
       Delayed::Job.count.should == job_count + 1
       

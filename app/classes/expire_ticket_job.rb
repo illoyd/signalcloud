@@ -6,7 +6,7 @@
 #
 # This class is intended for use with Delayed::Job.
 #
-class ExpireTicketJob < Struct.new( :ticket_id, :force_resend, :quiet )
+class ExpireTicketJob < Struct.new( :ticket_id, :force_resend )
   include Talkable
 
   def perform

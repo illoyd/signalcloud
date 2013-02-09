@@ -6,7 +6,7 @@
 #
 # This class is intended for use with Delayed::Job.
 #
-class InboundMessageJob < Struct.new( :callback_values, :quiet )
+class InboundMessageJob < Struct.new( :callback_values )
   include Talkable
 
   def perform

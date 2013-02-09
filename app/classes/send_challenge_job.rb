@@ -6,7 +6,7 @@
 #
 # This class is intended for use with Delayed::Job.
 #
-class SendChallengeJob < Struct.new( :ticket_id, :force_resend, :quiet )
+class SendChallengeJob < Struct.new( :ticket_id, :force_resend )
   include Talkable
 
   def perform
