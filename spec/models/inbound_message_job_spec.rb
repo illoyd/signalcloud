@@ -1,28 +1,21 @@
 require 'spec_helper'
 
 describe InboundMessageJob do
-  #fixtures :account_plans, :accounts, :phone_numbers, :phone_directories, :phone_directory_entries, :appliances, :tickets
   before { VCR.insert_cassette 'inbound_message_job', record: :new_episodes }
   after { VCR.eject_cassette }
-
-#   describe '#find_ticket' do
-#     let(:ticket) { create(:ticket) }
-#     let(:job) { SendChallengeJob.new( ticket.id ) }
-#     it 'finds assigned ticket' do
-#       job.find_ticket.should eq( ticket )
-#     end
-#   end
   
   describe '#perform' do
+    let(:account)           { create(:account, :test_twilio) }
+    let(:appliance)         { create(:appliance, account: account) }
     #let(:appliance) { appliances(:test_appliance) }
     #let(:ticket) { appliance.open_ticket( to_number: Twilio::VALID_NUMBER, expected_confirmed_answer: 'YES' ) }
-    let(:ticket)            { create(:ticket) }
-    let(:ready_to_expire_ticket) { create(:ticket, :challenge_sent, expiry: 180.seconds.ago ) }
-    let(:sent_ticket)       { create(:ticket, :challenge_sent) }
-    let(:confirmed_ticket)  { create(:ticket, :challenge_sent, :response_received, :reply_sent, :confirmed) }
-    let(:denied_ticket)     { create(:ticket, :challenge_sent, :response_received, :reply_sent, :denied) }
-    let(:failed_ticket)     { create(:ticket, :challenge_sent, :response_received, :reply_sent, :failed) }
-    let(:expired_ticket)    { create(:ticket, :challenge_sent, :response_received, :reply_sent, :expired) }
+    let(:ticket)            { create(:ticket, appliance: appliance) }
+    let(:ready_to_expire_ticket) { create(:ticket, :challenge_sent, expiry: 180.seconds.ago, appliance: appliance) }
+    let(:sent_ticket)       { create(:ticket, :challenge_sent, appliance: appliance) }
+    let(:confirmed_ticket)  { create(:ticket, :challenge_sent, :response_received, :reply_sent, :confirmed, appliance: appliance) }
+    let(:denied_ticket)     { create(:ticket, :challenge_sent, :response_received, :reply_sent, :denied, appliance: appliance) }
+    let(:failed_ticket)     { create(:ticket, :challenge_sent, :response_received, :reply_sent, :failed, appliance: appliance) }
+    let(:expired_ticket)    { create(:ticket, :challenge_sent, :response_received, :reply_sent, :expired, appliance: appliance) }
 
     context 'when ticket is open' do
 

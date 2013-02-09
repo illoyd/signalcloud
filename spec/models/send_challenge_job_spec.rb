@@ -24,46 +24,17 @@ describe SendChallengeJob do
       its(:ticket_id) { should eq (ticket.id) }
       its(:'force_resend?') { should be_true }
     end
-#     let(:ticket)            { create(:ticket, appliance: appliance) }
-#     it 'creates new without forced resend' do
-#       expected_ticket = tickets(:test_ticket)
-#       job = SendChallengeJob.new( expected_ticket.id )
-#       job.ticket_id.should eq( expected_ticket.id )
-#       job.force_resend?.should be_false
-#     end
-#     it 'creates new with false forced resend' do
-#       expected_ticket = tickets(:test_ticket)
-#       job = SendChallengeJob.new( expected_ticket.id, false )
-#       job.ticket_id.should eq( expected_ticket.id )
-#       job.force_resend?.should be_false
-#     end
-#     it 'creates new with true forced resend' do
-#       expected_ticket = tickets(:test_ticket)
-#       job = SendChallengeJob.new( expected_ticket.id, true )
-#       job.ticket_id.should eq( expected_ticket.id )
-#       job.force_resend?.should be_true
-#     end
   end
   
   describe '#find_ticket' do
-    #it 'finds ticket' do
-      let(:ticket)  { create(:ticket) }
-      subject       { SendChallengeJob.new( ticket.id, true ) }
-      #expected_ticket = tickets(:test_ticket)
-      #job = SendChallengeJob.new( expected_ticket.id )
-      its(:find_ticket) { should eq(ticket) }
-    #end
+    let(:ticket)  { create(:ticket) }
+    subject       { SendChallengeJob.new( ticket.id, true ) }
+    its(:find_ticket) { should eq(ticket) }
   end
   
   describe '#perform' do
     let(:account)           { create(:account, :test_twilio) }
     let(:appliance)         { create(:appliance, account: account) }
-    #let(:ticket)            { create(:ticket, appliance: appliance) }
-    let(:sent_ticket)       { create(:ticket, :challenge_sent, appliance: appliance) }
-    let(:confirmed_ticket)  { create(:ticket, :challenge_sent, :response_received, :reply_sent, :confirmed, appliance: appliance) }
-    let(:denied_ticket)     { create(:ticket, :challenge_sent, :response_received, :reply_sent, :denied, appliance: appliance) }
-    let(:failed_ticket)     { create(:ticket, :challenge_sent, :response_received, :reply_sent, :failed, appliance: appliance) }
-    let(:expired_ticket)    { create(:ticket, :challenge_sent, :response_received, :reply_sent, :expired, appliance: appliance) }
 
     context 'when ticket has not been sent' do
       let(:ticket)  { create(:ticket, appliance: appliance) }
@@ -83,7 +54,7 @@ describe SendChallengeJob do
           job.perform
         }.to change{ticket.reload.status}.to(Ticket::QUEUED)
       end
-      it 'sets ticket\'s challenge status to queued' do
+      it 'sets tickets challenge status to queued' do
         expect {
           job.perform
         }.to change{ticket.reload.challenge_status}.to(Message::QUEUED)
@@ -184,37 +155,6 @@ describe SendChallengeJob do
         }.to_not change{Delayed::Job.count}
       end
     end
-
-#     it 'should perform with error handling' do
-#       @appliance = appliances(:test_appliance)
-#       @ticket = @appliance.open_ticket( to_number: Twilio::INVALID_NUMBER, from_number: Twilio::VALID_NUMBER, expected_confirmed_answer: 'YES' )
-#       @ticket.save!
-# 
-#       # Get counts
-#       messages_count = @ticket.messages.count
-#       ledger_entries_count = @ticket.appliance.account.ledger_entries.count
-#       
-#       # Capture job count, enqueue job, and check that it has been added
-#       Delayed::Job.count.should == 0
-#       job_count = Delayed::Job.count
-#       job = SendChallengeJob.new( @ticket.id, false )
-#       Delayed::Job.enqueue job
-#       Delayed::Job.count.should == job_count + 1
-#       
-#       # Now, work that job! - No error, but will close out the job
-#       expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
-#       @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-#       Delayed::Job.count.should == 0
-#       
-#       # Check that the ticket status is updated
-#       @ticket.reload
-#       @ticket.challenge_status.should == Ticket::ERROR_INVALID_TO
-#       @ticket.status.should == Ticket::ERROR_INVALID_TO
-# 
-#       # Check that a message and a ledger_entry were NOT built
-#       @ticket.messages.count.should == messages_count
-#       @ticket.appliance.account.ledger_entries.count.should == ledger_entries_count
-#     end
 
   end
   
