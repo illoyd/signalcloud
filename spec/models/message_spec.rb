@@ -12,8 +12,26 @@ describe Message do
   it { should validate_numericality_of(:our_cost) }
   it { should validate_numericality_of(:provider_cost) }
   it { should validate_uniqueness_of(:twilio_sid) }
+  
+  describe '#is_challenge?' do
+    context 'when challenge message' do
+      subject { create :challenge_message }
+      its(:'is_challenge?') { should be_true }
+      its(:'is_reply?') { should be_false }
+    end
+    context 'when reply message' do
+      subject { create :reply_message }
+      its(:'is_challenge?') { should be_false }
+      its(:'is_reply?') { should be_true }
+    end
+    context 'when neither challenge nor reply message' do
+      subject { create :message, message_kind: nil }
+      its(:'is_challenge?') { should be_false }
+      its(:'is_reply?') { should be_false }
+    end
+  end
 
-  describe ".payload" do
+  describe "#payload" do
     it "should encrypt and decrypt nicely" do
       # Prepare an expected payload
       expected_payload = { body: 'Hello!', to: '+12121234567', from: '+4561237890' }.with_indifferent_access
@@ -33,7 +51,7 @@ describe Message do
     end
   end
   
-  describe ".cached_payload" do
+  describe "#cached_payload" do
     it "should encrypt and decrypt nicely" do
       # Prepare an expected payload
       expected_payload = { body: 'Hello!', to: '+12121234567', from: '+4561237890' }.with_indifferent_access
@@ -52,7 +70,7 @@ describe Message do
     end
   end
   
-  describe '.ledger_entry' do
+  describe '#ledger_entry' do
     it 'should auto-save ledger entry' do
       message = Message.new( payload: { body: 'Hello!', to: '+12121234567', from: '+4561237890' }, twilio_sid: 'XX' + SecureRandom.hex(16) )
       message.ticket = tickets(:test_ticket)
@@ -78,18 +96,24 @@ describe Message do
   end
   
   describe "payload helpers" do
-    it "should return payload components" do
-      # Prepare an expected payload
-      expected_payload = { body: 'Hello!', to: '+12121234567', from: '+4561237890' }.with_indifferent_access
-      
-      # Create a new message and test 
-      message = Message.new( payload: expected_payload )
-      
-      # Test each payload helper
-      message.body.should == expected_payload[:body]
-      message.to_number.should == expected_payload[:to]
-      message.from_number.should == expected_payload[:from]
-    end
+    let(:expected_payload) { { body: 'Hello!', to: '+12121234567', from: '+4561237890', direction: 'api-in' }.with_indifferent_access }
+    subject { create :message, payload: expected_payload }
+    its(:body) { should == expected_payload[:body] }
+    its(:to_number) { should == expected_payload[:to] }
+    its(:from_number) { should == expected_payload[:from] }
+    its(:direction) { should == expected_payload[:direction] }
+#     it "should return payload components" do
+#       # Prepare an expected payload
+#       expected_payload = { body: 'Hello!', to: '+12121234567', from: '+4561237890' }.with_indifferent_access
+#       
+#       # Create a new message and test 
+#       message = Message.new( payload: expected_payload )
+#       
+#       # Test each payload helper
+#       message.body.should == expected_payload[:body]
+#       message.to_number.should == expected_payload[:to]
+#       message.from_number.should == expected_payload[:from]
+#     end
   end
   
 end
