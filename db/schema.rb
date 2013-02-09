@@ -78,7 +78,7 @@ ActiveRecord::Schema.define(:version => 20121220210405) do
     t.integer  "phone_directory_id",                                     :null => false
     t.string   "label",                                                  :null => false
     t.integer  "seconds_to_live",                     :default => 180,   :null => false
-    t.boolean  "default",                             :default => false, :null => false
+    t.boolean  "primary",                             :default => false, :null => false
     t.boolean  "active",                              :default => true,  :null => false
     t.text     "description"
     t.text     "encrypted_question"
@@ -93,8 +93,8 @@ ActiveRecord::Schema.define(:version => 20121220210405) do
   end
 
   add_index "appliances", ["account_id"], :name => "index_appliances_on_account_id"
-  add_index "appliances", ["default"], :name => "index_appliances_on_default"
   add_index "appliances", ["phone_directory_id"], :name => "index_appliances_on_phone_directory_id"
+  add_index "appliances", ["primary"], :name => "index_appliances_on_primary"
 
   create_table "delayed_jobs", :force => true do |t|
     t.integer  "priority",   :default => 0

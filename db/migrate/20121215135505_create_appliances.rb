@@ -5,7 +5,7 @@ class CreateAppliances < ActiveRecord::Migration
       t.references :phone_directory, null: false
       t.string :label, null: false
       t.integer :seconds_to_live, default: 180, null: false
-      t.boolean :default, default: false, null: false
+      t.boolean :primary, default: false, null: false
       t.boolean :active, default: true, null: false
       t.text :description
       t.text :encrypted_question
@@ -22,6 +22,6 @@ class CreateAppliances < ActiveRecord::Migration
     # Indices
     add_index :appliances, :account_id
     add_index :appliances, :phone_directory_id
-    add_index :appliances, :default
+    add_index :appliances, :primary
   end
 end

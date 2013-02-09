@@ -140,14 +140,14 @@ class Account < ActiveRecord::Base
   ##
   # Create starting 'default' directory and appliance for a newly created account
   def create_initial_resources
-    default_directory = self.phone_directories.create label: 'Default Directory'
-    default_appliance = self.appliances.create label: 'Default Appliance', phone_directory_id: default_directory.id
+    initial_directory = self.phone_directories.create label: 'Default Directory'
+    initial_appliance = self.appliances.create label: 'Default Appliance', phone_directory_id: initial_directory.id
   end
 
   ##
   # Return the default appliance for this account, or the first appliance if no default is set.
-  def default_appliance
-    app = self.appliances.where( default: true ).first
+  def primary_appliance
+    app = self.appliances.where( primary: true ).first
     app = self.appliances.first if app.nil?
     app
   end

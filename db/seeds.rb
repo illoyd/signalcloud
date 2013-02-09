@@ -62,7 +62,7 @@ example_directory = test_account.phone_directories.create label: 'Example Direct
 example_directory.phone_directory_entries.create phone_number_id: test_numbers[:US].id, country: nil
 #test_numbers.each { |country,number| example_directory.phone_directory_entries.create country: country, phone_number_id: number.id }
 
-example_appliance = test_account.appliances.create!({ label: 'Example Appliance', default: true, phone_directory_id: example_directory.id, seconds_to_live: 180,
+example_appliance = test_account.appliances.create!({ label: 'Example Appliance', primary: true, phone_directory_id: example_directory.id, seconds_to_live: 180,
   description: 'Example appliance for handling possibly fraudulent charges to a debit card.',
   question: 'Hello from Friendly Bank. We recently detected a possibly fraudulent charge using your debit card. To protect you, we have temporarily blocked the card. If you are making this purchase and would like us to unlock the card, please reply to this number with the amount of the transaction. If you believe this charge is fraudulent, please reply NO and we will contact you about next steps.',
   expected_denied_answer: 'NO',

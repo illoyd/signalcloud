@@ -56,7 +56,7 @@ class ApplicationController < ActionController::Base
   # nested resource requests.
   def current_appliance( use_default = true )
     return current_account.appliances.find( params[:appliance_id] ) if params.include? :appliance_id
-    return current_account.default_appliance if use_default
+    return current_account.primary_appliance if use_default
     return nil
   end
 
