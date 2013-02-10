@@ -38,12 +38,67 @@ describe Message do
     context 'when using unicode charset' do
       [ 1, 8, 65, 150, 500 ].each do |length|
         it "does not recognise #{length}-sized message" do
-          str = random_unicode_string(length)
-          #puts str
-          Message.is_sms_charset?(str).should be_false
+          Message.is_sms_charset?(random_unicode_string(length)).should be_false
         end
       end
     end
+  end
+  
+  describe '.select_sms_chunk_size' do
+    context 'when in SMS charset' do
+      [ 1, 8, 65, 159, 160, 161, 500 ].each do |length|
+        it "recognises #{length}-sized message chunk size is 160" do
+          Message.select_message_chunk_size(random_sms_string(length)).should == 160
+        end
+      end
+    end
+    context 'when using unicode charset' do
+      [ 1, 8, 69, 70, 71, 150, 500 ].each do |length|
+        it "does not recognise #{length}-sized chunk size is 70" do
+          Message.select_message_chunk_size(random_unicode_string(length)).should == 70
+        end
+      end
+    end
+  end
+  
+  describe '.update_costs' do
+
+    context 'when costs not set' do
+      subject { create :message }
+      before(:each) { 
+        subject.ticket.appliance.account.account_plan = create(:ridiculous_account_plan)
+        subject.payload = subject.payload.with_indifferent_access.merge(price: -1.23)
+      }
+      its(:provider_cost) { should be_nil }
+      its(:our_cost) { should be_nil }
+      its(:provider_price) { should_not be_nil }
+      its(:'has_provider_price?') { should be_true }
+      it 'changes .provider_cost' do
+        expect { subject.update_costs }.to change(subject, :provider_cost)
+      end
+      it 'changes .our_cost' do
+        expect { subject.update_costs }.to change(subject, :our_cost)
+      end
+    end
+
+    context 'when costs already set' do
+      subject { create :message, :settled }
+      before(:each) { 
+        subject.ticket.appliance.account.account_plan = create(:ridiculous_account_plan)
+        subject.payload = subject.payload.with_indifferent_access.merge(price: -1.23)
+      }
+      its(:provider_cost) { should_not be_nil }
+      its(:our_cost) { should_not be_nil }
+      its(:provider_price) { should_not be_nil }
+      its(:'has_provider_price?') { should be_true }
+      it 'does not change .provider_cost' do
+        expect { subject.update_costs }.to_not change(subject, :provider_cost)
+      end
+      it 'does not change .our_cost' do
+        expect { subject.update_costs }.to_not change(subject, :our_cost)
+      end
+    end
+
   end
 
   describe '#is_challenge? and #is_reply?' do

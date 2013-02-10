@@ -3,8 +3,8 @@ FactoryGirl.define do
   factory :message do
     ticket
     status        Message::QUEUED
-    provider_cost 0.0 # Don't use random costs { random_price() }
-    our_cost      0.0 # Don't use random costs { random_price() }
+    #provider_cost 0.0 # Don't use random costs { random_price() }
+    #our_cost      0.0 # Don't use random costs { random_price() }
     twilio_sid    { 'SM' + SecureRandom.hex(16) }
     payload       { {
                       "sid" => twilio_sid,

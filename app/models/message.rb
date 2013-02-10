@@ -41,8 +41,8 @@ class Message < ActiveRecord::Base
 
   # Validations
   validates_presence_of :ticket_id, :twilio_sid, :payload
-  validates_numericality_of :our_cost, allow_null: true
-  validates_numericality_of :provider_cost, allow_null: true
+  validates_numericality_of :our_cost, allow_nil: true
+  validates_numericality_of :provider_cost, allow_nil: true
   validates_length_of :twilio_sid, is: Twilio::SID_LENGTH
   validates_uniqueness_of :twilio_sid
   validates_inclusion_of :message_kind, in: [ CHALLENGE, REPLY ], allow_nil: true
@@ -77,30 +77,38 @@ class Message < ActiveRecord::Base
   ##
   # Update costs based on message payload from provider
   def update_costs
+  
+    # Clear the cached payload
+    self.clear_cached_payload()
 
-    # Update the provider costs based on the message payload, if available
-    self.provider_cost = self.internal_provider_cost unless self.internal_provider_cost.nil?
+    self.update_provider_cost() if self.provider_cost.nil?
+    self.update_our_cost() if self.our_cost.nil?
 
-    # Do not update if our cost is already defined, or the provider cost is not defined
-    if self.our_cost.nil? && !self.provider_cost.nil? && ( Numeric(self.provider_cost) != nil rescue false )
-      # Get the current account plan
-      plan = self.ticket.appliance.account.account_plan
-      
-      # Update our costs based upon the direction of the message
-      self.our_cost = case self.direction
-        when SMS_OUTBOUND_API
-          plan.calculcate_outbound_sms_cost( self.provider_cost )
-        when SMS_INBOUND_API
-          plan.calculate_inbound_sms_cost( self.provider_cost )
-      end
+    return true
+  end
+  
+  def update_provider_cost
+    return unless self.has_provider_price?
+    self.provider_cost = self.provider_price
+  end
+  
+  def update_our_cost
+    return unless self.has_provider_price?
+    plan = self.ticket.appliance.account.account_plan
+    
+    # Update our costs based upon the direction of the message
+    self.our_cost = case self.direction
+      when Twilio::SMS_OUTBOUND_API
+        plan.calculate_outbound_sms_cost( self.provider_price )
+      when Twilio::SMS_INBOUND_API
+        plan.calculate_inbound_sms_cost( self.provider_price )
     end
-
   end
   
   ##
   # Cost of this message, combining provider and own charges
   def cost
-    return self.our_cost + self.provider_cost
+    return (self.our_cost || 0) + (self.provider_cost || 0)
   end
   
   ##
@@ -110,33 +118,56 @@ class Message < ActiveRecord::Base
   end
   
   ##
+  # Clear cached payload.
+  def clear_cached_payload
+    @cached_payload = nil
+  end
+  
+  ##
   # Shortcut to access the payload's 'body' parameter
-  def body
-    return self.cached_payload[:body]
+  def body(reload=false)
+    self.clear_cached_payload if reload
+    return self.cached_payload.fetch(:body, nil)
   end
   
   ##
   # Shortcut to access the payload's 'to' parameter
-  def to_number
-    return self.cached_payload[:to]
+  def to_number(reload=false)
+    self.clear_cached_payload if reload
+    return self.cached_payload.fetch(:to, nil)
   end
   
   ##
   # Shortcut to access the payload's 'from' parameter
-  def from_number
-    return self.cached_payload[:from]
+  def from_number(reload=false)
+    self.clear_cached_payload if reload
+    return self.cached_payload.fetch(:from, nil)
   end
 
   ##
   # Shortcut to access the payload's 'direction' parameter
-  def direction
-    return self.cached_payload[:direction]
+  def direction(reload=false)
+    self.clear_cached_payload if reload
+    return self.cached_payload.fetch(:direction, nil)
   end
   
   ##
   # Internal cost
-  def internal_provider_cost
-    return self.cached_payload[:price]
+  def provider_price(reload=false)
+    self.clear_cached_payload if reload
+    return self.cached_payload.fetch(:price, nil)
+  end
+  
+  alias :internal_provider_cost :provider_price
+  
+  def has_provider_price?(reload=true)
+    #self.clear_cached_payload if reload
+    begin
+      price = self.payload.with_indifferent_access.fetch(:price, nil)
+      return !price.nil? && ( Float(price) != nil )
+    rescue
+      return false
+    end
   end
   
   ##

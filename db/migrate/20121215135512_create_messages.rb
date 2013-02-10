@@ -6,8 +6,8 @@ class CreateMessages < ActiveRecord::Migration
       t.string :message_kind, limit: 1
       t.integer :status, limit: 2, default: 0, null: false
       t.datetime :sent_at
-      t.decimal :provider_cost, null: false, default: 0, precision: 6, scale: 4
-      t.decimal :our_cost, null: false, default: 0, precision: 6, scale: 4
+      t.decimal :provider_cost, precision: 6, scale: 4
+      t.decimal :our_cost, precision: 6, scale: 4
       t.text :encrypted_payload
       t.text :encrypted_callback_payload
 
