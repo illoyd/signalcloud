@@ -4,6 +4,7 @@ class Message < ActiveRecord::Base
   
   before_save :update_costs
   
+  SMS_CHARSET_LIST = " @Δ0¡P¿p£_!1AQaq$Φ\"2BRbr¥Γ#3CScsèΛ¤4DTdtéΩ%5EUeuùΠ&6FVfvìΨ'7GWgwòΣ(8HXhxÇΘ)9IYiy\nΞ*:JZjzØ\e+;KÄkäøÆ,<LÖlö\ræ=MÑmñÅß.>NÜnüåÉ/?O§oà-"
   SMS_CHARSET = /\A[ @Δ0¡P¿p£_!1AQaq$Φ"2BRbr¥Γ#3CScsèΛ¤4DTdtéΩ%5EUeuùΠ&6FVfvìΨ'7GWgwòΣ\(8HXhxÇΘ\)9IYiy\nΞ*:JZjzØ\e+;KÄkäøÆ,<LÖlö\ræ=MÑmñÅß.>NÜnüåÉ\/?O§oà-]+\Z/
   SMS_CBS_MAX_LENGTH = 160
   SMS_UTF_MAX_LENGTH = 70
@@ -50,7 +51,11 @@ class Message < ActiveRecord::Base
   ##
   # Is the given string composed solely of basic SMS characters?
   def self.is_sms_charset?( message )
-    !(SMS_CHARSET =~ message).nil?
+    begin
+      !(SMS_CHARSET =~ message).nil?
+    rescue # ex => ArgumentError
+      false
+    end
   end
   
   ##

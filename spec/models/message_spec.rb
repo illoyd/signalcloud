@@ -1,10 +1,13 @@
+# encoding: UTF-8
 require 'spec_helper'
 
 describe Message do
   fixtures :accounts, :appliances, :tickets, :messages
   
   # Validations
-  it { [ :our_cost, :provider_cost, :ticket_id, :payload, :twilio_sid ].each { |param| should allow_mass_assignment_of(param) } }
+  [ :our_cost, :provider_cost, :ticket_id, :payload, :twilio_sid ].each do |attribute| 
+    it { should allow_mass_assignment_of attribute }
+  end
   it { should belong_to(:ticket) }
   it { should have_one(:ledger_entry) }
   it { should validate_presence_of(:ticket_id) }
@@ -13,7 +16,37 @@ describe Message do
   it { should validate_numericality_of(:provider_cost) }
   it { should validate_uniqueness_of(:twilio_sid) }
   
-  describe '#is_challenge?' do
+  def random_sms_string(length)
+    charset_length = Message::SMS_CHARSET_LIST.length
+    (1..length).map{ Message::SMS_CHARSET_LIST[rand(charset_length)] }.join('')
+  end
+  
+  def random_unicode_string(length)
+    charset_length = Message::SMS_CHARSET_LIST.length
+    str = (1..length).map{ (rand(111411)+1).chr(Encoding::UTF_8) }.join('')
+    str.ascii_only? ? random_unicode_string(length) : str
+  end
+  
+  describe '.is_sms_charset?' do
+    context 'when in SMS charset' do
+      [ 1, 8, 65, 150, 500 ].each do |length|
+        it "recognises #{length}-sized message" do
+          Message.is_sms_charset?(random_sms_string(length)).should be_true
+        end
+      end
+    end
+    context 'when using unicode charset' do
+      [ 1, 8, 65, 150, 500 ].each do |length|
+        it "does not recognise #{length}-sized message" do
+          str = random_unicode_string(length)
+          #puts str
+          Message.is_sms_charset?(str).should be_false
+        end
+      end
+    end
+  end
+
+  describe '#is_challenge? and #is_reply?' do
     context 'when challenge message' do
       subject { create :challenge_message }
       its(:'is_challenge?') { should be_true }
@@ -102,18 +135,6 @@ describe Message do
     its(:to_number) { should == expected_payload[:to] }
     its(:from_number) { should == expected_payload[:from] }
     its(:direction) { should == expected_payload[:direction] }
-#     it "should return payload components" do
-#       # Prepare an expected payload
-#       expected_payload = { body: 'Hello!', to: '+12121234567', from: '+4561237890' }.with_indifferent_access
-#       
-#       # Create a new message and test 
-#       message = Message.new( payload: expected_payload )
-#       
-#       # Test each payload helper
-#       message.body.should == expected_payload[:body]
-#       message.to_number.should == expected_payload[:to]
-#       message.from_number.should == expected_payload[:from]
-#     end
   end
   
 end
