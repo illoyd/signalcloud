@@ -30,16 +30,16 @@ class TwilioError < TicketpleaseError; end
 ##
 # Thrown whenever a Twilio client is requested but not configured.
 class MissingTwilioAccountError < TwilioError
-  def initialize( original = nil, code = nil )
-    super( 'Twilio account not configured.', original, code )
+  def initialize( account, original = nil, code = nil )
+    super( 'Twilio not configured for Account %i.' % [account.id], original, code )
   end
 end
 
 ##
 # Thrown if attempting to create a Twilio account for an Account which already has a Twilio account.
 class TwilioAccountAlreadyExistsError < TwilioError
-  def initialize( original = nil, code = nil )
-    super( 'Twilio account already exists.', original, code )
+  def initialize( account, original = nil, code = nil )
+    super( 'Twilio already exists for Account %i.' % [account.id], original, code )
   end
 end
 

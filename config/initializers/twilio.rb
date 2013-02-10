@@ -48,6 +48,10 @@ module Twilio
   ##
   # Critical error codes - these should never occur in a production environment
   ERR_INTERNATIONAL_NOT_ENABLED = 21408
+  
+  def self.master_client
+    Twilio::REST::Client.new ENV['TWILIO_MASTER_ACCOUNT_SID'], ENV['TWILIO_MASTER_AUTH_TOKEN']
+  end
 
   ##
   # REST API interface

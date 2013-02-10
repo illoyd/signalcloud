@@ -72,6 +72,41 @@ describe Account do
 
   end
   
+  describe '#create_twilio_account!' do
+
+    context 'when account not already created' do
+      subject { create :account }
+      it 'does not raise error' do
+        expect{ subject.create_twilio_account! }.to_not raise_error
+      end
+      it 'adds .twilio_account_sid' do
+        expect { subject.create_twilio_account! }.to change(subject, :twilio_account_sid).from(nil)
+      end
+      it 'adds .twilio_auth_token' do
+        expect { subject.create_twilio_account! }.to change(subject, :twilio_auth_token).from(nil)
+      end
+      it 'allows creating a twilio client' do
+        expect{ subject.twilio_client }.to raise_error(Ticketplease::MissingTwilioAccountError)
+        subject.create_twilio_account!
+        expect{ subject.twilio_client }.to_not raise_error
+      end
+    end
+
+    context 'when account not already created' do
+      subject { create :account, :test_twilio }
+      it 'raises error' do
+        expect{ subject.create_twilio_account! }.to raise_error(Ticketplease::TwilioAccountAlreadyExistsError)
+      end
+      it 'does not change .twilio_account_sid' do
+        expect { subject.create_twilio_account! rescue nil }.to_not change(subject, :twilio_account_sid)
+      end
+      it 'does not change .twilio_auth_token' do
+        expect { subject.create_twilio_account! rescue nil }.to_not change(subject, :twilio_auth_token)
+      end
+    end
+
+  end
+  
   describe '#freshbooks_client' do
 
     context 'when not configured' do

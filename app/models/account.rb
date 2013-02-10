@@ -47,7 +47,7 @@ class Account < ActiveRecord::Base
   ##
   # Return a Twilio Client.
   def twilio_client
-    raise Ticketplease::MissingTwilioAccountError.new if self.twilio_account_sid.blank? or self.twilio_auth_token.blank?
+    raise Ticketplease::MissingTwilioAccountError.new(self) if self.twilio_account_sid.blank? or self.twilio_auth_token.blank?
     @twilio_client ||= Twilio::REST::Client.new self.twilio_account_sid, self.twilio_auth_token
     return @twilio_client
   end
@@ -61,23 +61,33 @@ class Account < ActiveRecord::Base
   ##
   # Return a Twilio Validator.
   def twilio_validator
-    raise Ticketplease::MissingTwilioAccountError.new if self.twilio_account_sid.blank? or self.twilio_auth_token.blank?
+    raise Ticketplease::MissingTwilioAccountError.new(self) if self.twilio_account_sid.blank? or self.twilio_auth_token.blank?
     @twilio_validator ||= Twilio::Util::RequestValidator.new self.twilio_auth_token
     return @twilio_validator
+  end
+  
+  ##
+  # Create a Twilio sub-account.
+  def create_twilio_account!
+    raise Ticketplease::TwilioAccountAlreadyExistsError.new(self) unless self.twilio_account_sid.blank? and self.twilio_auth_token.blank?
+    response = Twilio.master_client.accounts.create( 'FriendlyName' => self.label )
+    self.twilio_account_sid = response.sid
+    self.twilio_auth_token = response.auth_token
+    self.save!
   end
   
   ##
   # Get the current client's FreshBook account, using the FreshBook global module.
   # In FreshBooks parlance, this is a 'Client' object.
   def freshbooks_client
-    raise Ticketplease::MissingFreshBooksClientError.new if self.freshbooks_id.blank?
+    raise Ticketplease::MissingFreshBooksClientError.new(self) if self.freshbooks_id.blank?
     Freshbooks.account.client.get client_id: self.freshbooks_id
   end
   
   ##
   # Create a new FreshBooks client for this account. This method will throw an error if a FreshBooks client already exists.
   def create_freshbooks_client
-    raise Ticketplease::FreshBooksClientAlreadyExistsError.new unless self.freshbooks_id.nil?
+    raise Ticketplease::FreshBooksClientAlreadyExistsError.new(self) unless self.freshbooks_id.nil?
     raise Ticketplease::FreshBooksError.new( 'Missing a primary contact.' ) if self.primary_address.nil?
     
     # Construct the complete client dataset to be passed to Freshbooks
