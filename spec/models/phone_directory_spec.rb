@@ -51,11 +51,31 @@ describe PhoneDirectory do
     it 'recognises United Kingdom' do
       directory.country_for_number(gb_number).should == PhoneDirectoryEntry::GB
     end
-    
     it "does not recognise other countries" do
       { Trinidad: tt_number, Malaysia: my_number, Australia: au_number, Russia: ru_number, HongKong: hk_number }.each do |country,number|
         directory.country_for_number(number).should == PhoneDirectoryEntry::DEFAULT
       end
+    end
+  end
+  
+  describe '#default_phone_numbers' do
+    subject { create_directory(3, 2, 2, 2) }
+    its(:default_phone_numbers) { should have(3).items }
+    it 'includes only default phone numbers' do
+      numbers = subject.phone_numbers.where( 'phone_directory_entries.country' => nil ).pluck(:phone_number_id)
+      subject.default_phone_numbers.pluck(:phone_number_id).should eq(numbers)
+    end
+    it 'does not include US phone numbers' do
+      numbers = subject.phone_numbers_by_country(PhoneDirectoryEntry::US).pluck(:phone_number_id)
+      subject.default_phone_numbers.pluck(:phone_number_id).should_not eq(numbers)
+    end
+    it 'does not include UK phone numbers' do
+      numbers = subject.phone_numbers_by_country(PhoneDirectoryEntry::UK).pluck(:phone_number_id)
+      subject.default_phone_numbers.pluck(:phone_number_id).should_not eq(numbers)
+    end
+    it 'does not include CA phone numbers' do
+      numbers = subject.phone_numbers_by_country(PhoneDirectoryEntry::CA).pluck(:phone_number_id)
+      subject.default_phone_numbers.pluck(:phone_number_id).should_not eq(numbers)
     end
   end
 
