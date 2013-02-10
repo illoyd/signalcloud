@@ -13,13 +13,13 @@ FactoryGirl.define do
 
     factory :test_account do
       label               'White House'
-      freshbooks_id       2
+      test_freshbooks
     end
     
     factory :master_account do
       label               'ticketplease'
       master_twilio
-      test_freshbooks_client
+      test_freshbooks
     end
     
     #trait :missing_twilio do
