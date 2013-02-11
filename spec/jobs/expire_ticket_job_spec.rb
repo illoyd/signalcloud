@@ -7,7 +7,7 @@ describe ExpireTicketJob do
 
   describe '#find_ticket' do
     let(:ticket) { create(:ticket) }
-    subject { SendChallengeJob.new( ticket.id ) }
+    subject { ExpireTicketJob.new( ticket.id ) }
     its(:find_ticket) { should eq(ticket) }
   end
   

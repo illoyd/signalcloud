@@ -6,6 +6,7 @@ class CreateLedgerEntries < ActiveRecord::Migration
       t.string :narrative, null: false
       t.decimal :value, precision: 8, scale: 4, default: 0.0, null: false
       t.datetime :settled_at
+      t.text :notes
 
       t.timestamps
     end

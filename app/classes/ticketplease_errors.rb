@@ -50,16 +50,16 @@ class FreshBooksError < TicketpleaseError; end
 ##
 # Thrown whenever the given item does not have a FreshBooks account yet.
 class MissingFreshBooksClientError < FreshBooksError
-  def initialize( original = nil, code = nil )
-    super( 'FreshBooks client not created.', original, code )
+  def initialize( account, original = nil, code = nil )
+    super( 'FreshBooks client not created for Account %i.' % [account.id], original, code )
   end
 end
 
 ##
 # Thrown if attempting to create a FreshBooks client for an Account which already has a FreshBooks client.
 class FreshBooksClientAlreadyExistsError < FreshBooksError
-  def initialize( original = nil, code = nil )
-    super( 'FreshBooks client already exists.', original, code )
+  def initialize( account, original = nil, code = nil )
+    super( 'FreshBooks client already exists for Account %i.' % [account.id], original, code )
   end
 end
 

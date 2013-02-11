@@ -135,6 +135,7 @@ ActiveRecord::Schema.define(:version => 20121220210405) do
     t.string   "narrative",                                                 :null => false
     t.decimal  "value",      :precision => 8, :scale => 4, :default => 0.0, :null => false
     t.datetime "settled_at"
+    t.text     "notes"
     t.datetime "created_at",                                                :null => false
     t.datetime "updated_at",                                                :null => false
   end

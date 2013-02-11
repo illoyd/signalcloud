@@ -96,6 +96,14 @@ class Ticket < ActiveRecord::Base
     self.from_number = Ticket.normalize_phone_number(self.from_number)
   end
   
+  def normalized_expected_confirmed_answer
+    Ticket.normalize_message self.expected_confirmed_answer
+  end
+  
+  def normalized_expected_denied_answer
+    Ticket.normalize_message self.expected_denied_answer
+  end
+  
   ##
   # Is the ticket currently open? Based upon the ticket's status.
   def is_open?

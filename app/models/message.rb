@@ -1,6 +1,6 @@
 # encoding: UTF-8
 class Message < ActiveRecord::Base
-  attr_accessible :our_cost, :provider_cost, :ticket_id, :payload, :twilio_sid, :message_kind
+  attr_accessible :our_cost, :provider_cost, :ticket_id, :payload, :callback_payload, :twilio_sid, :message_kind
   
   before_save :update_costs
   
@@ -21,7 +21,6 @@ class Message < ActiveRecord::Base
   ##
   # Encrypted payload. Serialised using JSON.
   attr_encrypted :payload, key: ATTR_ENCRYPTED_SECRET, marshal: true, marshaler: JSON
-  attr_encrypted :callback_payload, key: ATTR_ENCRYPTED_SECRET, marshal: true, marshaler: JSON
 
   ##
   # Encrypted callback. payload. Serialised using JSON.
@@ -114,7 +113,7 @@ class Message < ActiveRecord::Base
   ##
   # Caches the payload, as frequent accesses to the encrypted, marshalled payload will slow down processing
   def cached_payload
-    return (@cached_payload ||= self.payload.try(:with_indifferent_access))
+    return ( @cached_payload ||= (self.callback_payload.nil? ? self.payload : self.callback_payload).try(:with_indifferent_access) )
   end
   
   ##

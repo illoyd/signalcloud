@@ -4,172 +4,66 @@ describe InboundMessageJob do
   before { VCR.insert_cassette 'inbound_message_job', record: :new_episodes }
   after { VCR.eject_cassette }
   
+  def construct_inbound_payload( options={} )
+    options.reverse_merge({
+      'SmsSid' => 'SM5e27df39904bc98686355dd7ec98f8a9',
+      'AccountSid' => ENV['TWILIO_TEST_ACCOUNT_SID'],
+      'From' => Twilio::VALID_NUMBER,
+      'To' => Twilio::VALID_NUMBER,
+      'Body' => 'Hello!'
+    })
+  end
+  
   describe '#perform' do
-    let(:account)           { create(:account, :test_twilio) }
-    let(:appliance)         { create(:appliance, account: account) }
-    #let(:appliance) { appliances(:test_appliance) }
-    #let(:ticket) { appliance.open_ticket( to_number: Twilio::VALID_NUMBER, expected_confirmed_answer: 'YES' ) }
-    let(:ticket)            { create(:ticket, appliance: appliance) }
-    let(:ready_to_expire_ticket) { create(:ticket, :challenge_sent, expiry: 180.seconds.ago, appliance: appliance) }
-    let(:sent_ticket)       { create(:ticket, :challenge_sent, appliance: appliance) }
-    let(:confirmed_ticket)  { create(:ticket, :challenge_sent, :response_received, :reply_sent, :confirmed, appliance: appliance) }
-    let(:denied_ticket)     { create(:ticket, :challenge_sent, :response_received, :reply_sent, :denied, appliance: appliance) }
-    let(:failed_ticket)     { create(:ticket, :challenge_sent, :response_received, :reply_sent, :failed, appliance: appliance) }
-    let(:expired_ticket)    { create(:ticket, :challenge_sent, :response_received, :reply_sent, :expired, appliance: appliance) }
+    let(:account)       { create(:account, :test_twilio) }
+    let(:appliance)     { create(:appliance, account: account) }
+    let(:phone_number)  { create(:valid_phone_number, account: account) }
+    let(:customer_number)  { build(:valid_phone_number) }
+    subject { InboundMessageJob.new(payload) }
 
-    context 'when ticket is open' do
-
-      context 'and ticket has not yet passed expiration' do
-        it 'finds the open ticket' do
-          expect { # Messages count
-            expect { # Ledger entry count
+    context 'when unsolicited (no matching ticket)' do
+      let(:payload) { construct_inbound_payload( 'To' => phone_number.number, 'From' => customer_number.number ) }
+      it 'does not raise error' do
+        expect { subject.perform }.to_not raise_error
+      end
+      it 'queues unsolicited message job' do
+        expect { subject.perform }.to change{Delayed::Job.count}.by(1)
+      end
+    end
     
-              # Enqueue job
-              expect { # Job count during enqueue
-                Delayed::Job.enqueue ExpireTicketJob.new( ticket.id )
-              }.to change{Delayed::Job.count}.from(0).to(1)
-              
-              # Now, work that job!
-              expect{ # Job count after run
-                expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
-                @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-              }.to_not change{Delayed::Job.count}.from(1).to(0)
-
-              ticket.reload
+    context 'when replying to open ticket' do
+      let(:ticket)  { create(:ticket, :challenge_sent, appliance: appliance, from_number: phone_number.number, to_number: customer_number.number) }
+      let(:payload) { construct_inbound_payload( 'To' => ticket.from_number, 'From' => ticket.to_number ) }
+      it 'does not raise error' do
+        expect { subject.perform }.to_not raise_error
+      end
+    end
     
-            }.to_not change{ticket.appliance.account.ledger_entries.count}.by(1)
-          }.to_not change{ticket.messages.count}.by(1)
+    context 'when replying to expired ticket' do
+      let(:ticket)  { create(:ticket, :challenge_sent, :expired, appliance: appliance, expiry: 180.seconds.ago, from_number: phone_number.number, to_number: customer_number.number) }
+      let(:payload) { construct_inbound_payload( 'To' => ticket.from_number, 'From' => ticket.to_number ) }
+      it 'does not raise error' do
+        expect { subject.perform }.to_not raise_error
+      end
+    end
     
-          # Check that the ticket status has been expired
-          ticket.status.should_not == Ticket::EXPIRED
+    [ :confirmed, :denied, :failed ].each do |status|
+      context "when replying to #{status.to_s} but not sent ticket" do
+        let(:ticket)  { create(:ticket, :challenge_sent, :response_received, status, appliance: appliance, from_number: phone_number.number, to_number: customer_number.number) }
+        let(:payload) { construct_inbound_payload( 'To' => ticket.from_number, 'From' => ticket.to_number ) }
+        it 'does not raise error' do
+          expect { subject.perform }.to_not raise_error
         end
       end
-
-      context 'and ticket has passed expiration' do
-        it 'expires ticket' do
-          expect { # Messages count
-            expect { # Ledger entry count
-    
-              # Enqueue job
-              expect { # Job count during enqueue
-                Delayed::Job.enqueue ExpireTicketJob.new( ready_to_expire_ticket.id )
-              }.to change{Delayed::Job.count}.from(0).to(1)
-              
-              # Now, work that job!
-              expect{ # Job count after run
-                expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
-                @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-              }.to change{Delayed::Job.count}.from(1).to(0)
-              
-              ready_to_expire_ticket.reload
-    
-            }.to change{ready_to_expire_ticket.appliance.account.ledger_entries.count}.by(1)
-          }.to change{ready_to_expire_ticket.messages.count}.by(1)
-    
-          # Check that the ticket status has been expired
-          ready_to_expire_ticket.status.should == Ticket::EXPIRED
+      context "when replying to #{status.to_s} and sent ticket" do
+        let(:ticket)  { create(:ticket, :challenge_sent, :response_received, status, :reply_sent, appliance: appliance, from_number: phone_number.number, to_number: customer_number.number) }
+        let(:payload) { construct_inbound_payload( 'To' => ticket.from_number, 'From' => ticket.to_number ) }
+        it 'does not raise error' do
+          expect { subject.perform }.to_not raise_error
         end
       end
     end
     
-    context 'when ticket is closed' do
-      it 'ignores confirmed tickets' do
-        expect { # Messages count
-          expect { # Ledger entry count
-  
-            # Enqueue job
-            expect { # Job count during enqueue
-              Delayed::Job.enqueue ExpireTicketJob.new( confirmed_ticket.id )
-            }.to change{Delayed::Job.count}.from(0).to(1)
-            
-            # Now, work that job!
-            expect{ # Job count after run
-              expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
-              @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-            }.to change{Delayed::Job.count}.from(1).to(0)
-  
-            confirmed_ticket.reload
-  
-          }.to_not change{confirmed_ticket.appliance.account.ledger_entries.count}.by(1)
-        }.to_not change{confirmed_ticket.messages.count}.by(1)
-  
-        # Check that the ticket has not been changed
-        confirmed_ticket.status.should == Ticket::CONFIRMED
-      end
-
-      it 'ignores denied tickets' do
-        expect { # Messages count
-          expect { # Ledger entry count
-  
-            # Enqueue job
-            expect { # Job count during enqueue
-              Delayed::Job.enqueue ExpireTicketJob.new( denied_ticket.id )
-            }.to change{Delayed::Job.count}.from(0).to(1)
-            
-            # Now, work that job!
-            expect{ # Job count after run
-              expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
-              @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-            }.to change{Delayed::Job.count}.from(1).to(0)
-  
-            denied_ticket.reload
-  
-          }.to_not change{denied_ticket.appliance.account.ledger_entries.count}.by(1)
-        }.to_not change{denied_ticket.messages.count}.by(1)
-  
-        # Check that the ticket has not been changed
-        denied_ticket.status.should == Ticket::DENIED
-      end
-
-      it 'ignores failed tickets' do
-        expect { # Messages count
-          expect { # Ledger entry count
-  
-            # Enqueue job
-            expect { # Job count during enqueue
-              Delayed::Job.enqueue ExpireTicketJob.new( failed_ticket.id )
-            }.to change{Delayed::Job.count}.from(0).to(1)
-            
-            # Now, work that job!
-            expect{ # Job count after run
-              expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
-              @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-            }.to change{Delayed::Job.count}.from(1).to(0)
-  
-            failed_ticket.reload
-  
-          }.to_not change{failed_ticket.appliance.account.ledger_entries.count}.by(1)
-        }.to_not change{failed_ticket.messages.count}.by(1)
-  
-        # Check that the ticket has not been changed
-        failed_ticket.status.should == Ticket::FAILED
-      end
-
-      it 'ignores expired tickets' do
-        expect { # Messages count
-          expect { # Ledger entry count
-  
-            # Enqueue job
-            expect { # Job count during enqueue
-              Delayed::Job.enqueue ExpireTicketJob.new( expired_ticket.id )
-            }.to change{Delayed::Job.count}.from(0).to(1)
-            
-            # Now, work that job!
-            expect{ # Job count after run
-              expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
-              @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-            }.to change{Delayed::Job.count}.from(1).to(0)
-  
-            expired_ticket.reload
-  
-          }.to_not change{expired_ticket.appliance.account.ledger_entries.count}.by(1)
-        }.to_not change{expired_ticket.messages.count}.by(1)
-  
-        # Check that the ticket has not been changed
-        expired_ticket.status.should == Ticket::EXPIRED
-      end
-    end
-
   end #perform
   
 end

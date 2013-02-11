@@ -88,5 +88,10 @@ class PhoneNumber < ActiveRecord::Base
   def should_reply_to_unsolicited_call?
     self.unsolicited_call_action == REPLY
   end
+  
+  def send_reply_to_unsolicited_sms( customer_number )
+    sms = self.account.send_sms( customer_number, self.number, self.unsolicited_sms_message )
+    sms.stac
+  end
 
 end
