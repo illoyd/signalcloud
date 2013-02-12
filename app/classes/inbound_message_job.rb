@@ -102,4 +102,6 @@ class InboundMessageJob < Struct.new( :message_values )
     self.message_values = self.standardise_message_values( self.message_values )
   end
 
+  alias :run :perform
+
 end

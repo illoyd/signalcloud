@@ -15,4 +15,6 @@ class CreateInvoiceJob < Struct.new( :account_id, :next_invoice_at )
     account.save!
   end
 
+  alias :run :perform
+
 end

@@ -15,4 +15,6 @@ class EnqueueCreateInvoiceJobsJob < Struct.new( :next_invoice_at )
     end
   end
 
+  alias :run :perform
+
 end

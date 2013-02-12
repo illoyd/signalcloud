@@ -21,5 +21,7 @@ class CreateTwilioAccountJob < Struct.new( :account_id )
   def account
     @account ||= Account.find( account_id )
   end
+  
+  alias :run :perform
 
 end

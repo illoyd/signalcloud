@@ -36,4 +36,6 @@ class SendReplyJob < Struct.new( :ticket_id, :force_resend )
     @ticket ||= Ticket.find( self.ticket_id )
   end
 
+  alias :run :perform
+
 end

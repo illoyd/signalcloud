@@ -98,4 +98,6 @@ class UpdateMessageStatusJob < Struct.new( :callback_values )
     self.callback_values = self.standardise_callback_values( self.callback_values )
   end
   
+  alias :run :perform
+
 end

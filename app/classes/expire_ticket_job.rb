@@ -56,4 +56,6 @@ class ExpireTicketJob < Struct.new( :ticket_id, :force_resend )
     self.force_resend || false
   end
   
+  alias :run :perform
+
 end
