@@ -104,6 +104,30 @@ class Ticket < ActiveRecord::Base
     Ticket.normalize_message self.expected_denied_answer
   end
   
+  def answer_applies?(answer)
+    normalized_answer = Ticket.normalize_message answer
+    ( normalized_answer == self.normalized_expected_confirmed_answer || normalized_answer == self.normalized_expected_denied_answer )
+  end
+  
+  def process_answer( answer, received=DateTime.now )
+    self.response_received = received
+    self.status = case Ticket.normalize_message(answer)
+      when ticket.normalized_expected_confirmed_answer
+        Ticket::CONFIRMED
+      when ticket.normalized_expected_denied_answer
+        Ticket::DENIED
+      else
+        Ticket::FAILED
+    end
+  end
+  
+  ##
+  # 
+  def process_answer!( answer, received=DateTime.now )
+    self.process_answer answer, received
+    self.save!
+  end
+
   ##
   # Is the ticket currently open? Based upon the ticket's status.
   def is_open?
