@@ -1,12 +1,12 @@
 ##
-# Send an SMS Reply
+# Send an SMS Reply to an open Ticket.
 # Requires the following items
 #   +ticket_id+: the unique identifier for the ticket
 #   +force_resend+: a flag to indicate if this is a forced resend; defaults to +false+
 #
 # This class is intended for use with Delayed::Job.
 #
-class SendReplyJob < Struct.new( :ticket_id, :force_resend )
+class SendTicketReplyJob < Struct.new( :ticket_id, :force_resend )
   include Talkable
 
   def perform

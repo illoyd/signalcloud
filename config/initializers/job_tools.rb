@@ -16,8 +16,8 @@ module JobTools
     SendWebhookReplyJob: 5,
   
     # Send messages
-    SendChallengeJob: 8,
-    SendReplyJob: 8
+    SendTicketChallengeJob: 8,
+    SendTicketReplyJob: 8
     
     # Invoicing and reporting
     # TODO

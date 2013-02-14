@@ -1,25 +1,25 @@
 require 'spec_helper'
 
-describe SendReplyJob do
+describe SendTicketReplyJob do
   before { VCR.insert_cassette 'send_reply_job', record: :new_episodes }
   after  { VCR.eject_cassette }
 
   describe '.new' do
     let(:ticket)  { create(:ticket) }
     context 'with ticket and default resend' do
-      subject       { SendReplyJob.new( ticket.id ) }
+      subject       { SendTicketReplyJob.new( ticket.id ) }
       its(:ticket_id) { should eq (ticket.id) }
       its(:force_resend) { should be_false }
       its(:ticket) { should_not be_nil }
     end
     context 'with ticket and without resend' do
-      subject       { SendReplyJob.new( ticket.id, false ) }
+      subject       { SendTicketReplyJob.new( ticket.id, false ) }
       its(:ticket_id) { should eq (ticket.id) }
       its(:force_resend) { should be_false }
       its(:ticket) { should_not be_nil }
     end
     context 'with ticket and with resend' do
-      subject       { SendReplyJob.new( ticket.id, true ) }
+      subject       { SendTicketReplyJob.new( ticket.id, true ) }
       its(:ticket_id) { should eq (ticket.id) }
       its(:force_resend) { should be_true }
       its(:ticket) { should_not be_nil }
@@ -34,7 +34,7 @@ describe SendReplyJob do
 
       context "when ticket #{status.to_s} reply has not been sent" do
         let(:ticket)  { create(:ticket, :challenge_sent, :response_received, status, appliance: appliance) }
-        let(:job)     { SendReplyJob.new( ticket.id ) }
+        let(:job)     { SendTicketReplyJob.new( ticket.id ) }
         it 'does not raise error' do
           expect { job.perform }.to_not raise_error
         end
@@ -57,7 +57,7 @@ describe SendReplyJob do
 
       context "when ticket #{status.to_s} reply has been sent" do
         let(:ticket)  { create(:ticket, :challenge_sent, :response_received, :reply_sent, appliance: appliance) }
-        let(:job)     { SendReplyJob.new( ticket.id ) }
+        let(:job)     { SendTicketReplyJob.new( ticket.id ) }
         it 'does not raise error' do
           expect { job.perform }.to_not raise_error
         end
