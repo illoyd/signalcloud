@@ -1,6 +1,6 @@
 # encoding: UTF-8
 class Message < ActiveRecord::Base
-  attr_accessible :our_cost, :provider_cost, :ticket_id, :payload, :callback_payload, :twilio_sid, :message_kind
+  attr_accessible :our_cost, :provider_cost, :ticket_id, :payload, :callback_payload, :twilio_sid, :message_kind, :to_number, :from_number, :body
   
   before_save :update_costs
   
@@ -25,6 +25,10 @@ class Message < ActiveRecord::Base
   ##
   # Encrypted callback. payload. Serialised using JSON.
   attr_encrypted :callback_payload, key: ATTR_ENCRYPTED_SECRET, marshal: true, marshaler: JSON
+
+  attr_encrypted :to_number, key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :from_number, key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :body, key: ATTR_ENCRYPTED_SECRET
 
   ##
   # Parent ticket, of which this message is part of the conversation.
@@ -104,6 +108,68 @@ class Message < ActiveRecord::Base
     end
   end
   
+  def calculate_our_cost( value=nil )
+    value = self.provider_cost if value.nil?
+    plan = self.ticket.appliance.account.account_plan
+    return case self.direction
+      when Twilio::SMS_OUTBOUND_API
+        plan.calculate_outbound_sms_cost( value )
+      when Twilio::SMS_INBOUND_API
+        plan.calculate_inbound_sms_cost( value )
+    end
+  end
+  
+  def deliver!
+    self.payload = self.appliance.account.twilio_account.sms.messages.create({
+      to: self.to_number,
+      from: self.from_number,
+      body: self.body
+    }).to_property_hash
+    self.twilio_sid = self.payload[:sid]
+    self.build_ledger_entry({
+      narrative: LedgerEntry::OUTBOUND_SMS_NARRATIVE,
+      value: self.has_cost? ? self.cost : nil
+    })
+    self.save!
+  end
+  
+  def payload=(value)
+    super(value)
+    
+    # If a 'price' is set in the payload, update all costs
+    self.provider_cost = self.provider_price if self.has_provider_price?
+    self.our_cost = self.calculcate_our_cost( self.provider_cost )
+    
+    # If a ledger_entry is available, update it
+    if not self.ledger_entry.nil?
+      self.ledger_entry.value = self.cost
+    end
+  end
+  
+  def callback_payload=(value)
+    super(value)
+    
+    # If a 'price' is set in the payload, update all costs
+    self.provider_cost = self.provider_price if self.has_provider_price?
+    self.our_cost = self.calculcate_our_cost( self.provider_cost )
+    
+    # If a ledger_entry is available, update it
+    if not self.ledger_entry.nil?
+      self.ledger_entry.value = self.cost
+    end
+  end
+  
+  def provider_cost=(value)
+    super(value)
+    self.our_cost = value.nil? ? nil : 
+  end
+  
+  ##
+  #
+  def has_cost?
+    return not (self.our_cost.nil? and self.provider_cost.nil?)
+  end
+  
   ##
   # Cost of this message, combining provider and own charges
   def cost
@@ -124,24 +190,24 @@ class Message < ActiveRecord::Base
   
   ##
   # Shortcut to access the payload's 'body' parameter
-  def body(reload=false)
-    self.clear_cached_payload if reload
-    return self.cached_payload.fetch(:body, nil)
-  end
+  # def body(reload=false)
+    # self.clear_cached_payload if reload
+    # return self.cached_payload.fetch(:body, nil)
+  # end
   
   ##
   # Shortcut to access the payload's 'to' parameter
-  def to_number(reload=false)
-    self.clear_cached_payload if reload
-    return self.cached_payload.fetch(:to, nil)
-  end
+  # def to_number(reload=false)
+    # self.clear_cached_payload if reload
+    # return self.cached_payload.fetch(:to, nil)
+  # end
   
   ##
   # Shortcut to access the payload's 'from' parameter
-  def from_number(reload=false)
-    self.clear_cached_payload if reload
-    return self.cached_payload.fetch(:from, nil)
-  end
+  # def from_number(reload=false)
+    # self.clear_cached_payload if reload
+    # return self.cached_payload.fetch(:from, nil)
+  # end
 
   ##
   # Shortcut to access the payload's 'direction' parameter
