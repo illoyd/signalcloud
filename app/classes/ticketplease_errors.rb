@@ -19,7 +19,7 @@ end
 # object should ever be created without an account!
 class AccountNotAssociatedError < TicketpleaseError
   def initialize( original = nil, code = nil )
-    super( 'Account not associated to object.', original, code )
+    super( 'Object not associated to an account.', original, code )
   end
 end
 

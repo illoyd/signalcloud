@@ -259,7 +259,7 @@ class Ticket < ActiveRecord::Base
         results = self.appliance.account.send_sms( self.to_number, self.from_number, message_part )
   
         # Build a message and ledger_entry to hold the results
-        sent_message = self.messages.build( twilio_sid: results.sid, payload: results.to_property_hash )
+        sent_message = self.messages.build( twilio_sid: results.sid, provider_response: results.to_property_hash )
         ledger_entry = sent_message.build_ledger_entry( narrative: LedgerEntry::OUTBOUND_SMS_NARRATIVE )
         sent_message
       end

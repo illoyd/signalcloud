@@ -141,17 +141,21 @@ ActiveRecord::Schema.define(:version => 20121220210405) do
   end
 
   create_table "messages", :force => true do |t|
-    t.integer  "ticket_id",                                                                             :null => false
-    t.string   "twilio_sid",                 :limit => 34
-    t.string   "message_kind",               :limit => 1
-    t.integer  "status",                     :limit => 2,                                :default => 0, :null => false
+    t.integer  "ticket_id",                                                                              :null => false
+    t.string   "twilio_sid",                  :limit => 34
+    t.string   "message_kind",                :limit => 1
+    t.integer  "status",                      :limit => 2,                                :default => 0, :null => false
+    t.integer  "direction",                   :limit => 2,                                :default => 0, :null => false
     t.datetime "sent_at"
-    t.decimal  "provider_cost",                            :precision => 6, :scale => 4
-    t.decimal  "our_cost",                                 :precision => 6, :scale => 4
-    t.text     "encrypted_payload"
-    t.text     "encrypted_callback_payload"
-    t.datetime "created_at",                                                                            :null => false
-    t.datetime "updated_at",                                                                            :null => false
+    t.decimal  "provider_cost",                             :precision => 6, :scale => 4
+    t.decimal  "our_cost",                                  :precision => 6, :scale => 4
+    t.text     "encrypted_to_number"
+    t.text     "encrypted_from_number"
+    t.text     "encrypted_body"
+    t.text     "encrypted_provider_response"
+    t.text     "encrypted_provider_update"
+    t.datetime "created_at",                                                                             :null => false
+    t.datetime "updated_at",                                                                             :null => false
   end
 
   add_index "messages", ["message_kind"], :name => "index_messages_on_message_kind"

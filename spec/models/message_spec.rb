@@ -2,19 +2,21 @@
 require 'spec_helper'
 
 describe Message do
-  fixtures :accounts, :appliances, :tickets, :messages
   
   # Validations
-  [ :our_cost, :provider_cost, :ticket_id, :payload, :twilio_sid ].each do |attribute| 
-    it { should allow_mass_assignment_of attribute }
+  describe 'validations' do
+    before(:all) { 3.times { create :message } }
+    [ :our_cost, :provider_cost, :ticket_id, :provider_response, :provider_update, :twilio_sid ].each do |attribute| 
+      it { should allow_mass_assignment_of attribute }
+    end
+    it { should belong_to(:ticket) }
+    it { should have_one(:ledger_entry) }
+    it { should validate_presence_of(:ticket_id) }
+    it { should ensure_length_of(:twilio_sid).is_equal_to(Twilio::SID_LENGTH) }
+    it { should validate_numericality_of(:our_cost) }
+    it { should validate_numericality_of(:provider_cost) }
+    it { should validate_uniqueness_of(:twilio_sid) }
   end
-  it { should belong_to(:ticket) }
-  it { should have_one(:ledger_entry) }
-  it { should validate_presence_of(:ticket_id) }
-  it { should ensure_length_of(:twilio_sid).is_equal_to(Twilio::SID_LENGTH) }
-  it { should validate_numericality_of(:our_cost) }
-  it { should validate_numericality_of(:provider_cost) }
-  it { should validate_uniqueness_of(:twilio_sid) }
   
   def random_sms_string(length)
     charset_length = Message::SMS_CHARSET_LIST.length
@@ -61,135 +63,213 @@ describe Message do
     end
   end
   
-  describe '.update_costs' do
-
-    context 'when costs not set' do
-      subject { create :message }
-      before(:each) { 
-        subject.ticket.appliance.account.account_plan = create(:ridiculous_account_plan)
-        subject.payload = subject.payload.with_indifferent_access.merge(price: -1.23)
-      }
-      its(:provider_cost) { should be_nil }
-      its(:our_cost) { should be_nil }
-      its(:provider_price) { should_not be_nil }
-      its(:'has_provider_price?') { should be_true }
-      it 'changes .provider_cost' do
-        expect { subject.update_costs }.to change(subject, :provider_cost)
-      end
-      it 'changes .our_cost' do
-        expect { subject.update_costs }.to change(subject, :our_cost)
-      end
-    end
-
-    context 'when costs already set' do
-      subject { create :message, :settled }
-      before(:each) { 
-        subject.ticket.appliance.account.account_plan = create(:ridiculous_account_plan)
-        subject.payload = subject.payload.with_indifferent_access.merge(price: -1.23)
-      }
-      its(:provider_cost) { should_not be_nil }
-      its(:our_cost) { should_not be_nil }
-      its(:provider_price) { should_not be_nil }
-      its(:'has_provider_price?') { should be_true }
-      it 'does not change .provider_cost' do
-        expect { subject.update_costs }.to_not change(subject, :provider_cost)
-      end
-      it 'does not change .our_cost' do
-        expect { subject.update_costs }.to_not change(subject, :our_cost)
-      end
-    end
-
-  end
+#   describe '.update_costs' do
+# 
+#     context 'when costs not set' do
+#       subject { create :message }
+#       before(:each) { 
+#         subject.ticket.appliance.account.account_plan = create(:ridiculous_account_plan)
+#         subject.provider_response = subject.provider_response.with_indifferent_access.merge(price: -1.23)
+#       }
+#       its(:provider_cost) { should be_nil }
+#       its(:our_cost) { should be_nil }
+#       its(:provider_price) { should_not be_nil }
+#       its(:'has_provider_price?') { should be_true }
+#       it 'changes .provider_cost' do
+#         expect { subject.update_costs }.to change(subject, :provider_cost)
+#       end
+#       it 'changes .our_cost' do
+#         expect { subject.update_costs }.to change(subject, :our_cost)
+#       end
+#     end
+# 
+#     context 'when costs already set' do
+#       subject { create :message, :settled }
+#       before(:each) { 
+#         subject.ticket.appliance.account.account_plan = create(:ridiculous_account_plan)
+#         subject.provider_response = subject.provider_response.with_indifferent_access.merge(price: -1.23)
+#       }
+#       its(:provider_cost) { should_not be_nil }
+#       its(:our_cost) { should_not be_nil }
+#       its(:provider_price) { should_not be_nil }
+#       its(:'has_provider_price?') { should be_true }
+#       it 'does not change .provider_cost' do
+#         expect { subject.update_costs }.to_not change(subject, :provider_cost)
+#       end
+#       it 'does not change .our_cost' do
+#         expect { subject.update_costs }.to_not change(subject, :our_cost)
+#       end
+#     end
+# 
+#   end
 
   describe '#is_challenge? and #is_reply?' do
     context 'when challenge message' do
-      subject { create :challenge_message }
+      subject { build :challenge_message }
       its(:'is_challenge?') { should be_true }
       its(:'is_reply?') { should be_false }
     end
     context 'when reply message' do
-      subject { create :reply_message }
+      subject { build :reply_message }
       its(:'is_challenge?') { should be_false }
       its(:'is_reply?') { should be_true }
     end
     context 'when neither challenge nor reply message' do
-      subject { create :message, message_kind: nil }
+      subject { build :message, message_kind: nil }
       its(:'is_challenge?') { should be_false }
       its(:'is_reply?') { should be_false }
     end
   end
 
-  describe "#payload" do
-    it "should encrypt and decrypt nicely" do
-      # Prepare an expected payload
-      expected_payload = { body: 'Hello!', to: '+12121234567', from: '+4561237890' }.with_indifferent_access
-      
-      # Next, create a new message - both 'payload' and 'encrypted payload' should be nil
-      message = Message.new()
-      message.encrypted_payload.should be_nil
-      message.payload.should be_nil
-      
-      # Add the payload, then re-try - they should not be nil
-      message.payload = expected_payload
-      message.encrypted_payload.should_not be_nil
-      message.payload.should_not be_nil
-      
-      # Finally, is the stored payload the same as the expected payload?
-      message.payload.should eq( expected_payload )
+  describe "#provider_response" do
+    let(:provider_response) { { body: 'Hello!', to: '+12121234567', from: '+4561237890' }.with_indifferent_access }
+    context 'when provider_response is set' do
+      subject { build :message, provider_response: provider_response }
+      its(:encrypted_provider_response) { should_not be_nil }
+      its(:provider_response) { should_not be_nil }
+      its(:provider_response) { should eq(provider_response) }
+    end
+    context 'when provider_response is not set' do
+      subject { build :message, provider_response: nil }
+      its(:encrypted_provider_response) { should be_nil }
+      its(:provider_response) { should be_nil }
     end
   end
   
-  describe "#cached_payload" do
-    it "should encrypt and decrypt nicely" do
-      # Prepare an expected payload
-      expected_payload = { body: 'Hello!', to: '+12121234567', from: '+4561237890' }.with_indifferent_access
-      
-      # Next, create a new message without a payload; the cache should be nil
-      message = Message.new()
-      message.cached_payload.should be_nil
-      
-      # Add the payload, then re-try - they should not be nil
-      message.payload = expected_payload
-      message.cached_payload.should_not be_nil
+#   describe "#cached_payload" do
+#     it "should encrypt and decrypt nicely" do
+#       # Prepare an expected payload
+#       expected_payload = { body: 'Hello!', to: '+12121234567', from: '+4561237890' }.with_indifferent_access
+#       
+#       # Next, create a new message without a payload; the cache should be nil
+#       message = Message.new()
+#       message.cached_payload.should be_nil
+#       
+#       # Add the payload, then re-try - they should not be nil
+#       message.payload = expected_payload
+#       message.cached_payload.should_not be_nil
+# 
+#       # Ensure that payload is equal to its cache
+#       message.cached_payload.should eq( message.payload )
+#       message.cached_payload.should eq( expected_payload )
+#     end
+#   end
 
-      # Ensure that payload is equal to its cache
-      message.cached_payload.should eq( message.payload )
-      message.cached_payload.should eq( expected_payload )
+  describe '#cost' do
+    [ [nil,nil], [nil,1], [1,nil], [1,1], [1,-1], [-1,1], [0.25,-0.32] ].each do |costs|
+      it "properly sums provider:#{costs.first} and our:#{costs.second}" do
+        msg = build :message, provider_cost: costs.first, our_cost: costs.second
+        msg.cost.should == costs.reject{ |entry| entry.nil? }.sum
+      end
+    end
+  end
+
+  describe '#has_cost?' do
+    context 'when both costs are present' do
+      subject { build :message, provider_cost: -1.00, our_cost: -0.50 }
+      its(:'has_cost?') { should be_true }
+    end
+    context 'when only provider_cost is present' do
+      subject { build :message, provider_cost: -1.00, our_cost: nil }
+      its(:'has_cost?') { should be_false }
+    end
+    context 'when only our_cost is present' do
+      subject { build :message, provider_cost: nil, our_cost: -0.50 }
+      its(:'has_cost?') { should be_false }
+    end
+    context 'when both costs are not present' do
+      subject { build :message, provider_cost: nil, our_cost: nil }
+      its(:'has_cost?') { should be_false }
     end
   end
   
-  describe '#ledger_entry' do
-    it 'should auto-save ledger entry' do
-      message = Message.new( payload: { body: 'Hello!', to: '+12121234567', from: '+4561237890' }, twilio_sid: 'XX' + SecureRandom.hex(16) )
-      message.ticket = tickets(:test_ticket)
-      message.account.should_not be_nil
-      #expect{ message.save! }.to_not raise_error
-      
-      ledger_entry = message.build_ledger_entry( narrative: 'TEST' )
-      #ledger_entry.item = message
-      expect{ message.save! }.to_not raise_error
-      
-      ledger_entry.item_id.should eq( message.id )
-      ledger_entry.item_type.should eq( message.class.name.to_s )
-      ledger_entry.item.should eq( message )
-
-      #ledger_entry.item.respond_to?(:account).should == true
-      #ledger_entry.item.should_not be_nil
-
-      expect{ ledger_entry.ensure_account }.to_not raise_error      
-      ledger_entry.account_id.should eq( message.account.id )
-      
-      expect{ message.save! }.to_not raise_error
+  describe '#provider_cost=' do
+    context 'when cost is not nil' do
+      subject { build :message }
+      let(:provider_cost) { -1.00 }
+      it 'updates provider_cost' do
+        expect{ subject.provider_cost = provider_cost }.to change{ subject.provider_cost }.to(provider_cost)
+      end
+      it 'updates our_cost' do
+        expect{ subject.provider_cost = provider_cost }.to change{ subject.our_cost }
+      end
+    end
+    context 'when cost is nil' do
+      subject { build :message, provider_cost: -1.00, our_cost: -0.50 }
+      let(:provider_cost) { nil }
+      it 'updates provider_cost' do
+        expect{ subject.provider_cost = provider_cost }.to change{ subject.provider_cost }.to(nil)
+      end
+      it 'updates our_cost' do
+        expect{ subject.provider_cost = provider_cost }.to change{ subject.our_cost }.to(nil)
+      end
     end
   end
   
-  describe "payload helpers" do
-    let(:expected_payload) { { body: 'Hello!', to: '+12121234567', from: '+4561237890', direction: 'api-in' }.with_indifferent_access }
-    subject { create :message, payload: expected_payload }
-    its(:body) { should == expected_payload[:body] }
-    its(:to_number) { should == expected_payload[:to] }
-    its(:from_number) { should == expected_payload[:from] }
-    its(:direction) { should == expected_payload[:direction] }
+  describe 'callbacks' do
+    let(:provider_cost) { -0.01 }
+    let(:provider_response) { { body: 'Hello!', to: '+12121234567', from: '+4561237890', status: 'queued' } }
+    subject { build :message, body: provider_response[:body], to_number: provider_response[:to], from_number: provider_response[:from], provider_response: provider_response }
+
+    context 'when price is set' do
+      it 'creates a ledger entry' do
+        subject.provider_cost = provider_cost
+        expect{ subject.save! }.to change{subject.ledger_entry}.from(nil)
+      end
+      it 'sets ledger entry\'s value' do
+        subject.provider_cost = provider_cost
+        subject.save!
+        subject.ledger_entry.value.should == subject.cost
+      end
+    end
+
+    context 'when price is not set' do
+      it 'does not create a ledger entry' do
+        subject.provider_cost = nil
+        expect{ subject.save! }.to_not change{subject.ledger_entry}.from(nil)
+      end
+    end
+
+#     it 'should auto-save ledger entry' do
+#       message = Message.new( payload: { body: 'Hello!', to: '+12121234567', from: '+4561237890' }, twilio_sid: 'XX' + SecureRandom.hex(16) )
+#       message.ticket = tickets(:test_ticket)
+#       message.account.should_not be_nil
+#       #expect{ message.save! }.to_not raise_error
+#       
+#       ledger_entry = message.build_ledger_entry( narrative: 'TEST' )
+#       #ledger_entry.item = message
+#       expect{ message.save! }.to_not raise_error
+#       
+#       ledger_entry.item_id.should eq( message.id )
+#       ledger_entry.item_type.should eq( message.class.name.to_s )
+#       ledger_entry.item.should eq( message )
+# 
+#       #ledger_entry.item.respond_to?(:account).should == true
+#       #ledger_entry.item.should_not be_nil
+# 
+#       expect{ ledger_entry.ensure_account }.to_not raise_error      
+#       ledger_entry.account_id.should eq( message.account.id )
+#       
+#       expect{ message.save! }.to_not raise_error
+#     end
+  end
+  
+#   describe "payload helpers" do
+#     let(:expected_payload) { { body: 'Hello!', to: '+12121234567', from: '+4561237890', direction: 'api-in' }.with_indifferent_access }
+#     subject { create :message, payload: expected_payload }
+#     its(:body) { should == expected_payload[:body] }
+#     its(:to_number) { should == expected_payload[:to] }
+#     its(:from_number) { should == expected_payload[:from] }
+#     its(:direction) { should == expected_payload[:direction] }
+#   end
+  
+  describe '#deliver!' do
+    it 'delivers SMS'
+    context 'when improperly configured' do
+      it 'does not send message without TO'
+      it 'does not send message without FROM'
+      it 'does not send message without BODY'
+    end
   end
   
 end

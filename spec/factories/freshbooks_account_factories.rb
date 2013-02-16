@@ -15,16 +15,16 @@ def create_freshbooks_account(tickets_count=20)
     if [ Ticket::CHALLENGE_SENT, Ticket::CONFIRMED, Ticket::DENIED, Ticket::FAILED, Ticket::EXPIRED ].include? ticket.status
       ticket.challenge_sent = rand_datetime_lastmonth()
       ticket.challenge_status = Message::SENT
-      create( :challenge_message, ticket: ticket, payload: { test: 'test' }, sent_at: ticket.challenge_sent )
+      create( :challenge_message, ticket: ticket, provider_response: { test: 'test' }, sent_at: ticket.challenge_sent )
     end
     if [ Ticket::CONFIRMED, Ticket::DENIED, Ticket::FAILED ].include? ticket.status
       ticket.response_received = ticket.challenge_sent + rand_in_range( 1, appliance.seconds_to_live )
       ticket.reply_sent = ticket.response_received + rand_in_range( 1, 30 )
-      create( :reply_message, ticket: ticket, payload: { test: 'test' }, sent_at: ticket.reply_sent )
+      create( :reply_message, ticket: ticket, provider_response: { test: 'test' }, sent_at: ticket.reply_sent )
     end
     if [ Ticket::EXPIRED ].include? ticket.status
       ticket.reply_sent = ticket.challenge_sent + appliance.seconds_to_live + rand_in_range( 1, 30 )
-      create( :reply_message, ticket: ticket, payload: { test: 'test' }, sent_at: ticket.reply_sent )
+      create( :reply_message, ticket: ticket, provider_response: { test: 'test' }, sent_at: ticket.reply_sent )
     end
     ticket.save!
   end

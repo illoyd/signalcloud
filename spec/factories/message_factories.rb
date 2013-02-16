@@ -6,7 +6,7 @@ FactoryGirl.define do
     #provider_cost 0.0 # Don't use random costs { random_price() }
     #our_cost      0.0 # Don't use random costs { random_price() }
     twilio_sid    { 'SM' + SecureRandom.hex(16) }
-    payload       { {
+    provider_response { {
                       "sid" => twilio_sid,
                       "date_created" => DateTime.now,
                       "date_updated" => DateTime.now,

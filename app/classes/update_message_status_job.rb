@@ -27,7 +27,7 @@ class UpdateMessageStatusJob < Struct.new( :callback_values )
     self.standardise_callback_values!
     
     # Attach the callback payload
-    message.callback_payload = self.callback_values
+    message.provider_update = self.callback_values
 
     # Update the message's status
     case self.callback_values[:sms_status]
