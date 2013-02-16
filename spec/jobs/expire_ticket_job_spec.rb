@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe ExpireTicketJob do
-  #fixtures :account_plans, :accounts, :phone_numbers, :phone_directories, :phone_directory_entries, :appliances, :tickets
   before { VCR.insert_cassette 'expire_ticket_job', record: :new_episodes }
   after { VCR.eject_cassette }
 

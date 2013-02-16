@@ -178,7 +178,7 @@ class Ticket < ActiveRecord::Base
 
     # Send the message, catching any errors
     begin
-      sent_messages = self.send_message( self.question, force_resend )
+      sent_messages = self.send_message( self.question, Message::CHALLENGE, force_resend )
       self.status = QUEUED
       self.challenge_status = QUEUED
       return sent_messages
@@ -190,9 +190,9 @@ class Ticket < ActiveRecord::Base
       
       # Log as appropriate
       if ex.instance_of?( Ticketplease::CriticalMessageSendingError )
-        logger.error 'Ticket %i encountered critical error while sending challenge message (code %i)!' % [ self.id, self.challenge_status ]
+        logger.error 'Ticket %s encountered critical error while sending challenge message (code %s)!' % [ self.id, self.challenge_status ]
       else
-        logger.info 'Ticket %i encountered error while sending challenge message (code %i).' % [ self.id, self.challenge_status ]
+        logger.info 'Ticket %s encountered error while sending challenge message (code %s).' % [ self.id, self.challenge_status ]
       end
       
       # Rethrow
@@ -204,7 +204,7 @@ class Ticket < ActiveRecord::Base
     begin
       self.send_challenge_message(force_resend)
     ensure
-      self.save!
+      self.save
     end
   end
   
@@ -215,7 +215,7 @@ class Ticket < ActiveRecord::Base
     
     # Send the message, catching any errors
     begin
-      sent_messages = self.send_message( self.select_reply_message_to_send, force_resend )
+      sent_messages = self.send_message( self.select_reply_message_to_send, Message::REPLY, force_resend )
       self.reply_status = QUEUED
       return sent_messages
 
@@ -239,14 +239,14 @@ class Ticket < ActiveRecord::Base
     begin
       self.send_reply_message(force_resend)
     ensure
-      self.save!
+      self.save
     end
   end
   
   ##
   # Send challenge SMS message. This will construct the appropriate SMS 'envelope' and pass to the +Ticket's+ +Account+. This will also convert
   # the results into a message, to be held for reference.
-  def send_message( message_body, force_resend = false )
+  def send_message( message_body, message_kind = nil, force_resend = false )
     raise Ticketplease::CriticalMessageSendingError.new( nil, nil, Ticket::ERROR_MISSING_BODY ) if message_body.blank?
   
     # Do an initial clean-up on the body
@@ -255,13 +255,16 @@ class Ticket < ActiveRecord::Base
     begin
       chunking_strategy = Message.select_message_chunking_strategy( message_body )
       return message_body.scan( chunking_strategy ).map do |message_part|
+        msg = self.messages.build( to_number: self.to_number, from_number: self.from_number, body: message_part, message_kind: message_kind, direction: Message::DIRECTION_OUT )
+        msg.deliver!
+        msg
         # Send the SMS
-        results = self.appliance.account.send_sms( self.to_number, self.from_number, message_part )
+        #results = self.appliance.account.send_sms( self.to_number, self.from_number, message_part )
   
         # Build a message and ledger_entry to hold the results
-        sent_message = self.messages.build( twilio_sid: results.sid, provider_response: results.to_property_hash )
-        ledger_entry = sent_message.build_ledger_entry( narrative: LedgerEntry::OUTBOUND_SMS_NARRATIVE )
-        sent_message
+        # sent_message = self.messages.build( twilio_sid: results.sid, provider_response: results.to_property_hash )
+        # ledger_entry = sent_message.build_ledger_entry( narrative: LedgerEntry::OUTBOUND_SMS_NARRATIVE )
+        # sent_message
       end
 
     rescue Twilio::REST::RequestError => ex

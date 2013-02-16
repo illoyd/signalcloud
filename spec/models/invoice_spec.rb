@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe Invoice do
-  #fixtures :accounts, :invoices, :ledger_entries
   before { VCR.insert_cassette 'invoices', record: :new_episodes }
   after { VCR.eject_cassette }
   

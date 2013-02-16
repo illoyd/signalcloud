@@ -2,198 +2,104 @@
 require 'spec_helper'
 
 describe Ticket do
-  fixtures :account_plans, :accounts, :appliances, :tickets
-  
-  it { should belong_to :appliance }
-  it { should have_many :messages }
-  it { [ :seconds_to_live, :appliance_id, :actual_answer, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry ].each { |param| should allow_mass_assignment_of(param) } }
-  it { [:appliance_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry].each { |param| should validate_presence_of(param) } }
-  
-  describe '.is_open?' do
-    it 'should be open' do
-      ticket = tickets( :test_ticket )
-      # Open statuses
-      [ Ticket::QUEUED, Ticket::CHALLENGE_SENT ].each do |status|
-        ticket.status = status
-        ticket.is_open?.should == true
-      end
+
+  describe 'validations' do  
+    it { should belong_to :appliance }
+    it { should have_many :messages }
+
+    [ :seconds_to_live, :appliance_id, :actual_answer, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry ].each do |attribute| 
+      it { should allow_mass_assignment_of(attribute) }
     end
-    it 'should not be open' do
-      ticket = tickets( :test_ticket )
-      # Closed statuses
-      [ Ticket::CONFIRMED, Ticket::DENIED, Ticket::FAILED, Ticket::EXPIRED ].each do |status|
-        ticket.status = status
-        ticket.is_open?.should == false
-      end
+
+    [:appliance_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry].each do |attribute| 
+      it { should validate_presence_of(attribute) }
     end
   end
   
-  describe '.is_closed?' do
-    it 'should be closed' do
-      ticket = tickets( :test_ticket )
-      # Open statuses
-      [ Ticket::QUEUED, Ticket::CHALLENGE_SENT ].each do |status|
-        ticket.status = status
-        ticket.is_closed?.should == false
+  describe '#is_open? and #is_closed? and #has_errored?' do
+    [ Ticket::QUEUED, Ticket::CHALLENGE_SENT ].each do |status|
+      context "when status is #{status}" do
+        subject { build :ticket, status: status }
+        its('is_open?') { should be_true }
+        its('is_closed?') { should be_false }
+        its('has_errored?') { should be_false }
       end
-    end
-    it 'should not be closed' do
-      ticket = tickets( :test_ticket )
-      # Closed statuses
-      [ Ticket::CONFIRMED, Ticket::DENIED, Ticket::FAILED, Ticket::EXPIRED ].each do |status|
-        ticket.status = status
-        ticket.is_closed?.should == true
-      end
-    end
-  end
-  
-  describe '.has_errored?' do
-    it 'should not be errored' do
-      ticket = tickets( :test_ticket )
-      # Open statuses
-      [ Ticket::QUEUED, Ticket::CHALLENGE_SENT, Ticket::CONFIRMED, Ticket::DENIED, Ticket::FAILED, Ticket::EXPIRED ].each do |status|
-        ticket.status = status
-        ticket.has_errored?.should == false
-      end
-    end
-    it 'should be errored' do
-      ticket = tickets( :test_ticket )
-      # Closed statuses
-      [ Ticket::ERROR_INVALID_TO, Ticket::ERROR_INVALID_FROM, Ticket::ERROR_BLACKLISTED_TO, Ticket::ERROR_NOT_SMS_CAPABLE, Ticket::ERROR_CANNOT_ROUTE, Ticket::ERROR_SMS_QUEUE_FULL ].each do |status|
-        ticket.status = status
-        ticket.has_errored?.should == true
-        ticket.is_closed?.should == true
-      end
-    end
-  end
-  
-  describe '.normalize_message' do
-
-    it 'should handle normal text' do
-      Ticket.normalize_message( 'abcd1234' ).should == 'abcd1234'
-      Ticket.normalize_message( 'ABCD1234' ).should == 'abcd1234'
-      Ticket.normalize_message( 'AbCd1234' ).should == 'abcd1234'
-      Ticket.normalize_message( 'aBcD 1234' ).should == 'abcd1234'
-      Ticket.normalize_message( 'Hello!' ).should == 'hello'
-      Ticket.normalize_message( 'Hello there, I love you!' ).should == 'hellothereiloveyou'
-      Ticket.normalize_message( '      Hello there, I love you!   ' ).should == 'hellothereiloveyou'
-    end
-
-    it 'should handle diacritics text' do
-      Ticket.normalize_message( "Café périferol" ).should == 'cafeperiferol'
-      Ticket.normalize_message( "Cafe periferôl" ).should == 'cafeperiferol'
-      Ticket.normalize_message( "Café périferôl" ).should == 'cafeperiferol'
-    end
-
-    it 'should handle japanese text' do
-      Ticket.normalize_message( "こんにちは" ).should == "konnitiha"
-      Ticket.normalize_message( "    こんにちは    " ).should == "konnitiha"
-      Ticket.normalize_message( " こ ん           に ち は " ).should == "konnitiha"
-      Ticket.normalize_message( " こ ん           に ち は 4  22 31 33" ).should == "konnitiha4223133"
-    end
-
-    it 'should handle special punctuation text' do
-      
     end
     
-    it 'should handle currencies' do
-      Ticket.normalize_message( '$9.74' ).should == '974'
-      Ticket.normalize_message( 'US$9.74' ).should == 'us974'
-      Ticket.normalize_message( '¥1,000,564' ).should == '1000564'
-      Ticket.normalize_message( '€5,321,987.45' ).should == '532198745'
-      Ticket.normalize_message( '€5.321.987,45' ).should == '532198745'
-      Ticket.normalize_message( 'S/.1,345.65' ).should == 's134565'
+    [ Ticket::CONFIRMED, Ticket::DENIED, Ticket::FAILED, Ticket::EXPIRED ].each do |status|
+      context "when status is #{status}" do
+        subject { build :ticket, status: status }
+        its('is_open?') { should be_false }
+        its('is_closed?') { should be_true }
+        its('has_errored?') { should be_false }
+      end
     end
-
-  end
-
-  describe ".has_challenge_been_sent?" do
-    it "should be false when challenge_sent is blank" do
-      ticket = tickets(:test_ticket)
-      ticket.challenge_sent.should be_nil
-      ticket.has_challenge_been_sent?.should == false
-    end
-    it "should be true when challenge_sent is set" do
-      ticket = tickets(:test_ticket)
-      ticket.challenge_sent = DateTime.now
-      ticket.challenge_sent.should_not be_nil
-      ticket.has_challenge_been_sent?.should == true
-    end
-  end
-
-  describe ".has_response_been_received?" do
-    it "should be false when response_received is blank" do
-      ticket = tickets(:test_ticket)
-      ticket.response_received.should be_nil
-      ticket.has_challenge_been_sent?.should == false
-    end
-    it "should be true when response_received is set" do
-      ticket = tickets(:test_ticket)
-      ticket.response_received = DateTime.now
-      ticket.response_received.should_not be_nil
-      ticket.has_response_been_received?.should == true
-    end
-  end
-
-  describe ".has_reply_been_sent?" do
-    it "should be false when reply_sent is blank" do
-      ticket = tickets(:test_ticket)
-      ticket.reply_sent.should be_nil
-      ticket.has_reply_been_sent?.should == false
-    end
-    it "should be true when reply_sent is set" do
-      ticket = tickets(:test_ticket)
-      ticket.reply_sent = DateTime.now
-      ticket.reply_sent.should_not be_nil
-      ticket.has_reply_been_sent?.should == true
+    
+    [ Ticket::ERROR_INVALID_TO, Ticket::ERROR_INVALID_FROM, Ticket::ERROR_BLACKLISTED_TO, Ticket::ERROR_NOT_SMS_CAPABLE, Ticket::ERROR_CANNOT_ROUTE, Ticket::ERROR_SMS_QUEUE_FULL ].each do |status|
+      context "when status is #{status}" do
+        subject { build :ticket, status: status }
+        its('is_open?') { should be_false }
+        its('is_closed?') { should be_true }
+        its('has_errored?') { should be_true }
+      end
     end
   end
   
-  describe ".update_expiry_time_based_on_seconds_to_live" do
-    it "should update expiry manually" do
-      # Get ticket and original expiration timestamp
-      ticket = tickets(:test_ticket)
-      original_expiry = ticket.expiry
-      ticket.seconds_to_live.should be_nil
-      
-      # Update the 'seconds_to_live' flag
-      ticket.seconds_to_live = 360
-      
-      # And run the filter manually
-      ticket.update_expiry_time_based_on_seconds_to_live
-      ticket.expiry.should > original_expiry
-      ticket.expiry.should be_within(0.5).of( 360.seconds.from_now )
+  describe "#has_challenge_been_sent?" do
+    context 'when challenge not sent' do
+      subject { build :ticket }
+      its('has_challenge_been_sent?') { should be_false }
+    end
+    context 'when challenge sent' do
+      subject { build :ticket, :challenge_sent }
+      its('has_challenge_been_sent?') { should be_true }
+    end
+  end
+
+  describe "#has_response_been_received?" do
+    context 'when response has not been received' do
+      subject { build :ticket }
+      its('has_response_been_received?') { should be_false }
+    end
+    context 'when response has been received' do
+      subject { build :ticket, :response_received }
+      its('has_response_been_received?') { should be_true }
+    end
+  end
+
+  describe "#has_reply_been_sent?" do
+    context 'when reply not sent' do
+      subject { build :ticket }
+      its('has_reply_been_sent?') { should be_false }
+    end
+    context 'when reply sent' do
+      subject { build :ticket, :reply_sent }
+      its('has_reply_been_sent?') { should be_true }
+    end
+  end
+
+  describe "#update_expiry_time_based_on_seconds_to_live" do
+    let(:seconds_to_live) { 360 }
+    let(:original_expiry) { 60.seconds.ago }
+    subject { build :ticket }
+
+    it "updates overrides existing expiry" do
+      subject.expiry = original_expiry
+      subject.seconds_to_live = seconds_to_live
+      expect { subject.update_expiry_time_based_on_seconds_to_live }.to change{subject.expiry}.from(original_expiry)
+      subject.expiry.should be_within(0.5).of( seconds_to_live.seconds.from_now )
     end
 
-    it "should update expiry on create" do
-      # Get ticket and original expiration timestamp
-      ticket = tickets(:test_ticket).dup
-      ticket.id.should be_nil
-      ticket.expiry.should == tickets(:test_ticket).expiry
-      ticket.seconds_to_live.should be_nil
-      
-      # Update the 'seconds_to_live' flag
-      ticket.seconds_to_live = 360
-      
-      # And run the filter automatically durring save
-      ticket.save
-      ticket.expiry.should_not be_nil
-      ticket.expiry.should be_within(0.5).of( 360.seconds.from_now )
+    it "updates expiry manually" do
+      subject.seconds_to_live = seconds_to_live
+      expect { subject.update_expiry_time_based_on_seconds_to_live }.to change{subject.expiry}.from(nil)
+      subject.expiry.should be_within(0.5).of( seconds_to_live.seconds.from_now )
     end
 
-    it "should update expiry on update" do
-      # Get ticket and original expiration timestamp
-      ticket = tickets(:test_ticket)
-      original_expiry = ticket.expiry
-      ticket.seconds_to_live.should be_nil
-      
-      # Update the 'seconds_to_live' flag
-      ticket.seconds_to_live = 360
-      
-      # And run the filter automatically during save
-      ticket.save
-      ticket.expiry.should > original_expiry
-      ticket.expiry.should be_within(0.5).of( 360.seconds.from_now )
+    it "updates expiry on save" do
+      subject.seconds_to_live = seconds_to_live
+      expect { subject.save }.to change{subject.expiry}.from(nil)
+      subject.expiry.should be_within(0.5).of( seconds_to_live.seconds.from_now )
     end
   end
 

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe UpdateMessageStatusJob do
-  fixtures :account_plans, :accounts, :phone_numbers, :phone_directories, :phone_directory_entries, :appliances, :tickets, :messages
+  #fixtures :account_plans, :accounts, :phone_numbers, :phone_directories, :phone_directory_entries, :appliances, :tickets, :messages
   before { VCR.insert_cassette 'update_message_status_job', record: :new_episodes }
   after { VCR.eject_cassette }
   

@@ -46,11 +46,11 @@ class Message < ActiveRecord::Base
   has_one :ledger_entry, as: :item #, autosave: true
 
   # Validations
-  validates_presence_of :ticket_id, :twilio_sid
+  validates_presence_of :ticket_id #, :twilio_sid
   validates_numericality_of :our_cost, allow_nil: true
   validates_numericality_of :provider_cost, allow_nil: true
-  validates_length_of :twilio_sid, is: Twilio::SID_LENGTH
-  validates_uniqueness_of :twilio_sid
+  validates_length_of :twilio_sid, is: Twilio::SID_LENGTH, allow_nil: true
+  validates_uniqueness_of :twilio_sid, allow_nil: true
   validates_inclusion_of :message_kind, in: [ CHALLENGE, REPLY ], allow_nil: true
   validates_inclusion_of :status, in: [ PENDING, QUEUED, SENDING, SENT, FAILED ]
   validates_inclusion_of :direction, in: [ DIRECTION_OUT, DIRECTION_IN ]
@@ -148,18 +148,36 @@ class Message < ActiveRecord::Base
     end
   end
   
-  def deliver!
-    self.payload = self.appliance.account.twilio_account.sms.messages.create({
-      to: self.to_number,
-      from: self.from_number,
-      body: self.body
-    }).to_property_hash
-    self.twilio_sid = self.payload[:sid]
-    self.build_ledger_entry({
-      narrative: LedgerEntry::OUTBOUND_SMS_NARRATIVE,
-      value: self.has_cost? ? self.cost : nil
-    })
-    self.save!
+  def deliver!()
+    begin
+      self.provider_response = self.ticket.appliance.account.twilio_account.sms.messages.create({
+        to: self.to_number,
+        from: self.from_number,
+        body: self.body
+      }).to_property_hash
+
+      self.twilio_sid = self.provider_response[:sid]
+      self.status = Message.translate_twilio_message_status( self.provider_response[:status] )
+      self.provider_cost = self.provider_response.fetch(:price, nil)
+      self.save!
+
+    rescue Twilio::REST::RequestError => ex
+      error_code = Ticket.translate_twilio_error_to_ticket_status ex.code
+      if Ticket::CRITICAL_ERRORS.include? error_code
+        raise Ticketplease::CriticalMessageSendingError.new( self.body, ex, error_code ) # Rethrow as a critical error
+      else
+        raise Ticketplease::MessageSendingError.new( self.body, ex, error_code ) # Rethrow in nice wrapper error
+      end
+    end
+  end
+  
+  def self.translate_twilio_message_status( status )
+    return case status
+      when 'sent'; SENT
+      when 'queued'; QUEUED
+      when 'sending'; SENDING
+      else; nil
+    end
   end
   
 #   def payload=(value)

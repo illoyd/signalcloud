@@ -2,10 +2,12 @@
 require 'spec_helper'
 
 describe Message do
+  before { VCR.insert_cassette 'message', record: :new_episodes }
+  after { VCR.eject_cassette }
   
   # Validations
   describe 'validations' do
-    before(:all) { 3.times { create :message } }
+    before(:all) { 3.times { create :message, :with_provider_response } }
     [ :our_cost, :provider_cost, :ticket_id, :provider_response, :provider_update, :twilio_sid ].each do |attribute| 
       it { should allow_mass_assignment_of attribute }
     end
@@ -185,7 +187,7 @@ describe Message do
   
   describe '#provider_cost=' do
     context 'when cost is not nil' do
-      subject { build :message }
+      subject { build :message, :with_provider_response }
       let(:provider_cost) { -1.00 }
       it 'updates provider_cost' do
         expect{ subject.provider_cost = provider_cost }.to change{ subject.provider_cost }.to(provider_cost)
@@ -195,7 +197,7 @@ describe Message do
       end
     end
     context 'when cost is nil' do
-      subject { build :message, provider_cost: -1.00, our_cost: -0.50 }
+      subject { build :message, :with_provider_response, provider_cost: -1.00, our_cost: -0.50 }
       let(:provider_cost) { nil }
       it 'updates provider_cost' do
         expect{ subject.provider_cost = provider_cost }.to change{ subject.provider_cost }.to(nil)
@@ -209,7 +211,7 @@ describe Message do
   describe 'callbacks' do
     let(:provider_cost) { -0.01 }
     let(:provider_response) { { body: 'Hello!', to: '+12121234567', from: '+4561237890', status: 'queued' } }
-    subject { build :message, body: provider_response[:body], to_number: provider_response[:to], from_number: provider_response[:from], provider_response: provider_response }
+    subject { build :message, :with_provider_response, body: provider_response[:body], to_number: provider_response[:to], from_number: provider_response[:from], provider_response: provider_response }
 
     context 'when price is set' do
       it 'creates a ledger entry' do
@@ -264,11 +266,57 @@ describe Message do
 #   end
   
   describe '#deliver!' do
-    it 'delivers SMS'
-    context 'when improperly configured' do
-      it 'does not send message without TO'
-      it 'does not send message without FROM'
-      it 'does not send message without BODY'
+    let(:account) { create :account, :test_twilio }
+    let(:phone_number) { create :valid_phone_number, account: account }
+    let(:phone_directory) { create :phone_directory, account: account }
+    let(:appliance) { create :appliance, account: account, phone_directory: phone_directory }
+    let(:ticket) { create :ticket, appliance: appliance }
+    let!(:phone_directory_entry) { create :phone_directory_entry, phone_number: phone_number, phone_directory: phone_directory }
+
+    context 'when properly configured' do
+      subject { build :message, ticket: ticket, to_number: Twilio::VALID_NUMBER, from_number: Twilio::VALID_NUMBER, body: 'Hello!' }
+      it 'does not raise error' do
+        expect { subject.deliver! }.to_not raise_error
+      end
+      it 'sets twilio sms sid' do
+        expect { subject.deliver! }.to change{subject.twilio_sid}.from(nil)
+      end
+      it 'sets provider_response' do
+        expect { subject.deliver! }.to change{subject.provider_response}.from(nil)
+      end
+      it 'sets status' do
+        expect { subject.deliver! }.to change{subject.status}.from(Message::PENDING)
+      end
+    end
+
+    context 'when missing TO' do
+      subject { build :message, ticket: ticket, to_number: nil, from_number: Twilio::VALID_NUMBER, body: 'Hello!' }
+      it "raises error" do
+        expect{ subject.deliver! }.to raise_error( Ticketplease::MessageSendingError )
+      end
+      it 'does not change provider response' do
+        expect{ subject.deliver! rescue nil }.to_not change{subject.provider_response}
+      end
+    end
+
+    context 'when missing FROM' do
+      subject { build :message, ticket: ticket, to_number: Twilio::VALID_NUMBER, from_number: nil, body: 'Hello!' }
+      it "raises error" do
+        expect{ subject.deliver! }.to raise_error( Ticketplease::MessageSendingError )
+      end
+      it 'does not change provider response' do
+        expect{ subject.deliver! rescue nil }.to_not change{subject.provider_response}
+      end
+    end
+
+    context 'when missing BODY' do
+      subject { build :message, ticket: ticket, to_number: Twilio::VALID_NUMBER, from_number: Twilio::VALID_NUMBER, body: nil }
+      it "raises error" do
+        expect{ subject.deliver! }.to raise_error( Ticketplease::CriticalMessageSendingError )
+      end
+      it 'does not change provider response' do
+        expect{ subject.deliver! rescue nil }.to_not change{subject.provider_response}
+      end
     end
   end
   
