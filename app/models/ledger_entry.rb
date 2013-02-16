@@ -75,7 +75,12 @@ class LedgerEntry < ActiveRecord::Base
   ##
   # Ensure that the parent account is the same as the item's account
   def ensure_account
-    self.account_id = self.item.account.id if !self.item.nil? #and self.item.respond_to?(:account)
+    if self.item.is_a?(Account)
+      self.account = self.item
+    else
+      self.account = self.item.account unless self.item.try(:account).nil?
+    end
+    #self.account_id = self.account.id unless self.account.try(:id).nil?
   end
 
 end
