@@ -2,136 +2,142 @@ require 'spec_helper'
 require "cancan/matchers"
 
 describe User, '.abilities' do
-  fixtures :accounts, :users, :phone_numbers, :phone_directories, :phone_directory_entries, :appliances, :tickets, :messages, :ledger_entries
 
-  #subject { ability }
-  #let(:ability){ Ability.new(user) }
-  #let(:user){ nil }
+  let(:test_account) { create :account }
+  let(:test_phone_number) { create :phone_number, account: test_account }
+  let(:test_phone_directory) { create :phone_directory, account: test_account }
+  let(:test_appliance) { create :appliance, account: test_account, phone_directory: test_phone_directory }
+  let(:test_ticket) { create :ticket, appliance: test_appliance }
+  let(:test_message) { create :message, ticket: test_ticket }
+  let(:test_user) { create :user, account: test_account }
+  let(:test_ledger_entry) { create :ledger_entry, item: test_message }
 
-#   context "when default without account" do
-#     # We have to create this user as it is not valid for the database. This is just an extreme test case!
-#     subject { User.new( email: 'bad@bad.com', first_name: 'Bad', last_name: 'User', roles: [] ) }
-# 
-#     it{ should_not be_able_to(:read, accounts(:test_account)) }
-#   end
+  let(:other_account) { create :account }
+  let(:other_phone_number) { create :phone_number, account: other_account }
+  let(:other_phone_directory) { create :phone_directory, account: other_account }
+  let(:other_appliance) { create :appliance, account: other_account, phone_directory: other_phone_directory }
+  let(:other_ticket) { create :ticket, appliance: other_appliance }
+  let(:other_message) { create :message, ticket: other_ticket }
+  let(:other_user) { create :user, account: other_account }
+  let(:other_ledger_entry) { create :ledger_entry, item: other_message }
 
-  context "when default with account" do
-    subject { users(:default_permissions_user) }
+  context "with default permissions" do
+    subject { create :user, account: test_account }
 
     # Test parent account
     it{ should have_ability({index: false, new: false, create: false}, for: Account) }
-    it{ should have_ability({show: true, edit: false, update: false, destroy: false}, for: accounts(:test_account)) }
+    it{ should have_ability({show: true, edit: false, update: false, destroy: false}, for: test_account) }
 
     # Test non-parent account - should have NO privileges
-    it{ should have_ability({show: false, edit: false, update: false, destroy: false}, for: accounts(:dedicated_account)) }
+    it{ should have_ability({show: false, edit: false, update: false, destroy: false}, for: other_account) }
 
     # Test users
     it{ should have_ability({index: false, new: false, create: false}, for: User) }
-    it{ should have_ability({show: true, edit: true, update: true, destroy: false}, for: users(:default_permissions_user)) }
-    it{ should_not have_ability(:manage, for: users(:manage_account_permissions_user)) }
-    it{ should_not have_ability(:manage, for: users(:dedicated_user)) }
+    it{ should have_ability({show: true, edit: true, update: true, destroy: false}, for: subject) }
+    it{ should_not have_ability(:manage, for: test_user) }
+    it{ should_not have_ability(:manage, for: other_user) }
     
     # Test appliances
     it{ should have_ability({index: true, new: false, create: false}, for: Appliance) }
-    it{ should have_ability({show: true, edit: false, update: false, destroy: false}, for: appliances(:test_appliance)) }
-    it{ should_not have_ability(:manage, for: appliances(:dedicated_appliance)) }
+    it{ should have_ability({show: true, edit: false, update: false, destroy: false}, for: test_appliance) }
+    it{ should_not have_ability(:manage, for: other_appliance) }
     
     # Test phone numbers
     it{ should have_ability({index: true, new: false, create: false}, for: PhoneNumber) }
-    it{ should have_ability({show: true, edit: false, update: false, destroy: false}, for: phone_numbers(:test_us)) }
-    it{ should_not have_ability(:manage, for: phone_numbers(:dedicated_phone_number)) }
+    it{ should have_ability({show: true, edit: false, update: false, destroy: false}, for: test_phone_number) }
+    it{ should_not have_ability(:manage, for: other_phone_number) }
     
     # Test phone directories
     it{ should have_ability({index: true, new: false, create: false}, for: PhoneNumber) }
-    it{ should have_ability({show: true, edit: false, update: false, destroy: false}, for: phone_directories(:test_directory)) }
-    it{ should_not have_ability(:manage, for: phone_directories(:dedicated_directory)) }
+    it{ should have_ability({show: true, edit: false, update: false, destroy: false}, for: test_phone_directory) }
+    it{ should_not have_ability(:manage, for: other_phone_directory) }
     
     # Test tickets
     it{ should have_ability({index: true, new: false, create: false}, for: Ticket) }
-    it{ should have_ability({show: true, edit: false, update: false, destroy: false}, for: tickets(:test_ticket)) }
-    it{ should_not have_ability(:manage, for: tickets(:dedicated_ticket)) }
+    it{ should have_ability({show: true, edit: false, update: false, destroy: false}, for: test_ticket) }
+    it{ should_not have_ability(:manage, for: other_ticket) }
     
     # Test messages
     it{ should have_ability({index: true, new: false, create: false}, for: Message) }
-    it{ should have_ability({show: true, edit: false, update: false, destroy: false}, for: messages(:test_ticket_challenge)) }
-    it{ should_not have_ability(:manage, for: messages(:dedicated_ticket_challenge)) }
+    it{ should have_ability({show: true, edit: false, update: false, destroy: false}, for: test_message) }
+    it{ should_not have_ability(:manage, for: other_message) }
     
     # Test ledger_entries
     it{ should_not have_ability(:manage, for: LedgerEntry) }
-    it{ should_not have_ability(:manage, for: ledger_entries(:outbound_sms_1)) }
-    it{ should_not have_ability(:manage, for: ledger_entries(:dedicated_outbound_sms_1)) }
+    it{ should_not have_ability(:manage, for: test_ledger_entry) }
+    it{ should_not have_ability(:manage, for: other_ledger_entry) }
   end
   
   context "can shadow account" do
-    subject { users(:shadow_account_permissions_user) }
+    subject { create(:shadow_account_permissions_user, account: test_account) }
 
     # Test account
-    it{ should have_ability({index: true, show: true, new: false, create: false, edit: false, update: false, destroy: false}, for: accounts(:test_account)) }
-    it{ should have_ability({index: true, show: false, new: false, create: false, edit: false, update: false, destroy: false}, for: accounts(:dedicated_account)) }
-    it{ should have_ability( :shadow, for: accounts(:test_account) ) }
-    it{ should have_ability( :shadow, for: accounts(:dedicated_account) ) }
+    it{ should have_ability({index: true, show: true, new: false, create: false, edit: false, update: false, destroy: false}, for: test_account) }
+    it{ should have_ability({index: true, show: false, new: false, create: false, edit: false, update: false, destroy: false}, for: other_account) }
+    it{ should have_ability( :shadow, for: test_account ) }
+    it{ should have_ability( :shadow, for: other_account ) }
   end
 
   context "can manage account" do
-    subject { users(:manage_account_permissions_user) }
+    subject { create(:manage_account_permissions_user, account: test_account) }
 
     # Test account
-    it{ should have_ability({index: false, show: true, new: false, create: false, edit: true, update: true, destroy: false}, for: accounts(:test_account)) }
-    it{ should_not have_ability(:manage, for: accounts(:dedicated_account)) }
+    it{ should have_ability({index: false, show: true, new: false, create: false, edit: true, update: true, destroy: false}, for: test_account) }
+    it{ should_not have_ability(:manage, for: other_account) }
   end
 
   context "can manage users" do
-    subject { users(:manage_users_permissions_user) }
+    subject { create(:manage_users_permissions_user, account: test_account) }
 
     # Test users
-    it{ should have_ability(:manage, for: users(:payg_user)) }
-    it{ should_not have_ability(:manage, for: users(:dedicated_user)) }
+    it{ should have_ability(:manage, for: test_user) }
+    it{ should_not have_ability(:manage, for: other_user) }
   end
 
   context "can manage appliances" do
-    subject { users(:manage_appliances_permissions_user) }
+    subject { create(:manage_appliances_permissions_user, account: test_account) }
 
     # Test appliances
-    it{ should have_ability(:manage, for: appliances(:test_appliance)) }
-    it{ should_not have_ability(:manage, for: appliances(:dedicated_appliance)) }
+    it{ should have_ability(:manage, for: test_appliance) }
+    it{ should_not have_ability(:manage, for: other_appliance) }
   end
 
   context "can manage phone directories" do
-    subject { users(:manage_phone_directories_permissions_user) }
+    subject { create(:manage_phone_directories_permissions_user, account: test_account) }
 
     # Test appliances
-    it{ should have_ability(:manage, for: phone_directories(:test_directory)) }
-    it{ should_not have_ability(:manage, for: phone_directories(:dedicated_directory)) }
+    it{ should have_ability(:manage, for: test_phone_directory) }
+    it{ should_not have_ability(:manage, for: other_phone_directory) }
   end
 
   context "can manage phone numbers" do
-    subject { users(:manage_phone_numbers_permissions_user) }
+    subject { create(:manage_phone_numbers_permissions_user, account: test_account) }
 
     # Test appliances
-    it{ should have_ability(:manage, for: phone_numbers(:test_us)) }
-    it{ should_not have_ability(:manage, for: phone_numbers(:dedicated_phone_number)) }
+    it{ should have_ability(:manage, for: test_phone_number) }
+    it{ should_not have_ability(:manage, for: other_phone_number) }
   end
 
   context "can start ticket" do
-    subject { users(:start_ticket_permissions_user) }
+    subject { create(:start_ticket_permissions_user, account: test_account) }
 
     # Test appliances
-    it{ should have_ability({index: true, show: true, new: true, create: true, edit: false, update: false, destroy: false, force: false}, for: tickets(:test_ticket)) }
-    it{ should_not have_ability(:manage, for: tickets(:dedicated_ticket)) }
+    it{ should have_ability({index: true, show: true, new: true, create: true, edit: false, update: false, destroy: false, force: false}, for: test_ticket) }
+    it{ should_not have_ability(:manage, for: other_ticket) }
   end
 
   context "can force ticket" do
-    subject { users(:force_ticket_permissions_user) }
+    subject { create(:force_ticket_permissions_user, account: test_account) }
 
     # Test appliances
-    it{ should have_ability({index: true, show: true, new: false, create: false, edit: false, update: false, destroy: false, force: true}, for: tickets(:test_ticket)) }
-    it{ should_not have_ability(:manage, for: tickets(:dedicated_ticket)) }
+    it{ should have_ability({index: true, show: true, new: false, create: false, edit: false, update: false, destroy: false, force: true}, for: test_ticket) }
+    it{ should_not have_ability(:manage, for: other_ticket) }
   end
   
   context 'can manage ledger_entries' do
-    subject { users(:manage_ledger_entries_permissions_user) }
-    it{ should have_ability({index: true, show: true, new: false, create: false, edit: false, update: false, destroy: false}, for: ledger_entries(:outbound_sms_1)) }
-    it{ should_not have_ability(:manage, for: ledger_entries(:dedicated_outbound_sms_1)) }
+    subject { create(:manage_ledger_entries_permissions_user, account: test_account) }
+    it{ should have_ability({index: true, show: true, new: false, create: false, edit: false, update: false, destroy: false}, for: test_ledger_entry) }
+    it{ should_not have_ability(:manage, for: other_ledger_entry) }
   end
   
 end
