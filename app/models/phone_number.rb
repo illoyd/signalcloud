@@ -53,17 +53,34 @@ class PhoneNumber < ActiveRecord::Base
   
   before_save :normalize_phone_number
 
+  ##
+  # Update provider cost and, by extension, our cost.
+  def provider_cost=(value)
+    super(value)
+    self.our_cost = value.nil? ? nil : self.calculate_our_cost(value)
+  end
+  
+  ##
+  # Is a cost defined for this phone number?
+  def has_cost?
+    return !(self.our_cost.nil? or self.provider_cost.nil?)
+  end
+  
+  ##
+  # Cost of this phone number, combining provider and own charges
   def cost
-    return ( self.provider_cost || 0 ) + ( self.our_cost || 0 )
+    return (self.our_cost || 0) + (self.provider_cost || 0)
   end
 
-  def buy
+  def purchase
     # If not assigned to an account, cannot buy a number!
-    raise TicketpleaseError.new( 'PhoneNumber not associated to an Account' ) if self.account.nil?
+    raise AccountNotAssociatedError.new if self.account.nil?
     results = self.account.twilio_account.incoming_phone_numbers.create( { phone_number: self.number, application_sid: self.account.twilio_application_sid } )
     self.twilio_phone_number_sid = results.sid
     return results
   end
+  
+  alias :buy :purchase
 
   def normalize_phone_number
     self.number = PhoneTools.normalize self.number
@@ -91,7 +108,13 @@ class PhoneNumber < ActiveRecord::Base
   
   def send_reply_to_unsolicited_sms( customer_number )
     sms = self.account.send_sms( customer_number, self.number, self.unsolicited_sms_message )
-    sms.stac
+    #sms.stac
   end
 
+  def calculate_our_cost( value=nil )
+    return nil unless self.account && self.account.account_plan
+    value = self.provider_cost if value.nil?
+    return self.account.account_plan.calculate_phone_number_cost( value )
+  end
+  
 end

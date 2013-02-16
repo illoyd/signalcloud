@@ -8,17 +8,16 @@ UNAVAILABLE_AREACODE = '533'
 AVAILABLE_AREACODE = '500'
 
 describe PhoneNumber do
-  fixtures :accounts, :phone_numbers
+  #fixtures :accounts, :phone_numbers
   before { VCR.insert_cassette 'phone_number', record: :new_episodes }
   after { VCR.eject_cassette }
   
-  before :each do
-    #@phone_number = phone_numbers(:test)
-    @account = accounts( :test_account )
-  end
+  let(:account) { create :account, :test_twilio }
 
   # Manage all validations
   describe "validations" do
+    before(:all) { 3.times { create :phone_number } }
+
     # Allow mass assignment
     [ :account_id, :twilio_phone_number_sid, :number, :our_cost, :provider_cost ].each do |entry|
       it { should allow_mass_assignment_of(entry) }
@@ -50,38 +49,38 @@ describe PhoneNumber do
   end
 
   # Manage creation
-  describe ".new" do
-    it "should save with temporary SID" do
-      count_of_phone_numbers = @account.phone_numbers.count
-      pn = PhoneNumber.create( { account_id: @account.id, number: '+12125551234', twilio_phone_number_sid: 'TEMPORARY1234567890123456789012345' } )
-      @account.phone_numbers.count.should == count_of_phone_numbers + 1
-    end
-  end
+#   describe ".new" do
+#     it "should save with temporary SID" do
+#       count_of_phone_numbers = account.phone_numbers.count
+#       pn = PhoneNumber.create( { account_id: account.id, number: '+12125551234', twilio_phone_number_sid: 'TEMPORARY1234567890123456789012345' } )
+#       account.phone_numbers.count.should == count_of_phone_numbers + 1
+#     end
+#   end
   
   # Manage buying
   describe ".buy" do
     it "should buy a valid and available number" do
-      count_of_phone_numbers = @account.phone_numbers.count
-      pn = @account.phone_numbers.build( { number: AVAILABLE_NUMBER } )
+      count_of_phone_numbers = account.phone_numbers.count
+      pn = account.phone_numbers.build( { number: AVAILABLE_NUMBER } )
       expect { pn.buy() }.to_not raise_error(Twilio::REST::RequestError)
       expect { pn.save!() }.to_not raise_error(StandardError)
-      @account.phone_numbers.count.should == count_of_phone_numbers + 1
+      account.phone_numbers.count.should == count_of_phone_numbers + 1
     end
 
     it "should not buy an invalid number" do
-      count_of_phone_numbers = @account.phone_numbers.count
-      pn = @account.phone_numbers.build( { number: INVALID_NUMBER } )
+      count_of_phone_numbers = account.phone_numbers.count
+      pn = account.phone_numbers.build( { number: INVALID_NUMBER } )
       expect { pn.buy() }.to raise_error(Twilio::REST::RequestError)
       expect { pn.save!() }.to raise_error( StandardError )
-      @account.phone_numbers.count.should == count_of_phone_numbers
+      account.phone_numbers.count.should == count_of_phone_numbers
     end
 
     it "should not buy an unavailable number" do
-      count_of_phone_numbers = @account.phone_numbers.count
-      pn = @account.phone_numbers.build( { number: UNAVAILABLE_NUMBER } )
+      count_of_phone_numbers = account.phone_numbers.count
+      pn = account.phone_numbers.build( { number: UNAVAILABLE_NUMBER } )
       expect { pn.buy() }.to raise_error(Twilio::REST::RequestError)
       expect { pn.save!() }.to raise_error( StandardError )
-      @account.phone_numbers.count.should == count_of_phone_numbers
+      account.phone_numbers.count.should == count_of_phone_numbers
     end
   end
   
@@ -119,55 +118,59 @@ describe PhoneNumber do
     end
   end
   
-  # Manage costs
+  describe '#has_cost?' do
+
+    context 'when both costs are present' do
+      subject { build :phone_number, provider_cost: -1.00, our_cost: -0.50 }
+      its(:'has_cost?') { should be_true }
+    end
+    context 'when only provider_cost is present' do
+      subject { build :phone_number, provider_cost: -1.00, our_cost: nil }
+      its(:'has_cost?') { should be_false }
+    end
+    context 'when only our_cost is present' do
+      subject { build :phone_number, provider_cost: nil, our_cost: -0.50 }
+      its(:'has_cost?') { should be_false }
+    end
+    context 'when both costs are not present' do
+      subject { build :phone_number, provider_cost: nil, our_cost: nil }
+      its(:'has_cost?') { should be_false }
+    end
+
+  end
+  
+  describe '#provider_cost=' do
+
+    context 'when cost is not nil' do
+      let(:provider_cost) { -1.00 }
+      subject { build :phone_number, provider_cost: nil, our_cost: nil }
+      it 'updates provider_cost' do
+        expect{ subject.provider_cost = provider_cost }.to change{ subject.provider_cost }.to(provider_cost)
+      end
+      it 'updates our_cost' do
+        expect{ subject.provider_cost = provider_cost }.to change{ subject.our_cost }
+      end
+    end
+
+    context 'when cost is nil' do
+      let(:provider_cost) { nil }
+      subject { build :phone_number, provider_cost: -1.00, our_cost: -0.50 }
+      it 'updates provider_cost' do
+        expect{ subject.provider_cost = provider_cost }.to change{ subject.provider_cost }.to(nil)
+      end
+      it 'updates our_cost' do
+        expect{ subject.provider_cost = provider_cost }.to change{ subject.our_cost }.to(nil)
+      end
+    end
+
+  end
+  
   describe '#cost' do
-    it 'interprete nil to 0' do
-      phone_number = phone_numbers(:test_us)
-      phone_number.our_cost = nil
-      phone_number.provider_cost = nil
-      phone_number.cost.should == 0
-    end
-    it 'accept 0, number' do
-      phone_number = phone_numbers(:test_us)
-      phone_number.our_cost = 0
-      phone_number.provider_cost = 1.3
-      phone_number.cost.should == 1.3
-    end
-    it 'accept number, 0' do
-      phone_number = phone_numbers(:test_us)
-      phone_number.our_cost = 2.5
-      phone_number.provider_cost = 0
-      phone_number.cost.should == 2.5
-    end
-    it 'accept number, number' do
-      phone_number = phone_numbers(:test_us)
-      phone_number.our_cost = 2.5
-      phone_number.provider_cost = 1.3
-      phone_number.cost.should == 3.8
-    end
-    it 'accept number, number' do
-      phone_number = phone_numbers(:test_us)
-      phone_number.our_cost = 2.5
-      phone_number.provider_cost = 1.3
-      phone_number.cost.should == 3.8
-    end
-    it 'accept -number, number' do
-      phone_number = phone_numbers(:test_us)
-      phone_number.our_cost = -2.5
-      phone_number.provider_cost = 1.3
-      phone_number.cost.should == -1.2
-    end
-    it 'accept number, -number' do
-      phone_number = phone_numbers(:test_us)
-      phone_number.our_cost = 2.5
-      phone_number.provider_cost = -1.3
-      phone_number.cost.should == 1.2
-    end
-    it 'accept -number, -number' do
-      phone_number = phone_numbers(:test_us)
-      phone_number.our_cost = -2.5
-      phone_number.provider_cost = -1.3
-      phone_number.cost.should == -3.8
+    [ [nil,nil], [nil,1], [1,nil], [1,1], [1,-1], [-1,1], [0.25,-0.32] ].each do |costs|
+      it "properly sums provider:#{costs.first} and our:#{costs.second}" do
+        phone_number = build :phone_number, provider_cost: costs.first, our_cost: costs.second
+        phone_number.cost.should == costs.reject{ |entry| entry.nil? }.sum
+      end
     end
   end
 
