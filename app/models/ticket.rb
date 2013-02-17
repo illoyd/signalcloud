@@ -225,9 +225,9 @@ class Ticket < ActiveRecord::Base
       
       # Log as appropriate
       if ex.instance_of?( Ticketplease::CriticalMessageSendingError )
-        logger.error 'Ticket %i encountered critical error while sending reply message (code %i)!' % [ self.id, self.challenge_status ]
+        logger.error 'Ticket %s encountered critical error while sending reply message (code %s)!' % [ self.id, self.reply_status ]
       else
-        logger.info 'Ticket %i encountered error while sending reply message (code %i)!' % [ self.id, self.challenge_status ]
+        logger.info 'Ticket %s encountered error while sending reply message (code %s)!' % [ self.id, self.reply_status ]
       end
       
       # Rethrow

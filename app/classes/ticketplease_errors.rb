@@ -97,7 +97,6 @@ end
 class InvalidTicketStateError < TicketError
   def initialize(ticket, original = nil, code = nil)
     super( 'The ticket is in an invalid state.', ticket, original, code )
-    self.ticket = ticket
   end
 end
 

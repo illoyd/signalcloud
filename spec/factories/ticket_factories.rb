@@ -29,19 +29,30 @@ FactoryGirl.define do
     end
 
     trait :confirmed do
+      challenge_sent
+      response_received
       status                  Ticket::CONFIRMED
     end
 
     trait :denied do
+      challenge_sent
+      response_received
       status                  Ticket::DENIED
     end
 
     trait :failed do
+      challenge_sent
+      response_received
       status                  Ticket::FAILED
     end
 
     trait :expired do
+      challenge_sent
       status                  Ticket::EXPIRED
+    end
+    
+    trait :reply_sent do
+      reply_sent              { DateTime.now }
     end
 
   end

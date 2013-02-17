@@ -81,9 +81,9 @@ describe Ticket do
   describe "#update_expiry_time_based_on_seconds_to_live" do
     let(:seconds_to_live) { 360 }
     let(:original_expiry) { 60.seconds.ago }
-    subject { build :ticket }
+    subject { build :ticket, expiry: nil }
 
-    it "updates overrides existing expiry" do
+    it "overrides existing expiry" do
       subject.expiry = original_expiry
       subject.seconds_to_live = seconds_to_live
       expect { subject.update_expiry_time_based_on_seconds_to_live }.to change{subject.expiry}.from(original_expiry)
