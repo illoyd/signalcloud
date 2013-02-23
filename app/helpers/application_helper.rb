@@ -5,6 +5,7 @@ module ApplicationHelper
   end
   
   def dropdown_list( label, entries = [], options = {} )
+    entries.select! { |entry| entry.fetch(:if, true) }
     render partial: 'layouts/dropdown', object: entries, locals: { label: label, options: options }
   end
   

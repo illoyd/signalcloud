@@ -10,7 +10,7 @@
 
 - (flash.keys & recognised_flash_keys).each do |key|
   - css_class = translate_recognised_flash_keys.fetch( key, key ).to_s
-  %div{ :class=> "alert alert-#{css_class}" }
+  %div{ :class=> "alert alert-#{css_class} fade in" }
     %a{ :href=>"#", :class=>"close", 'data-dismiss'=>"alert" } &times;
     %b= key.to_s.titleize + '!'
     = flash[key]
