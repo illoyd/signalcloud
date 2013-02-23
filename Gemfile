@@ -65,5 +65,6 @@ group :test do
 	gem 'vcr'
 	gem 'webmock'
 	gem 'factory_girl'
+	gem 'fuubar'
 end
 
