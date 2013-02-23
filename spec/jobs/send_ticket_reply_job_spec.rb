@@ -41,8 +41,8 @@ describe SendTicketReplyJob do
         it 'creates a new message' do
           expect { job.perform }.to change{ticket.messages(true).count}.by(1)
         end
-        it 'creates a new ledger entry' do
-          expect { job.perform }.to change{ticket.appliance.account.ledger_entries.count}.by(1)
+        it 'does not create a new ledger entry' do
+          expect { job.perform }.to_not change{ticket.appliance.account.ledger_entries.count}
         end
         it 'does not change ticket status' do
           expect { job.perform }.to_not change{ticket.reload.status}

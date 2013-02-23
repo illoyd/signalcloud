@@ -30,29 +30,23 @@ class UpdateMessageStatusJob < Struct.new( :callback_values )
     message.provider_update = self.callback_values
 
     # Update the message's status
-    case self.callback_values[:sms_status]
-      when SMS_STATUS_SENT
-        message.status = Message::SENT
-        message.sent_at = self.callback_values[:date_sent]
-      when SMS_STATUS_SENDING
-        message.status = Message::SENDING
-      when SMS_STATUS_QUEUED
-        message.status = Message::QUEUED
-    end
+    message.status = self.translate_twilio_sms_status(self.callback_values[:sms_status])
+    message.sent_at = self.callback_values.fetch(:date_sent, nil)
     
     # Update price if available
     if self.callback_values.include? :price and !self.callback_values[:price].nil?
       message.provider_cost = self.callback_values[:price]
-      message.our_cost = message.ticket.appliance.account.account_plan.calculate_outbound_sms_cost( message.provider_cost )
+      #message.our_cost = message.ticket.appliance.account.account_plan.calculate_outbound_sms_cost( message.provider_cost )
 
       # Update the ledger_entry
-      ledger_entry = message.ledger_entry
-      ledger_entry.value = message.cost
-      ledger_entry.settled_at = self.callback_values[:date_sent] || DateTime.now #if [SMS_STATUS_SENT, SMS_STATUS_QUEUED].include? message.status
+      #ledger_entry = message.ledger_entry
+      #ledger_entry.value = message.cost
+      message.ledger_entry.settled_at = self.callback_values.fetch(:date_sent, DateTime.now)
     end
     
-    # Save as a db ledger_entry
+    # Save as a db transaction
     message.save!
+    message.ledger_entry.save!
     
     # Check and close the ticket's phase if appropriate
     ticket = message.ticket
@@ -96,6 +90,15 @@ class UpdateMessageStatusJob < Struct.new( :callback_values )
   
   def standardise_callback_values!()
     self.callback_values = self.standardise_callback_values( self.callback_values )
+  end
+  
+  def translate_twilio_sms_status( twilio_status )
+    return case self.callback_values[:sms_status]
+      when SMS_STATUS_SENT; Message::SENT
+      when SMS_STATUS_SENDING; Message::SENDING
+      when SMS_STATUS_QUEUED; Message::QUEUED
+      else; nil
+    end
   end
   
   alias :run :perform

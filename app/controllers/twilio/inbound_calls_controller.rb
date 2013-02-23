@@ -8,9 +8,9 @@ class Twilio::InboundCallsController < ApplicationController
   # POST /account_plans.json
   def create
     # Find the phone number
-    phone_number = nil
-    normalized_phone_number = PhoneTools.normalize(params[:Called])
-    phone_number = PhoneNumber.find_by_number( normalized_phone_number )
+    #phone_number = nil
+    #normalized_phone_number = PhoneTools.normalize(params[:Called])
+    phone_number = PhoneNumber.find_by_number( params[:Called] ).first
     
     # TODO: Add record of inbound calls
 
@@ -36,5 +36,5 @@ class Twilio::InboundCallsController < ApplicationController
     end
     render xml: twiml
   end
-
+  
 end

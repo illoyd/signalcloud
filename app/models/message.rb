@@ -159,15 +159,19 @@ class Message < ActiveRecord::Base
       self.twilio_sid = self.provider_response[:sid]
       self.status = Message.translate_twilio_message_status( self.provider_response[:status] )
       self.provider_cost = self.provider_response.fetch(:price, nil)
-      self.save!
 
     rescue Twilio::REST::RequestError => ex
+      self.status = FAILED
+
       error_code = Ticket.translate_twilio_error_to_ticket_status ex.code
       if Ticket::CRITICAL_ERRORS.include? error_code
         raise Ticketplease::CriticalMessageSendingError.new( self.body, ex, error_code ) # Rethrow as a critical error
       else
         raise Ticketplease::MessageSendingError.new( self.body, ex, error_code ) # Rethrow in nice wrapper error
       end
+
+    ensure
+      self.save
     end
   end
   

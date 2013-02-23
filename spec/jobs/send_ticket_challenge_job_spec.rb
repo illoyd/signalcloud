@@ -1,25 +1,25 @@
 require 'spec_helper'
 
-describe SendChallengeJob do
+describe SendTicketChallengeJob do
   before { VCR.insert_cassette 'send_challenge_job', record: :new_episodes }
   after  { VCR.eject_cassette }
 
   describe '.new' do
     let(:ticket)  { create(:ticket) }
     context 'with ticket and default resend' do
-      subject       { SendChallengeJob.new( ticket.id ) }
+      subject       { SendTicketChallengeJob.new( ticket.id ) }
       its(:ticket_id) { should eq (ticket.id) }
       its(:force_resend) { should be_false }
       its(:ticket) { should_not be_nil }
     end
     context 'with ticket and without resend' do
-      subject       { SendChallengeJob.new( ticket.id, false ) }
+      subject       { SendTicketChallengeJob.new( ticket.id, false ) }
       its(:ticket_id) { should eq (ticket.id) }
       its(:force_resend) { should be_false }
       its(:ticket) { should_not be_nil }
     end
     context 'with ticket and with resend' do
-      subject       { SendChallengeJob.new( ticket.id, true ) }
+      subject       { SendTicketChallengeJob.new( ticket.id, true ) }
       its(:ticket_id) { should eq (ticket.id) }
       its(:force_resend) { should be_true }
       its(:ticket) { should_not be_nil }
@@ -32,12 +32,12 @@ describe SendChallengeJob do
 
     context 'when ticket has not been sent' do
       let(:ticket)  { create(:ticket, appliance: appliance) }
-      let(:job)     { SendChallengeJob.new( ticket.id ) }
+      let(:job)     { SendTicketChallengeJob.new( ticket.id ) }
       it 'creates a new message' do
         expect { job.perform }.to change{ticket.messages(true).count}.by(1)
       end
-      it 'creates a new ledger entry' do
-        expect { job.perform }.to change{ticket.appliance.account.ledger_entries.count}.by(1)
+      it 'does not create a new ledger entry' do
+        expect { job.perform }.to_not change{ticket.appliance.account.ledger_entries.count}
       end
       it 'sets ticket status to queued' do
         expect { job.perform }.to change{ticket.reload.status}.to(Ticket::QUEUED)
@@ -52,7 +52,7 @@ describe SendChallengeJob do
 
     context 'when ticket has been sent' do
       let(:ticket)  { create(:ticket, :challenge_sent, appliance: appliance) }
-      let(:job)     { SendChallengeJob.new( ticket.id ) }
+      let(:job)     { SendTicketChallengeJob.new( ticket.id ) }
       it 'does not create a new message' do
         expect { job.perform }.to_not change{ticket.messages(true).count}
       end
@@ -70,11 +70,15 @@ describe SendChallengeJob do
       end
     end
     
-    context 'with invalid to number' do
-      let(:ticket)  { create(:ticket, appliance: appliance, to_number: Twilio::INVALID_NUMBER) }
-      let(:job)     { SendChallengeJob.new( ticket.id ) }
-      it 'does not create a new message' do
-        expect { job.perform }.to_not change{ticket.messages(true).count}
+    context 'with invalid TO number' do
+      let(:ticket)  { create(:ticket, appliance: appliance, to_number: Twilio::INVALID_NUMBER, from_number: Twilio::VALID_NUMBER) }
+      let(:job)     { SendTicketChallengeJob.new( ticket.id ) }
+      it 'creates a new message' do
+        expect { job.perform }.to change{ticket.messages(true).count}.by(1)
+      end
+      it 'fails newly created message' do
+        job.perform
+        ticket.messages(true).order('created_at').last.status.should == Message::FAILED
       end
       it 'does not create a new ledger entry' do
         expect { job.perform }.to_not change{ticket.appliance.account.ledger_entries.count}
@@ -85,16 +89,20 @@ describe SendChallengeJob do
       it 'changes ticket challenge status to error' do
         expect { job.perform }.to change{ticket.reload.challenge_status}.to(Ticket::ERROR_INVALID_TO)
       end
-      it 'does not enqueue another expiration job' do
+      it 'does not enqueue an expiration job' do
         expect { job.perform }.to_not change{Delayed::Job.count}
       end
     end
 
-    context 'with invalid from number' do
+    context 'with invalid FROM number' do
       let(:ticket)  { create(:ticket, appliance: appliance, to_number: Twilio::VALID_NUMBER, from_number: Twilio::INVALID_NUMBER) }
-      let(:job)     { SendChallengeJob.new( ticket.id ) }
-      it 'does not create a new message' do
-        expect { job.perform }.to_not change{ticket.messages(true).count}
+      let(:job)     { SendTicketChallengeJob.new( ticket.id ) }
+      it 'creates a new message' do
+        expect { job.perform }.to change{ticket.messages(true).count}.by(1)
+      end
+      it 'fails newly created message' do
+        job.perform
+        ticket.messages(true).order('created_at').last.status.should == Message::FAILED
       end
       it 'does not create a new ledger entry' do
         expect { job.perform }.to_not change{ticket.appliance.account.ledger_entries(true).count}
@@ -105,7 +113,7 @@ describe SendChallengeJob do
       it 'changes ticket challenge status to error' do
         expect { job.perform }.to change{ticket.reload.challenge_status}.to(Ticket::ERROR_INVALID_FROM)
       end
-      it 'does not enqueue another expiration job' do
+      it 'does not enqueue an expiration job' do
         expect { job.perform }.to_not change{Delayed::Job.count}
       end
     end

@@ -69,7 +69,7 @@ describe ExpireTicketJob do
               
               ready_to_expire_ticket.reload
     
-            }.to change{ready_to_expire_ticket.appliance.account.ledger_entries.count}.by(1)
+            }.to_not change{ready_to_expire_ticket.appliance.account.ledger_entries.count}
           }.to change{ready_to_expire_ticket.messages.count}.by(1)
     
           # Check that the ticket status has been expired

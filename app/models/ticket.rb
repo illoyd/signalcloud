@@ -73,13 +73,13 @@ class Ticket < ActiveRecord::Base
   def self.normalize_message( msg )
     return msg.gsub(/[$£€¥]/, '').to_ascii.gsub(/[^[:alnum:]]/,'').downcase
   end
-
-  ##
-  # Noramlise phone numbers for consistency before using with the database or searching.
-  def self.normalize_phone_number( pn )
-    '+' + PhoneTools.normalize(pn)
-  end
   
+  def self.find_open_tickets( internal_number, customer_number )
+    e_internal_number = Ticket.encrypt :from_number, PhoneNumber.normalize_phone_number(internal_number)
+    e_customer_number = Ticket.encrypt :to_number, PhoneNumber.normalize_phone_number(customer_number)
+    Ticket.where( encrypted_from_number: e_internal_number, encrypted_to_number: e_customer_number, status: CHALLENGE_SENT )
+  end
+
   ##
   # Update expiry based upon seconds to live. Intended to be used with +before_save+ callbacks.
   def update_expiry_time_based_on_seconds_to_live
@@ -92,8 +92,8 @@ class Ticket < ActiveRecord::Base
   ##
   # Normalize phone numbers. Intended to be used with +before_save+ callbacks.
   def normalize_phone_numbers
-    self.to_number = Ticket.normalize_phone_number(self.to_number)
-    self.from_number = Ticket.normalize_phone_number(self.from_number)
+    self.to_number = PhoneNumber.normalize_phone_number(self.to_number)
+    self.from_number = PhoneNumber.normalize_phone_number(self.from_number)
   end
   
   def normalized_expected_confirmed_answer
@@ -105,16 +105,14 @@ class Ticket < ActiveRecord::Base
   end
   
   def answer_applies?(answer)
-    normalized_answer = Ticket.normalize_message answer
-    ( normalized_answer == self.normalized_expected_confirmed_answer || normalized_answer == self.normalized_expected_denied_answer )
+    self.compare_answer( answer ) != Ticket::FAILED
   end
   
-  def process_answer( answer, received=DateTime.now )
-    self.response_received = received
-    self.status = case Ticket.normalize_message(answer)
-      when ticket.normalized_expected_confirmed_answer
+  def compare_answer( answer )
+    return case Ticket.normalize_message(answer)
+      when self.normalized_expected_confirmed_answer
         Ticket::CONFIRMED
-      when ticket.normalized_expected_denied_answer
+      when self.normalized_expected_denied_answer
         Ticket::DENIED
       else
         Ticket::FAILED
@@ -123,8 +121,9 @@ class Ticket < ActiveRecord::Base
   
   ##
   # 
-  def process_answer!( answer, received=DateTime.now )
-    self.process_answer answer, received
+  def accept_answer!( answer, received=DateTime.now )
+    self.status = self.compare_answer(answer)
+    self.response_received = received
     self.save!
   end
 

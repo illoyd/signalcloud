@@ -133,7 +133,7 @@ ActiveRecord::Schema.define(:version => 20121220210405) do
     t.integer  "item_id"
     t.string   "item_type"
     t.string   "narrative",                                                 :null => false
-    t.decimal  "value",      :precision => 8, :scale => 4, :default => 0.0, :null => false
+    t.decimal  "value",      :precision => 8, :scale => 4, :default => 0.0
     t.datetime "settled_at"
     t.text     "notes"
     t.datetime "created_at",                                                :null => false

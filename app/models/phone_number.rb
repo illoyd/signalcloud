@@ -51,7 +51,7 @@ class PhoneNumber < ActiveRecord::Base
   validates_inclusion_of :unsolicited_call_language, allow_nil: true, in: LANGUAGES, if: :'should_reply_to_unsolicited_call?'
   validates_inclusion_of :unsolicited_call_voice, allow_nil: true, in: VOICES, if: :'should_reply_to_unsolicited_call?'
   
-  before_save :normalize_phone_number
+  before_validation :ensure_normalized_phone_number
 
   ##
   # Update provider cost and, by extension, our cost.
@@ -81,9 +81,19 @@ class PhoneNumber < ActiveRecord::Base
   end
   
   alias :buy :purchase
+  
+  def self.normalize_phone_number(pn)
+    return pn.nil? ? nil : '+' + PhoneTools.normalize(pn)
+  end
+  
+  def self.find_by_number(pn)
+    PhoneNumber.where( encrypted_number: PhoneNumber.encrypt( :number, PhoneNumber.normalize_phone_number(pn) ) )
+  end
 
-  def normalize_phone_number
-    self.number = PhoneTools.normalize self.number
+  def number=(value)
+    value = PhoneNumber.normalize_phone_number(value)
+    send("encrypted_number=", encrypt(:number, value))
+    instance_variable_set("@number", value)
   end
   
   def should_ignore_unsolicited_sms?
@@ -115,6 +125,15 @@ class PhoneNumber < ActiveRecord::Base
     return nil unless self.account && self.account.account_plan
     value = self.provider_cost if value.nil?
     return self.account.account_plan.calculate_phone_number_cost( value )
+  end
+  
+  def record_unsolicited_message( options={} )
+  end
+
+  # private  
+
+  def ensure_normalized_phone_number
+    self.number = PhoneNumber.normalize_phone_number(self.number)
   end
   
 end
