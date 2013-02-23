@@ -36,7 +36,7 @@ Ticketplease::Application.routes.draw do
         get 'expired', action: :index, defaults: { status: Ticket::EXPIRED } do
           get 'page/:page', action: :index, on: :collection
         end
-        get 'open', action: :index, defaults: { status: [Ticket::QUEUED, Ticket::CHALLENGE_SENT] } do
+        get 'open', action: :index, defaults: { status: Ticket::OPEN_STATUSES } do
           get 'page/:page', action: :index, on: :collection
         end
       end
