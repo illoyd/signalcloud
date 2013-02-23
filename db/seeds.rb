@@ -72,18 +72,30 @@ example_appliance = test_account.appliances.create!({ label: 'Example Appliance'
   expired_reply: 'We are sorry, but we did not receive your reply. For your safety we have blocked your card and we will contact you shortly to discuss next steps.'
   })
 
-20.times do 
-  ticket = example_appliance.open_ticket( to_number: random_us_number(), expected_confirmed_answer: random_answer() )
-  ticket.status = rand_i( 0, 5 )
+customer_numbers = []
+15.times { customer_numbers << random_us_number() }
+10.times { customer_numbers << random_ca_number() }
+10.times { customer_numbers << random_uk_number() }
+
+customer_numbers.shuffle.each do |customer_number|
+  ticket = example_appliance.open_ticket( to_number: customer_number, expected_confirmed_answer: random_answer() )
+  ticket.status = Ticket::STATUSES.sample
   ticket.save!
-end
-10.times do 
-  ticket = example_appliance.open_ticket( to_number: random_ca_number(), expected_confirmed_answer: random_answer() )
-  ticket.status = rand_i( 0, 5 )
-  ticket.save!
-end
-5.times do 
-  ticket = example_appliance.open_ticket( to_number: random_uk_number(), expected_confirmed_answer: random_answer() )
-  ticket.status = rand_i( 0, 5 )
+  if [ Ticket::CHALLENGE_SENT, Ticket::CONFIRMED, Ticket::DENIED, Ticket::FAILED, Ticket::EXPIRED ].include? ticket.status
+    ticket.messages.build( to_number: ticket.to_number, from_number: ticket.from_number, body: ticket.question, message_kind: Message::CHALLENGE, direction: Message::DIRECTION_OUT )
+  end
+  case ticket.status
+    when Ticket::CONFIRMED
+      ticket.messages.build( to_number: ticket.from_number, from_number: ticket.to_number, body: ticket.expected_confirmed_answer, direction: Message::DIRECTION_IN )
+      ticket.messages.build( to_number: ticket.to_number, from_number: ticket.from_number, body: ticket.confirmed_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT )
+    when Ticket::DENIED
+      ticket.messages.build( to_number: ticket.from_number, from_number: ticket.to_number, body: ticket.expected_denied_answer, direction: Message::DIRECTION_IN )
+      ticket.messages.build( to_number: ticket.to_number, from_number: ticket.from_number, body: ticket.denied_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT )
+    when Ticket::FAILED
+      ticket.messages.build( to_number: ticket.from_number, from_number: ticket.to_number, body: random_answer(), direction: Message::DIRECTION_IN )
+      ticket.messages.build( to_number: ticket.to_number, from_number: ticket.from_number, body: ticket.failed_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT )
+    when Ticket::EXPIRED
+      ticket.messages.build( to_number: ticket.to_number, from_number: ticket.from_number, body: ticket.expired_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT )
+  end
   ticket.save!
 end
