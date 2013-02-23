@@ -23,14 +23,19 @@
     %table.table.table-striped
       %thead
         %tr
+          %th
           %th Directory
           %th Description
           %th Phone numbers
           %th Appliances
-          %th
       %tbody
         - @phone_directories.each do |phone_directory|
           %tr
+            %td= split_dropdown_list([ |
+                { label: 'Details', icon: :show, link: phone_directory, if: can?(:show, phone_directory) }, |
+                { label: 'Edit', icon: :edit, link: edit_phone_directory_path(phone_directory), if: can?(:edit, phone_directory) }, |
+                { label: 'Delete', icon: :delete, link: phone_directory, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, phone_directory) } |
+              ], { class: 'btn-mini' }) |
             %td= link_to phone_directory.label, phone_directory
             %td
               %small
@@ -40,10 +45,5 @@
                   = phone_directory.description
             %td= phone_directory.phone_directory_entries.count
             %td= phone_directory.appliances.count
-            %td= dropdown_list( 'Manage', [ |
-                { label: 'Details', icon: :show, link: phone_directory, if: can?(:show, phone_directory) }, |
-                { label: 'Edit', icon: :edit, link: edit_phone_directory_path(phone_directory), if: can?(:edit, phone_directory) }, |
-                { label: 'Delete', icon: :delete, link: phone_directory, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, phone_directory) } |
-              ]) |
 
 = yield :table_header
