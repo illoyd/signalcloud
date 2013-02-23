@@ -13,11 +13,16 @@ class TicketsController < ApplicationController
   # GET /tickets
   # GET /tickets.json
   def index
+    if @appliance.nil?
+      redirect_to appliance_tickets_path(current_appliance(true))
+      return
+    end
+
     @multiappliance = @appliance.nil?
     if !@multiappliance
       @tickets = @tickets.where( appliance_id: @appliance.id )
     end
-
+    
     unless params[:status].nil?
       @tickets = @tickets.where( status: params[:status] )
     end
