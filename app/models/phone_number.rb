@@ -3,10 +3,12 @@
 # month.
 class PhoneNumber < ActiveRecord::Base
 
-  IGNORE = 3
+  IGNORE = 0
   REJECT = 0
   BUSY = 1
   REPLY = 2
+  CALL_ACTIONS = [ REJECT, BUSY, REPLY ]
+  MESSAGE_ACTIONS = [ IGNORE, REPLY ]
   
   WOMAN_VOICE = 'woman'
   MAN_VOICE = 'man'
@@ -28,6 +30,8 @@ class PhoneNumber < ActiveRecord::Base
   belongs_to :account, inverse_of: :phone_numbers
   has_many :phone_directory_entries, inverse_of: :phone_number
   has_many :phone_directories, through: :phone_directory_entries
+  has_many :unsolicited_calls, inverse_of: :phone_number
+  has_many :unsolicited_messages, inverse_of: :phone_number
 
   ##
   # LedgerEntries for this message - usually one per month

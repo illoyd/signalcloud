@@ -19,7 +19,7 @@ describe PhoneNumber do
     before(:all) { 3.times { create :phone_number } }
 
     # Allow mass assignment
-    [ :account_id, :twilio_phone_number_sid, :number, :our_cost, :provider_cost ].each do |entry|
+    [ :number, :twilio_phone_number_sid, :account_id, :our_cost, :provider_cost, :unsolicited_sms_action, :unsolicited_sms_message, :unsolicited_call_action, :unsolicited_call_message, :unsolicited_call_language, :unsolicited_call_voice ].each do |entry|
       it { should allow_mass_assignment_of(entry) }
     end
     

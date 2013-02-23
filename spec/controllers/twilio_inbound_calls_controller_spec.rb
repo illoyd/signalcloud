@@ -1,10 +1,6 @@
 require 'spec_helper'
 describe Twilio::InboundCallsController do
-  # render_views
-  # fixtures :accounts, :phone_numbers
   let(:account) { create(:test_account, :test_twilio) }
-  let(:phone_number) { create( :phone_number, account: account ) }
-  let(:inbound_post_params) { { Called: phone_number.number } }
 
   def build_twilio_signature( post_params )
     signature = account.twilio_validator.build_signature_for( twilio_inbound_call_url, post_params )
@@ -16,17 +12,27 @@ describe Twilio::InboundCallsController do
     #request.env['ACCEPT'] = 'xml'
   end
   
-  def build_post_params( phone_number_sym=nil, params={} )
-    params = inbound_post_params if params.nil?
-    params[:phone_number] = phone_numbers(phone_number_sym).number unless phone_number_sym.nil?
-    params
+  def build_post_params( params={} )
+    { 'CallSid' => 'CA' + SecureRandom.hex(16),
+      'AccountSid' => 'AC' + SecureRandom.hex(16),
+      'From' => Twilio::VALID_NUMBER,
+      'To' => Twilio::VALID_NUMBER,
+      'CallStatus' => 'ringing',
+      'ApiVersion' => '2010-04-01',
+      'Direction' => 'inbound',
+      'ForwardedFrom' => nil,
+      'CallerName' => nil
+    }.merge( params )
   end
 
   describe 'POST create' do
+    let(:phone_number) { create( :phone_number, account: account ) }
+    let(:inbound_post_params) { build_post_params( 'To' => phone_number.number ) }
+
     context 'when not passing HTTP DIGEST' do
       it 'responds with unauthorised' do
         post :create, inbound_post_params
-        response.status.should eq( 401 )
+        response.status.should eq( 401 ) # Auth required
       end
     end
     
@@ -35,17 +41,16 @@ describe Twilio::InboundCallsController do
         it 'responds with forbidden' do
           authenticate_with_http_digest account.account_sid, account.auth_token, DIGEST_REALM
           post :create, inbound_post_params
-          response.status.should eq( 403 )
+          response.status.should eq( 403 ) # Forbidden (bad user/pass)
         end
       end
 
       context 'when passing message auth header' do
         it 'responds with success' do
-          #authenticate_with_http_digest account.account_sid, account.auth_token, DIGEST_REALM
           authenticate_with_http_digest account.account_sid, account.auth_token, DIGEST_REALM
           inject_twilio_signature( inbound_post_params )
           post :create, inbound_post_params
-          response.status.should eq( 200 )
+          response.status.should eq( 200 ) # OK
         end
       end
     end
@@ -54,36 +59,157 @@ describe Twilio::InboundCallsController do
       before {
         authenticate_with_http_digest account.account_sid, account.auth_token, DIGEST_REALM
       }
-      let(:reject_number) { create( :phone_number, account: account, unsolicited_call_action: PhoneNumber::REJECT ) }
-      let(:busy_number) { create( :phone_number, account: account, unsolicited_call_action: PhoneNumber::BUSY ) }
-      let(:reply_number) { create( :phone_number, account: account, unsolicited_call_action: PhoneNumber::REPLY, unsolicited_call_message: 'Hi there' ) }
-      it 'responds with REJECT verb' do
-        params = { Called: reject_number.number }
-        inject_twilio_signature( params )
-        post :create, params
-        response.body.should include( 'Reject' )
-        response.body.should include( 'rejected' )
+
+      context 'when configured to reject' do
+        let(:phone_number) { create( :phone_number, :reject_unsolicited_call, account: account ) }
+        let(:params) { build_post_params( 'To' => phone_number.number ) }
+        before(:each) { inject_twilio_signature( params ) }
+
+        it 'responds with REJECT verb' do
+          post :create, params
+          response.body.should include( 'Reject' )
+        end
+        it 'responds with busy option' do
+          post :create, params
+          response.body.should include( 'rejected' )
+        end
+        it 'responds with xml' do
+          post :create, params
+          response.should have_content_type('application/xml')
+        end
+        it 'records the unsolicited call' do
+          expect { post :create, params }.to change{phone_number.unsolicited_calls.count}.by(1)
+        end
+        it 'records call sid' do
+          post :create, params
+          phone_number.unsolicited_calls(true).order('created_at').last.twilio_call_sid.should_not be_nil
+        end
+        it 'records call contents' do
+          post :create, params
+          phone_number.unsolicited_calls(true).order('created_at').last.call_content.should_not be_nil
+        end
+        it 'records call received date' do
+          post :create, params
+          phone_number.unsolicited_calls(true).order('created_at').last.received_at.should_not be_nil
+        end
+        it 'records busy-tone action' do
+          post :create, params
+          phone_number.unsolicited_calls(true).order('created_at').last.action_taken.should == PhoneNumber::REJECT
+        end
+        it 'does not record action contents' do
+          post :create, params
+          phone_number.unsolicited_calls(true).order('created_at').last.action_content.should be_nil
+        end
+        it 'does not record action taken at' do
+          post :create, params
+          phone_number.unsolicited_calls(true).order('created_at').last.action_taken_at.should be_nil
+        end
       end
-      it 'responds with BUSY verb' do
-        params = { Called: busy_number.number }
-        inject_twilio_signature( params )
-        post :create, params
-        response.body.should include( 'Reject' )
-        response.body.should include( 'busy' )
+
+      context 'when configured to play busy tone' do
+        let(:phone_number) { create( :phone_number, :busy_for_unsolicited_call, account: account ) }
+        let(:params) { build_post_params( 'To' => phone_number.number ) }
+        before(:each) { inject_twilio_signature( params ) }
+
+        it 'responds with REJECT verb' do
+          post :create, params
+          response.body.should include( 'Reject' )
+        end
+        it 'responds with busy option' do
+          post :create, params
+          response.body.should include( 'busy' )
+        end
+        it 'responds with xml' do
+          post :create, params
+          response.should have_content_type('application/xml')
+        end
+        it 'records the unsolicited call' do
+          expect { post :create, params }.to change{phone_number.unsolicited_calls.count}.by(1)
+        end
+        it 'records call sid' do
+          post :create, params
+          phone_number.unsolicited_calls(true).order('created_at').last.twilio_call_sid.should_not be_nil
+        end
+        it 'records call contents' do
+          post :create, params
+          phone_number.unsolicited_calls(true).order('created_at').last.call_content.should_not be_nil
+        end
+        it 'records call received date' do
+          post :create, params
+          phone_number.unsolicited_calls(true).order('created_at').last.received_at.should_not be_nil
+        end
+        it 'records busy-tone action' do
+          post :create, params
+          phone_number.unsolicited_calls(true).order('created_at').last.action_taken.should == PhoneNumber::BUSY
+        end
+        it 'does not record action contents' do
+          post :create, params
+          phone_number.unsolicited_calls(true).order('created_at').last.action_content.should be_nil
+        end
+        it 'does not record action taken at' do
+          post :create, params
+          phone_number.unsolicited_calls(true).order('created_at').last.action_taken_at.should be_nil
+        end
       end
-      it 'responds with SAY verb' do
-        params = { Called: reply_number.number }
-        inject_twilio_signature( params )
-        post :create, params
-        response.body.should include( 'Say' )
-        response.body.should include( 'Hangup' )
-        response.body.should include( reply_number.unsolicited_call_message )
+
+      context 'when configured to respond with message' do
+        let(:phone_number) { create( :phone_number, :reply_to_unsolicited_call, account: account ) }
+        let(:params) { build_post_params( 'To' => phone_number.number ) }
+        before(:each) { inject_twilio_signature( params ) }
+
+        it 'responds with SAY verb' do
+          post :create, params
+          response.body.should include( 'Say' )
+        end
+        it 'responds with HANGUP verb' do
+          post :create, params
+          response.body.should include( 'Hangup' )
+        end
+        it 'responds with language option' do
+          post :create, params
+          response.body.should include( phone_number.unsolicited_call_language )
+        end
+        it 'responds with voice option' do
+          post :create, params
+          response.body.should include( phone_number.unsolicited_call_voice )
+        end
+        it 'responds with message' do
+          post :create, params
+          response.body.should include( phone_number.unsolicited_call_message )
+        end
+        it 'responds with xml' do
+          post :create, params
+          response.should have_content_type('application/xml')
+        end
+        it 'records the unsolicited call' do
+          expect { post :create, params }.to change{phone_number.unsolicited_calls.count}.by(1)
+        end
+        it 'records call sid' do
+          post :create, params
+          phone_number.unsolicited_calls(true).order('created_at').last.twilio_call_sid.should_not be_nil
+        end
+        it 'records call contents' do
+          post :create, params
+          phone_number.unsolicited_calls(true).order('created_at').last.call_content.should_not be_nil
+        end
+        it 'records call received date' do
+          post :create, params
+          phone_number.unsolicited_calls(true).order('created_at').last.received_at.should_not be_nil
+        end
+        it 'records reply action' do
+          post :create, params
+          phone_number.unsolicited_calls(true).order('created_at').last.action_taken.should == PhoneNumber::REPLY
+        end
+        it 'records action contents' do
+          post :create, params
+          phone_number.unsolicited_calls(true).order('created_at').last.action_content.should_not be_nil
+        end
+        it 'records action taken at' do
+          post :create, params
+          phone_number.unsolicited_calls(true).order('created_at').last.action_taken_at.should_not be_nil
+        end
       end
-      it 'responds with xml' do
-        inject_twilio_signature( inbound_post_params )
-        post :create, inbound_post_params
-        response.should have_content_type('application/xml')
-      end
+
     end
   end
 end

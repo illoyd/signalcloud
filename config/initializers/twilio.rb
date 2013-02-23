@@ -63,8 +63,8 @@ module Twilio
       ##
       # Convert the 'payload' of the message back into a hash class, for ease of use later
       def to_property_hash
-        properties = {}
-        [ :sid, :date_created, :date_updated, :date_sent, :account_sid, :to, :from, :body, :status, :direction, :api_version, :price ].map do |property|
+        properties = HashWithIndifferentAccess.new
+        [ :sid, :date_created, :date_updated, :date_sent, :account_sid, :to, :from, :body, :status, :direction, :api_version, :price, :parent_call_sid, :date_created, :date_updated, :account_sid, :phone_number_sid, :status, :start_time, :end_time, :duration, :answered_by, :forwarded_from, :caller_name, :uri ].map do |property|
           properties[property] = self.send(property) if self.respond_to?(property)
         end
         return properties

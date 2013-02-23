@@ -40,12 +40,23 @@ class InboundMessageJob < Struct.new( :provider_update )
   end
   
   def perform_unsolicited_action()
-    self.internal_phone_number.record_unsolicited_message({
-      customer_number: self.provider_update[:from],
-      body: self.provider_update[:body],
-      payload: self.provider_update
-    })
-    JobTools.enqueue SendUnsolicitedMessageReplyJob.new( self.internal_phone_number.id, self.provider_update[:from] )
+    #self.internal_phone_number.record_unsolicited_message({
+    #  customer_number: self.provider_update[:from],
+    #  body: self.provider_update[:body],
+    #  payload: self.provider_update
+    #})
+
+    unsolicited_message = self.internal_phone_number.unsolicited_messages.build( twilio_sms_sid: self.provider_update[:sms_sid], customer_number: self.provider_update[:from], received_at: DateTime.now, message_content: self.provider_update )
+    
+    if self.internal_phone_number().should_reply_to_unsolicited_sms?
+      unsolicited_message.action_taken = PhoneNumber::REPLY
+      unsolicited_message.deliver_reply!
+      # JobTools.enqueue SendUnsolicitedMessageReplyJob.new( self.internal_phone_number.id, self.provider_update[:from] )
+    else
+      unsolicited_message.action_taken = PhoneNumber::IGNORE
+    end
+
+    unsolicited_message.save
   end
   
   def perform_matching_ticket_action( ticket )

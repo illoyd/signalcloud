@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121220210405) do
+ActiveRecord::Schema.define(:version => 20130223100946) do
 
   create_table "account_plans", :force => true do |t|
     t.string   "label",                                                                      :null => false
@@ -189,7 +189,7 @@ ActiveRecord::Schema.define(:version => 20121220210405) do
     t.integer  "account_id",                                                                                :null => false
     t.text     "encrypted_number",                                                                          :null => false
     t.string   "twilio_phone_number_sid",                                                                   :null => false
-    t.integer  "unsolicited_sms_action",    :limit => 2,                               :default => 3,       :null => false
+    t.integer  "unsolicited_sms_action",    :limit => 2,                               :default => 0,       :null => false
     t.string   "unsolicited_sms_message"
     t.integer  "unsolicited_call_action",   :limit => 2,                               :default => 0,       :null => false
     t.string   "unsolicited_call_message"
@@ -231,6 +231,40 @@ ActiveRecord::Schema.define(:version => 20121220210405) do
   add_index "tickets", ["encrypted_from_number"], :name => "index_tickets_on_encrypted_from_number"
   add_index "tickets", ["encrypted_to_number"], :name => "index_tickets_on_encrypted_to_number"
   add_index "tickets", ["status"], :name => "index_tickets_on_status"
+
+  create_table "unsolicited_calls", :force => true do |t|
+    t.integer  "phone_number_id"
+    t.string   "twilio_call_sid", :limit => 34,                                              :null => false
+    t.string   "customer_number",                                                            :null => false
+    t.datetime "received_at",                                                                :null => false
+    t.integer  "action_taken",                                                :default => 0, :null => false
+    t.datetime "action_taken_at"
+    t.decimal  "provider_price",                :precision => 6, :scale => 4
+    t.decimal  "our_price",                     :precision => 6, :scale => 4
+    t.text     "call_content",                                                               :null => false
+    t.text     "action_content"
+    t.datetime "created_at",                                                                 :null => false
+    t.datetime "updated_at",                                                                 :null => false
+  end
+
+  add_index "unsolicited_calls", ["phone_number_id"], :name => "index_unsolicited_calls_on_phone_number_id"
+
+  create_table "unsolicited_messages", :force => true do |t|
+    t.integer  "phone_number_id"
+    t.string   "twilio_sms_sid",  :limit => 34,                                              :null => false
+    t.string   "customer_number",                                                            :null => false
+    t.datetime "received_at",                                                                :null => false
+    t.integer  "action_taken",                                                :default => 0, :null => false
+    t.datetime "action_taken_at"
+    t.decimal  "provider_price",                :precision => 6, :scale => 4
+    t.decimal  "our_price",                     :precision => 6, :scale => 4
+    t.text     "message_content",                                                            :null => false
+    t.text     "action_content"
+    t.datetime "created_at",                                                                 :null => false
+    t.datetime "updated_at",                                                                 :null => false
+  end
+
+  add_index "unsolicited_messages", ["phone_number_id"], :name => "index_unsolicited_messages_on_phone_number_id"
 
   create_table "users", :force => true do |t|
     t.integer  "account_id"

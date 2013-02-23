@@ -5,6 +5,19 @@ describe Message do
   before { VCR.insert_cassette 'message', record: :new_episodes }
   after { VCR.eject_cassette }
   
+  # Helper: Build a random string for standard SMS
+  def random_sms_string(length)
+    charset_length = Message::SMS_CHARSET_LIST.length
+    (1..length).map{ Message::SMS_CHARSET_LIST[rand(charset_length)] }.join('')
+  end
+  
+  # Helper: Build a random string for unicode SMS
+  def random_unicode_string(length)
+    charset_length = Message::SMS_CHARSET_LIST.length
+    str = (1..length).map{ (rand(111411)+1).chr(Encoding::UTF_8) }.join('')
+    str.ascii_only? ? random_unicode_string(length) : str
+  end
+  
   # Validations
   describe 'validations' do
     before(:all) { 3.times { create :message, :with_provider_response } }
@@ -18,17 +31,6 @@ describe Message do
     it { should validate_numericality_of(:our_cost) }
     it { should validate_numericality_of(:provider_cost) }
     it { should validate_uniqueness_of(:twilio_sid) }
-  end
-  
-  def random_sms_string(length)
-    charset_length = Message::SMS_CHARSET_LIST.length
-    (1..length).map{ Message::SMS_CHARSET_LIST[rand(charset_length)] }.join('')
-  end
-  
-  def random_unicode_string(length)
-    charset_length = Message::SMS_CHARSET_LIST.length
-    str = (1..length).map{ (rand(111411)+1).chr(Encoding::UTF_8) }.join('')
-    str.ascii_only? ? random_unicode_string(length) : str
   end
   
   describe '.is_sms_charset?' do
