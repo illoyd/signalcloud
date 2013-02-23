@@ -44,20 +44,74 @@
           %p.information= "%i" % @account.tickets.yesterday.count
           %p.information-label Tickets yesterday
       / Account Plan
-      %li.span3
-        .thumbnail.tile
-          %p.information= @account.account_plan.label
-          %p.information-label Plan
+      /
+        %li.span3
+          .thumbnail.tile
+            %p.information= @account.account_plan.label
+            %p.information-label Plan
     
     %h4 ticket breakdown
-    - statistics = @account.ticket_statistics
-    .progress
-      .bar.bar-info{ :style => "width: #{statistics[:queued]}%", rel: 'tooltip', title: 'Queued: %0.0f%%' % statistics[:queued] }
-      .bar{ :style => "width: #{statistics[:sent]}%", rel: 'tooltip', title: 'Sent: %0.0f%%' % statistics[:sent] }
-      .bar.bar-success{ :style => "width: #{statistics[:confirmed]}%", rel: 'tooltip', title: 'Confirmed: %0.0f%%' % statistics[:confirmed] }
-      .bar.bar-warning{ :style => "width: #{statistics[:expired]}%", rel: 'tooltip', title: 'Expired: %0.0f%%' % statistics[:expired] }
-      .bar.bar-lightdanger{ :style => "width: #{statistics[:failed]}%", rel: 'tooltip', title: 'Failed: %0.0f%%' % statistics[:failed] }
-      .bar.bar-danger{ :style => "width: #{statistics[:denied]}%", rel: 'tooltip', title: 'Denied: %0.0f%%' % statistics[:denied] }
+    - counts = @account.ticket_count_by_status()
+    - statistics = @account.ticket_statistics(counts)
+    .row
+      .span2
+        = ticket_status_icon Ticket::QUEUED
+        Queued
+      .span1{ style: 'text-align: right' }
+        = counts[:queued]
+      .span6
+        .progress
+          .bar.bar-info{ :style => "width: #{statistics[:queued]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Queued: %0.0f%%' % statistics[:queued] }
+    
+    .row
+      .span2
+        = ticket_status_icon Ticket::CHALLENGE_SENT
+        Sent
+      .span1{ style: 'text-align: right' }
+        = counts[:sent]
+      .span6
+        .progress
+          .bar{ :style => "width: #{statistics[:sent]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Sent: %0.0f%%' % statistics[:sent] }
+
+    .row
+      .span2
+        = ticket_status_icon Ticket::CONFIRMED
+        Confirmed
+      .span1{ style: 'text-align: right' }
+        = counts[:confirmed]
+      .span6
+        .progress
+          .bar.bar-success{ :style => "width: #{statistics[:confirmed]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Confirmed: %0.0f%%' % statistics[:confirmed] }
+
+    .row
+      .span2
+        = ticket_status_icon Ticket::DENIED
+        Denied
+      .span1{ style: 'text-align: right' }
+        = counts[:denied]
+      .span6
+        .progress
+          .bar.bar-danger{ :style => "width: #{statistics[:denied]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Denied: %0.0f%%' % statistics[:denied] }
+
+    .row
+      .span2
+        = ticket_status_icon Ticket::FAILED
+        Failed
+      .span1{ style: 'text-align: right' }
+        = counts[:failed]
+      .span6
+        .progress
+          .bar.bar-lightdanger{ :style => "width: #{statistics[:failed]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Failed: %0.0f%%' % statistics[:failed] }
+
+    .row
+      .span2
+        = ticket_status_icon Ticket::EXPIRED
+        Expired
+      .span1{ style: 'text-align: right' }
+        = counts[:expired]
+      .span6
+        .progress
+          .bar.bar-warning{ :style => "width: #{statistics[:expired]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Expired: %0.0f%%' % statistics[:expired] }
 
     %h4 tokens
     %p Tokens are used to authenticate with the ticketplease API.

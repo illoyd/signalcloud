@@ -157,21 +157,36 @@ class Account < ActiveRecord::Base
   ##
   # Return the default appliance for this account, or the first appliance if no default is set.
   def primary_appliance
-    app = self.appliances.where( primary: true ).first
+    app = self.appliances.where( primary: true ).order('id').first
     app = self.appliances.first if app.nil?
     app
   end
   
-  def ticket_statistics
-    total = self.tickets.today.count
+  def ticket_count_by_status()
     return {
-      expired: self.tickets.today.where( status: Ticket::EXPIRED ).count.to_f / total * 100.0,
-      denied: self.tickets.today.where( status: Ticket::DENIED ).count.to_f / total * 100.0,
-      failed: self.tickets.today.where( status: Ticket::FAILED ).count.to_f / total * 100.0,
-      confirmed: self.tickets.today.where( status: Ticket::CONFIRMED ).count.to_f / total * 100.0,
-      queued: self.tickets.today.where( status: Ticket::QUEUED ).count.to_f / total * 100.0,
-      sent: self.tickets.today.where( status: Ticket::CHALLENGE_SENT ).count.to_f / total * 100.0
+      expired: self.tickets.today.where( status: Ticket::EXPIRED ).count,
+      denied: self.tickets.today.where( status: Ticket::DENIED ).count,
+      failed: self.tickets.today.where( status: Ticket::FAILED ).count,
+      confirmed: self.tickets.today.where( status: Ticket::CONFIRMED ).count,
+      queued: self.tickets.today.where( status: [Ticket::QUEUED, Ticket::PENDING] ).count,
+      sent: self.tickets.today.where( status: Ticket::CHALLENGE_SENT ).count
     }
+  end
+  
+  def ticket_statistics( counts=nil )
+    counts ||= self.ticket_count_by_status()
+    total = self.tickets.today.count.to_f
+    return counts.each_with_object({}) do |(k, v), h|
+      h[k] = v.to_f / total * 100.0
+    end
+#     return {
+#       expired: self.tickets.today.where( status: Ticket::EXPIRED ).count.to_f / total * 100.0,
+#       denied: self.tickets.today.where( status: Ticket::DENIED ).count.to_f / total * 100.0,
+#       failed: self.tickets.today.where( status: Ticket::FAILED ).count.to_f / total * 100.0,
+#       confirmed: self.tickets.today.where( status: Ticket::CONFIRMED ).count.to_f / total * 100.0,
+#       queued: self.tickets.today.where( status: [Ticket::QUEUED, Ticket::PENDING] ).count.to_f / total * 100.0,
+#       sent: self.tickets.today.where( status: Ticket::CHALLENGE_SENT ).count.to_f / total * 100.0
+#     }
   end
   
   def additive_ticket_statistics
