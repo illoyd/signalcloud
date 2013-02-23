@@ -1,0 +1,19 @@
+/ Dropdown list
+- default_options = { 'tabindex' => "-1" }
+- raise 'Oops! Split Dropdown was not an array' unless splitdropdown.is_a? Array
+- unless splitdropdown.empty?
+  .btn-group
+    = link_to splitdropdown.first[:link], class: ['btn', options.fetch(:class,'btn-small')] do
+      = splitdropdown.first.include?(:icon) ? icon( splitdropdown.first[:icon] ) : 'Manage'
+    / %a{ href: splitdropdown.first[:link], class: ['btn', options.fetch(:class,'btn-small')] }= splitdropdown.first.include?(:icon) ? icon( splitdropdown.first[:icon] ) : 'Manage'
+    %button.btn.dropdown-toggle{ class: options.fetch(:class,'btn-small'), "data-toggle" => "dropdown" }
+      %span.caret
+    %ul.dropdown-menu
+      - splitdropdown.each do |entry|
+        - entry_class = entry.fetch( :active, false ) ? 'active' : ''  # Decide if this is the 'active' entry
+        - options = default_options.merge entry.fetch(:options, {})    # Build a set of options for the link_to field
+        %li{ 'class' => entry_class }
+          = link_to entry[:link], options do
+            - if entry.include? :icon
+              = icon( entry[:icon] )
+            = entry[:label]

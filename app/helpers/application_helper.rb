@@ -8,6 +8,11 @@ module ApplicationHelper
     render partial: 'layouts/dropdown', object: entries, locals: { label: label, options: options }
   end
   
+  def split_dropdown_list( entries = [], options = {} )
+    entries.select! { |entry| entry.fetch(:if, true) }
+    render partial: 'layouts/splitdropdown', object: entries, locals: { options: options } unless entries.empty?
+  end
+  
   def icon( kind = :blank, options = {} )
     render partial: 'layouts/icon', object: ICONS.fetch( kind, kind ).to_s, locals: { options: options }
   end
