@@ -20,5 +20,9 @@ module ApplicationHelper
   def humanize_phone_number( number )
     PhoneTools.humanize( number )
   end
+  
+  def flag_icon( country='global', size='medium' )
+    image_tag 'flag-%s-%s.png' % [country.downcase, size.downcase], { style: 'vertical-align: bottom' }
+  end
 
 end
