@@ -27,3 +27,7 @@ div.inline-modal {
 div.page-header h1 i {
   color: purple;
 }
+
+div.table-tools {
+  margin-bottom: 10px;
+}

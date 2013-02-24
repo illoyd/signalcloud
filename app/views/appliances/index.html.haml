@@ -1,10 +1,3 @@
-- content_for :table_header do
-  .row
-    .span12
-      = filter_dropdown_list()
-      - if can? :new, Appliance      
-        .pull-right= link_to 'New Appliance', new_appliance_path, :class => 'btn btn-success btn-small'
-
 .row
   .span12
     .page-header
@@ -13,7 +6,11 @@
         Appliances
         %small all appliances
 
-= yield :table_header
+.row
+  .span12.table-tools
+    = filter_dropdown_list()
+    - if can? :new, Appliance      
+      .pull-right= link_to 'New Appliance', new_appliance_path, :class => 'btn btn-success btn-small'
 
 .row
   .span12
@@ -55,4 +52,4 @@
                   = appliance.description
             %td= appliance.tickets.count
 
-= yield :table_header
+-# = yield :table_header
