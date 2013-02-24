@@ -36,3 +36,5 @@ production:
   database: ticketplease
   pool: 5
   timeout: 5000
+  host: localhost
+  user: ian

@@ -296,6 +296,13 @@ class Message < ActiveRecord::Base
     self.ticket.appliance.account.twilio_account.sms.messages.get( self.twilio_sid )
   end
   
+  def refresh_from_twilio
+    status = msg.twilio_status
+    msg.sent_at = status.date_sent
+    msg.provider_cost = ( Float(status.price) rescue nil )
+    msg.provider_response = status.to_property_hash
+  end
+  
   ##
   # Is this message a challenge?
   def is_challenge?

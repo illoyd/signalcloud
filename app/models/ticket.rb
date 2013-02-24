@@ -77,9 +77,9 @@ class Ticket < ActiveRecord::Base
   end
   
   def self.find_open_tickets( internal_number, customer_number )
-    e_internal_number = Ticket.encrypt :from_number, PhoneNumber.normalize_phone_number(internal_number)
-    e_customer_number = Ticket.encrypt :to_number, PhoneNumber.normalize_phone_number(customer_number)
-    Ticket.where( encrypted_from_number: e_internal_number, encrypted_to_number: e_customer_number, status: CHALLENGE_SENT )
+    e_internal_number = Ticket.encrypt( :from_number, PhoneNumber.normalize_phone_number(internal_number) )
+    e_customer_number = Ticket.encrypt( :to_number, PhoneNumber.normalize_phone_number(customer_number) )
+    Ticket.where( encrypted_from_number: e_internal_number, encrypted_to_number: e_customer_number, status: Ticket::OPEN_STATUSES )
   end
   
   def self.count_by_status_hash( ticket_query )

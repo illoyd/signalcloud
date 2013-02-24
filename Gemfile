@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '3.2.11'
+gem 'rails', '3.2.12'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
@@ -51,20 +51,21 @@ gem 'phony'
 gem 'stringex'
 gem 'ruby-freshbooks'
 
-# Add rspec
-group :test, :development do
-  gem "rspec-rails", "~> 2.0"
-  gem "ZenTest", "~> 4.4.2"
-  gem "autotest-rails", "~> 4.1.0"
-  gem 'simplecov', :require => false
+group :production do
+  gem 'unicorn'
 end
 
-# Add shoulda matchers
+group :test, :development do
+  gem "rspec-rails", "~> 2.0"
+end
+
 group :test do
 	gem 'shoulda-matchers'
 	gem 'vcr'
 	gem 'webmock'
 	gem 'factory_girl'
 	gem 'fuubar'
+  gem "ZenTest", "~> 4.4.2"
+  gem "autotest-rails", "~> 4.1.0"
+  gem 'simplecov', :require => false
 end
-

@@ -60,6 +60,10 @@ class InboundMessageJob < Struct.new( :provider_update )
   end
   
   def perform_matching_ticket_action( ticket )
+    msg = ticket.messages.build( twilio_sid: self.provider_update[:sms_sid], from_number: self.provider_update[:from], to_number: self.provider_update[:to], body: self.provider_update[:body], direction: Message::DIRECTION_IN, provider_response: self.provider_update )
+    msg.refresh_from_twilio
+    msg.save!
+
     ticket.accept_answer! self.provider_update[:body]
     JobTools.enqueue SendTicketReplyJob.new ticket.id
     JobTools.enqueue SendTicketStatusWebhookJob.new ticket.id

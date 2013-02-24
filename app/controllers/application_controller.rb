@@ -22,8 +22,18 @@ class ApplicationController < ActionController::Base
     # Only continue processing if the account was found
     else
       # Capture parameters
+      v_uri = request.original_request_url @account.account_sid, @account.auth_token
       v_params = request.post? ? request.request_parameters : request.query_parameters
       v_header = request.headers.fetch( 'HTTP_X_TWILIO_SIGNATURE', 'NO HEADER GIVEN' )
+      
+      #v_uri = 'http://%s:%s@localhost:5000%s' % [ @account.account_sid, @account.auth_token, request.path ]
+      v_params = env['rack.request.form_hash']
+      v_header = env['HTTP_X_TWILIO_SIGNATURE']
+      
+      response.headers['v_uri'] = v_uri
+#       response.headers['v_params'] = v_params.to_s
+#       response.headers['v_header'] = v_header.to_s
+#       response.headers['v_header_calc'] = @account.twilio_validator.build_signature_for( v_uri, v_params )
 
 #       print "authenticate_twilio!\n"
 #       #print "  Base URL: %s\n" % request.url
@@ -38,7 +48,7 @@ class ApplicationController < ActionController::Base
 #       #pp params
     
       # FORBID if does not pass validation
-      head :forbidden unless @account.twilio_validator.validate( request.original_request_url, v_params, v_header )
+      head :forbidden unless @account.twilio_validator.validate( v_uri, v_params, v_header )
     end
   end
   

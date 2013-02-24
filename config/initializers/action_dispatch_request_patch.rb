@@ -12,7 +12,7 @@ module ActionDispatch
       unless username.blank?
         auth_string = username
         auth_string += ':'+password unless password.blank?
-        temp_path.gsub!( /(https?:\/\/)/, '\1' + auth_string )
+        temp_path.gsub!( /(https?:\/\/)/, '\1' + auth_string + '@' )
       end
       
       return temp_path
