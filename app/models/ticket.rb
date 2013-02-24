@@ -67,6 +67,8 @@ class Ticket < ActiveRecord::Base
   scope :closed, where( 'status not in (?)', OPEN_STATUSES )
   scope :today, where( "tickets.created_at >= ? and tickets.created_at <= ?", DateTime.now.beginning_of_day, DateTime.now.end_of_day )
   scope :yesterday, where( "tickets.created_at >= ? and tickets.created_at <= ?", DateTime.yesterday.beginning_of_day, DateTime.yesterday.end_of_day )
+  scope :last_x_days, where( "tickets.created_at >= ? and tickets.created_at <= ?", 7.days.ago.beginning_of_day, DateTime.yesterday.end_of_day )
+  scope :count_by_status, select('count(tickets.*) as count, tickets.status').group('tickets.status')
   
   ##
   # Standardise all messages for easier comparisons and matching.
@@ -78,6 +80,12 @@ class Ticket < ActiveRecord::Base
     e_internal_number = Ticket.encrypt :from_number, PhoneNumber.normalize_phone_number(internal_number)
     e_customer_number = Ticket.encrypt :to_number, PhoneNumber.normalize_phone_number(customer_number)
     Ticket.where( encrypted_from_number: e_internal_number, encrypted_to_number: e_customer_number, status: CHALLENGE_SENT )
+  end
+  
+  def self.count_by_status_hash( ticket_query )
+    counts = ticket_query.count_by_status.readonly.each_with_object({}) { |v, h| h[v.status] = v.count.to_i }
+    Ticket::STATUSES.each { |status| counts[status] = 0 unless counts.include?(status) }
+    return counts
   end
 
   ##
