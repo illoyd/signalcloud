@@ -99,4 +99,16 @@
       / Footer
       .row
         .span12
-          .small Footer details here
+          %hr
+      .row
+        .span6
+          %p
+            %small
+              Copyright &copy; 2012-2013
+              =link_to 'ticketplease, llc.', 'http://www.ticketpleaseapp.com'
+              =link_to 'Contact us.', 'mailto:contact@ticketpleaseapp.com'
+              
+        .span6
+          %p{style:'text-align:right'}
+            %small (#{Rails.env})
+            
