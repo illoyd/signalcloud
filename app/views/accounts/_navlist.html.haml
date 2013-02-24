@@ -13,9 +13,10 @@
     { label: 'Details', icon: :show, link: account_path }, |
     { label: 'Edit', icon: :edit, link: edit_account_path(), if: can?(:edit, @account) }, |
     { header: 'Related' }, |
-    { label: 'Users', icon: :users, link: users_path, if: can?(:index, User) }, |
     { label: 'Appliances', icon: :appliances, link: appliances_path, if: can?(:index, Appliance) }, |
     { label: 'Directories', icon: :phone_directories, link: phone_directories_path, if: can?(:index, PhoneDirectory) }, |
     { label: 'Phone Numbers', icon: :phone_numbers, link: phone_numbers_path, if: can?(:index, PhoneNumber) }, |
-    { label: 'Tickets', icon: :tickets, link: tickets_path, if: can?(:index, Ticket) } |
+    { label: 'Tickets', icon: :tickets, link: tickets_path, if: can?(:index, Ticket) }, |
+    { label: 'Users', icon: :users, link: users_path, if: can?(:index, User) }, |
+    { label: 'Ledger', icon: :ledger_entries, link: ledger_entries_path, if: can?(:index, LedgerEntry) }, |
     ]) |

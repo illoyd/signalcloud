@@ -1,0 +1,61 @@
+.row
+  .span2
+    - queued_count = counts[Ticket::PENDING] + counts[Ticket::QUEUED]
+    - queued_statistics = statistics[Ticket::PENDING] + statistics[Ticket::QUEUED]
+    = ticket_status_icon Ticket::QUEUED
+    Queued
+  .span1{ style: 'text-align: right' }
+    = queued_count
+  .span6
+    .progress
+      .bar.bar-info{ :style => "width: #{queued_statistics}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Queued: %0.0f%%' % queued_statistics }
+
+.row
+  .span2
+    = ticket_status_icon Ticket::CHALLENGE_SENT
+    Sent
+  .span1{ style: 'text-align: right' }
+    = counts[Ticket::CHALLENGE_SENT]
+  .span6
+    .progress
+      .bar{ :style => "width: #{statistics[Ticket::CHALLENGE_SENT]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Sent: %0.0f%%' % statistics[Ticket::CHALLENGE_SENT] }
+
+.row
+  .span2
+    = ticket_status_icon Ticket::CONFIRMED
+    Confirmed
+  .span1{ style: 'text-align: right' }
+    = counts[Ticket::CONFIRMED]
+  .span6
+    .progress
+      .bar.bar-success{ :style => "width: #{statistics[Ticket::CONFIRMED]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Confirmed: %0.0f%%' % statistics[Ticket::CONFIRMED] }
+
+.row
+  .span2
+    = ticket_status_icon Ticket::DENIED
+    Denied
+  .span1{ style: 'text-align: right' }
+    = counts[Ticket::DENIED]
+  .span6
+    .progress
+      .bar.bar-danger{ :style => "width: #{statistics[Ticket::DENIED]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Denied: %0.0f%%' % statistics[Ticket::DENIED] }
+
+.row
+  .span2
+    = ticket_status_icon Ticket::FAILED
+    Failed
+  .span1{ style: 'text-align: right' }
+    = counts[Ticket::FAILED]
+  .span6
+    .progress
+      .bar.bar-lightdanger{ :style => "width: #{statistics[Ticket::FAILED]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Failed: %0.0f%%' % statistics[Ticket::FAILED] }
+
+.row
+  .span2
+    = ticket_status_icon Ticket::EXPIRED
+    Expired
+  .span1{ style: 'text-align: right' }
+    = counts[Ticket::EXPIRED]
+  .span6
+    .progress
+      .bar.bar-warning{ :style => "width: #{statistics[Ticket::EXPIRED]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Expired: %0.0f%%' % statistics[Ticket::EXPIRED] }

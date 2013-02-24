@@ -51,68 +51,16 @@
             %p.information-label Plan
     
     %h4 ticket breakdown
-    - counts = @account.ticket_count_by_status()
-    - statistics = @account.ticket_statistics(counts)
-    .row
-      .span2
-        = ticket_status_icon Ticket::QUEUED
-        Queued
-      .span1{ style: 'text-align: right' }
-        = counts[:queued]
-      .span6
-        .progress
-          .bar.bar-info{ :style => "width: #{statistics[:queued]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Queued: %0.0f%%' % statistics[:queued] }
+    %div.tabbable    
+      %ul.nav.nav-pills
+        %li.active= link_to 'today', '#today', {'data-toggle'=>'pill'}
+        %li= link_to 'yesterday', '#yesterday', {'data-toggle'=>'pill'}
+        %li= link_to 'last 7 days', '#lastweek', {'data-toggle'=>'pill'}
+      %div.tab-content.fade.in
+        %div#today.tab-pane.fade.in.active= ticket_status_breakdown( @account.tickets.today.count_by_status )
+        %div#yesterday.tab-pane.fade= ticket_status_breakdown( @account.tickets.yesterday.count_by_status )
+        %div#lastweek.tab-pane.fade= ticket_status_breakdown( @account.tickets.last_x_days.count_by_status )
     
-    .row
-      .span2
-        = ticket_status_icon Ticket::CHALLENGE_SENT
-        Sent
-      .span1{ style: 'text-align: right' }
-        = counts[:sent]
-      .span6
-        .progress
-          .bar{ :style => "width: #{statistics[:sent]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Sent: %0.0f%%' % statistics[:sent] }
-
-    .row
-      .span2
-        = ticket_status_icon Ticket::CONFIRMED
-        Confirmed
-      .span1{ style: 'text-align: right' }
-        = counts[:confirmed]
-      .span6
-        .progress
-          .bar.bar-success{ :style => "width: #{statistics[:confirmed]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Confirmed: %0.0f%%' % statistics[:confirmed] }
-
-    .row
-      .span2
-        = ticket_status_icon Ticket::DENIED
-        Denied
-      .span1{ style: 'text-align: right' }
-        = counts[:denied]
-      .span6
-        .progress
-          .bar.bar-danger{ :style => "width: #{statistics[:denied]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Denied: %0.0f%%' % statistics[:denied] }
-
-    .row
-      .span2
-        = ticket_status_icon Ticket::FAILED
-        Failed
-      .span1{ style: 'text-align: right' }
-        = counts[:failed]
-      .span6
-        .progress
-          .bar.bar-lightdanger{ :style => "width: #{statistics[:failed]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Failed: %0.0f%%' % statistics[:failed] }
-
-    .row
-      .span2
-        = ticket_status_icon Ticket::EXPIRED
-        Expired
-      .span1{ style: 'text-align: right' }
-        = counts[:expired]
-      .span6
-        .progress
-          .bar.bar-warning{ :style => "width: #{statistics[:expired]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Expired: %0.0f%%' % statistics[:expired] }
-
     %h4 tokens
     %p Tokens are used to authenticate with the ticketplease API.
     %table.table
@@ -133,7 +81,3 @@
           %td Twilio
           %td= @account.twilio_account_sid
           %td= @account.twilio_auth_token
-
-    = link_to 'Edit', edit_account_path(@account)
-    |
-    \#{link_to 'Back', accounts_path}
