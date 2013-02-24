@@ -1,6 +1,6 @@
 # encoding: UTF-8
 class Message < ActiveRecord::Base
-  attr_accessible :our_cost, :provider_cost, :ticket_id, :provider_response, :provider_update, :twilio_sid, :message_kind, :to_number, :from_number, :body, :direction
+  attr_accessible :status, :sent_at, :our_cost, :provider_cost, :ticket_id, :provider_response, :provider_update, :twilio_sid, :message_kind, :to_number, :from_number, :body, :direction
   
   before_save :update_ledger_entry
 
@@ -91,6 +91,10 @@ class Message < ActiveRecord::Base
   end
   
   def update_ledger_entry
+    # If provider cost is given, but not our cost, this implies that the message is in a partial state.
+    # Force the provider_cost again.
+    self.provider_cost = self.provider_cost if !self.provider_cost.nil? and self.our_cost.nil?
+    
     # Is this entry has a cost already set...
     if self.has_cost?
       self.build_ledger_entry( narrative: self.ledger_entry_narrative ) if self.ledger_entry.nil?
