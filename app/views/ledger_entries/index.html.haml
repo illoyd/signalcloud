@@ -16,7 +16,7 @@
           %th.span1
           %th Entry
           %th Recorded
-          %th Value
+          %th{style:'text-align:right'} Value
           %th.span1 Settled
         %tbody
           - if @ledger_entries.empty?
@@ -35,7 +35,7 @@
                 - unless ledger_entry.blank?
                   %small= ledger_entry.notes
               %td= l ledger_entry.updated_at, format: :short
-              %td{style:'text-align:right'}= ledger_entry.value.round(3)
+              %td{style:'text-align:right'}= number_to_currency ledger_entry.value.round(3), units: '', precision: 3
               %td= ledger_entry.settled? ? icon(:ok) : ''
 
   = paginate @ledger_entries
