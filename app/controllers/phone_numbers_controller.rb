@@ -62,19 +62,19 @@ class PhoneNumbersController < ApplicationController
 
   # PUT /phone_numbers/1
   # PUT /phone_numbers/1.json
-  #def update
-  #  @phone_number = PhoneNumber.find(params[:id])
-  #
-  #  respond_to do |format|
-  #    if @phone_number.update_attributes(params[:phone_number])
-  #      format.html { redirect_to @phone_number, notice: 'Phone number was successfully updated.' }
-  #      format.json { head :no_content }
-  #    else
-  #      format.html { render action: "edit" }
-  #      format.json { render json: @phone_number.errors, status: :unprocessable_entity }
-  #    end
-  #  end
-  #end
+  def update
+   @phone_number = current_account.phone_numbers.find(params[:id])
+  
+   respond_to do |format|
+     if @phone_number.update_attributes(params[:phone_number])
+       format.html { redirect_to @phone_number, notice: 'Phone number was successfully updated.' }
+       format.json { head :no_content }
+     else
+       format.html { render action: "edit" }
+       format.json { render json: @phone_number.errors, status: :unprocessable_entity }
+     end
+   end
+  end
 
   # DELETE /phone_numbers/1
   # DELETE /phone_numbers/1.json
@@ -90,8 +90,8 @@ class PhoneNumbersController < ApplicationController
   
   def search
     # Collection of searchable params
-    search_params = params.dup
-    [ :area_code, :contains, :in_region, :in_postal_code, :near_number, :distance ].each { |k| search_params.delete k }
+    allowed_search_params = [ :area_code, :contains, :in_region, :in_postal_code, :near_number, :distance ]
+    search_params = allowed_search_params.each_with_object({}) { |k, h| h[k] = params[k] if params.include?(k) }
     
     # Extract country code from params
     country_code = params[:country].upcase

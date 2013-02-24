@@ -19,25 +19,41 @@
     ]) |
 
   .span9
+    = form_tag( search_phone_numbers_path(params[:country]), method: :get, class:'form-inline' ) do
+      .input-prepend
+        %span.add-on Area Code
+        = text_field_tag :area_code, params[:area_code], placeholder: 'Area Code', class: 'input-small'
+      .input-prepend
+        %span.add-on Contains
+        = text_field_tag :contains, params[:contains], placeholder: 'Contains', class: 'input-medium'
+      = submit_tag 'Search', class: 'btn'
+      = link_to 'Reset', search_phone_numbers_path(params[:country]), class: 'btn'
+  
     %table.table.table-striped
       %thead
         %tr
+          %th.span1
           %th Phone Number
           %th Country
           %th Monthly fee
-          %th
       %tbody
         - if @available_phone_numbers.empty?
           %tr
             %td{'colspan'=>4}
               %em No phone numbers were found matching your search.
-        - @available_phone_numbers.each do |phone_number|
+        - @available_phone_numbers.first(5).each do |phone_number|
+          - modal_id = phone_number.phone_number.to_s.gsub(/\D/,'')
           %tr
-            %td{'colspan'=>3}
-              pre= phone_number.to_s
-            -# %td= phone_number.phone_directories.count
-            -# %td= phone_number.cost
             %td
-              = form_tag( url: sessions_path ) do |f|
-                = f.hidden_field :phone_number, :number, :value => phone_number['PhoneNumber']
-                = f.submit 'Buy', phone_number, :class=>'btn btn-primary'
+              = form_tag( buy_phone_numbers_path, method: :post, style:'margin:0px; padding:0px' ) do
+                = hidden_field_tag :phone_number, phone_number.phone_number
+                = submit_tag 'Buy', class: 'btn btn-primary btn-mini'
+            %td= link_to humanize_phone_number(phone_number.phone_number), "#info#{modal_id}", 'data-toggle' => 'modal'
+            %td
+              #{flag_icon(phone_number.iso_country)} #{phone_number.iso_country}
+              - unless phone_number.region.blank?
+                \- #{phone_number.region}
+            %td
+              = number_to_currency Twilio.assumed_phone_number_price( phone_number.iso_country ), unit: 'US$', precision: 2
+    -# @available_phone_numbers.first(5).each_with_index do |phone_number, index|
+    = render partial: 'info_modal', collection: @available_phone_numbers.first(5), as: :phone_number

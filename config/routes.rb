@@ -66,7 +66,7 @@ Ticketplease::Application.routes.draw do
 
   resources :ledger_entries, only: [ :index, :show ]
 
-  resources :phone_numbers, only: [ :index, :show ] do
+  resources :phone_numbers, only: [ :index, :show, :edit, :update ] do
     collection do
       get 'search/:country', action: 'search', defaults: { country: 'US' }, constraint: { country: /(US|CA|GB)/ }, as: 'search'
       post 'buy', action: 'buy', as: 'buy'

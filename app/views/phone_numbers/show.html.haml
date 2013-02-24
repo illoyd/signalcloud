@@ -1,16 +1,50 @@
-%p#notice= notice
-%p
-  %b Account:
-  = @phone_number.account
-%p
-  %b Encrypted number:
-  = @phone_number.encrypted_number
-%p
-  %b Provider cost:
-  = @phone_number.provider_cost
-%p
-  %b Our cost:
-  = @phone_number.our_cost
-= link_to 'Edit', edit_phone_number_path(@phone_number)
-|
-\#{link_to 'Back', phone_numbers_path}
+.row
+  .span12
+    .page-header
+      %h1
+        = icon( :phone_numbers )
+        Phone Numbers
+        %small= humanize_phone_number @phone_number.number
+
+.row
+  .span3
+    = render 'navlist'
+  .span9
+    %p
+      %b Number:
+      = humanize_phone_number @phone_number.number
+    %p
+      %b Monthly fee:
+      = number_to_currency @phone_number.cost, units: 'US$', precision: 2
+
+    %h3 actions
+    .row
+      .span4 When receiving an unsolicited SMS...
+      .span5
+        - case @phone_number.unsolicited_sms_action
+          - when PhoneNumber::IGNORE
+            %p Ignore the message.
+            %p
+              %small (Note: This does not incur a fee.)
+          - when PhoneNumber::REPLY
+            %p Reply with the following message:
+            %p.well= @phone_number.unsolicited_sms_message
+            %p
+              %small (Note: This will incur a fee for each message replied.)
+    .row
+      .span4 When receiving an unsolicited call...
+      .span5
+        - case @phone_number.unsolicited_call_action
+          - when PhoneNumber::REJECT
+            %p Do not answer and play an out-of-service message.
+            %p
+              %small (Note: This does not incur a fee.)
+          - when PhoneNumber::BUSY
+            %p Do not answer and play a line-is-busy message.
+            %p
+              %small (Note: This does not incur a fee.)
+          - when PhoneNumber::REPLY
+            %p Answer with the following #{call_language(@phone_number.unsolicited_call_language)} message using a #{call_voice(@phone_number.unsolicited_call_voice)} voice:
+            %p.well= @phone_number.unsolicited_call_message
+            %p
+              %small (Note: This will incur a fee for each call answered.)
