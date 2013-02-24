@@ -38,7 +38,7 @@ class User < ActiveRecord::Base
     end
   end
   
-  def self.translate_roles( new_roles )
+  def self.translate_roles( new_roles=[] )
     new_roles.map! { |entry| entry.to_sym }
     return (new_roles & ROLES).map { |r| 2**ROLES.index(r) }.inject(0, :+)
   end
