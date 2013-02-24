@@ -83,20 +83,20 @@ customer_numbers.shuffle.each do |customer_number|
   ticket.status = Ticket::STATUSES.sample
   ticket.save!
   if [ Ticket::CHALLENGE_SENT, Ticket::CONFIRMED, Ticket::DENIED, Ticket::FAILED, Ticket::EXPIRED ].include? ticket.status
-    ticket.messages.build( to_number: ticket.to_number, from_number: ticket.from_number, body: ticket.question, message_kind: Message::CHALLENGE, direction: Message::DIRECTION_OUT )
+    ticket.messages.build( to_number: ticket.to_number, from_number: ticket.from_number, body: ticket.question, message_kind: Message::CHALLENGE, direction: Message::DIRECTION_OUT, provider_cost: 0.01, sent_at: 5.seconds.ago, status: Message::SENT )
   end
   case ticket.status
     when Ticket::CONFIRMED
-      ticket.messages.build( to_number: ticket.from_number, from_number: ticket.to_number, body: ticket.expected_confirmed_answer, direction: Message::DIRECTION_IN )
-      ticket.messages.build( to_number: ticket.to_number, from_number: ticket.from_number, body: ticket.confirmed_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT )
+      ticket.messages.build( to_number: ticket.from_number, from_number: ticket.to_number, body: ticket.expected_confirmed_answer, direction: Message::DIRECTION_IN, provider_cost: 0.01, sent_at: 4.seconds.ago )
+      ticket.messages.build( to_number: ticket.to_number, from_number: ticket.from_number, body: ticket.confirmed_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT, provider_cost: 0.01, sent_at: 3.seconds.ago, status: Message::SENT )
     when Ticket::DENIED
-      ticket.messages.build( to_number: ticket.from_number, from_number: ticket.to_number, body: ticket.expected_denied_answer, direction: Message::DIRECTION_IN )
-      ticket.messages.build( to_number: ticket.to_number, from_number: ticket.from_number, body: ticket.denied_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT )
+      ticket.messages.build( to_number: ticket.from_number, from_number: ticket.to_number, body: ticket.expected_denied_answer, direction: Message::DIRECTION_IN, provider_cost: 0.01, sent_at: 4.seconds.ago )
+      ticket.messages.build( to_number: ticket.to_number, from_number: ticket.from_number, body: ticket.denied_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT, provider_cost: 0.01, sent_at: 3.seconds.ago, status: Message::SENT )
     when Ticket::FAILED
-      ticket.messages.build( to_number: ticket.from_number, from_number: ticket.to_number, body: random_answer(), direction: Message::DIRECTION_IN )
-      ticket.messages.build( to_number: ticket.to_number, from_number: ticket.from_number, body: ticket.failed_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT )
+      ticket.messages.build( to_number: ticket.from_number, from_number: ticket.to_number, body: random_answer(), direction: Message::DIRECTION_IN, provider_cost: 0.01, sent_at: 4.seconds.ago )
+      ticket.messages.build( to_number: ticket.to_number, from_number: ticket.from_number, body: ticket.failed_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT, provider_cost: 0.01, sent_at: 3.seconds.ago, status: Message::SENT )
     when Ticket::EXPIRED
-      ticket.messages.build( to_number: ticket.to_number, from_number: ticket.from_number, body: ticket.expired_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT )
+      ticket.messages.build( to_number: ticket.to_number, from_number: ticket.from_number, body: ticket.expired_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT, provider_cost: 0.01, sent_at: 3.seconds.ago, status: Message::SENT )
   end
   ticket.save!
 end
