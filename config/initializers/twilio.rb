@@ -52,6 +52,15 @@ module Twilio
   def self.master_client
     Twilio::REST::Client.new ENV['TWILIO_MASTER_ACCOUNT_SID'], ENV['TWILIO_MASTER_AUTH_TOKEN']
   end
+  
+  def self.assumed_phone_number_price( country_code )
+    case country_code.upcase
+      when 'US', 'CA', 'GB'
+        1.00
+      else
+        0.00
+    end
+  end
 
   ##
   # REST API interface
