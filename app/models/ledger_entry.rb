@@ -62,15 +62,18 @@ class LedgerEntry < ActiveRecord::Base
 
   ##
   # Simple test if status is pending (e.g. has not been confirmed by the provider)
-  def is_pending?
+  def pending?
     return self.settled_at.nil?
   end
   
   ##
   # Simple test if status is settled (e.g. has been confirmed by the provider)
-  def is_settled?
+  def settled?
     return !self.settled_at.nil?
   end
+  
+  alias is_pending? pending?
+  alias is_settled? settled?
   
   ##
   # Ensure that the parent account is the same as the item's account

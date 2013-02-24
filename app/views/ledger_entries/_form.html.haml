@@ -1,0 +1,23 @@
+= form_for(@ledger_entry) do |f|
+  - if @ledger_entry.errors.any?
+    #error_explanation
+      %h2
+        = pluralize(@ledger_entry.errors.count, "error")
+        prohibited this ledger_entry from being saved:
+      %ul
+        - @ledger_entry.errors.full_messages.each do |msg|
+          %li= msg
+  .field
+    = f.label :narrative
+    %br/
+    = f.text_field :narrative
+  .field
+    = f.label :value
+    %br/
+    = f.text_field :value
+  .field
+    = f.label :item
+    %br/
+    = f.text_field :item
+  .actions
+    = f.submit

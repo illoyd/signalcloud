@@ -1,0 +1,41 @@
+/ Page header
+.row
+  .span12
+    .page-header
+      %h1
+        = icon( :ledger_entries )
+        Ledger
+        %small all transactions
+
+/ Page body
+.row
+  .span12
+    %table.table.table-striped.table-condensed
+      %thead
+        %tr
+          %th.span1
+          %th Entry
+          %th Recorded
+          %th Value
+          %th.span1 Settled
+        %tbody
+          - if @ledger_entries.empty?
+            %tr
+              %td{colspan: 4}
+                %em No ledger entries match the search criteria. Please remove search criteria and try again.
+          
+          - @ledger_entries.each do |ledger_entry|
+            %tr
+              %td= split_dropdown_list([ |
+                { label: 'Details', icon: :show, link: ledger_entry, if: can?(:show, ledger_entry) }, |
+                { label: 'View ' + item_label(ledger_entry.item), icon: item_icon(ledger_entry.item), link: item_link(ledger_entry.item), if: can?(:show, ledger_entry.item) } |
+                ], {class: 'btn-mini'}) |
+              %td
+                = ledger_entry.narrative
+                - unless ledger_entry.blank?
+                  %small= ledger_entry.notes
+              %td= l ledger_entry.updated_at, format: :short
+              %td{style:'text-align:right'}= ledger_entry.value.round(3)
+              %td= ledger_entry.settled? ? icon(:ok) : ''
+
+  = paginate @ledger_entries

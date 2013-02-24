@@ -1,0 +1,40 @@
+/ Page header
+.row
+  .span12
+    .page-header
+      %h1
+        = icon( :ledger_entries )
+        Ledger
+        %small record #{@ledger_entry.id}
+
+/ Page body
+.row
+  .span3
+    = render :partial => 'navlist'
+  .span9
+    .row
+      .span9
+        %p
+          %b Narrative:
+          = @ledger_entry.narrative
+        %p
+          %b Reference:
+          = link_to item_label(@ledger_entry.item), item_link(@ledger_entry.item)
+        %p
+          %b Value:
+          - if @ledger_entry.settled?
+            = @ledger_entry.value
+          - else
+            %em
+              = @ledger_entry.value
+              (Pending settlement)
+
+        %p
+          %b Created:
+          = l @ledger_entry.created_at
+        %p
+          %b Settled:
+          - if @ledger_entry.settled?
+            = @ledger_entry.value
+          - else
+            %em Pending settlement

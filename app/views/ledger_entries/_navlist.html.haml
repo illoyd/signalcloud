@@ -1,0 +1,6 @@
+-# Existing ticket navigation
+= navigation_list([ |
+  { header: 'Related' }, |
+  { label: 'View ' + item_label(@ledger_entry.item), icon: item_icon(@ledger_entry.item), link: item_link(@ledger_entry.item), if: can?(:index, @ledger_entry.item) }, |
+  { label: 'Ledger', icon: :ledger_entries, link: ledger_entries_path, if: can?(:index, LedgerEntry) } |
+  ]) |
