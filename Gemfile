@@ -30,14 +30,13 @@ gem 'jquery-rails'
 # gem 'jbuilder'
 
 # Use unicorn as the app server
-# gem 'unicorn'
+gem 'unicorn'
 
 # Deploy with Capistrano
 # gem 'capistrano'
 
 # To use debugger
 # gem 'debugger'
-
 
 # Additional gems
 gem 'delayed_job_active_record'
@@ -50,10 +49,6 @@ gem 'kaminari'
 gem 'phony'
 gem 'stringex'
 gem 'ruby-freshbooks'
-
-group :production do
-  gem 'unicorn'
-end
 
 group :test, :development do
   gem "rspec-rails", "~> 2.0"
