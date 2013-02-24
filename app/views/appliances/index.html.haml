@@ -20,7 +20,7 @@
     %table.table
       %thead
         %tr
-          %th
+          %th.span1
           %th Appliance
           %th Directory
           %th Active
@@ -40,8 +40,12 @@
               { label: 'Delete', icon: :delete, link: appliance, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, appliance) }, |
               { label: 'Tickets', icon: :tickets, link: appliance_tickets_path(appliance), if: can?(:show, Ticket) } |
               ], {class: 'btn-mini'}) |
-            %td= link_to appliance.label, appliance
-            %td= link_to appliance.phone_directory.label, appliance.phone_directory
+            %td= link_to_if can?(:show, appliance), appliance.label, appliance
+            %td
+              - if appliance.phone_directory.nil?
+                %em No directory assigned
+              - else
+                = link_to_if can?(:show, appliance.phone_directory), appliance.phone_directory.label, appliance.phone_directory
             %td= icon( appliance.active ? :ok : :remove )
             %td
               %small

@@ -2,7 +2,7 @@
   -# New ticket navigation
   = navigation_list([ |
     { header: 'Related' }, |
-    { label: 'All Users', icon: :groups, link: users_path, if: can?(:index, User) } |
+    { label: 'All Users', icon: :user, link: users_path, if: can?(:index, User) } |
     ]) |
 - else
   -# Existing ticket navigation
@@ -12,5 +12,5 @@
     { label: 'Edit', icon: :edit, link: edit_user_path( @user ), if: can?(:edit, @user) }, |
     { label: 'Delete', icon: :delete, link: @user, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: ( can?(:destroy, @user) && @user.id != current_user.id ) }, |
     { header: 'Related', if: can?(:index, User) }, |
-    { label: 'All Users', icon: :tickets, link: users_path, if: can?(:index, User) } |
+    { label: 'All Users', icon: :user, link: users_path, if: can?(:index, User) } |
     ]) |

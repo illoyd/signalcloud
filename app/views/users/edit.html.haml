@@ -30,16 +30,15 @@
         = f.label :email, class: 'control-label'
         .controls= f.email_field :email
       
-      - if [ User::ROLE_OWNER, User::ROLE_ADMIN ].include? current_user.role
+      - if can?(:permissions, @user)
         .control-group
-          = f.label :role, class: 'control-label'
-          - unless @user.id == current_user.id
-            .controls= f.select :role, [ User::ROLE_USER, User::ROLE_OWNER ].map { |role| [role.humanize, role] }
-          - else
-            .controls
-              %span.input.uneditable-input= @user.role.humanize
-              %span.help-inline For your safety and to prevent you from accidentally locking yourself out of your own account, you may not edit your own role.
-            
-        
+          = f.label :roles, class: 'control-label'
+          .controls
+            - User::ROLES.each do |role|
+              - disabled = ( role == :manage_user_permissions && @user.roles.include?(:manage_user_permissions) && @user.id == current_user.id )
+              %label.checkbox
+                = check_box_tag 'user[roles][]', role, @user.roles.include?(role), { id: 'user_%s' % role, disabled: disabled }
+                = role.to_s.humanize
+
       .control-group
         .controls= f.submit class: 'btn btn-primary'

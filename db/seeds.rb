@@ -49,7 +49,8 @@ test_account = Account.new label:'Test Account', auth_token: 'test', account_pla
   test_account.save!
 
 # Add users
-test_user = test_account.users.create first_name: 'Jane', last_name: 'Doe', email: 'jane.doe@ticketpleaseapp.com', password: 'password', password_confirmation: 'password', roles: [ :shadow_account ]
+test_user = test_account.users.create first_name: 'Jane', last_name: 'Doe', email: 'jane.doe@ticketpleaseapp.com', password: 'password', password_confirmation: 'password', roles: User::ROLES
+simple_user = test_account.users.create first_name: 'Jane', last_name: 'Doe', email: 'admin@ticketpleaseapp.com', password: 'password', password_confirmation: 'password', roles: [ :shadow_account ]
 
 # Add example data for the test account
 test_numbers = {

@@ -108,6 +108,11 @@ class Ability
     can :manage, User, { account_id: user.account_id }
   end
   
+  def grant_manage_user_permissions_privileges(user)
+    # All for account users
+    can :permissions, User, { account_id: user.account_id }
+  end
+  
   def grant_manage_appliances_privileges(user)
     # All for account appliances
     can :manage, Appliance, { account_id: user.account_id }

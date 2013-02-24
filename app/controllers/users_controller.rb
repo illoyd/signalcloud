@@ -61,6 +61,14 @@ class UsersController < ApplicationController
   def update
     @user = User.find(params[:id])
 
+    if can?(:permissions, @user)
+      params[:user][:roles] ||= []
+      params[:user][:roles] << :manage_user_permissions if @user.id == current_user.id
+      params[:user][:roles] = params[:user][:roles].reject{ |entry| entry.blank? }.map{ |entry| entry.to_sym }.uniq
+    else
+      params[:user].remove(:roles)
+    end
+
     respond_to do |format|
       if @user.update_attributes(params[:user])
         format.html { redirect_to @user, notice: 'User was successfully updated.' }

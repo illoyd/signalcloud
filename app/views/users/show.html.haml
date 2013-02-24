@@ -18,6 +18,7 @@
       %b E-mail:
       = link_to @user.email
     %p
-      %b Role:
-      = @user.role.humanize
-      
+      %b Privileges:
+      %ul
+      - @user.roles.each do |role|
+        %li= role.to_s.humanize
