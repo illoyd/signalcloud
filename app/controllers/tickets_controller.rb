@@ -4,6 +4,7 @@ class TicketsController < ApplicationController
   before_filter :setup_account_and_appliance
 
   load_and_authorize_resource
+  skip_authorize_resource only: [:new, :create]
   
   def setup_account_and_appliance
     @account = current_account()
@@ -36,14 +37,15 @@ class TicketsController < ApplicationController
   # GET /tickets/1
   # GET /tickets/1.json
   def show
-    @ticket = ( @appliance.nil? ? @account : @appliance ).tickets.find(params[:id])
+    # @ticket = ( @appliance.nil? ? @account : @appliance ).tickets.find(params[:id])
     respond_with @ticket
   end
 
   # GET /tickets/new
   # GET /tickets/new.json
   def new
-    @ticket = ( @appliance.nil? ? @account : @appliance ).tickets.build
+    @ticket = @appliance.open_ticket({})
+    authorize!( :new, @ticket )
   end
 
   # GET /tickets/1/edit
@@ -56,9 +58,11 @@ class TicketsController < ApplicationController
   def create
     # @ticket = ( @appliance.nil? ? @account : @appliance ).tickets.create( params[:ticket] )
     @ticket = @appliance.open_ticket( params[:ticket] )
+    authorize!( :create, @ticket )
 
     if @ticket.save
-      flash[:success] = 'The ticket has been started.'
+      JobTools.enqueue SendTicketChallengeJob.new( @ticket.id )
+      flash[:success] = 'The ticket has been successfully started.'
     end
     respond_with @ticket
   end

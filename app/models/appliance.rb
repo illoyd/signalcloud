@@ -28,7 +28,7 @@ class Appliance < ActiveRecord::Base
       failed_reply: self.failed_reply,
       confirmed_reply: self.confirmed_reply,
       denied_reply: self.denied_reply
-    }.merge( passed_options )
+    }.with_indifferent_access.merge( passed_options.with_indifferent_access )
     
     # Add a randomly selected from number if needed
     options[:from_number] = self.phone_directory.select_from_number( options[:to_number] ).number unless options.key? :from_number

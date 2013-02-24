@@ -64,7 +64,9 @@ Ticketplease::Application.routes.draw do
     end
   end
 
-  resources :ledger_entries, only: [ :index, :show ]
+  resources :ledger_entries, only: [ :index, :show ] do
+    get 'page/:page', action: :index
+  end
 
   resources :phone_numbers, only: [ :index, :show, :edit, :update ] do
     collection do

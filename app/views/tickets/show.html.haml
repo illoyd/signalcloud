@@ -40,11 +40,11 @@
                   = icon( :user )
                   = humanize_phone_number @ticket.to_number
           %tbody
-            - @ticket.messages.order('sent_at').each do |message|
+            - @ticket.messages.order('sent_at, created_at').each do |message|
               %tr
                 -# Do OUTBOUND
                 %td
-                  - if message.from_number == @ticket.from_number
+                  - if message.direction == Message::DIRECTION_OUT
                     %p
                       %small
                         Sent
@@ -52,7 +52,7 @@
                     %p= message.body
                 -# Do INBOUND
                 %td
-                  - if message.from_number == @ticket.to_number
+                  - if message.direction == Message::DIRECTION_IN
                     %p
                       %small
                         Received

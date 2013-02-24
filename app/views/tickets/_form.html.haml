@@ -19,17 +19,19 @@
       %a.btn.btn-mini{"data-toggle" => "modal", :href => '#change_appliance_modal', :role => "button"} Change Appliance
     -#=f.collection_select :appliance_id, @account.appliances, :id, :label
   .control-group
-    = f.label :from_number, :class => 'control-label'
-    .controls
-      .input-prepend
-        %span.add-on= icon( :rss )
-        = f.text_field :from_number
-  .control-group
-    = f.label :to_number, :class => 'control-label'
+    = f.label :to_number, :class => 'control-label' do
+      Customer number
     .controls
       .input-prepend
         %span.add-on= icon( :user )
         = f.text_field :to_number
+  .control-group
+    = f.label :from_number, :class => 'control-label' do
+      Service number
+    .controls
+      .input-prepend
+        %span.add-on= icon( :rss )
+        = f.text_field :from_number
   .control-group
     = f.label :seconds_to_live, :class => 'control-label'
     .controls= f.number_field :seconds_to_live, :value=>@appliance.seconds_to_live
