@@ -37,7 +37,7 @@ describe InboundMessageJob do
   end
   
   describe '#internal_phone_number' do
-    let(:account)       { create(:account, :test_twilio) }
+    let(:account)       { create(:account, :master_twilio) }
     let(:phone_number)  { create(:valid_phone_number, account: account) }
     let(:appliance)     { create(:appliance, account: account) }
     let(:ticket)        { create(:ticket, :challenge_sent, appliance: appliance, from_number: phone_number.number, to_number: customer_number) }
@@ -51,7 +51,7 @@ describe InboundMessageJob do
   end
   
   describe '#perform' do
-    let(:account)       { create(:account, :test_twilio) }
+    let(:account)       { create(:account, :master_twilio) }
     let(:appliance)     { create(:appliance, account: account) }
     let(:phone_number)  { create(:valid_phone_number, account: account) }
     let(:customer_number)  { Twilio::VALID_NUMBER }

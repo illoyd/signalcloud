@@ -2,16 +2,6 @@ require 'spec_helper'
 describe Twilio::InboundCallsController do
   let(:account) { create(:test_account, :test_twilio) }
 
-  def build_twilio_signature( post_params )
-    signature = account.twilio_validator.build_signature_for( twilio_inbound_call_url, post_params )
-    return signature
-  end
-  
-  def inject_twilio_signature( post_params )
-    request.env['HTTP_X_TWILIO_SIGNATURE'] = build_twilio_signature( post_params )
-    #request.env['ACCEPT'] = 'xml'
-  end
-  
   def build_post_params( params={} )
     { 'CallSid' => 'CA' + SecureRandom.hex(16),
       'AccountSid' => 'AC' + SecureRandom.hex(16),
@@ -48,7 +38,7 @@ describe Twilio::InboundCallsController do
       context 'when passing message auth header' do
         it 'responds with success' do
           authenticate_with_http_digest account.account_sid, account.auth_token, DIGEST_REALM
-          inject_twilio_signature( inbound_post_params )
+          inject_twilio_signature( twilio_inbound_call_url, account, inbound_post_params )
           post :create, inbound_post_params
           response.status.should eq( 200 ) # OK
         end
@@ -63,7 +53,7 @@ describe Twilio::InboundCallsController do
       context 'when configured to reject' do
         let(:phone_number) { create( :phone_number, :reject_unsolicited_call, account: account ) }
         let(:params) { build_post_params( 'To' => phone_number.number ) }
-        before(:each) { inject_twilio_signature( params ) }
+        before(:each) { inject_twilio_signature( twilio_inbound_call_url, account, params ) }
 
         it 'responds with REJECT verb' do
           post :create, params
@@ -109,7 +99,7 @@ describe Twilio::InboundCallsController do
       context 'when configured to play busy tone' do
         let(:phone_number) { create( :phone_number, :busy_for_unsolicited_call, account: account ) }
         let(:params) { build_post_params( 'To' => phone_number.number ) }
-        before(:each) { inject_twilio_signature( params ) }
+        before(:each) { inject_twilio_signature( twilio_inbound_call_url, account, params ) }
 
         it 'responds with REJECT verb' do
           post :create, params
@@ -155,7 +145,7 @@ describe Twilio::InboundCallsController do
       context 'when configured to respond with message' do
         let(:phone_number) { create( :phone_number, :reply_to_unsolicited_call, account: account ) }
         let(:params) { build_post_params( 'To' => phone_number.number ) }
-        before(:each) { inject_twilio_signature( params ) }
+        before(:each) { inject_twilio_signature( twilio_inbound_call_url, account, params ) }
 
         it 'responds with SAY verb' do
           post :create, params

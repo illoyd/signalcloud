@@ -82,6 +82,25 @@ class ActionController::TestCase
   end
 end
 
+def build_authenticated_request_url( url, username=nil, password=nil )
+  temp_path = url.dup # twilio_inbound_sms_url
+  unless username.blank?
+    auth_string = username
+    auth_string += ':'+password unless password.blank?
+    temp_path.gsub!( /(https?:\/\/)/, '\1' + auth_string + '@' )
+  end
+  temp_path
+end
+
+def build_twilio_signature( url, account=nil, post_params={} )
+  url = build_authenticated_request_url( url, account.account_sid, account.auth_token )
+  account.twilio_validator.build_signature_for( url, post_params )
+end
+
+def inject_twilio_signature( url, account=nil, post_params={} )
+  request.env['HTTP_X_TWILIO_SIGNATURE'] = build_twilio_signature( url, account, post_params )
+end
+  
 def enqueue_and_work_jobs( jobs, options={} )
   jobs = [ jobs ] unless jobs.is_a?(Array)
   #options.reverse_merge! existing_jobs: 0, queued_jobs: jobs.size, remaining_jobs: 0, successes: jobs.size, failures: 0, expected_error: nil
