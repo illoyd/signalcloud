@@ -27,10 +27,11 @@ class ApplicationController < ActionController::Base
       v_header = request.headers.fetch( 'HTTP_X_TWILIO_SIGNATURE', 'NO HEADER GIVEN' )
       
       #v_uri = 'http://%s:%s@localhost:5000%s' % [ @account.account_sid, @account.auth_token, request.path ]
-      v_params = env['rack.request.form_hash']
-      v_header = env['HTTP_X_TWILIO_SIGNATURE']
+      #v_params = env['rack.request.form_hash'] || []
+      #v_header = env['HTTP_X_TWILIO_SIGNATURE']
+      #v_calc = @account.twilio_validator.build_signature_for( v_uri, v_params )
       
-      response.headers['v_uri'] = v_uri
+#       response.headers['v_uri'] = v_uri
 #       response.headers['v_params'] = v_params.to_s
 #       response.headers['v_header'] = v_header.to_s
 #       response.headers['v_header_calc'] = @account.twilio_validator.build_signature_for( v_uri, v_params )
@@ -46,6 +47,8 @@ class ApplicationController < ActionController::Base
 #       pp v_params
 #       #print "  ALL parameters:"
 #       #pp params
+
+#       raise 'AUTH FAILED uri:[%s], post:[%s], header:[%s], expected:[%s]' % [v_uri, v_params, v_header, v_calc] unless @account.twilio_validator.validate( v_uri, v_params, v_header )
     
       # FORBID if does not pass validation
       head :forbidden unless @account.twilio_validator.validate( v_uri, v_params, v_header )
