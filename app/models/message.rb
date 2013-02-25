@@ -297,10 +297,10 @@ class Message < ActiveRecord::Base
   end
   
   def refresh_from_twilio
-    status = msg.twilio_status
-    msg.sent_at = status.date_sent
-    msg.provider_cost = ( Float(status.price) rescue nil )
-    msg.provider_response = status.to_property_hash
+    status = self.twilio_status
+    self.sent_at = status.date_sent
+    self.provider_cost = ( Float(status.price) rescue nil )
+    self.provider_response = status.to_property_hash
   end
   
   ##
