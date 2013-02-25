@@ -31,12 +31,12 @@ describe 'routing to phone numbers' do
     expect( :post => 'phone_numbers' ).not_to be_routable
   end
 
-  it 'does not allow editing' do
-    expect( :get => 'phone_numbers/1/edit' ).not_to be_routable
+  it 'allows editing' do
+    expect( :get => 'phone_numbers/1/edit' ).to route_to( controller: 'phone_numbers', action: 'edit', id: '1' )
   end
 
-  it 'does not allow updating' do
-    expect( :put => 'phone_numbers/1' ).not_to be_routable
+  it 'allows updating' do
+    expect( :put => 'phone_numbers/1' ).to route_to( controller: 'phone_numbers', action: 'update', id: '1' )
   end
 
   it 'does not allow deleting' do
