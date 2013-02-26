@@ -77,6 +77,48 @@ class Account < ActiveRecord::Base
   end
   
   ##
+  # 
+  def create_twilio_application!
+    raise Ticketplease::TwilioApplicationAlreadyExistsError.new(self) unless self.twilio_application_sid.blank?
+    response = self.twilio_account.applications.create({
+      'FriendlyName' => '%s\'s Application' % self.label,
+      'VoiceUrl' => self.twilio_voice_url,
+      'VoiceMethod' => 'POST',
+      'StatusCallback' => self.twilio_voice_status_url,
+      'StatusCallbackMethod' => 'POST',
+      'SmsUrl' => self.twilio_sms_url,
+      'SmsMethod' => 'POST',
+      'SmsStatusCallback' => self.twilio_sms_status_url
+    })
+    self.twilio_application_sid = response.sid
+  end
+  
+  def twilio_voice_url
+    self.insert_twilio_authentication twilio_inbound_call_url
+  end
+  
+  def twilio_voice_status_url
+    self.insert_twilio_authentication twilio_call_status_url
+  end
+  
+  def twilio_sms_url
+    self.insert_twilio_authentication twilio_inbound_sms_url
+  end
+  
+  def twilio_sms_status_url
+    self.insert_twilio_authentication twilio_sms_status_url
+  end
+  
+  def insert_twilio_authentication( url )
+    unless self.twilio_account_sid.blank?
+      auth_string = self.twilio_account_sid
+      auth_string += ':' + self.twilio_auth_token unless password.blank?
+      url = url.gsub( /(https?:\/\/)/, '\1' + auth_string + '@' )
+    end
+    url
+  end
+  
+  ##
   # Get the current client's FreshBook account, using the FreshBook global module.
   # In FreshBooks parlance, this is a 'Client' object.
   def freshbooks_client
