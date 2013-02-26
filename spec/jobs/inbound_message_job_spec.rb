@@ -4,6 +4,14 @@ describe InboundMessageJob do
   before { VCR.insert_cassette 'inbound_message_job', record: :new_episodes }
   after { VCR.eject_cassette }
   
+  let(:account)          { create(:account, :master_twilio) }
+  let(:phone_directory)  { create(:phone_directory, account: account) }
+  let(:appliance)        { create(:appliance, account: account, phone_directory: phone_directory) }
+  let(:phone_number)     { create(:us_phone_number, account: account) }
+  let(:customer_number)  { Twilio::VALID_NUMBER }
+
+#   before(:each) { Message.destroy_all(twilio_sid: 'SM5e27df39904bc98686355dd7ec98f8a9') }
+  
   def construct_inbound_payload( options={} )
     options.reverse_merge({
       'SmsSid' => 'SM5e27df39904bc98686355dd7ec98f8a9',
@@ -37,11 +45,7 @@ describe InboundMessageJob do
   end
   
   describe '#internal_phone_number' do
-    let(:account)       { create(:account, :master_twilio) }
-    let(:phone_number)  { create(:valid_phone_number, account: account) }
-    let(:appliance)     { create(:appliance, account: account) }
     let(:ticket)        { create(:ticket, :challenge_sent, appliance: appliance, from_number: phone_number.number, to_number: customer_number) }
-    let(:customer_number)  { Twilio::VALID_NUMBER }
     let(:payload) { construct_inbound_payload( 'To' => ticket.from_number, 'From' => ticket.to_number ) }
     subject { InboundMessageJob.new(payload) }
     
@@ -51,10 +55,6 @@ describe InboundMessageJob do
   end
   
   describe '#perform' do
-    let(:account)       { create(:account, :master_twilio) }
-    let(:appliance)     { create(:appliance, account: account) }
-    let(:phone_number)  { create(:valid_phone_number, account: account) }
-    let(:customer_number)  { Twilio::VALID_NUMBER }
 
     context 'when unsolicited (no matching ticket)' do
       let(:payload) { construct_inbound_payload( 'To' => phone_number.number, 'From' => customer_number ) }
