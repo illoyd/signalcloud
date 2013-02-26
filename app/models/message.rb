@@ -157,7 +157,8 @@ class Message < ActiveRecord::Base
       self.provider_response = self.ticket.appliance.account.twilio_account.sms.messages.create({
         to: self.to_number,
         from: self.from_number,
-        body: self.body
+        body: self.body,
+        application_sid: self.ticket.appliance.account.twilio_application_sid
       }).to_property_hash
 
       self.twilio_sid = self.provider_response[:sid]

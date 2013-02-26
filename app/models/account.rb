@@ -78,43 +78,54 @@ class Account < ActiveRecord::Base
   
   ##
   # 
-  def create_twilio_application!
-    raise Ticketplease::TwilioApplicationAlreadyExistsError.new(self) unless self.twilio_application_sid.blank?
-    response = self.twilio_account.applications.create({
+  def create_or_update_twilio_application!
+    app_settings = {
       'FriendlyName' => '%s\'s Application' % self.label,
       'VoiceUrl' => self.twilio_voice_url,
       'VoiceMethod' => 'POST',
-      'StatusCallback' => self.twilio_voice_status_url,
-      'StatusCallbackMethod' => 'POST',
+      #'StatusCallback' => self.twilio_voice_status_url,
+      #'StatusCallbackMethod' => 'POST',
       'SmsUrl' => self.twilio_sms_url,
       'SmsMethod' => 'POST',
       'SmsStatusCallback' => self.twilio_sms_status_url
-    })
-    self.twilio_application_sid = response.sid
+    }
+
+    if self.twilio_application_sid.blank?
+      response = self.twilio_account.applications.create(app_settings)
+      self.twilio_application_sid = response.sid
+    else
+      response = self.twilio_account.applications.get(self.twilio_application_sid).update(app_settings)
+    end
   end
   
   def twilio_voice_url
-    self.insert_twilio_authentication twilio_inbound_call_url
+    self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_inbound_call_url( host: 'ticketplease.herokuapp.com' )
   end
   
   def twilio_voice_status_url
-    self.insert_twilio_authentication twilio_call_status_url
+    self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_call_callback_url( host: 'ticketplease.herokuapp.com' )
   end
   
   def twilio_sms_url
-    self.insert_twilio_authentication twilio_inbound_sms_url
+    self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_inbound_sms_url( host: 'ticketplease.herokuapp.com' )
   end
   
   def twilio_sms_status_url
-    self.insert_twilio_authentication twilio_sms_status_url
+    self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_sms_callback_url( host: 'ticketplease.herokuapp.com' )
   end
   
   def insert_twilio_authentication( url )
+  
+    # Insert digest authentication
     unless self.twilio_account_sid.blank?
-      auth_string = self.twilio_account_sid
-      auth_string += ':' + self.twilio_auth_token unless password.blank?
+      auth_string = self.account_sid
+      auth_string += ':' + self.auth_token unless self.twilio_auth_token.blank?
       url = url.gsub( /(https?:\/\/)/, '\1' + auth_string + '@' )
     end
+    
+    # Force it to secure HTTPS
+    url = url.gsub( /\Ahttp:\/\//, 'https://' )
+    
     url
   end
   
