@@ -15,11 +15,11 @@
 
 / Page controls
 .row
-  .span12
+  .span12.table-tools
     = appliance_dropdown_list( @account, @appliance )
     = status_dropdown_list( @account, @appliance, params[:status] )
     - if can? :new, Ticket
-      .pull-right= link_to 'Start a new ticket', ticket_path, :class=>'btn btn-success btn-mini'
+      .pull-right= link_to 'Start a new ticket', ticket_path, :class=>'btn btn-success btn-small'
 
 / Page body
 .row
