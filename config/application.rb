@@ -60,5 +60,9 @@ module Ticketplease
     config.assets.version = '1.0'
     
     config.assets.initialize_on_precompile = false
+    
+    # Activate logging
+    config.logger = Logger.new(STDOUT)
+    config.logger.level = Logger.const_get(ENV['LOG_LEVEL'] ? ENV['LOG_LEVEL'].upcase : 'INFO')
   end
 end
