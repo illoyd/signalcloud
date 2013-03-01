@@ -6,7 +6,7 @@ module TicketsHelper
     
     # Assemble the entries based upon the current
     entries = [] # [ { label: 'Show all tickets', icon: 'ok-circle', link: tickets_path } ]
-    current_account.appliances( order: :label ).each do |appliance|
+    current_account.appliances.order(:label).each do |appliance|
       entries << { label: 'Show ' + appliance.label, icon: :appliances, link: appliance_tickets_path( appliance ) }
     end
     

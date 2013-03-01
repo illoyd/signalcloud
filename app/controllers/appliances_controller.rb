@@ -6,7 +6,7 @@ class AppliancesController < ApplicationController
   # GET /appliances
   # GET /appliances.json
   def index
-    @appliances = current_account.appliances
+    @appliances = current_account.appliances.order('label')
     
     # Apply an active/inactive filter if requested
     if ( params.include? :active_filter )

@@ -7,7 +7,7 @@ class PhoneNumbersController < ApplicationController
   # GET /phone_numbers
   # GET /phone_numbers.json
   def index
-    @phone_numbers = current_account.phone_numbers.all
+    @phone_numbers = current_account.phone_numbers #.order()
     respond_with @phone_numbers
   end
 

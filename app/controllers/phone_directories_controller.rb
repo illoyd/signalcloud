@@ -5,7 +5,7 @@ class PhoneDirectoriesController < ApplicationController
   # GET /phone_directories
   # GET /phone_directories.json
   def index
-    @phone_directories = current_account.phone_directories.all
+    @phone_directories = current_account.phone_directories.order('label desc')
 
     respond_to do |format|
       format.html # index.html.erb
