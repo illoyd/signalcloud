@@ -21,11 +21,12 @@ describe "Inbound Message for Open Ticket" do
     } }
 
   describe "POST /twilio/inbound_sms" do
-    it 'raises forbidden' do
-      # Run the generator again with the --webrat flag if you want to use webrat methods/matchers
-      get apis_path
-      response.status.should be(200)
-    end
+    it 'raises forbidden' 
+#     do
+#       # Run the generator again with the --webrat flag if you want to use webrat methods/matchers
+#       get apis_path
+#       response.status.should be(200)
+#     end
   end
 
 end
