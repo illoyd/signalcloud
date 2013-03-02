@@ -101,14 +101,16 @@ class Message < ActiveRecord::Base
     # Force the provider_cost again.
     self.provider_cost = self.provider_cost if !self.provider_cost.nil? and self.our_cost.nil?
     
-    # Is this entry has a cost already set...
+    # Is this message has a cost set...
     if self.has_cost?
       self.build_ledger_entry( narrative: self.ledger_entry_narrative ) if self.ledger_entry.nil?
       self.ledger_entry.value = self.cost
+      self.ledger_entry.settled_at = DateTime.now
     
     # Otherwise, if a ledger entry is already created, nil the value
     elsif not self.ledger_entry.nil?
       self.ledger_entry.value = nil
+      self.ledger_entry.settled_at = nil
     end
     
     # Finally, try to save the ledger entry if it exists and this is NOT a new record
