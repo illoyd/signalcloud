@@ -38,7 +38,7 @@ payg_plan = AccountPlan.find_or_create_by_label( label:'PAYG', month: 0, phone_a
 dedicated_plan = AccountPlan.find_or_create_by_label( label:'Dedicated', month: 250, phone_add: 0, call_in_add: 0.01, sms_in_add: 0.01, sms_out_add: 0.01 )
 
 # Add a test account (me!)
-unless Account.exists?( encrypted_twilio_account_sid: Account.encrypt(:twilio_account_sid, ENV['TWILIO_TEST_ACCOUNT_SID']) )
+unless Rails.env.production? || Account.exists?( encrypted_twilio_account_sid: Account.encrypt(:twilio_account_sid, ENV['TWILIO_TEST_ACCOUNT_SID']) )
   test_account = Account.new label:'Test Account', auth_token: 'test', account_plan: payg_plan, description: 'My test account'
     test_account.twilio_account_sid = ENV['TWILIO_TEST_ACCOUNT_SID']
     test_account.twilio_auth_token = ENV['TWILIO_TEST_AUTH_TOKEN']
@@ -125,9 +125,9 @@ unless Account.exists?( encrypted_twilio_account_sid: Account.encrypt(:twilio_ac
   
   master_account.appliances.create!({ label: 'Doctor Appointment Example', primary: false, phone_directory_id: master_account.phone_directories.first.id, seconds_to_live: 4*60*60,
     description: 'Example of using the service to confirm doctor appointments.',
-    question: 'Reminder: Your appointment with Dr Bob is tomorrow at 08:30. To confirm this appt, reply with your postcode. To change your appt, reply CHANGE.',
+    question: 'Reminder: Your appointment with Dr Ian is tomorrow at 08:30. To confirm this appt, reply with your postcode. To change your appt, reply CHANGE.',
     expected_denied_answer: 'CHANGE',
-    confirmed_reply: 'Thank you for confirming your appointment with Dr Bob. We look forward to seeing you tomorrow.',
+    confirmed_reply: 'Thank you for confirming your appointment with Dr Ian. We look forward to seeing you tomorrow.',
     denied_reply: 'Thank you for letting us know. We will call you today to reschedule your appointment.',
     failed_reply: 'Thank you for letting us know. We will call you today to reschedule your appointment.',
     expired_reply: 'We are sorry, but we have not received your response. We will call you today to reschedule your appointment.'
