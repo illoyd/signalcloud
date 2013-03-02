@@ -16,7 +16,7 @@
       = "#{@user.first_name} #{@user.last_name}"
     %p
       %b E-mail:
-      = link_to @user.email
+      = mail_to @user.email
     %p
       %b Privileges:
       %ul
