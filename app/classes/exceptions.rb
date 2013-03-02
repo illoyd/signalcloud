@@ -132,5 +132,4 @@ class ClientInvoiceAlreadyCreatedError < TicketpleaseError
   end
 end
 
-
 end
