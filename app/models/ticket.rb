@@ -70,6 +70,7 @@ class Ticket < ActiveRecord::Base
   scope :last_x_days, lambda{ where( "tickets.created_at >= ? and tickets.created_at <= ?", 7.days.ago.beginning_of_day, DateTime.yesterday.end_of_day ) }
   scope :created_between, lambda{ |lower,upper| where( "tickets.created_at >= ? and tickets.created_at <= ?", lower.beginning_of_day, upper.end_of_day ) }
   scope :count_by_status, select('count(tickets.*) as count, tickets.status').group('tickets.status')
+  scope :outstanding, where( 'challenge_sent is null or response_received is null or reply_sent is null' )
   
   ##
   # Standardise all messages for easier comparisons and matching.
@@ -310,6 +311,27 @@ class Ticket < ActiveRecord::Base
   
   def has_outstanding_reply_messages?
     return self.messages.where( 'message_kind = ? and status != ?', Message::REPLY, Message::SENT ).any?
+  end
+  
+  def settle_messages_statuses
+
+    unless self.has_challenge_been_sent? or self.has_outstanding_challenge_messages?
+      self.challenge_sent = self.messages.where( message_kind: Message::CHALLENGE ).maximum( :sent_at )
+    end
+    
+    unless self.has_response_been_received?
+      self.response_received = self.messages.where( 'status = ? or direction = ?', Message::RECEIVED, Message::DIRECTION_IN ).maximum( :sent_at )
+    end
+
+    unless self.has_reply_been_sent? or self.has_outstanding_reply_messages?
+      self.reply_sent = self.messages.where( message_kind: Message::REPLY ).maximum( :sent_at )
+    end
+
+  end
+  
+  def settle_messages_statuses!
+    self.settle_messages_statuses
+    self.save!
   end
   
   ##

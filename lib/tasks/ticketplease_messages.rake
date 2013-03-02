@@ -7,6 +7,7 @@ namespace :tp do
     end
     
     namespace :settle do
+      desc "Enqueue a job to settle all outstanding messages."
       task :enqueue => :environment do
         Delayed::Job::enqueue SettleOutstandingMessagesJob.new()
       end
