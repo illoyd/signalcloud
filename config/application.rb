@@ -59,10 +59,14 @@ module Ticketplease
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
     
+    # For heroku, never initialize the application when precompiling assets.
     config.assets.initialize_on_precompile = false
     
-    # Activate logging
-    config.logger = Logger.new(STDOUT)
-    config.logger.level = Logger.const_get(ENV['LOG_LEVEL'] ? ENV['LOG_LEVEL'].upcase : 'INFO')
+    # Activate logging for development and production, but not test.
+    # This is necessary as Unicorn has a problem logging to console otherwise.
+    unless Rails.env.test?
+     config.logger = Logger.new(STDOUT)
+     config.logger.level = Logger.const_get(ENV['LOG_LEVEL'] ? ENV['LOG_LEVEL'].upcase : 'INFO')
+    end
   end
 end
