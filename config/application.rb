@@ -68,6 +68,9 @@ module Ticketplease
      config.logger = Logger.new(STDOUT)
      config.logger.level = Logger.const_get(ENV['LOG_LEVEL'] ? ENV['LOG_LEVEL'].upcase : 'INFO')
     end
+    
+    # Configurate routes
+    routes.default_url_options[:host] = 'ticketplease.herokuapp.com'
   end
 end
 
