@@ -21,9 +21,11 @@ class Message < ActiveRecord::Base
   
   OPEN_STATUSES = [ PENDING, QUEUED, SENDING ]
   CLOSED_STATUSES = [ SENT, FAILED, RECEIVED ]
+  STATUSES = OPEN_STATUSES + CLOSED_STATUSES
   
   DIRECTION_OUT = 0
   DIRECTION_IN = 1
+  DIRECTIONS = [ DIRECTION_OUT, DIRECTION_IN ]
 
   ##
   # Encrypted payload. Serialised using JSON.
@@ -56,8 +58,8 @@ class Message < ActiveRecord::Base
   validates_length_of :twilio_sid, is: Twilio::SID_LENGTH, allow_nil: true
   validates_uniqueness_of :twilio_sid, allow_nil: true
   validates_inclusion_of :message_kind, in: [ CHALLENGE, REPLY ], allow_nil: true
-  validates_inclusion_of :status, in: [ PENDING, QUEUED, SENDING, SENT, FAILED ]
-  validates_inclusion_of :direction, in: [ DIRECTION_OUT, DIRECTION_IN ]
+  validates_inclusion_of :status, in: STATUSES
+  validates_inclusion_of :direction, in: DIRECTIONS
   
   scope :outstanding, where( 'messages.status not in (?)', CLOSED_STATUSES )
   
@@ -193,6 +195,7 @@ class Message < ActiveRecord::Base
       when 'sent'; SENT
       when 'queued'; QUEUED
       when 'sending'; SENDING
+      when 'received'; RECEIVED
       else; nil
     end
   end
