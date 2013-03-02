@@ -36,6 +36,9 @@ class Ability
         send("grant_#{role.to_s}_privileges", user)
       end
     end
+    
+    # Specifically do not allow deleting self
+    cannot :destroy, user
 
 #     case user.role
 #       # 'Normal' users - general access, but no account management
