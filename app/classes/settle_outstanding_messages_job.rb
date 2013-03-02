@@ -20,7 +20,7 @@ class SettleOutstandingMessagesJob < Struct.new( :account_id, :ignore_account_id
         if self.ignore_account_ids.include? message.account.id
           puts 'Skipping message %i as its account is on the ignore list.' % message.id
         else
-          puts 'Attempting to settle message %i...' % message.id
+          puts 'Attempting to settle message %i (%s)...' % [ message.id, message.twilio_sid ]
           message.refresh_from_twilio!
         end
   
@@ -39,7 +39,7 @@ class SettleOutstandingMessagesJob < Struct.new( :account_id, :ignore_account_id
   
   def outstanding_messages
     query = self.account_id.blank? ? Message : Account.find(self.account_id).messages
-    query.outstanding
+    query.where( 'twilio_sid is not null' ).outstanding
   end
   
   alias :run :perform
