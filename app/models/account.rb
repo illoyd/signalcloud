@@ -99,19 +99,23 @@ class Account < ActiveRecord::Base
   end
   
   def twilio_voice_url
-    self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_inbound_call_url( host: 'ticketplease.herokuapp.com' )
+    options = Rails.env == 'test' ? { host: 'ticketplease.herokuapp.com' } : nil
+    self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_inbound_call_url( options )
   end
   
   def twilio_voice_status_url
-    self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_call_callback_url( host: 'ticketplease.herokuapp.com' )
+    options = Rails.env == 'test' ? { host: 'ticketplease.herokuapp.com' } : nil
+    self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_call_callback_url( options )
   end
   
   def twilio_sms_url
-    self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_inbound_sms_url( host: 'ticketplease.herokuapp.com' )
+    options = Rails.env == 'test' ? { host: 'ticketplease.herokuapp.com' } : nil
+    self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_inbound_sms_url( options )
   end
   
   def twilio_sms_status_url
-    self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_sms_callback_url( host: 'ticketplease.herokuapp.com' )
+    options = Rails.env == 'test' ? { host: 'ticketplease.herokuapp.com' } : nil
+    self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_sms_update_url( options )
   end
   
   def insert_twilio_authentication( url )
