@@ -19,6 +19,10 @@ class Account < ActiveRecord::Base
   has_one :primary_address, class_name: 'Address', autosave: true, dependent: :destroy
   has_one :secondary_address, class_name: 'Address', autosave: true, dependent: :destroy
   
+  # Helper reference for all messages
+  has_many :tickets, through: :appliances
+  has_many :messages, through: :tickets
+  
   # Nested resources
   accepts_nested_attributes_for :primary_address
   accepts_nested_attributes_for :secondary_address

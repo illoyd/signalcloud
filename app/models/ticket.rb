@@ -65,9 +65,10 @@ class Ticket < ActiveRecord::Base
   # Scopes
   scope :opened, where( :status => OPEN_STATUSES )
   scope :closed, where( 'status not in (?)', OPEN_STATUSES )
-  scope :today, where( "tickets.created_at >= ? and tickets.created_at <= ?", DateTime.now.beginning_of_day, DateTime.now.end_of_day )
-  scope :yesterday, where( "tickets.created_at >= ? and tickets.created_at <= ?", DateTime.yesterday.beginning_of_day, DateTime.yesterday.end_of_day )
-  scope :last_x_days, where( "tickets.created_at >= ? and tickets.created_at <= ?", 7.days.ago.beginning_of_day, DateTime.yesterday.end_of_day )
+  scope :today, lambda{ where( "tickets.created_at >= ? and tickets.created_at <= ?", DateTime.now.beginning_of_day, DateTime.now.end_of_day ) }
+  scope :yesterday, lambda{ where( "tickets.created_at >= ? and tickets.created_at <= ?", DateTime.yesterday.beginning_of_day, DateTime.yesterday.end_of_day ) }
+  scope :last_x_days, lambda{ where( "tickets.created_at >= ? and tickets.created_at <= ?", 7.days.ago.beginning_of_day, DateTime.yesterday.end_of_day ) }
+  scope :created_between, lambda{ |lower,upper| where( "tickets.created_at >= ? and tickets.created_at <= ?", lower.beginning_of_day, upper.end_of_day ) }
   scope :count_by_status, select('count(tickets.*) as count, tickets.status').group('tickets.status')
   
   ##

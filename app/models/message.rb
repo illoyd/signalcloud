@@ -17,6 +17,10 @@ class Message < ActiveRecord::Base
   SENDING = 2
   SENT = 3
   FAILED = 4
+  RECEIVED = 5
+  
+  OPEN_STATUSES = [ PENDING, QUEUED, SENDING ]
+  CLOSED_STATUSES = [ SENT, FAILED, RECEIVED ]
   
   DIRECTION_OUT = 0
   DIRECTION_IN = 1
@@ -54,7 +58,9 @@ class Message < ActiveRecord::Base
   validates_inclusion_of :message_kind, in: [ CHALLENGE, REPLY ], allow_nil: true
   validates_inclusion_of :status, in: [ PENDING, QUEUED, SENDING, SENT, FAILED ]
   validates_inclusion_of :direction, in: [ DIRECTION_OUT, DIRECTION_IN ]
-
+  
+  scope :outstanding, where( 'messages.status not in (?)', CLOSED_STATUSES )
+  
   ##
   # Is the given string composed solely of basic SMS characters?
   def self.is_sms_charset?( message )
@@ -302,6 +308,11 @@ class Message < ActiveRecord::Base
     self.sent_at = status.date_sent
     self.provider_cost = ( Float(status.price) rescue nil )
     self.provider_response = status.to_property_hash
+  end
+  
+  def refresh_from_twilio!
+    self.refresh_from_twilio
+    self.save!
   end
   
   ##
