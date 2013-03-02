@@ -30,11 +30,13 @@ FactoryGirl.define do
     trait :test_twilio do
       twilio_account_sid  { ENV['TWILIO_TEST_ACCOUNT_SID'] }
       twilio_auth_token   { ENV['TWILIO_TEST_AUTH_TOKEN'] }
+      twilio_application_sid  'AP94035dba3ec54b70bd38ae24fc032387'
     end
     
     trait :master_twilio do
       twilio_account_sid  { ENV['TWILIO_MASTER_ACCOUNT_SID'] }
       twilio_auth_token   { ENV['TWILIO_MASTER_AUTH_TOKEN'] }
+      twilio_application_sid  'APb4cd58755fcc47dcb3cd329ad2d27a55'
     end
     
     trait :test_freshbooks do

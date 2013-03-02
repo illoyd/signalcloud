@@ -189,5 +189,23 @@ describe Account do
     end
 
   end
+  
+  describe '#create_or_update_twilio_application!' do
+    
+    context 'when not already assigned' do
+      let(:account)   { create :account, :master_twilio, twilio_application_sid: nil }
+      it 'creates and assigns twilio application' do
+        expect { account.create_or_update_twilio_application! }.to change{ account.twilio_application_sid }.from(nil)
+      end
+    end
+    
+    context 'when already assigned' do
+      let(:account)   { create :account, :master_twilio }
+      it 'does not change twilio application' do
+        expect { account.create_or_update_twilio_application! }.not_to change{ account.twilio_application_sid }
+      end
+    end
+    
+  end
 
 end
