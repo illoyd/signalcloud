@@ -10,7 +10,8 @@
  *
  *= require_self
  *= require twitter/bootstrap.min.css
- *= require twitter/font-awesome.css
+ *= require twitter/font-awesome.min.css
+ *= require twitter/font-awesome-ie7.min.css
  *= require_tree .
  */
 
@@ -25,7 +26,7 @@ div.inline-modal {
 }
 
 div.page-header h1 i {
-  color: purple;
+  color: #999999;
 }
 
 div.table-tools {

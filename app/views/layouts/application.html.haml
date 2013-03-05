@@ -12,7 +12,9 @@
       / Navigation header
       .navbar>
         .navbar-inner
-          %a.brand{:href => "/"} ticketplease
+          %a.brand{:href => "/"}
+            %i.icon-cloud
+            SignalCloud
           - unless user_signed_in?
             %ul.nav
               %li{ :class => ( request.path == new_user_session_path ? 'active' : '' ) }
