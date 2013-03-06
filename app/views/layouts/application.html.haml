@@ -1,8 +1,11 @@
 !!!
 %html
   %head
-    %title= @page_title || 'ticketplease'
-    = stylesheet_link_tag    "application", :media => "all"
+    %title
+      = yield(:title)
+      = ' — ' if content_for?(:title)
+      SignalCloud
+    = stylesheet_link_tag "application", :media => "all"
     - if content_for?( :stylesheets )
       %style{:type => 'text/css'}= yield :stylesheets
     = javascript_include_tag "application"
@@ -94,8 +97,8 @@
               = text_field_tag :search, params[:search], class: 'search-query', placeholder: 'Search Tickets'
   
       / Body
-      -# Flash errors, alerts, and notices
       = render 'layouts/messages'
+      = render 'layouts/header'
       = yield
   
       / Footer

@@ -1,0 +1,9 @@
+- if content_for?(:page_title)
+  / Page header
+  .row
+    .span12
+      .page-header
+        %h1
+          = icon(yield(:page_icon))
+          = yield(:page_title)
+          %small= yield(:page_subtitle)
