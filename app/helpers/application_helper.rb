@@ -15,7 +15,16 @@ module ApplicationHelper
   end
   
   def icon( kind = :blank, options = {} )
-    render partial: 'layouts/icon', object: ICONS.fetch( kind, kind ).to_s, locals: { options: options }
+    #render partial: 'layouts/icon', object: ICONS.fetch( kind, kind ).to_s, locals: { options: options }
+    kind = ICONS.fetch( kind, kind ).to_s
+
+    i_class = options.fetch(:class, '')
+    i_class = i_class.concat(' ') if i_class.is_a?(Array)
+
+    i_style = options.fetch(:style, '')
+    i_style = i_style.concat(' ') if i_style.is_a?(Array)
+
+    return "<i class='icon-#{kind.to_s} #{i_class}' style='#{i_style}'></i>".html_safe
   end
 
   def header_icon( kind = :blank, options = {} )
