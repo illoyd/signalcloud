@@ -1,11 +1,7 @@
-/ Page header
-.row
-  .span12
-    .page-header
-      %h1
-        = icon( :accounts )
-        Accounts
-        %small= @account.label
+- content_for :title, "#{@account.label} Account"
+- content_for :page_title, 'Account'
+- content_for :page_subtitle, @account.label
+- content_for :page_icon, :accounts
 
 / Page body
 .row
