@@ -49,7 +49,7 @@ gem 'kaminari'
 gem 'phony'
 gem 'stringex'
 gem 'ruby-freshbooks'
-gem 'newrelic_rpm'
+gem 'newrelic_rpm', group: :production
 
 group :test, :development do
   gem "rspec-rails", "~> 2.0"
