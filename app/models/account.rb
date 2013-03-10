@@ -39,6 +39,27 @@ class Account < ActiveRecord::Base
   end
   
   ##
+  # Create starting 'default' directory and appliance for a newly created account
+  def create_initial_resources
+    initial_directory = self.phone_directories.create label: 'Default Directory'
+    initial_appliance = self.appliances.create label: 'Default Appliance', phone_directory_id: initial_directory.id
+  end
+
+  ##
+  # Return the default appliance for this account, or the first appliance if no default is set.
+  def primary_appliance
+    app = self.appliances.where( primary: true ).order('id').first
+    app = self.appliances.first if app.nil?
+    app
+  end
+  
+  ##
+  # Get statistics and counts for all tickets in this account. With return a hash of nicely labeled counts.
+  def ticket_count_by_status()
+    statuses = Ticket.count_by_status_hash( self.tickets.today )
+  end
+  
+  ##
   # Send an SMS using the Twilio API.
   def send_sms( to_number, from_number, body )
     return self.twilio_account.sms.messages.create(
@@ -257,27 +278,6 @@ class Account < ActiveRecord::Base
     to_date ||= DateTime.yesterday.end_of_day
     invoice = self.invoices.build from_date: from_date, to_date: to_date
     invoice.create_invoice!
-  end
-  
-  ##
-  # Create starting 'default' directory and appliance for a newly created account
-  def create_initial_resources
-    initial_directory = self.phone_directories.create label: 'Default Directory'
-    initial_appliance = self.appliances.create label: 'Default Appliance', phone_directory_id: initial_directory.id
-  end
-
-  ##
-  # Return the default appliance for this account, or the first appliance if no default is set.
-  def primary_appliance
-    app = self.appliances.where( primary: true ).order('id').first
-    app = self.appliances.first if app.nil?
-    app
-  end
-  
-  ##
-  # Get statistics and counts for all tickets in this account. With return a hash of nicely labeled counts.
-  def ticket_count_by_status()
-    statuses = Ticket.count_by_status_hash( self.tickets.today )
   end
   
 end
