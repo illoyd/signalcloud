@@ -22,6 +22,11 @@ FactoryGirl.define do
       test_freshbooks
     end
     
+    trait :with_sid_and_token do
+      account_sid       '6cc9f11f2c466d4f443453257eb76a2a'
+      auth_token        '247e210af4ee43c1509e5c8508184bf5'
+    end
+    
     #trait :missing_twilio do
     #  twilio_account_sid  nil
     #  twilio_auth_token   nil
@@ -30,13 +35,13 @@ FactoryGirl.define do
     trait :test_twilio do
       twilio_account_sid  { ENV['TWILIO_TEST_ACCOUNT_SID'] }
       twilio_auth_token   { ENV['TWILIO_TEST_AUTH_TOKEN'] }
-      twilio_application_sid  'AP94035dba3ec54b70bd38ae24fc032387'
+      twilio_application_sid  'AP219c067d9d62445496eac74f916a168e'
     end
     
     trait :master_twilio do
       twilio_account_sid  { ENV['TWILIO_MASTER_ACCOUNT_SID'] }
       twilio_auth_token   { ENV['TWILIO_MASTER_AUTH_TOKEN'] }
-      twilio_application_sid  'APb4cd58755fcc47dcb3cd329ad2d27a55'
+      twilio_application_sid  'AP219c067d9d62445496eac74f916a168e'
     end
     
     trait :test_freshbooks do
