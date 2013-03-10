@@ -44,10 +44,18 @@ class TwilioAccountAlreadyExistsError < TwilioError
 end
 
 ##
-# Thrown if attempting to create a Twilio account for an Account which already has a Twilio account.
+# Thrown if attempting to create a Twilio application for an Account which already has a Twilio account.
 class TwilioApplicationAlreadyExistsError < TwilioError
   def initialize( account, original = nil, code = nil )
     super( 'Twilio application already exists for Account %i.' % [account.id], original, code )
+  end
+end
+
+##
+# Thrown if attempting to use a Twilio application for an Account which does not have an application configured.
+class MissingTwilioApplicationError < TwilioError
+  def initialize( account, original = nil, code = nil )
+    super( 'Twilio application not configured for Account %i.' % [account.id], original, code )
   end
 end
 

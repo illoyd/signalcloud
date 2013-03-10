@@ -81,45 +81,89 @@ class Account < ActiveRecord::Base
   end
   
   ##
-  # 
-  def create_or_update_twilio_application!
-    app_settings = {
-      'FriendlyName' => '%s\'s Application' % self.label,
-      'VoiceUrl' => self.twilio_voice_url,
-      'VoiceMethod' => 'POST',
-      #'StatusCallback' => self.twilio_voice_status_url,
-      #'StatusCallbackMethod' => 'POST',
-      'SmsUrl' => self.twilio_sms_url,
-      'SmsMethod' => 'POST',
-      'SmsStatusCallback' => self.twilio_sms_status_url
-    }
-
-    if self.twilio_application_sid.blank?
-      response = self.twilio_account.applications.create(app_settings)
-      self.twilio_application_sid = response.sid
-    else
-      response = self.twilio_account.applications.get(self.twilio_application_sid).update(app_settings)
+  # Create, or update if it exists, the Twilio application used for this account.
+  def create_or_update_twilio_application
+    return self.twilio_application_sid.blank? ? self.create_twilio_application : self.update_twilio_application
+  end
+  
+  def create_twilio_application
+    begin
+      return self.create_twilio_application!
+    rescue Ticketplease::TwilioApplicationAlreadyExistsError
+      return nil
     end
   end
   
+  def create_twilio_application!
+    raise Ticketplease::MissingTwilioAccountError.new(self) if self.twilio_account_sid.blank? or self.twilio_auth_token.blank?
+    raise Ticketplease::TwilioApplicationAlreadyExistsError.new(self) unless self.twilio_application_sid.blank?
+
+    response = self.twilio_account.applications.create(self.twilio_application_configuration)
+    self.twilio_application_sid = response.sid
+    return response
+  end
+  
+  def update_twilio_application
+    begin
+      return self.update_twilio_application!
+    rescue Ticketplease::MissingTwilioApplicationError
+      return nil
+    end
+  end
+  
+  def update_twilio_application!
+    raise Ticketplease::MissingTwilioAccountError.new(self) if self.twilio_account_sid.blank? or self.twilio_auth_token.blank?
+    raise Ticketplease::MissingTwilioApplicationError.new(self) if self.twilio_application_sid.blank?
+
+    return self.twilio_account.applications.get(self.twilio_application_sid).update(self.twilio_application_configuration)
+  end
+  
+  def has_twilio_application?
+    return !self.twilio_application_sid.blank?
+  end
+  
+  def twilio_application_configuration( options={} )
+    return {
+      'FriendlyName' => '%s\'s Application' % self.label,
+
+      'VoiceUrl' => self.twilio_voice_url,
+      'VoiceMethod' => 'POST',
+
+      'VoiceFallbackUrl' => self.twilio_voice_url,
+      'VoiceFallbackMethod' => 'POST',
+
+      'StatusCallback' => self.twilio_voice_status_url,
+      'StatusCallbackMethod' => 'POST',
+
+      'SmsUrl' => self.twilio_sms_url,
+      'SmsMethod' => 'POST',
+      
+      'SmsFallbackUrl' => self.twilio_sms_url,
+      'SmsFallbackMethod' => 'POST',
+
+      'SmsStatusCallback' => self.twilio_sms_status_url
+    }.merge(options)
+
+  end
+  
   def twilio_voice_url
-    options = Rails.env == 'test' ? { host: 'ticketplease.herokuapp.com' } : nil
-    self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_inbound_call_url( options )
+    raise Ticketplease::MissingTwilioAccountError.new(self) if self.twilio_account_sid.blank? or self.twilio_auth_token.blank?
+    self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_inbound_call_url
   end
   
   def twilio_voice_status_url
-    options = Rails.env == 'test' ? { host: 'ticketplease.herokuapp.com' } : nil
-    self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_call_callback_url( options )
+    raise Ticketplease::MissingTwilioAccountError.new(self) if self.twilio_account_sid.blank? or self.twilio_auth_token.blank?
+    self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_call_update_url
   end
   
   def twilio_sms_url
-    options = Rails.env == 'test' ? { host: 'ticketplease.herokuapp.com' } : nil
-    self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_inbound_sms_url( options )
+    raise Ticketplease::MissingTwilioAccountError.new(self) if self.twilio_account_sid.blank? or self.twilio_auth_token.blank?
+    self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_inbound_sms_url
   end
   
   def twilio_sms_status_url
-    options = Rails.env == 'test' ? { host: 'ticketplease.herokuapp.com' } : nil
-    self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_sms_update_url( options )
+    raise Ticketplease::MissingTwilioAccountError.new(self) if self.twilio_account_sid.blank? or self.twilio_auth_token.blank?
+    self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_sms_update_url
   end
   
   def insert_twilio_authentication( url )
@@ -127,14 +171,12 @@ class Account < ActiveRecord::Base
     # Insert digest authentication
     unless self.twilio_account_sid.blank?
       auth_string = self.account_sid
-      auth_string += ':' + self.auth_token unless self.twilio_auth_token.blank?
+      auth_string += ':' + self.auth_token unless self.auth_token.blank?
       url = url.gsub( /(https?:\/\/)/, '\1' + auth_string + '@' )
     end
     
     # Force it to secure HTTPS
-    url = url.gsub( /\Ahttp:\/\//, 'https://' )
-    
-    url
+    return url.gsub( /\Ahttp:\/\//, 'https://' )
   end
   
   ##
