@@ -274,45 +274,10 @@ class Account < ActiveRecord::Base
     app
   end
   
+  ##
+  # Get statistics and counts for all tickets in this account. With return a hash of nicely labeled counts.
   def ticket_count_by_status()
-    #statuses = self.tickets.today.readonly.select('count(tickets.*) as count, tickets.status').group('tickets.status').each_with_object({}) do |v, h|
     statuses = Ticket.count_by_status_hash( self.tickets.today )
-#     statuses = self.tickets.today.count_by_status.readonly.each_with_object({}) do |v, h|
-#       h[v.status] = v.count.to_i
-#     end
-#     return {
-#       expired: statuses.fetch( Ticket::EXPIRED, 0 ),
-#       denied: statuses.fetch( Ticket::DENIED, 0 ),
-#       failed: statuses.fetch( Ticket::FAILED, 0 ),
-#       confirmed: statuses.fetch( Ticket::CONFIRMED, 0 ),
-#       queued: statuses.fetch( Ticket::QUEUED, 0 ) + statuses.fetch( Ticket::PENDING, 0 ),
-#       sent: statuses.fetch( Ticket::CHALLENGE_SENT, 0 )
-#     }
-  end
-  
-#   def ticket_statistics( counts=nil )
-#     counts ||= self.ticket_count_by_status()
-#     total = self.tickets.today.count.to_f
-#     return counts.each_with_object({}) do |(k, v), h|
-#       h[k] = v.to_f / total * 100.0
-#     end
-#     return {
-#       expired: self.tickets.today.where( status: Ticket::EXPIRED ).count.to_f / total * 100.0,
-#       denied: self.tickets.today.where( status: Ticket::DENIED ).count.to_f / total * 100.0,
-#       failed: self.tickets.today.where( status: Ticket::FAILED ).count.to_f / total * 100.0,
-#       confirmed: self.tickets.today.where( status: Ticket::CONFIRMED ).count.to_f / total * 100.0,
-#       queued: self.tickets.today.where( status: [Ticket::QUEUED, Ticket::PENDING] ).count.to_f / total * 100.0,
-#       sent: self.tickets.today.where( status: Ticket::CHALLENGE_SENT ).count.to_f / total * 100.0
-#     }
-#   end
-  
-  def additive_ticket_statistics
-    statistics = self.ticket_statistics
-    total = statistics.values.sum
-    additive_statistics = {}
-    [ :queued, :sent, :confirmed, :expired, :failed, :denied ].each { |key| additive_statistics[key] = additive_statistics.values.sum + statistics[key] }
-    additive_statistics.each { |key,value| additive_statistics[key] = value }
-    return additive_statistics
   end
   
 end
