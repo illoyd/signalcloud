@@ -70,6 +70,21 @@ describe Account, 'Twilio Integration' do
 
   end
   
+  describe '#create_twilio_account' do
+    context 'when account already created' do
+      subject { create :account, :test_twilio, :with_sid_and_token }
+      it 'does not raise error' do
+        expect{ subject.create_twilio_account }.to_not raise_error
+      end
+      it 'does not change #twilio_account_sid' do
+        expect { subject.create_twilio_account }.to_not change(subject, :twilio_account_sid)
+      end
+      it 'does not change #twilio_auth_token' do
+        expect { subject.create_twilio_account }.to_not change(subject, :twilio_auth_token)
+      end
+    end
+  end
+  
   describe '#create_twilio_account!' do
 
     context 'when account not already created' do
@@ -90,7 +105,7 @@ describe Account, 'Twilio Integration' do
       end
     end
 
-    context 'when account not already created' do
+    context 'when account already created' do
       subject { create :account, :test_twilio, :with_sid_and_token }
       it 'raises error' do
         expect{ subject.create_twilio_account! }.to raise_error(Ticketplease::TwilioAccountAlreadyExistsError)

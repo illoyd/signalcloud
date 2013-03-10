@@ -70,6 +70,14 @@ class Account < ActiveRecord::Base
     return @twilio_validator
   end
   
+  def create_twilio_account
+    begin
+      return self.create_twilio_account!
+    rescue Ticketplease::TwilioAccountAlreadyExistsError
+      return nil
+    end
+  end
+  
   ##
   # Create a Twilio sub-account.
   def create_twilio_account!
@@ -77,7 +85,8 @@ class Account < ActiveRecord::Base
     response = Twilio.master_client.accounts.create( 'FriendlyName' => self.label )
     self.twilio_account_sid = response.sid
     self.twilio_auth_token = response.auth_token
-    self.save!
+    # self.save!
+    return response
   end
   
   ##
