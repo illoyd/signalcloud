@@ -34,4 +34,7 @@ Ticketplease::Application.configure do
 
   # Print deprecation notices to the stderr
   config.active_support.deprecation = :stderr
+  
+  # Add default URL option for test environment to force it over to the main app.
+  config.action_controller.default_url_options( { host: 'ticketplease.herokuapp.com' } )
 end
