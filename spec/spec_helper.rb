@@ -46,12 +46,6 @@ RSpec.configure do |config|
   config.include AuthSpecHelpers, :type => :controller
 end
 
-VCR.configure do |c|
-  c.cassette_library_dir = 'spec/fixtures/vcr_cassettes'
-  c.default_cassette_options = { :record => :new_episodes, match_requests_on: [:method, :uri, :query, :body] }
-  c.hook_into :webmock
-end
-
 FactoryGirl.find_definitions
 
 ##
