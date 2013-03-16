@@ -2,8 +2,8 @@ require 'spec_helper'
 
 describe UpdateMessageStatusJob do
   #fixtures :account_plans, :accounts, :phone_numbers, :phone_directories, :phone_directory_entries, :appliances, :tickets, :messages
-  before { VCR.insert_cassette 'update_message_status_job', record: :new_episodes }
-  after { VCR.eject_cassette }
+  before(:all) { VCR.insert_cassette 'update_message_status_job' }
+  after(:all)  { VCR.eject_cassette }
   
   def create_message_update_payload( message, body=nil, reply=false, others={} )
     body = message.ticket.question if body.nil?
@@ -109,193 +109,259 @@ describe UpdateMessageStatusJob do
     end
     
     context 'when reply has been sent' do
+      let(:ticket)  { create :ticket, :confirmed }
+      let(:message) { create(:reply_message, ticket: ticket, twilio_sid: 'SM1f3eb5e1e6e7e00ad9d0b415a08efb58') }
+
+      context 'and message is queued' do
+        let(:job) { UpdateMessageStatusJob.new queued_payload }
+        it 'updates message payload' do
+          expect { job.perform }.to change{message.reload.provider_update}.from(nil)
+        end
+        it 'updates message status' do
+          expect { job.perform }.to change{message.reload.status}.to(Message::QUEUED)
+        end
+        it 'does not update message sent_at' do
+          expect { job.perform }.to_not change{message.reload.sent_at}.from(nil)
+        end
+        it 'does not change ticket status' do
+          expect { job.perform }.not_to change{message.reload.ticket(true).status}.from(Ticket::CONFIRMED)
+        end
+        it 'does not create a ledger entry' do
+          expect { job.perform }.to_not change{message.reload.ledger_entry}.from(nil)
+        end
+      end
+
+      context 'and message is sending' do
+        let(:job) { UpdateMessageStatusJob.new sending_payload }
+        it 'updates message callback' do
+          expect { job.perform }.to change{message.reload.provider_update}.from(nil)
+        end
+        it 'updates message status' do
+          expect { job.perform }.to change{message.reload.status}.to(Message::SENDING)
+        end
+        it 'does not update message sent_at' do
+          expect { job.perform }.to_not change{message.reload.sent_at}.from(nil)
+        end
+        it 'does not change ticket status' do
+          expect { job.perform }.not_to change{message.reload.ticket(true).status}.from(Ticket::CONFIRMED)
+        end
+        it 'does not create a ledger entry' do
+          expect { job.perform }.to_not change{message.reload.ledger_entry}.from(nil)
+        end
+      end
+
+      context 'and message is sent' do
+        let(:job) { UpdateMessageStatusJob.new sent_payload }
+        it 'updates message payload' do
+          expect { job.perform }.to change{message.reload.provider_update}.from(nil)
+        end
+        it 'updates message status' do
+          expect { job.perform }.to change{message.reload.status}.to(Message::SENT)
+        end
+        it 'updates message sent_at' do
+          expect { job.perform }.to change{message.reload.sent_at}.from(nil).to(date_sent)
+        end
+        it 'does not change ticket status' do
+          expect { job.perform }.not_to change{message.reload.ticket(true).status}.from(Ticket::CONFIRMED)
+        end
+        it 'creates a ledger entry' do
+          job.perform
+          message.reload.ledger_entry.should_not be_nil
+        end
+        it 'settles ledger entry' do
+          expect { job.perform }.to change{message.reload.ledger_entry(true).settled_at}.from(nil).to(date_sent)
+        end
+        it 'updates ledger entry costs' do
+          expect { job.perform }.to change{message.reload.ledger_entry(true).value} #.to(message.reload.cost)
+        end
+      end
     end
 
-    context 'with queued challenge message' do
-      let(:message) { create(:challenge_message, twilio_sid: 'SM1f3eb5e1e6e7e00ad9d0b415a08efb58') }
-      let(:extended_payload) { create_message_update_payload message, nil, false, { 'SmsStatus' => 'queued', 'Price' => nil, 'DateSent' => nil } }
-      it 'updates message' do
-        message.provider_update.should be_nil()
-  
-        # Capture job count, enqueue job, and check that it has been added
-        enqueue_jobs UpdateMessageStatusJob.new( extended_payload )
+#     context 'with queued # challenge message' do
+#       let(:message) { create(:challenge_message, twilio_sid: 'SM1f3eb5e1e6e7e00ad9d0b415a08efb58') }
+#       let(:extended_payload) { create_message_update_payload message, nil, false, { 'SmsStatus' => 'queued', 'Price' => nil, 'DateSent' => nil } }
+#       it 'updates message' do
+#         message.provider_update.should be_nil()
+#   
+#         # Capture job count, enqueue job, and check that it has been added
+#         enqueue_jobs UpdateMessageStatusJob.new( extended_payload )
+# #         expect {
+# #           Delayed::Job.enqueue UpdateMessageStatusJob.new( extended_payload )
+# #         }.to change{Delayed::Job.count}.from(0).to(1)
+#         
+#         # Now, work that job!
+#         work_jobs 1 #, 1, 0
+# #         expect {
+# #           expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
+# #           @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
+# #         }.to change{Delayed::Job.count}.from(1).to(0)
+#         
+#         # Check that the message has been properly massaged
+#         message.reload
+#         message.provider_update.should_not be_nil()
+#         message.status.should == Message::QUEUED
+#         
+#         # Check that the message's ledger_entry has been properly massaged
+#         message.ledger_entry(true).settled_at.should be_nil
+#         
+#         # Check that the message's ticket is still queued
+#         message.ticket(true).status.should == Ticket::QUEUED
+#       end
+#     end
+# 
+#     context 'with sending challenge message' do
+#       let(:message) { create(:challenge_message, twilio_sid: 'SM1f3eb5e1e6e7e00ad9d0b415a08efb58') }
+#       let(:extended_payload) { create_message_update_payload message, nil, false, { 'SmsStatus' => 'sending', 'Price' => nil, 'DateSent' => nil } }
+#       it 'updates message' do
+#         message.provider_update.should be_nil()
+#   
+#         # Capture job count, enqueue job, and check that it has been added
 #         expect {
 #           Delayed::Job.enqueue UpdateMessageStatusJob.new( extended_payload )
 #         }.to change{Delayed::Job.count}.from(0).to(1)
-        
-        # Now, work that job!
-        work_jobs 1 #, 1, 0
+#         
+#         # Now, work that job!
 #         expect {
 #           expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
 #           @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
 #         }.to change{Delayed::Job.count}.from(1).to(0)
-        
-        # Check that the message has been properly massaged
-        message.reload
-        message.provider_update.should_not be_nil()
-        message.status.should == Message::QUEUED
-        
-        # Check that the message's ledger_entry has been properly massaged
-        message.ledger_entry(true).settled_at.should be_nil
-        
-        # Check that the message's ticket is still queued
-        message.ticket(true).status.should == Ticket::QUEUED
-      end
-    end
-
-    context 'with sending challenge message' do
-      let(:message) { create(:challenge_message, twilio_sid: 'SM1f3eb5e1e6e7e00ad9d0b415a08efb58') }
-      let(:extended_payload) { create_message_update_payload message, nil, false, { 'SmsStatus' => 'sending', 'Price' => nil, 'DateSent' => nil } }
-      it 'updates message' do
-        message.provider_update.should be_nil()
-  
-        # Capture job count, enqueue job, and check that it has been added
-        expect {
-          Delayed::Job.enqueue UpdateMessageStatusJob.new( extended_payload )
-        }.to change{Delayed::Job.count}.from(0).to(1)
-        
-        # Now, work that job!
-        expect {
-          expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
-          @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-        }.to change{Delayed::Job.count}.from(1).to(0)
-        
-        # Check that the message has been properly massaged
-        message.reload
-        message.provider_update.should_not be_nil()
-        message.status.should == Message::SENDING
-        
-        # Check that the message's ledger_entry has been properly massaged
-        message.ledger_entry(true).settled_at.should be_nil
-        
-        # Check that the message's ticket is queued
-        message.ticket(true).status.should == Ticket::QUEUED
-      end
-    end
-
-    context 'with queued reply message' do
-      let(:message) { create(:reply_message, twilio_sid: 'SM1f3eb5e1e6e7e00ad9d0b415a08efb58') }
-      let(:extended_payload) { create_message_update_payload message, nil, false, { 'SmsStatus' => 'queued', 'Price' => nil, 'DateSent' => nil } }
-      it 'updates message' do
-        message.provider_update.should be_nil()
-  
-        # Capture job count, enqueue job, and check that it has been added
-        expect {
-          Delayed::Job.enqueue UpdateMessageStatusJob.new( extended_payload )
-        }.to change{Delayed::Job.count}.from(0).to(1)
-        
-        # Now, work that job!
-        expect { # Do not change message's ticket's status
-          expect {
-            expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
-            @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-          }.to change{Delayed::Job.count}.from(1).to(0)
-          
-          # Check that the message has been properly massaged
-          message.reload
-          message.provider_update.should_not be_nil()
-          message.status.should == Message::QUEUED
-          
-          # Check that the message's ledger_entry has been properly massaged
-          message.ledger_entry(true).settled_at.should be_nil
-        }.to_not change{message.ticket(true).status}
-        
-        # Check that the message's ticket is still queued
-        #message.ticket(true).status.should == Ticket::QUEUED
-      end
-    end
-
-    context 'with sending reply message' do
-      let(:message) { create(:reply_message, twilio_sid: 'SM1f3eb5e1e6e7e00ad9d0b415a08efb58') }
-      let(:extended_payload) { create_message_update_payload message, nil, false, { 'SmsStatus' => 'sending', 'Price' => nil, 'DateSent' => nil } }
-      it 'updates message' do
-        message.provider_update.should be_nil()
-  
-        # Capture job count, enqueue job, and check that it has been added
-        expect {
-          Delayed::Job.enqueue UpdateMessageStatusJob.new( extended_payload )
-        }.to change{Delayed::Job.count}.from(0).to(1)
-        
-        # Now, work that job!
-        expect { # Do not change message's ticket's status
-          expect {
-            expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
-            @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-          }.to change{Delayed::Job.count}.from(1).to(0)
-          
-          # Check that the message has been properly massaged
-          message.reload
-          message.provider_update.should_not be_nil()
-          message.status.should == Message::SENDING
-          
-          # Check that the message's ledger_entry has been properly massaged
-          message.ledger_entry(true).settled_at.should be_nil
-          
-          # Check that the message's ticket is queued
-        }.to_not change{message.ticket(true).status}
-      end
-    end
-
-    context 'with sent challenge message' do
-      let(:message) { create(:challenge_message, twilio_sid: 'SM1f3eb5e1e6e7e00ad9d0b415a08efb58') }
-      it 'updates challenge message and ledger_entry' do
-        message.provider_update.should be_nil()
-  
-        # Capture job count, enqueue job, and check that it has been added
-        expect {
-          job = UpdateMessageStatusJob.new( payload )
-          Delayed::Job.enqueue job
-        }.to change{Delayed::Job.count}.from(0).to(1)
-        
-        # Now, work that job!
-        expect {
-          expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
-          @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-        }.to change{Delayed::Job.count}.from(1).to(0)
-        
-        # Check that the message has been properly massaged
-        message.reload
-        message.provider_update.should_not be_nil()
-        message.status.should == Message::SENT
-        
-        # Check that the message's ledger_entry has been properly massaged
-        message.ledger_entry(true).settled_at.should == date_sent
-        
-        # Check that the message's ticket has been refreshed
-        message.ticket(true).challenge_status.should == Message::SENT
-        message.ticket.challenge_sent.should == date_sent
-      end
-    end
-    context 'with sent reply message' do
-      let(:message) { create(:reply_message, twilio_sid: 'SM1f3eb5e1e6e7e00ad9d0b415a08efb58') }
-      it 'updates reply message and ledger_entry' do
-        message.provider_update.should be_nil()
-  
-        # Capture job count, enqueue job, and check that it has been added
-        expect {
-          job = UpdateMessageStatusJob.new( payload )
-          Delayed::Job.enqueue job
-        }.to change{Delayed::Job.count}.from(0).to(1)
-        
-        # Now, work that job!
-        expect {
-          expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
-          @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-        }.to change{Delayed::Job.count}.from(1).to(0)
-        
-        # Check that the message has been properly massaged
-        message.reload
-        message.provider_update.should_not be_nil()
-        message.status.should == Message::SENT
-        
-        # Check that the message's ledger_entry has been properly massaged
-        message.ledger_entry(true).settled_at.should == date_sent
-        
-        # Check that the message's ticket has been refreshed
-        message.ticket(true).reply_status.should == Message::SENT
-        message.ticket.reply_sent.should == date_sent
-      end
-    end
+#         
+#         # Check that the message has been properly massaged
+#         message.reload
+#         message.provider_update.should_not be_nil()
+#         message.status.should == Message::SENDING
+#         
+#         # Check that the message's ledger_entry has been properly massaged
+#         message.ledger_entry(true).settled_at.should be_nil
+#         
+#         # Check that the message's ticket is queued
+#         message.ticket(true).status.should == Ticket::QUEUED
+#       end
+#     end
+# 
+#     context 'with queued reply message' do
+#       let(:message) { create(:reply_message, twilio_sid: 'SM1f3eb5e1e6e7e00ad9d0b415a08efb58') }
+#       let(:extended_payload) { create_message_update_payload message, nil, false, { 'SmsStatus' => 'queued', 'Price' => nil, 'DateSent' => nil } }
+#       it 'updates message' do
+#         message.provider_update.should be_nil()
+#   
+#         # Capture job count, enqueue job, and check that it has been added
+#         expect {
+#           Delayed::Job.enqueue UpdateMessageStatusJob.new( extended_payload )
+#         }.to change{Delayed::Job.count}.from(0).to(1)
+#         
+#         # Now, work that job!
+#         expect { # Do not change message's ticket's status
+#           expect {
+#             expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
+#             @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
+#           }.to change{Delayed::Job.count}.from(1).to(0)
+#           
+#           # Check that the message has been properly massaged
+#           message.reload
+#           message.provider_update.should_not be_nil()
+#           message.status.should == Message::QUEUED
+#           
+#           # Check that the message's ledger_entry has been properly massaged
+#           message.ledger_entry(true).settled_at.should be_nil
+#         }.to_not change{message.ticket(true).status}
+#         
+#         # Check that the message's ticket is still queued
+#         #message.ticket(true).status.should == Ticket::QUEUED
+#       end
+#     end
+# 
+#     context 'with sending reply message' do
+#       let(:message) { create(:reply_message, twilio_sid: 'SM1f3eb5e1e6e7e00ad9d0b415a08efb58') }
+#       let(:extended_payload) { create_message_update_payload message, nil, false, { 'SmsStatus' => 'sending', 'Price' => nil, 'DateSent' => nil } }
+#       it 'updates message' do
+#         message.provider_update.should be_nil()
+#   
+#         # Capture job count, enqueue job, and check that it has been added
+#         expect {
+#           Delayed::Job.enqueue UpdateMessageStatusJob.new( extended_payload )
+#         }.to change{Delayed::Job.count}.from(0).to(1)
+#         
+#         # Now, work that job!
+#         expect { # Do not change message's ticket's status
+#           expect {
+#             expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
+#             @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
+#           }.to change{Delayed::Job.count}.from(1).to(0)
+#           
+#           # Check that the message has been properly massaged
+#           message.reload
+#           message.provider_update.should_not be_nil()
+#           message.status.should == Message::SENDING
+#           
+#           # Check that the message's ledger_entry has been properly massaged
+#           message.ledger_entry(true).settled_at.should be_nil
+#           
+#           # Check that the message's ticket is queued
+#         }.to_not change{message.ticket(true).status}
+#       end
+#     end
+# 
+#     context 'with sent challenge message' do
+#       let(:message) { create(:challenge_message, twilio_sid: 'SM1f3eb5e1e6e7e00ad9d0b415a08efb58') }
+#       it 'updates challenge message and ledger_entry' do
+#         message.provider_update.should be_nil()
+#   
+#         # Capture job count, enqueue job, and check that it has been added
+#         expect {
+#           job = UpdateMessageStatusJob.new( payload )
+#           Delayed::Job.enqueue job
+#         }.to change{Delayed::Job.count}.from(0).to(1)
+#         
+#         # Now, work that job!
+#         expect {
+#           expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
+#           @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
+#         }.to change{Delayed::Job.count}.from(1).to(0)
+#         
+#         # Check that the message has been properly massaged
+#         message.reload
+#         message.provider_update.should_not be_nil()
+#         message.status.should == Message::SENT
+#         
+#         # Check that the message's ledger_entry has been properly massaged
+#         message.ledger_entry(true).settled_at.should == date_sent
+#         
+#         # Check that the message's ticket has been refreshed
+#         message.ticket(true).challenge_status.should == Message::SENT
+#         message.ticket.challenge_sent.should == date_sent
+#       end
+#     end
+#     context 'with sent reply message' do
+#       let(:message) { create(:reply_message, twilio_sid: 'SM1f3eb5e1e6e7e00ad9d0b415a08efb58') }
+#       it 'updates reply message and ledger_entry' do
+#         message.provider_update.should be_nil()
+#   
+#         # Capture job count, enqueue job, and check that it has been added
+#         expect {
+#           job = UpdateMessageStatusJob.new( payload )
+#           Delayed::Job.enqueue job
+#         }.to change{Delayed::Job.count}.from(0).to(1)
+#         
+#         # Now, work that job!
+#         expect {
+#           expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
+#           @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
+#         }.to change{Delayed::Job.count}.from(1).to(0)
+#         
+#         # Check that the message has been properly massaged
+#         message.reload
+#         message.provider_update.should_not be_nil()
+#         message.status.should == Message::SENT
+#         
+#         # Check that the message's ledger_entry has been properly massaged
+#         message.ledger_entry(true).settled_at.should == date_sent
+#         
+#         # Check that the message's ticket has been refreshed
+#         message.ticket(true).reply_status.should == Message::SENT
+#         message.ticket.reply_sent.should == date_sent
+#       end
+#     end
   end
   
   describe '#standardise_callback_values' do

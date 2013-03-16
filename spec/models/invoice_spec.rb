@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe Invoice do
-  before { VCR.insert_cassette 'invoices', record: :new_episodes }
-  after { VCR.eject_cassette }
+  before(:all) { VCR.insert_cassette 'invoices' }
+  after(:all)  { VCR.eject_cassette }
   
   let(:account) { create_freshbooks_account() }
 

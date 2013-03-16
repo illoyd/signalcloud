@@ -9,10 +9,10 @@ AVAILABLE_AREACODE = '500'
 
 describe PhoneNumber do
   #fixtures :accounts, :phone_numbers
-  before { VCR.insert_cassette 'phone_number', record: :new_episodes }
-  after { VCR.eject_cassette }
+  before(:all) { VCR.insert_cassette 'phone_number' }
+  after(:all)  { VCR.eject_cassette }
   
-  let(:account) { create :account, :test_twilio }
+  let(:account) { create :account, :test_twilio, :with_sid_and_token }
 
   # Manage all validations
   describe "validations" do

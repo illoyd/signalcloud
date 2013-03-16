@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe Account, 'Twilio Integration' do
-  before { VCR.insert_cassette 'accounts', record: :new_episodes }
-  after { VCR.eject_cassette }
+  before(:all) { VCR.insert_cassette 'accounts_twilio' }
+  after(:all)  { VCR.eject_cassette }
   subject { create(:account) }
 
   describe '#twilio_client' do
@@ -23,7 +23,7 @@ describe Account, 'Twilio Integration' do
     end
 
     context 'when configured' do
-      subject { create :account, :test_twilio }
+      subject { create :account, :test_twilio, :with_sid_and_token }
       it 'returns instance of twilio client' do
         expect { subject.twilio_client }.to_not raise_error
       end
@@ -44,7 +44,7 @@ describe Account, 'Twilio Integration' do
     end
 
     context 'when configured' do
-      subject { create :account, :test_twilio }
+      subject { create :account, :test_twilio, :with_sid_and_token }
       it 'returns instance of twilio account' do
         expect{ subject.twilio_account }.to_not raise_error
       end
@@ -62,7 +62,7 @@ describe Account, 'Twilio Integration' do
     end
 
     context 'when configured' do
-      subject { create :account, :test_twilio }
+      subject { create :account, :test_twilio, :with_sid_and_token }
       it 'returns instance of twilio validator' do
         expect{ subject.twilio_validator }.to_not raise_error
       end

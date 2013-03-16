@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe InboundMessageJob do
-  before { VCR.insert_cassette 'inbound_message_job', record: :new_episodes }
-  after { VCR.eject_cassette }
+  before(:all) { VCR.insert_cassette 'inbound_message_job' }
+  after(:all)  { VCR.eject_cassette }
   
   let(:account)          { create(:account, :master_twilio) }
   let(:phone_directory)  { create(:phone_directory, account: account) }

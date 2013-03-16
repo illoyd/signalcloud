@@ -1,6 +1,6 @@
 require 'spec_helper'
 describe Twilio::InboundCallsController do
-  let(:account) { create(:test_account, :test_twilio) }
+  let(:account) { create(:test_account, :test_twilio, :with_sid_and_token) }
 
   def build_post_params( params={} )
     { 'CallSid' => 'CA' + SecureRandom.hex(16),

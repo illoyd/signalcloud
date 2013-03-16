@@ -2,8 +2,8 @@
 require 'spec_helper'
 
 describe Message do
-  before { VCR.insert_cassette 'message', record: :new_episodes }
-  after { VCR.eject_cassette }
+  before(:all) { VCR.insert_cassette 'message' }
+  after(:all)  { VCR.eject_cassette }
   
   # Helper: Build a random string for standard SMS
   def random_sms_string(length)
@@ -268,7 +268,7 @@ describe Message do
 #   end
   
   describe '#deliver!' do
-    let(:account) { create :account, :test_twilio }
+    let(:account) { create :account, :test_twilio, :with_sid_and_token }
     let(:phone_number) { create :valid_phone_number, account: account }
     let(:phone_directory) { create :phone_directory, account: account }
     let(:appliance) { create :appliance, account: account, phone_directory: phone_directory }

@@ -75,9 +75,9 @@ describe LedgerEntry do
   end
   
   describe "#pending" do
-    let!(:account) { create :account }
-    let!(:other_account) { create :account }
     before(:all) do
+      account = create :account
+      other_account = create :account
       rand_i(1,10).times { create :ledger_entry, :settled, account: account, item: account }
       rand_i(1,10).times { create :ledger_entry, :pending, account: account, item: account }
       rand_i(1,10).times { create :ledger_entry, :settled, :with_value, account: account, item: account }
@@ -87,7 +87,13 @@ describe LedgerEntry do
       rand_i(1,10).times { create :ledger_entry, :pending, account: other_account, item: other_account }
       rand_i(1,10).times { create :ledger_entry, :settled, :with_value, account: other_account, item: other_account }
       rand_i(1,10).times { create :ledger_entry, :pending, :with_value, account: other_account, item: other_account }
+      
+      @account_id = account.id
+      @other_account_id = other_account.id
     end
+
+    let(:account) { Account.find(@account_id) }
+    let(:other_account) { Account.find(@other_account_id) }
 
     context 'when global' do
       it "returns pending entries" do
@@ -119,9 +125,9 @@ describe LedgerEntry do
   end
   
   describe ".settled" do
-    let!(:account) { create :account }
-    let!(:other_account) { create :account }
     before(:all) do
+      account = create :account
+      other_account = create :account
       rand_i(1,10).times { create :ledger_entry, :settled, account: account, item: account }
       rand_i(1,10).times { create :ledger_entry, :pending, account: account, item: account }
       rand_i(1,10).times { create :ledger_entry, :settled, :with_value, account: account, item: account }
@@ -131,7 +137,13 @@ describe LedgerEntry do
       rand_i(1,10).times { create :ledger_entry, :pending, account: other_account, item: other_account }
       rand_i(1,10).times { create :ledger_entry, :settled, :with_value, account: other_account, item: other_account }
       rand_i(1,10).times { create :ledger_entry, :pending, :with_value, account: other_account, item: other_account }
+
+      @account_id = account.id
+      @other_account_id = other_account.id
     end
+
+    let(:account) { Account.find(@account_id) }
+    let(:other_account) { Account.find(@other_account_id) }
 
     context 'when global' do
       it "returns settled entries" do

@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe SendTicketReplyJob do
-  before { VCR.insert_cassette 'send_reply_job', record: :new_episodes }
-  after  { VCR.eject_cassette }
+  before(:all) { VCR.insert_cassette 'send_ticket_reply_job' }
+  after(:all)  { VCR.eject_cassette }
 
   describe '.new' do
     let(:ticket)  { create(:ticket) }
@@ -27,7 +27,7 @@ describe SendTicketReplyJob do
   end
   
   describe '#perform' do
-    let(:account)           { create(:account, :test_twilio) }
+    let(:account)           { create(:account, :test_twilio, :with_sid_and_token) }
     let(:appliance)         { create(:appliance, account: account) }
 
     [ :confirmed, :denied, :failed, :expired ].each do |status|

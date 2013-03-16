@@ -67,10 +67,10 @@ end
 ##
 # Split out the +send_challenge_message+ function for ease of use
 describe Ticket, '#send_challenge_message' do
-  before { VCR.insert_cassette 'ticket_send_challenge_message', record: :new_episodes }
-  after { VCR.eject_cassette }
+  before(:all) { VCR.insert_cassette 'ticket_send_challenge_message' }
+  after(:all)  { VCR.eject_cassette }
 
-  let(:account) { create :account, :test_twilio }
+  let(:account) { create :account, :test_twilio, :with_sid_and_token }
   let(:phone_number) { create :phone_number, :valid_number, account: account }
   let(:phone_directory) { create :phone_directory, account: account }
   let(:appliance) { create :appliance, account: account, phone_directory: phone_directory }

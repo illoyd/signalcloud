@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe SendTicketChallengeJob do
-  before { VCR.insert_cassette 'send_challenge_job', record: :new_episodes }
-  after  { VCR.eject_cassette }
+  before(:all) { VCR.insert_cassette 'send_challenge_job' }
+  after(:all)  { VCR.eject_cassette }
 
   describe '.new' do
     let(:ticket)  { create(:ticket) }
@@ -27,11 +27,11 @@ describe SendTicketChallengeJob do
   end
   
   describe '#perform' do
-    let(:account)           { create(:account, :test_twilio) }
+    let(:account)           { create(:account, :test_twilio, :with_sid_and_token) }
     let(:appliance)         { create(:appliance, account: account) }
 
     context 'when ticket has not been sent' do
-      let(:ticket)  { create(:ticket, appliance: appliance) }
+      let(:ticket)  { create(:ticket, appliance: appliance, to_number: Twilio::VALID_NUMBER, from_number: Twilio::VALID_NUMBER) }
       let(:job)     { SendTicketChallengeJob.new( ticket.id ) }
       it 'creates a new message' do
         expect { job.perform }.to change{ticket.messages(true).count}.by(1)
@@ -51,7 +51,7 @@ describe SendTicketChallengeJob do
     end
 
     context 'when ticket has been sent' do
-      let(:ticket)  { create(:ticket, :challenge_sent, appliance: appliance) }
+      let(:ticket)  { create(:ticket, :challenge_sent, appliance: appliance, to_number: Twilio::VALID_NUMBER, from_number: Twilio::VALID_NUMBER) }
       let(:job)     { SendTicketChallengeJob.new( ticket.id ) }
       it 'does not create a new message' do
         expect { job.perform }.to_not change{ticket.messages(true).count}

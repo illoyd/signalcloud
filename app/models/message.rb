@@ -107,7 +107,7 @@ class Message < ActiveRecord::Base
     if self.has_cost?
       self.build_ledger_entry( narrative: self.ledger_entry_narrative ) if self.ledger_entry.nil?
       self.ledger_entry.value = self.cost
-      self.ledger_entry.settled_at = DateTime.now
+      self.ledger_entry.settled_at = self.sent_at || DateTime.now
     
     # Otherwise, if a ledger entry is already created, nil the value
     elsif not self.ledger_entry.nil?

@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe CreateTwilioAccountJob do
-  before { VCR.insert_cassette 'accounts', record: :new_episodes }
-  after { VCR.eject_cassette }
+  before(:all) { VCR.insert_cassette 'accounts' }
+  after(:all)  { VCR.eject_cassette }
   
   describe '#perform' do
     subject { CreateTwilioAccountJob.new account.id }

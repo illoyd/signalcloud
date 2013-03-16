@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe ExpireTicketJob do
-  before { VCR.insert_cassette 'expire_ticket_job', record: :new_episodes }
-  after { VCR.eject_cassette }
+  before(:all) { VCR.insert_cassette 'expire_ticket_job' }
+  after(:all)  { VCR.eject_cassette }
 
   describe '#find_ticket' do
     let(:ticket) { create(:ticket) }
@@ -13,7 +13,7 @@ describe ExpireTicketJob do
   describe '#perform' do
     #let(:appliance) { appliances(:test_appliance) }
     #let(:ticket) { appliance.open_ticket( to_number: Twilio::VALID_NUMBER, expected_confirmed_answer: 'YES' ) }
-    let(:account)           { create(:account, :test_twilio) }
+    let(:account)           { create(:account, :test_twilio, :with_sid_and_token) }
     let(:appliance)         { create(:appliance, account: account) }
     let(:ticket)            { create(:ticket, appliance: appliance) }
     let(:ready_to_expire_ticket) { create(:ticket, expiry: 180.seconds.ago, appliance: appliance) }

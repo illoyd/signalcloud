@@ -1,7 +1,7 @@
 require 'spec_helper'
 describe Twilio::SmsUpdatesController do
   #render_views
-  let(:account) { create(:test_account, :test_twilio) }
+  let(:account) { create(:test_account, :test_twilio, :with_sid_and_token) }
   let(:to_phone_number) { build( :phone_number ) }
   let(:from_phone_number) { build( :phone_number ) }
   let(:update_post_params) { {
