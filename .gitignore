@@ -17,6 +17,7 @@
 
 # Ignore VCR recordings (used in testing)
 /spec/fixtures/vcr_cassettes
+/spec/vcr_cassettes
 
 # Ignore secret files
 .env
