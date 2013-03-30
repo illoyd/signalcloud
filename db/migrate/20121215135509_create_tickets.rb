@@ -5,10 +5,19 @@ class CreateTickets < ActiveRecord::Migration
     create_table :tickets do |t|
       #t.column :id, :bigint, null: false
       t.references :appliance, null: false
+
       t.integer :status, null: false, default: 0, limit: 2
+      t.integer :challenge_status, limit: 2
+      t.integer :reply_status, limit: 2
+
+      t.datetime :expiry, null: false
+      t.datetime :challenge_sent_at, null: true
+      t.datetime :response_received_at, null: true
+      t.datetime :reply_sent_at, null: true
+      
       t.text :encrypted_from_number, null: false
       t.text :encrypted_to_number, null: false
-      t.datetime :expiry, null: false
+
       t.text :encrypted_question, null: false
       t.text :encrypted_expected_confirmed_answer, null: false
       t.text :encrypted_expected_denied_answer, null: false
@@ -17,11 +26,6 @@ class CreateTickets < ActiveRecord::Migration
       t.text :encrypted_denied_reply, null: false
       t.text :encrypted_failed_reply, null: false
       t.text :encrypted_expired_reply, null: false
-      t.datetime :challenge_sent, null: true
-      t.integer :challenge_status, limit: 2
-      t.datetime :response_received, null: true
-      t.datetime :reply_sent, null: true
-      t.integer :reply_status, limit: 2
 
       t.timestamps
     end

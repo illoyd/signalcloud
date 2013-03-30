@@ -32,7 +32,7 @@ class Ticket < ActiveRecord::Base
   ERROR_STATUSES = [ ERROR_INVALID_TO, ERROR_INVALID_FROM, ERROR_BLACKLISTED_TO, ERROR_NOT_SMS_CAPABLE, ERROR_CANNOT_ROUTE, ERROR_SMS_QUEUE_FULL, ERROR_INTERNATIONAL, ERROR_MISSING_BODY, ERROR_BODY_TOO_LARGE, ERROR_UNKNOWN ]
   CRITICAL_ERRORS = [ ERROR_MISSING_BODY, ERROR_BODY_TOO_LARGE, ERROR_INTERNATIONAL ]
 
-  attr_accessible :seconds_to_live, :appliance_id, :actual_answer, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry
+  attr_accessible :seconds_to_live, :appliance_id, :actual_answer, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry, :webhook_uri
   attr_accessor :seconds_to_live
   
   # Encrypted attributes
@@ -70,7 +70,7 @@ class Ticket < ActiveRecord::Base
   scope :last_x_days, lambda{ where( "tickets.created_at >= ? and tickets.created_at <= ?", 7.days.ago.beginning_of_day, DateTime.yesterday.end_of_day ) }
   scope :created_between, lambda{ |lower,upper| where( "tickets.created_at >= ? and tickets.created_at <= ?", lower.beginning_of_day, upper.end_of_day ) }
   scope :count_by_status, select('count(tickets.*) as count, tickets.status').group('tickets.status')
-  scope :outstanding, where( 'challenge_sent is null or response_received is null or reply_sent is null' )
+  scope :outstanding, where( 'challenge_sent_at is null or response_received_at is null or reply_sent_at is null' )
   
   ##
   # Standardise all messages for easier comparisons and matching.
@@ -133,7 +133,7 @@ class Ticket < ActiveRecord::Base
   # 
   def accept_answer!( answer, received=DateTime.now )
     self.status = self.compare_answer(answer)
-    self.response_received = received
+    self.response_received_at = received
     self.save!
   end
 
@@ -290,19 +290,19 @@ class Ticket < ActiveRecord::Base
   ##
   # Has the challenge message already been sent to the recipient?
   def has_challenge_been_sent?
-    return !self.challenge_sent.nil?
+    return !self.challenge_sent_at.nil?
   end
   
   ##
   # Has the challenge message already been sent to the recipient?
   def has_response_been_received?
-    return !self.response_received.nil?
+    return !self.response_received_at.nil?
   end
   
   ##
   # Has the challenge message already been sent to the recipient?
   def has_reply_been_sent?
-    return !self.reply_sent.nil?
+    return !self.reply_sent_at.nil?
   end
   
   def has_outstanding_challenge_messages?
@@ -316,15 +316,15 @@ class Ticket < ActiveRecord::Base
   def settle_messages_statuses
 
     unless self.has_challenge_been_sent? or self.has_outstanding_challenge_messages?
-      self.challenge_sent = self.messages.where( message_kind: Message::CHALLENGE ).maximum( :sent_at )
+      self.challenge_sent_at = self.messages.where( message_kind: Message::CHALLENGE ).maximum( :sent_at )
     end
     
     unless self.has_response_been_received?
-      self.response_received = self.messages.where( 'status = ? or direction = ?', Message::RECEIVED, Message::DIRECTION_IN ).maximum( :sent_at )
+      self.response_received_at = self.messages.where( 'status = ? or direction = ?', Message::RECEIVED, Message::DIRECTION_IN ).maximum( :sent_at )
     end
 
     unless self.has_reply_been_sent? or self.has_outstanding_reply_messages?
-      self.reply_sent = self.messages.where( message_kind: Message::REPLY ).maximum( :sent_at )
+      self.reply_sent_at = self.messages.where( message_kind: Message::REPLY ).maximum( :sent_at )
     end
 
   end

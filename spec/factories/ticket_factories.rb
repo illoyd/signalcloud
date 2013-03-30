@@ -15,16 +15,16 @@ FactoryGirl.define do
     
     trait :challenge_sent do
       status                  Ticket::CHALLENGE_SENT
-      challenge_sent          { DateTime.now }
+      challenge_sent_at       { DateTime.now }
       challenge_status        Message::SENT
     end
 
     trait :response_received do
-      response_received       { DateTime.now }
+      response_received_at    { DateTime.now }
     end
 
     trait :reply_sent do
-      reply_sent              { DateTime.now }
+      reply_sent_at           { DateTime.now }
       reply_status            Message::SENT
     end
 
@@ -49,10 +49,6 @@ FactoryGirl.define do
     trait :expired do
       challenge_sent
       status                  Ticket::EXPIRED
-    end
-    
-    trait :reply_sent do
-      reply_sent              { DateTime.now }
     end
 
   end

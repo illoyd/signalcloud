@@ -98,14 +98,14 @@ class InboundMessageJob < Struct.new( :provider_update )
   # In this situation, we SWAP the given TO and FROM, as this is a reply from the user. Tickets are always from: ticketplease, to: the recepient.
   def find_open_tickets()
     self.normalize_provider_update!
-    Ticket.find_open_tickets( self.provider_update[:to], self.provider_update[:from] ).order( 'challenge_sent' )
+    Ticket.find_open_tickets( self.provider_update[:to], self.provider_update[:from] ).order( 'challenge_sent_at' )
 #     normalized_to_number = PhoneNumber.normalize_phone_number self.provider_update[:to]
 #     normalized_from_number = PhoneNumber.normalize_phone_number self.provider_update[:from]
 #     Ticket.where({
 #       encrypted_to_number: Ticket.encrypt( :to_number, normalized_from_number ),
 #       encrypted_from_number: Ticket.encrypt( :from_number, normalized_to_number ),
 #       status: Ticket::CHALLENGE_SENT
-#       }).order('challenge_sent')
+#       }).order('challenge_sent_at')
   end
   
 #   def handle_response_to_ticket()
@@ -150,7 +150,7 @@ class InboundMessageJob < Struct.new( :provider_update )
   ##
   # Update the ticket...
 #   def update_ticket( ticket )
-#     ticket.response_received = DateTime.now
+#     ticket.response_received_at = DateTime.now
 #     
 #     # Update the ticket based upon the given value
 #     ticket.status = case Ticket.normalize_message(self.provider_update[:body])

@@ -74,8 +74,8 @@
             %td= humanize_phone_number Phony.normalize ticket.from_number
             %td= humanize_phone_number Phony.normalize ticket.to_number
             %td= ticket.expiry
-            %td{style:'text-align:center'}= ticket.challenge_sent ? icon(:ok) : ''
-            %td{style:'text-align:center'}= ticket.response_received ? icon(:ok) : ''
-            %td{style:'text-align:center'}= ticket.reply_sent ? icon(:ok) : ''
+            %td{style:'text-align:center'}= ticket.challenge_sent_at ? icon(:ok) : ''
+            %td{style:'text-align:center'}= ticket.response_received_at ? icon(:ok) : ''
+            %td{style:'text-align:center'}= ticket.reply_sent_at ? icon(:ok) : ''
 
   = paginate @tickets

@@ -329,7 +329,7 @@ describe UpdateMessageStatusJob do
 #         
 #         # Check that the message's ticket has been refreshed
 #         message.ticket(true).challenge_status.should == Message::SENT
-#         message.ticket.challenge_sent.should == date_sent
+#         message.ticket.challenge_sent_at.should == date_sent
 #       end
 #     end
 #     context 'with sent reply message' do
@@ -359,7 +359,7 @@ describe UpdateMessageStatusJob do
 #         
 #         # Check that the message's ticket has been refreshed
 #         message.ticket(true).reply_status.should == Message::SENT
-#         message.ticket.reply_sent.should == date_sent
+#         message.ticket.reply_sent_at.should == date_sent
 #       end
 #     end
   end
