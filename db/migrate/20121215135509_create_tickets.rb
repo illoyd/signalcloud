@@ -15,6 +15,8 @@ class CreateTickets < ActiveRecord::Migration
       t.datetime :response_received_at, null: true
       t.datetime :reply_sent_at, null: true
       
+      t.string :webhook_uri
+
       t.text :encrypted_from_number, null: false
       t.text :encrypted_to_number, null: false
 

@@ -106,6 +106,37 @@ class Ticket < ActiveRecord::Base
     self.from_number = PhoneNumber.normalize_phone_number(self.from_number)
   end
   
+  def to_webhook_data
+    data = [ :id, :appliance_id, :status, :status_text, :created_at, :updated_at, :challenge_sent_at, :challenge_status, :response_received_at, :reply_sent_at, :reply_status ].each_with_object({}) do |key,h|
+      value = self.send key
+      h[key] = value unless value.blank?
+    end
+    
+    data[:open] = self.is_open? ? 1 : 0
+    data[:closed] = self.is_closed? ? 1 : 0
+    
+    return data
+  end
+  
+  def status_text
+    case self.status
+      when PENDING
+        'Pending'
+      when QUEUED
+        'Queued'
+      when CHALLENGE_SENT
+        'Challenge sent - Waiting for reply'
+      when CONFIRMED
+        'Confirmed'
+      when DENIED
+        'Denied'
+      when FAILED
+        'Failed'
+      when EXPIRED
+        'Expired'
+    end
+  end
+  
   def normalized_expected_confirmed_answer
     Ticket.normalize_message self.expected_confirmed_answer
   end

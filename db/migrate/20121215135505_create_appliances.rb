@@ -7,6 +7,8 @@ class CreateAppliances < ActiveRecord::Migration
       t.integer :seconds_to_live, default: 180, null: false
       t.boolean :primary, default: false, null: false
       t.boolean :active, default: true, null: false
+      t.string :webhook_uri
+      
       t.text :description
       t.text :encrypted_question
       t.text :encrypted_expected_confirmed_answer

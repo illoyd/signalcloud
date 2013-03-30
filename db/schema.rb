@@ -80,6 +80,7 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
     t.integer  "seconds_to_live",                     :default => 180,   :null => false
     t.boolean  "primary",                             :default => false, :null => false
     t.boolean  "active",                              :default => true,  :null => false
+    t.string   "webhook_uri"
     t.text     "description"
     t.text     "encrypted_question"
     t.text     "encrypted_expected_confirmed_answer"
@@ -114,22 +115,23 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
 
   create_table "invoices", :force => true do |t|
     t.integer  "account_id"
-    t.integer  "freshbooks_id"
+    t.integer  "freshbooks_invoice_id"
     t.string   "purchase_order"
     t.string   "public_link"
     t.string   "internal_link"
-    t.datetime "date_from",      :null => false
-    t.datetime "date_to",        :null => false
+    t.datetime "date_from",             :null => false
+    t.datetime "date_to",               :null => false
     t.datetime "sent_at"
-    t.datetime "created_at",     :null => false
-    t.datetime "updated_at",     :null => false
+    t.datetime "created_at",            :null => false
+    t.datetime "updated_at",            :null => false
   end
 
   add_index "invoices", ["account_id"], :name => "index_invoices_on_account_id"
-  add_index "invoices", ["freshbooks_id"], :name => "index_invoices_on_freshbooks_id"
+  add_index "invoices", ["freshbooks_invoice_id"], :name => "index_invoices_on_freshbooks_invoice_id"
 
   create_table "ledger_entries", :force => true do |t|
     t.integer  "account_id"
+    t.integer  "invoice_id"
     t.integer  "item_id"
     t.string   "item_type"
     t.string   "narrative",                                                 :null => false
@@ -207,9 +209,15 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
   create_table "tickets", :force => true do |t|
     t.integer  "appliance_id",                                                    :null => false
     t.integer  "status",                              :limit => 2, :default => 0, :null => false
+    t.integer  "challenge_status",                    :limit => 2
+    t.integer  "reply_status",                        :limit => 2
+    t.datetime "expiry",                                                          :null => false
+    t.datetime "challenge_sent_at"
+    t.datetime "response_received_at"
+    t.datetime "reply_sent_at"
+    t.string   "webhook_uri"
     t.text     "encrypted_from_number",                                           :null => false
     t.text     "encrypted_to_number",                                             :null => false
-    t.datetime "expiry",                                                          :null => false
     t.text     "encrypted_question",                                              :null => false
     t.text     "encrypted_expected_confirmed_answer",                             :null => false
     t.text     "encrypted_expected_denied_answer",                                :null => false
@@ -218,11 +226,6 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
     t.text     "encrypted_denied_reply",                                          :null => false
     t.text     "encrypted_failed_reply",                                          :null => false
     t.text     "encrypted_expired_reply",                                         :null => false
-    t.datetime "challenge_sent"
-    t.integer  "challenge_status",                    :limit => 2
-    t.datetime "response_received"
-    t.datetime "reply_sent"
-    t.integer  "reply_status",                        :limit => 2
     t.datetime "created_at",                                                      :null => false
     t.datetime "updated_at",                                                      :null => false
   end

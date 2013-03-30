@@ -6,11 +6,14 @@
 #
 # This class is intended for use with Delayed::Job.
 #
-class SendTicketStatusWebhookJob < Struct.new( :ticket_id )
+class SendTicketStatusWebhookJob < Struct.new( :ticket_id, :webhook_data )
   include Talkable
 
   def perform
-    # TODO
+    raise TicketpleaseError.new 'Missing webhook data' if self.webhook_data.blank?
+    ticket = Ticket.find self.ticket_id
+    raise TicketpleaseError.new('Ticket (%s) does not have a Webhook URI.' % [ ticket.id ]) if ticket.webhook_uri.blank?
+    HTTParty.post ticket.webhook_uri, query: self.webhook_data
   end
   
   alias :run :perform

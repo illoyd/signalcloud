@@ -102,5 +102,67 @@ describe Ticket do
       subject.expiry.should be_within(0.5).of( seconds_to_live.seconds.from_now )
     end
   end
+  
+  describe '#to_webhook_data' do
+
+    context 'when pending' do
+      subject { create(:ticket).to_webhook_data }
+      it { should be_a Hash }
+      it { should include( :id, :appliance_id, :status, :status_text, :created_at, :updated_at ) }
+      its([:status]) { should == Ticket::PENDING }
+      its([:open]) { should == 1 }
+      its([:closed]) { should == 0 }
+    end
+    
+    context 'when challenge is sent' do
+      subject { create(:ticket, :challenge_sent).to_webhook_data }
+      it { should be_a Hash }
+      it { should include( :challenge_sent_at, :challenge_status ) }
+      its([:status]) { should == Ticket::CHALLENGE_SENT }
+      its([:open]) { should == 1 }
+      its([:closed]) { should == 0 }
+    end
+    
+    context 'when response is received' do
+      subject { create(:ticket, :response_received).to_webhook_data }
+      it { should be_a Hash }
+      it { should include( :response_received_at ) }
+    end
+
+    context 'when reply is sent' do
+      subject { create(:ticket, :reply_sent).to_webhook_data }
+      it { should be_a Hash }
+      it { should include( :reply_sent_at, :reply_status ) }
+    end
+
+    context 'when confirmed' do
+      subject { create(:ticket, :confirmed, :reply_sent).to_webhook_data }
+      its([:status]) { should == Ticket::CONFIRMED }
+      its([:open]) { should == 0 }
+      its([:closed]) { should == 1 }
+    end
+
+    context 'when denied' do
+      subject { create(:ticket, :denied, :reply_sent).to_webhook_data }
+      its([:status]) { should == Ticket::DENIED }
+      its([:open]) { should == 0 }
+      its([:closed]) { should == 1 }
+    end
+
+    context 'when failed' do
+      subject { create(:ticket, :failed, :reply_sent).to_webhook_data }
+      its([:status]) { should == Ticket::FAILED }
+      its([:open]) { should == 0 }
+      its([:closed]) { should == 1 }
+    end
+
+    context 'when expired' do
+      subject { create(:ticket, :expired, :reply_sent).to_webhook_data }
+      its([:status]) { should == Ticket::EXPIRED }
+      its([:open]) { should == 0 }
+      its([:closed]) { should == 1 }
+    end
+
+  end
 
 end
