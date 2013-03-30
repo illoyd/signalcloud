@@ -127,63 +127,63 @@ describe Ticket, '#send_challenge_message' do
   context 'when already sent' do
     subject { create :ticket, :challenge_sent, appliance: appliance }
     it "should not resend challenge" do
-      expect{ subject.send_challenge_message!() }.to raise_error( Ticketplease::ChallengeAlreadySentError )
+      expect{ subject.send_challenge_message!() }.to raise_error( SignalCloud::ChallengeAlreadySentError )
     end
   end
   
   context 'when missing body' do
     subject { build :ticket, appliance: appliance, question: nil }
-    include_examples 'raises message error (without save)', 0, Ticketplease::CriticalMessageSendingError, Ticket::ERROR_MISSING_BODY
+    include_examples 'raises message error (without save)', 0, SignalCloud::CriticalMessageSendingError, Ticket::ERROR_MISSING_BODY
   end
   
   context 'when blank body' do
     subject { build :ticket, appliance: appliance, question: '' }
-    include_examples 'raises message error (without save)', 0, Ticketplease::CriticalMessageSendingError, Ticket::ERROR_MISSING_BODY
+    include_examples 'raises message error (without save)', 0, SignalCloud::CriticalMessageSendingError, Ticket::ERROR_MISSING_BODY
   end
   
   context 'when spaced body' do
     subject { build :ticket, appliance: appliance, question: '    ' }
-    include_examples 'raises message error (without save)', 0, Ticketplease::CriticalMessageSendingError, Ticket::ERROR_MISSING_BODY
+    include_examples 'raises message error (without save)', 0, SignalCloud::CriticalMessageSendingError, Ticket::ERROR_MISSING_BODY
   end
   
   context 'when invalid TO' do
     subject { create :ticket, appliance: appliance, to_number: Twilio::INVALID_NUMBER }
-    include_examples 'raises message error', 1, Ticketplease::MessageSendingError, Ticket::ERROR_INVALID_TO
+    include_examples 'raises message error', 1, SignalCloud::MessageSendingError, Ticket::ERROR_INVALID_TO
   end
   
   context 'when TO has impossible routing' do
     subject { create :ticket, appliance: appliance, to_number: Twilio::INVALID_CANNOT_ROUTE_TO_NUMBER }
-    include_examples 'raises message error', 1, Ticketplease::MessageSendingError, Ticket::ERROR_CANNOT_ROUTE
+    include_examples 'raises message error', 1, SignalCloud::MessageSendingError, Ticket::ERROR_CANNOT_ROUTE
   end
   
   context 'when international support is disabled' do
     subject { create :ticket, appliance: appliance, to_number: Twilio::INVALID_INTERNATIONAL_NUMBER }
-    include_examples 'raises message error', 1, Ticketplease::MessageSendingError, Ticket::ERROR_INTERNATIONAL
+    include_examples 'raises message error', 1, SignalCloud::MessageSendingError, Ticket::ERROR_INTERNATIONAL
   end
   
   context 'when TO is blacklisted' do
     subject { create :ticket, appliance: appliance, to_number: Twilio::INVALID_BLACKLISTED_NUMBER }
-    include_examples 'raises message error', 1, Ticketplease::MessageSendingError, Ticket::ERROR_BLACKLISTED_TO
+    include_examples 'raises message error', 1, SignalCloud::MessageSendingError, Ticket::ERROR_BLACKLISTED_TO
   end
   
   context 'when TO is sms-incapable' do
     subject { create :ticket, appliance: appliance, to_number: Twilio::INVALID_NOT_SMS_CAPABLE_TO_NUMBER }
-    include_examples 'raises message error', 1, Ticketplease::MessageSendingError, Ticket::ERROR_NOT_SMS_CAPABLE
+    include_examples 'raises message error', 1, SignalCloud::MessageSendingError, Ticket::ERROR_NOT_SMS_CAPABLE
   end
   
   context 'when invalid FROM' do
     subject { create :ticket, appliance: appliance, from_number: Twilio::INVALID_NUMBER }
-    include_examples 'raises message error', 1, Ticketplease::MessageSendingError, Ticket::ERROR_INVALID_FROM
+    include_examples 'raises message error', 1, SignalCloud::MessageSendingError, Ticket::ERROR_INVALID_FROM
   end
   
   context 'when sms-incapable FROM' do
     subject { create :ticket, appliance: appliance, from_number: Twilio::INVALID_NOT_SMS_CAPABLE_FROM_NUMBER }
-    include_examples 'raises message error', 1, Ticketplease::MessageSendingError, Ticket::ERROR_NOT_SMS_CAPABLE
+    include_examples 'raises message error', 1, SignalCloud::MessageSendingError, Ticket::ERROR_NOT_SMS_CAPABLE
   end
   
   context 'when FROM queue is full' do
     subject { create :ticket, appliance: appliance, from_number: Twilio::INVALID_FULL_SMS_QUEUE_NUMBER }
-    include_examples 'raises message error', 1, Ticketplease::MessageSendingError, Ticket::ERROR_SMS_QUEUE_FULL
+    include_examples 'raises message error', 1, SignalCloud::MessageSendingError, Ticket::ERROR_SMS_QUEUE_FULL
   end
 
 end

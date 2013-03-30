@@ -4,4 +4,4 @@
 
 require File.expand_path('../config/application', __FILE__)
 
-Ticketplease::Application.load_tasks
+SignalCloud::Application.load_tasks

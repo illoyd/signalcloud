@@ -10,7 +10,7 @@ describe Account, 'Freshbooks Integration' do
     context 'when not configured' do
       subject { create :account }
       it 'throws error' do
-        expect{ subject.freshbooks_client }.to raise_error(Ticketplease::MissingFreshBooksClientError)
+        expect{ subject.freshbooks_client }.to raise_error(SignalCloud::MissingFreshBooksClientError)
       end
     end
 
@@ -35,14 +35,14 @@ describe Account, 'Freshbooks Integration' do
     context 'when configured with users' do
       subject { create :account, :test_freshbooks, :with_users }
       it 'throws an error' do
-        expect{ subject.create_freshbooks_client }.to raise_error(Ticketplease::FreshBooksClientAlreadyExistsError)
+        expect{ subject.create_freshbooks_client }.to raise_error(SignalCloud::FreshBooksClientAlreadyExistsError)
       end
     end
   
     context 'when configured without users' do
       subject { create :account, :test_freshbooks, :with_users }
       it 'throws an error' do
-        expect{ subject.create_freshbooks_client }.to raise_error(Ticketplease::FreshBooksError)
+        expect{ subject.create_freshbooks_client }.to raise_error(SignalCloud::FreshBooksError)
       end
     end
   

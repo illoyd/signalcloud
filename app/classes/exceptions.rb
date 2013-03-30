@@ -1,8 +1,8 @@
-module Ticketplease
+module SignalCloud
 
 ##
-# Standard Ticketplease error, which includes options for a nested +original+ error and error +code+.
-class TicketpleaseError < StandardError
+# Standard SignalCloud error, which includes options for a nested +original+ error and error +code+.
+class SignalCloudError < StandardError
   attr_accessor :original
   attr_accessor :code
   
@@ -17,7 +17,7 @@ end
 ##
 # Thrown whenever the given object does not have an associated account. This is a CRITICAL error as no
 # object should ever be created without an account!
-class AccountNotAssociatedError < TicketpleaseError
+class AccountNotAssociatedError < SignalCloudError
   def initialize( original = nil, code = nil )
     super( 'Object not associated to an account.', original, code )
   end
@@ -25,7 +25,7 @@ end
 
 ##
 # Twilio Error!
-class TwilioError < TicketpleaseError; end
+class TwilioError < SignalCloudError; end
 
 ##
 # Thrown whenever a Twilio client is requested but not configured.
@@ -61,7 +61,7 @@ end
 
 ##
 # FreshBooks Error!
-class FreshBooksError < TicketpleaseError; end
+class FreshBooksError < SignalCloudError; end
 
 ##
 # Thrown whenever the given item does not have a FreshBooks account yet.
@@ -79,7 +79,7 @@ class FreshBooksClientAlreadyExistsError < FreshBooksError
   end
 end
 
-class TicketError < TicketpleaseError
+class TicketError < SignalCloudError
   attr_accessor :ticket
   def initialize( msg, ticket, original = nil, code = nil )
     super( msg, original, code )
@@ -87,7 +87,7 @@ class TicketError < TicketpleaseError
   end
 end
 
-class MessageError < TicketpleaseError
+class MessageError < SignalCloudError
   attr_accessor :ticket_message
   def initialize( msg, ticket_message, original = nil, code = nil )
     super( msg, original, code )
@@ -128,13 +128,13 @@ class ReplyAlreadySentError < TicketError
   end
 end
 
-class ClientInvoiceNotCreatedError < TicketpleaseError
+class ClientInvoiceNotCreatedError < SignalCloudError
   def initialize(original = nil, code = nil)
     super( 'The invoice has not been created in the financial system.', original, code )
   end
 end
 
-class ClientInvoiceAlreadyCreatedError < TicketpleaseError
+class ClientInvoiceAlreadyCreatedError < SignalCloudError
   def initialize(original = nil, code = nil)
     super( 'The invoice has already been created in the financial system.', original, code )
   end

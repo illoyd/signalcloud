@@ -45,8 +45,8 @@ unless Rails.env.production? || Account.exists?( encrypted_twilio_account_sid: A
     test_account.save!
   
   # Add users
-  test_user = test_account.users.create first_name: 'Jane', last_name: 'Doe', email: 'jane.doe@ticketpleaseapp.com', password: 'password', password_confirmation: 'password', roles: nil
-  simple_user = test_account.users.create first_name: 'Joe', last_name: 'Bloggs', email: 'joe.bloggs@ticketpleaseapp.com', password: 'password', password_confirmation: 'password', roles: nil
+  test_user = test_account.users.create first_name: 'Jane', last_name: 'Doe', email: 'jane.doe@signalcloudapp.com', password: 'password', password_confirmation: 'password', roles: nil
+  simple_user = test_account.users.create first_name: 'Joe', last_name: 'Bloggs', email: 'joe.bloggs@signalcloudapp.com', password: 'password', password_confirmation: 'password', roles: nil
   
   # Add example data for the test account
   test_numbers = {
@@ -106,7 +106,7 @@ unless Account.exists?( encrypted_twilio_account_sid: Account.encrypt(:twilio_ac
     master_account.twilio_auth_token = ENV['TWILIO_MASTER_AUTH_TOKEN']
     master_account.save!
   
-  master_user = master_account.users.build first_name: 'Ian', last_name: 'Lloyd', email: 'ian.lloyd@ticketpleaseapp.com', password: ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['TWILIO_MASTER_ACCOUNT_SID'], roles: User::ROLES
+  master_user = master_account.users.build first_name: 'Ian', last_name: 'Lloyd', email: 'ian.lloyd@signalcloudapp.com', password: ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['TWILIO_MASTER_ACCOUNT_SID'], roles: User::ROLES
     master_user.save!
   
   master_phone_number = master_account.phone_numbers.create!( number: '+14242773034', twilio_phone_number_sid: 'PNb35b5f695c76e7f558956284204bcb45' )

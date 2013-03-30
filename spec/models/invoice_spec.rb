@@ -56,7 +56,7 @@ describe Invoice do
       end
   
       it 'raises error if sent' do
-        expect { subject.send_invoice! }.to raise_error(Ticketplease::ClientInvoiceNotCreatedError)
+        expect { subject.send_invoice! }.to raise_error(SignalCloud::ClientInvoiceNotCreatedError)
       end
     end
     
@@ -66,7 +66,7 @@ describe Invoice do
       it { should have_invoice }
   
       it 'raises error if created' do
-        expect { subject.create_invoice! }.to raise_error(Ticketplease::ClientInvoiceAlreadyCreatedError)
+        expect { subject.create_invoice! }.to raise_error(SignalCloud::ClientInvoiceAlreadyCreatedError)
       end
   
       it 'sends invoice' do

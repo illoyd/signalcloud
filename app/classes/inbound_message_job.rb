@@ -95,7 +95,7 @@ class InboundMessageJob < Struct.new( :provider_update )
 
   ##  
   # Intuit the appropriate ticket based upon the TO and FROM.
-  # In this situation, we SWAP the given TO and FROM, as this is a reply from the user. Tickets are always from: ticketplease, to: the recepient.
+  # In this situation, we SWAP the given TO and FROM, as this is a reply from the user. Tickets are always from: SignalCloud, to: the recepient.
   def find_open_tickets()
     self.normalize_provider_update!
     Ticket.find_open_tickets( self.provider_update[:to], self.provider_update[:from] ).order( 'challenge_sent_at' )

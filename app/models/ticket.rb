@@ -207,14 +207,14 @@ class Ticket < ActiveRecord::Base
       when EXPIRED
         self.expired_reply
       else
-        raise Ticketplease::InvalidTicketStateError(self)
+        raise SignalCloud::InvalidTicketStateError(self)
       end
   end
   
   def send_challenge_message( force_resend = false )
 
     # Abort if message already sent and we do not want to force a resend
-    raise Ticketplease::ChallengeAlreadySentError.new(self) unless ( force_resend || !self.has_challenge_been_sent? )
+    raise SignalCloud::ChallengeAlreadySentError.new(self) unless ( force_resend || !self.has_challenge_been_sent? )
 
     # Send the message, catching any errors
     begin
@@ -223,13 +223,13 @@ class Ticket < ActiveRecord::Base
       self.challenge_status = QUEUED
       return sent_messages
 
-    rescue Ticketplease::MessageSendingError => ex
+    rescue SignalCloud::MessageSendingError => ex
       # Set message status
       self.status = ex.code
       self.challenge_status = ex.code
       
       # Log as appropriate
-      if ex.instance_of?( Ticketplease::CriticalMessageSendingError )
+      if ex.instance_of?( SignalCloud::CriticalMessageSendingError )
         logger.error 'Ticket %s encountered critical error while sending challenge message (code %s)!' % [ self.id, self.challenge_status ]
       else
         logger.info 'Ticket %s encountered error while sending challenge message (code %s).' % [ self.id, self.challenge_status ]
@@ -251,7 +251,7 @@ class Ticket < ActiveRecord::Base
   def send_reply_message( force_resend = false )
 
     # Abort if message already sent and we do not want to force a resend
-    raise Ticketplease::ReplyAlreadySentError.new(self) unless ( force_resend || !self.has_reply_been_sent? )
+    raise SignalCloud::ReplyAlreadySentError.new(self) unless ( force_resend || !self.has_reply_been_sent? )
     
     # Send the message, catching any errors
     begin
@@ -259,12 +259,12 @@ class Ticket < ActiveRecord::Base
       self.reply_status = QUEUED
       return sent_messages
 
-    rescue Ticketplease::MessageSendingError => ex
+    rescue SignalCloud::MessageSendingError => ex
       # Set message status
       self.reply_status = ex.code
       
       # Log as appropriate
-      if ex.instance_of?( Ticketplease::CriticalMessageSendingError )
+      if ex.instance_of?( SignalCloud::CriticalMessageSendingError )
         logger.error 'Ticket %s encountered critical error while sending reply message (code %s)!' % [ self.id, self.reply_status ]
       else
         logger.info 'Ticket %s encountered error while sending reply message (code %s)!' % [ self.id, self.reply_status ]
@@ -287,7 +287,7 @@ class Ticket < ActiveRecord::Base
   # Send challenge SMS message. This will construct the appropriate SMS 'envelope' and pass to the +Ticket's+ +Account+. This will also convert
   # the results into a message, to be held for reference.
   def send_message( message_body, message_kind = nil, force_resend = false )
-    raise Ticketplease::CriticalMessageSendingError.new( nil, nil, Ticket::ERROR_MISSING_BODY ) if message_body.blank?
+    raise SignalCloud::CriticalMessageSendingError.new( nil, nil, Ticket::ERROR_MISSING_BODY ) if message_body.blank?
   
     # Do an initial clean-up on the body
     message_body.strip!
@@ -310,9 +310,9 @@ class Ticket < ActiveRecord::Base
     rescue Twilio::REST::RequestError => ex
       error_code = Ticket.translate_twilio_error_to_ticket_status ex.code
       if CRITICAL_ERRORS.include? error_code
-        raise Ticketplease::CriticalMessageSendingError.new( message_body, ex, error_code ) # Rethrow as a critical error
+        raise SignalCloud::CriticalMessageSendingError.new( message_body, ex, error_code ) # Rethrow as a critical error
       else
-        raise Ticketplease::MessageSendingError.new( message_body, ex, error_code ) # Rethrow in nice wrapper error
+        raise SignalCloud::MessageSendingError.new( message_body, ex, error_code ) # Rethrow in nice wrapper error
       end
     end
 

@@ -18,10 +18,10 @@ class SendTicketChallengeJob < Struct.new( :ticket_id, :force_resend )
       # Create and enqueue a new expiration job
       JobTools.enqueue ExpireTicketJob.new( self.ticket.id, self.force_resend ), run_at: self.ticket.expiry
 
-    rescue Ticketplease::ChallengeAlreadySentError => ex
+    rescue SignalCloud::ChallengeAlreadySentError => ex
      say( 'Skipping as challenge message has already been sent.', Logger::DEBUG )
     
-    rescue Ticketplease::MessageSendingError => ex
+    rescue SignalCloud::MessageSendingError => ex
      say( ex.message, Logger::WARN )
     
     rescue => ex

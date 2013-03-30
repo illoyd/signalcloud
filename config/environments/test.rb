@@ -1,4 +1,4 @@
-Ticketplease::Application.configure do
+SignalCloud::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb
 
   # The test environment is used exclusively to run your application's
@@ -36,5 +36,5 @@ Ticketplease::Application.configure do
   config.active_support.deprecation = :stderr
   
   # Add default URL option for test environment to force it over to the main app.
-  config.action_controller.default_url_options( { host: 'ticketplease.herokuapp.com' } )
+  config.action_controller.default_url_options( { host: 'signalcloud.herokuapp.com' } )
 end

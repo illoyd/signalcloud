@@ -1,4 +1,4 @@
-Ticketplease::Application.routes.draw do
+SignalCloud::Application.routes.draw do
 
   # Configure authentication for USERS
   devise_for :users

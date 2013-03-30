@@ -28,7 +28,7 @@ class Invoice < ActiveRecord::Base
   ##
   # Capture all uninvoiced, settled transactions and assign to this invoice.
   def capture_uninvoiced_ledger_entries
-    raise TicketpleaseError.new( 'Invoice must be saved before capturing ledger entries.' ) if self.new_record?
+    raise SignalCloudError.new( 'Invoice must be saved before capturing ledger entries.' ) if self.new_record?
     self.account.ledger_entries.uninvoiced.settled.where( 'settled_at <= ?', self.date_to ).update_all( invoice_id: self.id )
     self.ledger_entries(true) # Force a reload of ledger_entries
   end
@@ -44,7 +44,7 @@ class Invoice < ActiveRecord::Base
   ##
   # Send this invoice from the FreshBooks accounting system.
   def send_freshbooks_invoice!
-    raise Ticketplease::ClientInvoiceNotCreatedError.new unless self.has_invoice?
+    raise SignalCloud::ClientInvoiceNotCreatedError.new unless self.has_invoice?
     
     response = Freshbooks.account.invoice.send_by_email( invoice_id: self.freshbooks_invoice_id )
     self.freshbooks_invoice_id = response['invoice_id']
@@ -79,9 +79,9 @@ class Invoice < ActiveRecord::Base
   ##
   # Update self from FreshBooks data.
   def refresh_from_freshbooks
-    raise Ticketplease::AccountNotAssociatedError.new if self.account.nil?
-    raise Ticketplease::FreshBooksAccountNotConfiguredError.new if self.account.freshbooks_id.nil?
-    raise Ticketplease::MissingClientInvoiceError.new unless self.has_invoice?
+    raise SignalCloud::AccountNotAssociatedError.new if self.account.nil?
+    raise SignalCloud::FreshBooksAccountNotConfiguredError.new if self.account.freshbooks_id.nil?
+    raise SignalCloud::MissingClientInvoiceError.new unless self.has_invoice?
 
     response = Freshbooks.account.invoice.get({ invoice_id: self.freshbooks_invoice_id })
     self.public_link = response['invoice']['links']['client_view']
@@ -92,9 +92,9 @@ class Invoice < ActiveRecord::Base
   # Create a new invoice in the financial system without saving.
   # Internally, we keep charges as negative (-); FreshBooks expects them to be positive (+), so we must invert the sign when passing to FB.
   def create_freshbooks_invoice!
-    raise Ticketplease::AccountNotAssociatedError.new if self.account.nil?
-    raise Ticketplease::FreshBooksAccountNotConfiguredError.new if self.account.freshbooks_id.nil?
-    raise Ticketplease::ClientInvoiceAlreadyCreatedError.new if self.has_invoice?
+    raise SignalCloud::AccountNotAssociatedError.new if self.account.nil?
+    raise SignalCloud::FreshBooksAccountNotConfiguredError.new if self.account.freshbooks_id.nil?
+    raise SignalCloud::ClientInvoiceAlreadyCreatedError.new if self.has_invoice?
 
     # Update this invoice with the FB invoice id
     response = Freshbooks.account.invoice.create({ invoice: self.construct_freshbooks_invoice_data() })

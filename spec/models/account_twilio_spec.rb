@@ -10,15 +10,15 @@ describe Account, 'Twilio Integration' do
     context 'when not configured' do
       subject { create :account }
       it 'throws error when SID and Token are missing' do
-        expect{ subject.twilio_client }.to raise_error(Ticketplease::MissingTwilioAccountError)
+        expect{ subject.twilio_client }.to raise_error(SignalCloud::MissingTwilioAccountError)
       end
       it 'throws error when SID is missing' do
         subject.twilio_auth_token = ENV['TWILIO_TEST_AUTH_TOKEN']
-        expect{ subject.twilio_client }.to raise_error(Ticketplease::MissingTwilioAccountError)
+        expect{ subject.twilio_client }.to raise_error(SignalCloud::MissingTwilioAccountError)
       end
       it 'throws error when Token is missing' do
         subject.twilio_account_sid = ENV['TWILIO_TEST_ACCOUNT_SID']
-        expect{ subject.twilio_client }.to raise_error(Ticketplease::MissingTwilioAccountError)
+        expect{ subject.twilio_client }.to raise_error(SignalCloud::MissingTwilioAccountError)
       end
     end
 
@@ -39,7 +39,7 @@ describe Account, 'Twilio Integration' do
     context 'when not configured' do
       subject { create :account }
       it 'throws error' do
-        expect{ subject.twilio_account }.to raise_error(Ticketplease::MissingTwilioAccountError)
+        expect{ subject.twilio_account }.to raise_error(SignalCloud::MissingTwilioAccountError)
       end
     end
 
@@ -57,7 +57,7 @@ describe Account, 'Twilio Integration' do
     context 'when not configured' do
       subject { create :account }
       it 'throws error' do
-        expect{ subject.twilio_validator }.to raise_error(Ticketplease::MissingTwilioAccountError)
+        expect{ subject.twilio_validator }.to raise_error(SignalCloud::MissingTwilioAccountError)
       end
     end
 
@@ -99,7 +99,7 @@ describe Account, 'Twilio Integration' do
         expect { subject.create_twilio_account! }.to change(subject, :twilio_auth_token).from(nil)
       end
       it 'allows creating a twilio client' do
-        expect{ subject.twilio_client }.to raise_error(Ticketplease::MissingTwilioAccountError)
+        expect{ subject.twilio_client }.to raise_error(SignalCloud::MissingTwilioAccountError)
         subject.create_twilio_account!
         expect{ subject.twilio_client }.to_not raise_error
       end
@@ -108,7 +108,7 @@ describe Account, 'Twilio Integration' do
     context 'when account already created' do
       subject { create :account, :test_twilio, :with_sid_and_token }
       it 'raises error' do
-        expect{ subject.create_twilio_account! }.to raise_error(Ticketplease::TwilioAccountAlreadyExistsError)
+        expect{ subject.create_twilio_account! }.to raise_error(SignalCloud::TwilioAccountAlreadyExistsError)
       end
       it 'does not change .twilio_account_sid' do
         expect { subject.create_twilio_account! rescue nil }.to_not change(subject, :twilio_account_sid)
@@ -125,7 +125,7 @@ describe Account, 'Twilio Integration' do
     context 'when account is not configured' do
       let(:account)   { create :account, :with_sid_and_token }
       it 'raises error' do
-        expect { account.create_or_update_twilio_application }.to raise_error(Ticketplease::MissingTwilioAccountError)
+        expect { account.create_or_update_twilio_application }.to raise_error(SignalCloud::MissingTwilioAccountError)
       end
     end
     
@@ -204,7 +204,7 @@ describe Account, 'Twilio Integration' do
     context 'when account is not configured' do
       subject { create :account }
       it 'raises error' do
-        expect{ subject.create_twilio_application }.to raise_error(Ticketplease::MissingTwilioAccountError)
+        expect{ subject.create_twilio_application }.to raise_error(SignalCloud::MissingTwilioAccountError)
       end
     end
 
@@ -214,7 +214,7 @@ describe Account, 'Twilio Integration' do
     context 'when accout and application are configured' do
       subject { create :account, :master_twilio, :with_sid_and_token }
       it 'raises application-exists error' do
-        expect { subject.create_twilio_application! }.to raise_error(Ticketplease::TwilioApplicationAlreadyExistsError)
+        expect { subject.create_twilio_application! }.to raise_error(SignalCloud::TwilioApplicationAlreadyExistsError)
       end
     end
   end
@@ -252,7 +252,7 @@ describe Account, 'Twilio Integration' do
     context 'when account is not configured' do
       subject { create :account }
       it 'raises error' do
-        expect{ subject.create_twilio_application }.to raise_error(Ticketplease::MissingTwilioAccountError)
+        expect{ subject.create_twilio_application }.to raise_error(SignalCloud::MissingTwilioAccountError)
       end
     end
 
@@ -262,7 +262,7 @@ describe Account, 'Twilio Integration' do
     context 'when account is configured but application is not configured' do
       subject { create :account, :master_twilio, :with_sid_and_token, twilio_application_sid: nil }
       it 'raises application-missing error' do
-        expect { subject.update_twilio_application! }.to raise_error(Ticketplease::MissingTwilioApplicationError)
+        expect { subject.update_twilio_application! }.to raise_error(SignalCloud::MissingTwilioApplicationError)
       end
     end
   end
@@ -281,16 +281,16 @@ describe Account, 'Twilio Integration' do
     context 'when account is not configured' do
       subject { create :account }
       it 'fails on voice url' do
-        expect{ subject.twilio_voice_url }.to raise_error(Ticketplease::MissingTwilioAccountError)
+        expect{ subject.twilio_voice_url }.to raise_error(SignalCloud::MissingTwilioAccountError)
       end
       it 'fails on voice status url' do
-        expect{ subject.twilio_voice_status_url }.to raise_error(Ticketplease::MissingTwilioAccountError)
+        expect{ subject.twilio_voice_status_url }.to raise_error(SignalCloud::MissingTwilioAccountError)
       end
       it 'fails on sms url' do
-        expect{ subject.twilio_sms_url }.to raise_error(Ticketplease::MissingTwilioAccountError)
+        expect{ subject.twilio_sms_url }.to raise_error(SignalCloud::MissingTwilioAccountError)
       end
       it 'fails on sms status url' do
-        expect{ subject.twilio_sms_status_url }.to raise_error(Ticketplease::MissingTwilioAccountError)
+        expect{ subject.twilio_sms_status_url }.to raise_error(SignalCloud::MissingTwilioAccountError)
       end
     end
 
@@ -322,7 +322,7 @@ describe Account, 'Twilio Integration' do
     context 'when account is not configured' do
       subject { create :account }
       it 'raises error' do
-        expect{ subject.twilio_application_configuration }.to raise_error(Ticketplease::MissingTwilioAccountError)
+        expect{ subject.twilio_application_configuration }.to raise_error(SignalCloud::MissingTwilioAccountError)
       end
     end
 

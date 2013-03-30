@@ -18,10 +18,10 @@ class SendTicketReplyJob < Struct.new( :ticket_id, :force_resend )
 
 
 
-    rescue Ticketplease::ReplyAlreadySentError => ex
+    rescue SignalCloud::ReplyAlreadySentError => ex
      say( 'Skipping as reply message has already been sent.', Logger::DEBUG )
     
-    rescue Ticketplease::MessageSendingError => ex
+    rescue SignalCloud::MessageSendingError => ex
      say( ex.message, Logger::WARN )
     
     rescue => ex

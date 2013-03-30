@@ -17,7 +17,7 @@ FactoryGirl.define do
     end
     
     factory :master_account do
-      label               'ticketplease'
+      label               'signalcloud'
       master_twilio
       test_freshbooks
     end

@@ -8,7 +8,7 @@ development:
   adapter: postgresql
   encoding: utf8
   # database: db/development.sqlite3
-  database: ticketplease_dev
+  database: signalcloud_dev
   pool: 5
   timeout: 5000
   host: localhost
@@ -22,7 +22,7 @@ test:
   adapter: postgresql
   encoding: utf8
   # database: db/test.sqlite3
-  database: ticketplease_test
+  database: signalcloud_test
   pool: 5
   timeout: 5000
   host: localhost
@@ -33,7 +33,7 @@ production:
   adapter: postgresql
   encoding: utf8
   # database: db/production.sqlite3
-  database: ticketplease
+  database: signalcloud
   pool: 5
   timeout: 5000
   host: localhost

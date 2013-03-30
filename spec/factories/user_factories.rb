@@ -4,7 +4,7 @@ FactoryGirl.define do
     account
     first_name         'John'
     last_name          'Doe'
-    sequence(:email)   { |n| "user#{n}@ticketpleaseapp.com" }
+    sequence(:email)   { |n| "user#{n}@signalcloudapp.com" }
     password           { SecureRandom.hex(4) }
     
     factory :shadow_account_permissions_user do

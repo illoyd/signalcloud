@@ -58,7 +58,7 @@
         %div#lastweek.tab-pane.fade= ticket_status_breakdown( @account.tickets.last_x_days.count_by_status )
     
     %h4 tokens
-    %p Tokens are used to authenticate with the ticketplease API.
+    %p Tokens are used to authenticate with the SignalCloud API.
     %table.table
       %thead
         %tr
@@ -68,7 +68,7 @@
       %tbody
         / production
         %tr
-          %td ticketplease
+          %td SignalCloud
           %td= @account.account_sid
           %td= @account.auth_token
         / Twilio

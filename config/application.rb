@@ -9,7 +9,7 @@ if defined?(Bundler)
   # Bundler.require(:default, :assets, Rails.env)
 end
 
-module Ticketplease
+module SignalCloud
   class Application < Rails::Application
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
@@ -70,7 +70,7 @@ module Ticketplease
     end
     
     # Configurate routes
-    routes.default_url_options[:host] = 'ticketplease.herokuapp.com'
+    # routes.default_url_options[:host] = 'signalcloud.herokuapp.com'
   end
 end
 
