@@ -45,4 +45,41 @@ describe Account do
 
   end
 
+  describe '#last_invoice_date' do
+    #let(:account) { create(:account) }
+
+    context 'has past invoices' do
+      let(:date_from) { 1.month.ago.beginning_of_day }
+      let(:date_to)   { 2.days.ago.end_of_day }
+      let(:invoice)   { create :invoice, account: subject, date_from: date_from, date_to: date_to }
+      it 'does not raise an error' do
+        invoice
+        expect { subject.last_invoice_date }.not_to raise_error
+      end
+      it 'returns the date of the last invoice' do
+        invoice
+        subject.last_invoice_date.should be_within(1).of(date_to)
+      end
+    end
+
+    context 'has ledger entries' do
+      let(:created_at)   { 1.week.ago }
+      let(:ledger_entry) { create :ledger_entry, account: subject, created_at: created_at }
+      it 'does not raise an error' do
+        ledger_entry
+        expect { subject.last_invoice_date }.not_to raise_error
+      end
+      it 'returns the date of the first ledger entry' do
+        ledger_entry
+        subject.last_invoice_date.should eq( created_at )
+      end
+    end
+
+    context 'has no ledger entries' do
+      it 'raises an error' do
+        expect { subject.last_invoice_date }.to raise_error
+      end
+    end
+  end
+  
 end

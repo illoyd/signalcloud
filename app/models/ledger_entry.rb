@@ -10,12 +10,12 @@ class LedgerEntry < ActiveRecord::Base
   UNSOLICITED_SMS_REPLY_NARRATIVE = 'Reply to Unsolicited Inbound SMS'
   INBOUND_CALL_NARRATIVE = 'Inbound Phone Call'
 
-  attr_accessible :narrative, :value, :settled_at, :account_id, :item_id, :item_type, :account, :item, :notes
+  attr_accessible :narrative, :value, :settled_at, :account_id, :item_id, :item_type, :account, :item, :notes, :invoiced_at
   
   belongs_to :account, inverse_of: :ledger_entries
+  belongs_to :invoice, inverse_of: :ledger_entries
   belongs_to :item, polymorphic: true
   
-  #validates_presence_of :account_id, :item_id, :item_type, :narrative
   validates_presence_of :account_id, :item_type, :narrative
   validates_presence_of :item_id, :unless => Proc.new { |a|
     #if it's a new record and addressable is nil and addressable_type is set
@@ -43,14 +43,28 @@ class LedgerEntry < ActiveRecord::Base
   # Find all ledger_entries which have been confirmed.
   # This usually entails the 'value' is set to a permanent figure.
   scope :settled, where( 'settled_at is not null' )
+  
+  ##
+  # Find all ledger_entries which have not been invoiced.
+  scope :uninvoiced, where( 'invoice_id is null' )
 
   ##
+  # Find all ledger_entries which have been invoiced.
+  scope :invoiced, where( 'invoice_id is not null' )
+
+  ##
+  # Get all entries created yesterday.
+  scope :in_range, lambda{ |from_date, to_date| where( "ledger_entries.created_at >= ? and ledger_entries.created_at <= ?", from_date, to_date ) }
+  
+  ##
   # Get all entries created today.
-  scope :today, ->{ where( "ledger_entries.created_at >= ? and ledger_entries.created_at <= ?", DateTime.now.beginning_of_day, DateTime.now.end_of_day ) }
+  #scope :today, ->{ where( "ledger_entries.created_at >= ? and ledger_entries.created_at <= ?", DateTime.now.beginning_of_day, DateTime.now.end_of_day ) }
+  scope :today, in_range( DateTime.now.beginning_of_day, DateTime.now.end_of_day )
   
   ##
   # Get all entries created yesterday.
-  scope :yesterday, ->{ where( "ledger_entries.created_at >= ? and ledger_entries.created_at <= ?", DateTime.yesterday.beginning_of_day, DateTime.yesterday.end_of_day ) }
+  #scope :yesterday, ->{ where( "ledger_entries.created_at >= ? and ledger_entries.created_at <= ?", DateTime.yesterday.beginning_of_day, DateTime.yesterday.end_of_day ) }
+  scope :yesterday, in_range( DateTime.yesterday.beginning_of_day, DateTime.yesterday.end_of_day )
   
   ##
   # Get all debits (negative or zero) charges
@@ -69,7 +83,7 @@ class LedgerEntry < ActiveRecord::Base
   ##
   # Simple test if status is settled (e.g. has been confirmed by the provider)
   def settled?
-    return !self.settled_at.nil?
+    return !self.pending?
   end
   
   alias is_pending? pending?

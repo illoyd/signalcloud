@@ -2,7 +2,7 @@ class CreateInvoices < ActiveRecord::Migration
   def change
     create_table :invoices do |t|
       t.references :account
-      t.integer :freshbooks_id
+      t.integer :freshbooks_invoice_id
       t.string :purchase_order
       t.string :public_link
       t.string :internal_link
@@ -15,6 +15,6 @@ class CreateInvoices < ActiveRecord::Migration
     
     # Add indices
     add_index :invoices, :account_id
-    add_index :invoices, :freshbooks_id
+    add_index :invoices, :freshbooks_invoice_id
   end
 end

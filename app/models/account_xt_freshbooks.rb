@@ -62,12 +62,24 @@ class Account < ActiveRecord::Base
     self.save!
   end
   
+  def build_next_invoice( to_date=nil, from_date=nil )
+    from_date ||= (self.last_invoice_date + 1.day).beginning_of_day
+    to_date ||= DateTime.yesterday.end_of_day
+    return self.invoices.build date_from: from_date, date_to: to_date
+  end
+  
+  def settle_next_invoice( to_date=nil, from_date=nil )
+    invoice = self.build_next_invoice( to_date, from_date )
+    invoice.settle
+    return invoice
+  end
+  
   ##
   # Generate a new FreshBooks invoice.
   def create_freshbook_invoice( to_date=nil, from_date=nil )
-    from_date ||= (self.invoices.last.to_date + 1.day).beginning_of_day
+    from_date ||= (self.invoices.last.date_to + 1.day).beginning_of_day
     to_date ||= DateTime.yesterday.end_of_day
-    invoice = self.invoices.build from_date: from_date, to_date: to_date
+    invoice = self.invoices.build date_from: from_date, date_to: to_date
     invoice.create_invoice!
   end
   
