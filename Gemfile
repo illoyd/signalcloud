@@ -50,6 +50,7 @@ gem 'phony'
 gem 'stringex'
 gem 'ruby-freshbooks'
 gem 'newrelic_rpm', group: :production
+gem 'httparty'
 
 group :test, :development do
   gem "rspec-rails", "~> 2.0"

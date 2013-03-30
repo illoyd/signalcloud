@@ -204,6 +204,7 @@ DEPENDENCIES
   factory_girl
   fuubar
   haml
+  httparty
   jquery-rails
   kaminari
   newrelic_rpm
