@@ -36,5 +36,7 @@ SignalCloud::Application.configure do
   config.active_support.deprecation = :stderr
   
   # Add default URL option for test environment to force it over to the main app.
-  config.action_controller.default_url_options( { host: 'signalcloud.herokuapp.com' } )
+  unless ENV['DEFAULT_URL_HOST'].blank?
+    config.action_controller.default_url_options( { host: ENV['DEFAULT_URL_HOST'] } )
+  end
 end

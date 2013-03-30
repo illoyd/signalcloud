@@ -70,7 +70,9 @@ module SignalCloud
     end
     
     # Configurate routes
-    # routes.default_url_options[:host] = 'signalcloud.herokuapp.com'
+    unless ENV['DEFAULT_URL_HOST'].blank?
+      routes.default_url_options[:host] = ENV['DEFAULT_URL_HOST']
+    end
   end
 end
 
