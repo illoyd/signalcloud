@@ -94,10 +94,9 @@ class PhoneNumber < ActiveRecord::Base
     PhoneNumber.where( encrypted_number: PhoneNumber.encrypt( :number, PhoneNumber.normalize_phone_number(pn) ) )
   end
 
+  alias_method :'original_number=', :'number='
   def number=(value)
-    value = PhoneNumber.normalize_phone_number(value)
-    send("encrypted_number=", encrypt(:number, value))
-    instance_variable_set("@number", value)
+    self.original_number=( PhoneNumber.normalize_phone_number(value) )
   end
   
   def should_ignore_unsolicited_sms?

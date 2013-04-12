@@ -6,11 +6,12 @@ class Appliance < ActiveRecord::Base
   # Encrypted attributes
   attr_encrypted :confirmed_reply, key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :denied_reply, key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :expected_confirmed_answer, key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :expected_denied_answer, key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :expired_reply, key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :failed_reply, key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :question, key: ATTR_ENCRYPTED_SECRET
+
+  attr_encrypted :expected_confirmed_answer, key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :expected_denied_answer, key: ATTR_ENCRYPTED_SECRET
   
   # Relationships
   belongs_to :account, inverse_of: :appliances

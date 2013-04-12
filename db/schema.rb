@@ -31,23 +31,29 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
   end
 
   create_table "accounts", :force => true do |t|
-    t.string   "account_sid",                                                                 :null => false
-    t.string   "auth_token",                                                                  :null => false
-    t.string   "label",                                                                       :null => false
-    t.decimal  "balance",                      :precision => 8, :scale => 4, :default => 0.0, :null => false
-    t.integer  "account_plan_id",                                                             :null => false
+    t.string   "account_sid",                                                                      :null => false
+    t.string   "auth_token",                                                                       :null => false
+    t.string   "label",                                                                            :null => false
+    t.decimal  "balance",                           :precision => 8, :scale => 4, :default => 0.0, :null => false
+    t.integer  "account_plan_id",                                                                  :null => false
     t.string   "purchase_order"
     t.string   "vat_name"
     t.string   "vat_number"
     t.text     "encrypted_twilio_account_sid"
+    t.string   "encrypted_twilio_account_sid_iv"
+    t.string   "encrypted_twilio_account_sid_salt"
     t.text     "encrypted_twilio_auth_token"
+    t.string   "encrypted_twilio_auth_token_iv"
+    t.string   "encrypted_twilio_auth_token_salt"
     t.string   "twilio_application_sid"
     t.text     "encrypted_freshbooks_id"
+    t.string   "encrypted_freshbooks_id_iv"
+    t.string   "encrypted_freshbooks_id_salt"
     t.integer  "primary_address_id"
     t.integer  "secondary_address_id"
     t.text     "description"
-    t.datetime "created_at",                                                                  :null => false
-    t.datetime "updated_at",                                                                  :null => false
+    t.datetime "created_at",                                                                       :null => false
+    t.datetime "updated_at",                                                                       :null => false
   end
 
   add_index "accounts", ["account_sid"], :name => "index_accounts_on_account_sid", :unique => true
@@ -74,23 +80,37 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
   add_index "addresses", ["country"], :name => "index_addresses_on_country"
 
   create_table "appliances", :force => true do |t|
-    t.integer  "account_id",                                             :null => false
-    t.integer  "phone_directory_id",                                     :null => false
-    t.string   "label",                                                  :null => false
-    t.integer  "seconds_to_live",                     :default => 180,   :null => false
-    t.boolean  "primary",                             :default => false, :null => false
-    t.boolean  "active",                              :default => true,  :null => false
+    t.integer  "account_id",                                                  :null => false
+    t.integer  "phone_directory_id",                                          :null => false
+    t.string   "label",                                                       :null => false
+    t.integer  "seconds_to_live",                          :default => 180,   :null => false
+    t.boolean  "primary",                                  :default => false, :null => false
+    t.boolean  "active",                                   :default => true,  :null => false
     t.string   "webhook_uri"
     t.text     "description"
     t.text     "encrypted_question"
+    t.string   "encrypted_question_iv"
+    t.string   "encrypted_question_salt"
     t.text     "encrypted_expected_confirmed_answer"
+    t.string   "encrypted_expected_confirmed_answer_iv"
+    t.string   "encrypted_expected_confirmed_answer_salt"
     t.text     "encrypted_expected_denied_answer"
+    t.string   "encrypted_expected_denied_answer_iv"
+    t.string   "encrypted_expected_denied_answer_salt"
     t.text     "encrypted_confirmed_reply"
+    t.string   "encrypted_confirmed_reply_iv"
+    t.string   "encrypted_confirmed_reply_salt"
     t.text     "encrypted_denied_reply"
+    t.string   "encrypted_denied_reply_iv"
+    t.string   "encrypted_denied_reply_salt"
     t.text     "encrypted_failed_reply"
+    t.string   "encrypted_failed_reply_iv"
+    t.string   "encrypted_failed_reply_salt"
     t.text     "encrypted_expired_reply"
-    t.datetime "created_at",                                             :null => false
-    t.datetime "updated_at",                                             :null => false
+    t.string   "encrypted_expired_reply_iv"
+    t.string   "encrypted_expired_reply_salt"
+    t.datetime "created_at",                                                  :null => false
+    t.datetime "updated_at",                                                  :null => false
   end
 
   add_index "appliances", ["account_id"], :name => "index_appliances_on_account_id"
@@ -143,21 +163,31 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
   end
 
   create_table "messages", :force => true do |t|
-    t.integer  "ticket_id",                                                                              :null => false
-    t.string   "twilio_sid",                  :limit => 34
-    t.string   "message_kind",                :limit => 1
-    t.integer  "status",                      :limit => 2,                                :default => 0, :null => false
-    t.integer  "direction",                   :limit => 2,                                :default => 0, :null => false
+    t.integer  "ticket_id",                                                                                   :null => false
+    t.string   "twilio_sid",                       :limit => 34
+    t.string   "message_kind",                     :limit => 1
+    t.integer  "status",                           :limit => 2,                                :default => 0, :null => false
+    t.integer  "direction",                        :limit => 2,                                :default => 0, :null => false
     t.datetime "sent_at"
-    t.decimal  "provider_cost",                             :precision => 6, :scale => 4
-    t.decimal  "our_cost",                                  :precision => 6, :scale => 4
+    t.decimal  "provider_cost",                                  :precision => 6, :scale => 4
+    t.decimal  "our_cost",                                       :precision => 6, :scale => 4
     t.text     "encrypted_to_number"
+    t.string   "encrypted_to_number_iv"
+    t.string   "encrypted_to_number_salt"
     t.text     "encrypted_from_number"
+    t.string   "encrypted_from_number_iv"
+    t.string   "encrypted_from_number_salt"
     t.text     "encrypted_body"
+    t.string   "encrypted_body_iv"
+    t.string   "encrypted_body_salt"
     t.text     "encrypted_provider_response"
+    t.string   "encrypted_provider_response_iv"
+    t.string   "encrypted_provider_response_salt"
     t.text     "encrypted_provider_update"
-    t.datetime "created_at",                                                                             :null => false
-    t.datetime "updated_at",                                                                             :null => false
+    t.string   "encrypted_provider_update_iv"
+    t.string   "encrypted_provider_update_salt"
+    t.datetime "created_at",                                                                                  :null => false
+    t.datetime "updated_at",                                                                                  :null => false
   end
 
   add_index "messages", ["message_kind"], :name => "index_messages_on_message_kind"
@@ -190,6 +220,8 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
   create_table "phone_numbers", :force => true do |t|
     t.integer  "account_id",                                                                                :null => false
     t.text     "encrypted_number",                                                                          :null => false
+    t.string   "encrypted_number_iv"
+    t.string   "encrypted_number_salt"
     t.string   "twilio_phone_number_sid",                                                                   :null => false
     t.integer  "unsolicited_sms_action",    :limit => 2,                               :default => 0,       :null => false
     t.string   "unsolicited_sms_message"
@@ -207,27 +239,40 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
   add_index "phone_numbers", ["encrypted_number"], :name => "index_phone_numbers_on_encrypted_number"
 
   create_table "tickets", :force => true do |t|
-    t.integer  "appliance_id",                                                    :null => false
-    t.integer  "status",                              :limit => 2, :default => 0, :null => false
-    t.integer  "challenge_status",                    :limit => 2
-    t.integer  "reply_status",                        :limit => 2
-    t.datetime "expiry",                                                          :null => false
+    t.integer  "appliance_id",                                                 :null => false
+    t.integer  "status",                           :limit => 2, :default => 0, :null => false
+    t.integer  "challenge_status",                 :limit => 2
+    t.integer  "reply_status",                     :limit => 2
+    t.datetime "expiry",                                                       :null => false
     t.datetime "challenge_sent_at"
     t.datetime "response_received_at"
     t.datetime "reply_sent_at"
     t.string   "webhook_uri"
-    t.text     "encrypted_from_number",                                           :null => false
-    t.text     "encrypted_to_number",                                             :null => false
-    t.text     "encrypted_question",                                              :null => false
-    t.text     "encrypted_expected_confirmed_answer",                             :null => false
-    t.text     "encrypted_expected_denied_answer",                                :null => false
-    t.text     "encrypted_actual_answer"
-    t.text     "encrypted_confirmed_reply",                                       :null => false
-    t.text     "encrypted_denied_reply",                                          :null => false
-    t.text     "encrypted_failed_reply",                                          :null => false
-    t.text     "encrypted_expired_reply",                                         :null => false
-    t.datetime "created_at",                                                      :null => false
-    t.datetime "updated_at",                                                      :null => false
+    t.text     "encrypted_from_number",                                        :null => false
+    t.string   "encrypted_from_number_iv"
+    t.string   "encrypted_from_number_salt"
+    t.text     "encrypted_to_number",                                          :null => false
+    t.string   "encrypted_to_number_iv"
+    t.string   "encrypted_to_number_salt"
+    t.text     "hashed_expected_confirmed_answer",                             :null => false
+    t.text     "hashed_expected_denied_answer",                                :null => false
+    t.text     "encrypted_question",                                           :null => false
+    t.string   "encrypted_question_iv"
+    t.string   "encrypted_question_salt"
+    t.text     "encrypted_confirmed_reply",                                    :null => false
+    t.string   "encrypted_confirmed_reply_iv"
+    t.string   "encrypted_confirmed_reply_salt"
+    t.text     "encrypted_denied_reply",                                       :null => false
+    t.string   "encrypted_denied_reply_iv"
+    t.string   "encrypted_denied_reply_salt"
+    t.text     "encrypted_failed_reply",                                       :null => false
+    t.string   "encrypted_failed_reply_iv"
+    t.string   "encrypted_failed_reply_salt"
+    t.text     "encrypted_expired_reply",                                      :null => false
+    t.string   "encrypted_expired_reply_iv"
+    t.string   "encrypted_expired_reply_salt"
+    t.datetime "created_at",                                                   :null => false
+    t.datetime "updated_at",                                                   :null => false
   end
 
   add_index "tickets", ["appliance_id"], :name => "index_tickets_on_appliance_id"

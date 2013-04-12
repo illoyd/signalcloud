@@ -36,17 +36,18 @@ class Ticket < ActiveRecord::Base
   attr_accessor :seconds_to_live
   
   # Encrypted attributes
-  attr_encrypted :actual_answer, key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :confirmed_reply, key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :denied_reply, key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :expected_confirmed_answer, key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :expected_denied_answer, key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :expired_reply, key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :failed_reply, key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :from_number, key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :question, key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :to_number, key: ATTR_ENCRYPTED_SECRET
+  # attr_encrypted :actual_answer, key: ATTR_ENCRYPTED_SECRET  
   
+  # attr_encrypted :expected_confirmed_answer, key: ATTR_ENCRYPTED_SECRET
+  # attr_encrypted :expected_denied_answer, key: ATTR_ENCRYPTED_SECRET
+
   # Relationships
   belongs_to :appliance, inverse_of: :tickets
   has_many :messages, inverse_of: :ticket
@@ -88,6 +89,24 @@ class Ticket < ActiveRecord::Base
     counts = ticket_query.count_by_status.readonly.each_with_object({}) { |v, h| h[v.status] = v.count.to_i }
     Ticket::STATUSES.each { |status| counts[status] = 0 unless counts.include?(status) }
     return counts
+  end
+
+  def expected_confirmed_answer
+    @expected_confirmed_answer ||= BCrypt::Password.new(self.hashed_expected_confirmed_answer)
+  end
+
+  def expected_confirmed_answer=(new_value)
+    @expected_confirmed_answer = BCrypt::Password.create(new_value)
+    self.hashed_expected_confirmed_answer = @expected_confirmed_answer
+  end
+  
+  def expected_denied_answer
+    @expected_denied_answer ||= BCrypt::Password.new(self.hashed_expected_denied_answer)
+  end
+
+  def expected_denied_answer=(new_value)
+    @expected_denied_answer = BCrypt::Password.create(new_value)
+    self.hashed_expected_denied_answer = @expected_denied_answer
   end
 
   ##

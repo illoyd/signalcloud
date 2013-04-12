@@ -9,10 +9,21 @@ class CreateAccounts < ActiveRecord::Migration
       t.string :purchase_order
       t.string :vat_name
       t.string :vat_number
+
       t.text :encrypted_twilio_account_sid
+      t.string :encrypted_twilio_account_sid_iv
+      t.string :encrypted_twilio_account_sid_salt
+      
       t.text :encrypted_twilio_auth_token
+      t.string :encrypted_twilio_auth_token_iv
+      t.string :encrypted_twilio_auth_token_salt
+
       t.string :twilio_application_sid
+
       t.text :encrypted_freshbooks_id
+      t.string :encrypted_freshbooks_id_iv
+      t.string :encrypted_freshbooks_id_salt
+
       t.integer :primary_address_id
       t.integer :secondary_address_id
       t.text :description

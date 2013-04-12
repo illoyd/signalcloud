@@ -18,16 +18,36 @@ class CreateTickets < ActiveRecord::Migration
       t.string :webhook_uri
 
       t.text :encrypted_from_number, null: false
+      t.string :encrypted_from_number_iv
+      t.string :encrypted_from_number_salt
+
       t.text :encrypted_to_number, null: false
+      t.string :encrypted_to_number_iv
+      t.string :encrypted_to_number_salt
+
+      t.text :hashed_expected_confirmed_answer, null: false
+      t.text :hashed_expected_denied_answer, null: false
+      # t.text :encrypted_actual_answer
 
       t.text :encrypted_question, null: false
-      t.text :encrypted_expected_confirmed_answer, null: false
-      t.text :encrypted_expected_denied_answer, null: false
-      t.text :encrypted_actual_answer
+      t.string :encrypted_question_iv
+      t.string :encrypted_question_salt
+
       t.text :encrypted_confirmed_reply, null: false
+      t.string :encrypted_confirmed_reply_iv
+      t.string :encrypted_confirmed_reply_salt
+
       t.text :encrypted_denied_reply, null: false
+      t.string :encrypted_denied_reply_iv
+      t.string :encrypted_denied_reply_salt
+
       t.text :encrypted_failed_reply, null: false
+      t.string :encrypted_failed_reply_iv
+      t.string :encrypted_failed_reply_salt
+
       t.text :encrypted_expired_reply, null: false
+      t.string :encrypted_expired_reply_iv
+      t.string :encrypted_expired_reply_salt
 
       t.timestamps
     end
