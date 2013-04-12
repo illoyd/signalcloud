@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '3.2.12'
+gem 'rails', '3.2.13'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
@@ -44,7 +44,8 @@ gem 'haml'
 gem 'twilio-ruby'
 gem 'devise'
 gem 'cancan'
-gem 'attr_encrypted'
+gem 'attr_encryptor'
+gem 'bcrypt-ruby'
 gem 'kaminari'
 gem 'phony'
 gem 'stringex'
