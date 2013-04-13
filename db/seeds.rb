@@ -59,7 +59,7 @@ unless Rails.env.production? || Account.exists?( encrypted_twilio_account_sid: A
   example_directory.phone_directory_entries.create phone_number_id: test_numbers[:US].id, country: nil
   #test_numbers.each { |country,number| example_directory.phone_directory_entries.create country: country, phone_number_id: number.id }
   
-  example_stencilb = test_account.stencils.create!({ label: 'Example Stencil', primary: true, phone_directory_id: example_directory.id, seconds_to_live: 180,
+  example_stencil = test_account.stencils.create!({ label: 'Example Stencil', primary: true, phone_directory_id: example_directory.id, seconds_to_live: 180,
     description: 'Example stencil for handling possibly fraudulent charges to a debit card.',
     question: 'Hello from Friendly Bank. We recently detected a possibly fraudulent charge using your debit card. To protect you, we have temporarily blocked the card. If you are making this purchase and would like us to unlock the card, please reply to this number with the amount of the transaction. If you believe this charge is fraudulent, please reply NO and we will contact you about next steps.',
     expected_denied_answer: 'NO',
@@ -75,7 +75,7 @@ unless Rails.env.production? || Account.exists?( encrypted_twilio_account_sid: A
   10.times { customer_numbers << random_uk_number() }
   
   customer_numbers.shuffle.each do |customer_number|
-    ticket = example_stencilb.open_ticket( to_number: customer_number, expected_confirmed_answer: random_answer() )
+    ticket = example_stencil.open_ticket( to_number: customer_number, expected_confirmed_answer: random_answer() )
     ticket.status = Ticket::STATUSES.sample
     ticket.save!
     if [ Ticket::CHALLENGE_SENT, Ticket::CONFIRMED, Ticket::DENIED, Ticket::FAILED, Ticket::EXPIRED ].include? ticket.status

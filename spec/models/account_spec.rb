@@ -3,12 +3,12 @@ require 'spec_helper'
 describe Account, :vcr => { :cassette_name => "accounts" } do
   subject { create(:account) }
 
-  describe '#primary_stencilb' do
+  describe '#primary_stencil' do
     
     context 'when primary is set' do
       let(:account)   { create :account }
       let(:stencil) { create :stencil, account: account, primary: true }
-      let(:nonprimary_stencilb) { account.stencils.where(primary: false).first }
+      let(:nonprimary_stencil) { account.stencils.where(primary: false).first }
 
       it 'has at least one primary stencil' do
         stencil.should_not be_nil
@@ -18,16 +18,16 @@ describe Account, :vcr => { :cassette_name => "accounts" } do
 
       it 'returns primary stencil' do
         stencil.should_not be_nil
-        account.reload.primary_stencilb.id.should eq(stencil.id)
-        account.reload.primary_stencilb.primary.should be_true
-        account.reload.primary_stencilb.id.should_not == nonprimary_stencilb.id
+        account.reload.primary_stencil.id.should eq(stencil.id)
+        account.reload.primary_stencil.primary.should be_true
+        account.reload.primary_stencil.id.should_not == nonprimary_stencil.id
       end
     end
     
     context 'when no default is set' do
       let(:account)   { create :account }
       let(:stencil) { create :stencil, account: account, primary: false }
-      let(:nonprimary_stencilb) { account.stencils.where(primary: false).first }
+      let(:nonprimary_stencil) { account.stencils.where(primary: false).first }
       
       it 'has no stencil set to primary' do
         stencil.should_not be_nil
@@ -36,8 +36,8 @@ describe Account, :vcr => { :cassette_name => "accounts" } do
       end
 
       it 'returns first non-primary stencil' do
-        account.primary_stencilb.id.should_not eq(stencil.id)
-        account.primary_stencilb.id.should eq(nonprimary_stencilb.id)
+        account.primary_stencil.id.should_not eq(stencil.id)
+        account.primary_stencil.id.should eq(nonprimary_stencil.id)
       end
     end
 

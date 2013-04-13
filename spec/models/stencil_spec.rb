@@ -6,7 +6,7 @@ describe Stencil do
 #   describe '.open_ticket' do
 #     
 # #     it 'should create a new ticket and normalize numbers' do
-# #       stencil = stencils(:test_stencilb)
+# #       stencil = stencils(:test_stencil)
 # #       
 # #       ticket = stencil.open_ticket( to_number: Twilio::VALID_NUMBER )
 # #       ticket.save

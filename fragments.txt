@@ -15,7 +15,7 @@ rails destroy scaffold Ticket
 
 rails generate scaffold AccountPlan label:string month:decimal phone_add:decimal phone_mult:decimal call_in_add:decimal call_in_mult:decimal sms_in_add:decimal sms_in_mult:decimal sms_out_add:decimal sms_out_mult:decimal
 
-rails generate scaffold Account sid:string account_token:string auth_token:string label:string balance:decimal default_stencilb:reference account_plan:reference encrypted_twilio_account_sid:string encrypted_twilio_auth_token:string
+rails generate scaffold Account sid:string account_token:string auth_token:string label:string balance:decimal default_stencil:reference account_plan:reference encrypted_twilio_account_sid:string encrypted_twilio_auth_token:string
 
 rails generate scaffold User account:reference first_name:string last_name:string
 rails generate devise User

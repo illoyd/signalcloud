@@ -46,12 +46,12 @@ class Account < ActiveRecord::Base
   # Create starting 'default' directory and stencil for a newly created account
   def create_initial_resources
     initial_directory = self.phone_directories.create label: 'Default Directory'
-    initial_stencilb = self.stencils.create label: 'Default Stencil', phone_directory_id: initial_directory.id
+    initial_stencil = self.stencils.create label: 'Default Stencil', phone_directory_id: initial_directory.id
   end
 
   ##
   # Return the default stencil for this account, or the first stencil if no default is set.
-  def primary_stencilb
+  def primary_stencil
     app = self.stencils.where( primary: true ).order('id').first
     app = self.stencils.first if app.nil?
     app

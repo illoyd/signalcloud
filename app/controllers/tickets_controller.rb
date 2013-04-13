@@ -1,21 +1,21 @@
 class TicketsController < ApplicationController
 
   respond_to :html, :json, :xml
-  before_filter :setup_account_and_stencilb
+  before_filter :setup_account_and_stencil
 
   load_and_authorize_resource
   skip_authorize_resource only: [:new, :create]
   
-  def setup_account_and_stencilb
+  def setup_account_and_stencil
     @account = current_account()
-    @stencil = current_stencilb(false)
+    @stencil = current_stencil(false)
   end
   
   # GET /tickets
   # GET /tickets.json
   def index
     if @stencil.nil?
-      redirect_to stencil_tickets_path(current_stencilb(true))
+      redirect_to stencil_tickets_path(current_stencil(true))
       return
     end
 

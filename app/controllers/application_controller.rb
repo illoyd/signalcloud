@@ -67,9 +67,9 @@ class ApplicationController < ActionController::Base
   # Return the stencil of the current request, based upon the request and filtered to the current account.
   # Will return nil if no stencil is specified in the request. This method is primarily intended to be used for 
   # nested resource requests.
-  def current_stencilb( use_default = true )
+  def current_stencil( use_default = true )
     return current_account.stencils.find( params[:stencil_id] ) if params.include? :stencil_id
-    return current_account.primary_stencilb if use_default
+    return current_account.primary_stencil if use_default
     return nil
   end
 

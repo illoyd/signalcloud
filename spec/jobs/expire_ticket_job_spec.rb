@@ -9,7 +9,7 @@ describe ExpireTicketJob, :vcr => { :cassette_name => "expire_ticket_job" } do
   end
   
   describe '#perform' do
-    #let(:stencil) { stencils(:test_stencilb) }
+    #let(:stencil) { stencils(:test_stencil) }
     #let(:ticket) { stencil.open_ticket( to_number: Twilio::VALID_NUMBER, expected_confirmed_answer: 'YES' ) }
     let(:account)           { create(:account, :test_twilio, :with_sid_and_token) }
     let(:stencil)         { create(:stencil, account: account) }

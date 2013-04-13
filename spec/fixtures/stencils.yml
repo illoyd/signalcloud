@@ -1,6 +1,6 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
 
-test_stencilb:
+test_stencil:
   account: test_account
   label: My Test Stencil
   description: A simple toaster
@@ -14,7 +14,7 @@ test_stencilb:
   encrypted_failed_reply: "<%= Stencil.encrypt :failed_reply, 'Wrong answer!' %>"
   encrypted_expired_reply: "<%= Stencil.encrypt :expired_reply, 'Took too long!' %>"
 
-dedicated_stencilb:
+dedicated_stencil:
   account: dedicated_account
   label: A dedicated stencil
   description: A simple coffee maker
