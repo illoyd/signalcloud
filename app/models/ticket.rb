@@ -105,6 +105,7 @@ class Ticket < ActiveRecord::Base
   end
 
   def expected_confirmed_answer=(new_value)
+    new_value = Ticket.normalize_message(new_value)
     @expected_confirmed_answer = new_value.nil? ? nil : BCrypt::Password.create(new_value)
     self.hashed_expected_confirmed_answer = @expected_confirmed_answer
   end
@@ -115,6 +116,7 @@ class Ticket < ActiveRecord::Base
   end
 
   def expected_denied_answer=(new_value)
+    new_value = Ticket.normalize_message(new_value)
     @expected_denied_answer = new_value.nil? ? nil : BCrypt::Password.create(new_value)
     self.hashed_expected_denied_answer = @expected_denied_answer
   end
@@ -187,9 +189,9 @@ class Ticket < ActiveRecord::Base
   
   def compare_answer( answer )
     return case Ticket.normalize_message(answer)
-      when self.normalized_expected_confirmed_answer
+      when self.expected_confirmed_answer # self.normalized_expected_confirmed_answer
         Ticket::CONFIRMED
-      when self.normalized_expected_denied_answer
+      when self.expected_denied_answer # self.normalized_expected_denied_answer
         Ticket::DENIED
       else
         Ticket::FAILED
