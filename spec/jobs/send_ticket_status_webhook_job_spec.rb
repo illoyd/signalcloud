@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe SendTicketStatusWebhookJob do
-  before(:all) { VCR.insert_cassette 'send_ticket_status_webhook_job', :record => :new_episodes }
+  before(:all) { VCR.insert_cassette 'send_ticket_status_webhook_job' }
   after(:all)  { VCR.eject_cassette }
 
   describe '#perform' do
