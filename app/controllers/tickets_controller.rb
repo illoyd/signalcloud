@@ -1,27 +1,27 @@
 class TicketsController < ApplicationController
 
   respond_to :html, :json, :xml
-  before_filter :setup_account_and_appliance
+  before_filter :setup_account_and_stencilb
 
   load_and_authorize_resource
   skip_authorize_resource only: [:new, :create]
   
-  def setup_account_and_appliance
+  def setup_account_and_stencilb
     @account = current_account()
-    @appliance = current_appliance(false)
+    @stencil = current_stencilb(false)
   end
   
   # GET /tickets
   # GET /tickets.json
   def index
-    if @appliance.nil?
-      redirect_to appliance_tickets_path(current_appliance(true))
+    if @stencil.nil?
+      redirect_to stencil_tickets_path(current_stencilb(true))
       return
     end
 
-    @multiappliance = @appliance.nil?
-    if !@multiappliance
-      @tickets = @tickets.where( appliance_id: @appliance.id )
+    @multistencil = @stencil.nil?
+    if !@multistencil
+      @tickets = @tickets.where( stencil_id: @stencil.id )
     end
     
     unless params[:status].nil?
@@ -37,27 +37,27 @@ class TicketsController < ApplicationController
   # GET /tickets/1
   # GET /tickets/1.json
   def show
-    # @ticket = ( @appliance.nil? ? @account : @appliance ).tickets.find(params[:id])
+    # @ticket = ( @stencil.nil? ? @account : @stencil ).tickets.find(params[:id])
     respond_with @ticket
   end
 
   # GET /tickets/new
   # GET /tickets/new.json
   def new
-    @ticket = @appliance.open_ticket({})
+    @ticket = @stencil.open_ticket({})
     authorize!( :new, @ticket )
   end
 
   # GET /tickets/1/edit
   #   def edit
-  #     @ticket = ( @appliance.nil? ? @account : @appliance ).tickets.find(params[:id])
+  #     @ticket = ( @stencil.nil? ? @account : @stencil ).tickets.find(params[:id])
   #   end
 
   # POST /tickets
   # POST /tickets.json
   def create
-    # @ticket = ( @appliance.nil? ? @account : @appliance ).tickets.create( params[:ticket] )
-    @ticket = @appliance.open_ticket( params[:ticket] )
+    # @ticket = ( @stencil.nil? ? @account : @stencil ).tickets.create( params[:ticket] )
+    @ticket = @stencil.open_ticket( params[:ticket] )
     authorize!( :create, @ticket )
 
     if @ticket.save
@@ -70,7 +70,7 @@ class TicketsController < ApplicationController
   # PUT /tickets/1
   # PUT /tickets/1.json
   #   def update
-  #     @ticket = ( @appliance.nil? ? @account : @appliance ).tickets.find(params[:id])
+  #     @ticket = ( @stencil.nil? ? @account : @stencil ).tickets.find(params[:id])
   # 
   #     respond_to do |format|
   #       if @ticket.update_attributes(params[:ticket])
@@ -86,7 +86,7 @@ class TicketsController < ApplicationController
   # DELETE /tickets/1
   # DELETE /tickets/1.json
   #   def destroy
-  #     @ticket = ( @appliance.nil? ? @account : @appliance ).tickets.find(params[:id])
+  #     @ticket = ( @stencil.nil? ? @account : @stencil ).tickets.find(params[:id])
   #     @ticket.destroy
   # 
   #     respond_to do |format|

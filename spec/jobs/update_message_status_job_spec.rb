@@ -1,9 +1,6 @@
 require 'spec_helper'
 
-describe UpdateMessageStatusJob do
-  #fixtures :account_plans, :accounts, :phone_numbers, :phone_directories, :phone_directory_entries, :appliances, :tickets, :messages
-  before(:all) { VCR.insert_cassette 'update_message_status_job' }
-  after(:all)  { VCR.eject_cassette }
+describe UpdateMessageStatusJob, :vcr => { :cassette_name => "update_message_status_job" } do
   
   def create_message_update_payload( message, body=nil, reply=false, others={} )
     body = message.ticket.question if body.nil?

@@ -1,10 +1,10 @@
 FactoryGirl.define do
 
-  factory :appliance do
+  factory :stencil do
     account
     #association :phone_directory, account: { account }
     phone_directory { create :phone_directory, account: account }
-    label                     'Babys First Appliance'
+    label                     'Babys First Stencil'
     description               'A simple toaster'
     seconds_to_live           180
     question                  'Hello, I am a question.'
@@ -15,7 +15,7 @@ FactoryGirl.define do
     failed_reply              'Wrong answer!'
     expired_reply             'Took too long!'
     
-    #before(:create) { |appliance| generate_hashed_password(user) }
+    #before(:create) { |stencil| generate_hashed_password(user) }
   end
 
 end

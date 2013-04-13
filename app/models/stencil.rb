@@ -1,4 +1,4 @@
-class Appliance < ActiveRecord::Base
+class Stencil < ActiveRecord::Base
   # Attributes
   #attr_accessible :encrypted_confirmed_reply, :encrypted_denied_reply, :encrypted_expected_confirmed_answer, :encrypted_expected_denied_answer, :encrypted_expired_reply, :encrypted_failed_reply, :encrypted_question, :phone_directory, :seconds_to_live
   attr_accessible :label, :primary, :phone_directory_id, :seconds_to_live, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :question, :description, :webhook_uri
@@ -14,9 +14,9 @@ class Appliance < ActiveRecord::Base
   attr_encrypted :expected_denied_answer, key: ATTR_ENCRYPTED_SECRET
   
   # Relationships
-  belongs_to :account, inverse_of: :appliances
-  belongs_to :phone_directory, inverse_of: :appliances
-  has_many :tickets, inverse_of: :appliance
+  belongs_to :account, inverse_of: :stencils
+  belongs_to :phone_directory, inverse_of: :stencils
+  has_many :tickets, inverse_of: :stencil
   
   def open_ticket( passed_options )
     # Build a hash of options using self as a default, merging passed options

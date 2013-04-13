@@ -1,8 +1,6 @@
 require 'spec_helper'
 
-describe CreateTwilioAccountJob do
-  before(:all) { VCR.insert_cassette 'accounts' }
-  after(:all)  { VCR.eject_cassette }
+describe CreateTwilioAccountJob, :vcr => { :cassette_name => "accounts" } do
   
   describe '#perform' do
     subject { CreateTwilioAccountJob.new account.id }

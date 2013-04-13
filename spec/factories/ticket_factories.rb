@@ -1,7 +1,7 @@
 FactoryGirl.define do
 
   factory :ticket do
-    appliance
+    stencil
     from_number               Twilio::VALID_NUMBER
     to_number                 Twilio::VALID_NUMBER
     expires_at                    180.seconds.from_now

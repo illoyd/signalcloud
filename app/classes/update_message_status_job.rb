@@ -36,7 +36,7 @@ class UpdateMessageStatusJob < Struct.new( :callback_values )
     # Update price if available
     if self.callback_values.include? :price and !self.callback_values[:price].nil?
       message.provider_cost = self.callback_values[:price]
-      #message.our_cost = message.ticket.appliance.account.account_plan.calculate_outbound_sms_cost( message.provider_cost )
+      #message.our_cost = message.ticket.stencil.account.account_plan.calculate_outbound_sms_cost( message.provider_cost )
 
       # Update the ledger_entry
       #ledger_entry = message.ledger_entry

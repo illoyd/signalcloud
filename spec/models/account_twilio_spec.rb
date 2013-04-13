@@ -1,8 +1,6 @@
 require 'spec_helper'
 
-describe Account, 'Twilio Integration' do
-  before(:all) { VCR.insert_cassette 'accounts_twilio' }
-  after(:all)  { VCR.eject_cassette }
+describe Account, 'Twilio Integration', :vcr => { :cassette_name => "accounts_twilio" } do
   subject { create(:account) }
 
   describe '#twilio_client' do

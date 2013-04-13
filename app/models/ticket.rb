@@ -32,7 +32,7 @@ class Ticket < ActiveRecord::Base
   ERROR_STATUSES = [ ERROR_INVALID_TO, ERROR_INVALID_FROM, ERROR_BLACKLISTED_TO, ERROR_NOT_SMS_CAPABLE, ERROR_CANNOT_ROUTE, ERROR_SMS_QUEUE_FULL, ERROR_INTERNATIONAL, ERROR_MISSING_BODY, ERROR_BODY_TOO_LARGE, ERROR_UNKNOWN ]
   CRITICAL_ERRORS = [ ERROR_MISSING_BODY, ERROR_BODY_TOO_LARGE, ERROR_INTERNATIONAL ]
 
-  attr_accessible :seconds_to_live, :appliance_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at, :webhook_uri
+  attr_accessible :seconds_to_live, :stencil_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at, :webhook_uri
   attr_accessor :seconds_to_live
   
   # Encrypted attributes
@@ -46,14 +46,14 @@ class Ticket < ActiveRecord::Base
   attr_encrypted :from_number, key: ATTR_ENCRYPTED_SECRET #, iv: 1, salt: 'salt'
 
   # Relationships
-  belongs_to :appliance, inverse_of: :tickets
+  belongs_to :stencil, inverse_of: :tickets
   has_many :messages, inverse_of: :ticket
   #has_many :ledger_entries, as: :item
 
-  delegate :account, :to => :appliance, :allow_nil => true
+  delegate :account, :to => :stencil, :allow_nil => true
   
   # Validation
-  validates_presence_of :appliance_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at
+  validates_presence_of :stencil_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at
   validates :to_number, phone_number: true
   validates :from_number, phone_number: true
   #validates_numericality_of :seconds_to_live
@@ -143,7 +143,7 @@ class Ticket < ActiveRecord::Base
   end
   
   def to_webhook_data
-    data = [ :id, :appliance_id, :status, :status_text, :created_at, :updated_at, :challenge_sent_at, :challenge_status, :response_received_at, :reply_sent_at, :reply_status ].each_with_object({}) do |key,h|
+    data = [ :id, :stencil_id, :status, :status_text, :created_at, :updated_at, :challenge_sent_at, :challenge_status, :response_received_at, :reply_sent_at, :reply_status ].each_with_object({}) do |key,h|
       value = self.send key
       h[key] = value unless value.blank?
     end
@@ -335,7 +335,7 @@ class Ticket < ActiveRecord::Base
         msg.deliver!
         msg
         # Send the SMS
-        #results = self.appliance.account.send_sms( self.to_number, self.from_number, message_part )
+        #results = self.stencil.account.send_sms( self.to_number, self.from_number, message_part )
   
         # Build a message and ledger_entry to hold the results
         # sent_message = self.messages.build( twilio_sid: results.sid, provider_response: results.to_property_hash )

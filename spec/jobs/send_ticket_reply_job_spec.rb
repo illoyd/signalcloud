@@ -1,8 +1,6 @@
 require 'spec_helper'
 
-describe SendTicketReplyJob do
-  before(:all) { VCR.insert_cassette 'send_ticket_reply_job' }
-  after(:all)  { VCR.eject_cassette }
+describe SendTicketReplyJob, :vcr => { :cassette_name => "send_ticket_reply_job" } do
 
   describe '.new' do
     let(:ticket)  { create(:ticket) }
@@ -28,12 +26,12 @@ describe SendTicketReplyJob do
   
   describe '#perform' do
     let(:account)           { create(:account, :test_twilio, :with_sid_and_token) }
-    let(:appliance)         { create(:appliance, account: account) }
+    let(:stencil)         { create(:stencil, account: account) }
 
     [ :confirmed, :denied, :failed, :expired ].each do |status|
 
       context "when ticket #{status.to_s} reply has not been sent" do
-        let(:ticket)  { create(:ticket, :challenge_sent, :response_received, status, appliance: appliance) }
+        let(:ticket)  { create(:ticket, :challenge_sent, :response_received, status, stencil: stencil) }
         let(:job)     { SendTicketReplyJob.new( ticket.id ) }
         it 'does not raise error' do
           expect { job.perform }.to_not raise_error
@@ -42,7 +40,7 @@ describe SendTicketReplyJob do
           expect { job.perform }.to change{ticket.messages(true).count}.by(1)
         end
         it 'does not create a new ledger entry' do
-          expect { job.perform }.to_not change{ticket.appliance.account.ledger_entries.count}
+          expect { job.perform }.to_not change{ticket.stencil.account.ledger_entries.count}
         end
         it 'does not change ticket status' do
           expect { job.perform }.to_not change{ticket.reload.status}
@@ -56,7 +54,7 @@ describe SendTicketReplyJob do
       end
 
       context "when ticket #{status.to_s} reply has been sent" do
-        let(:ticket)  { create(:ticket, :challenge_sent, :response_received, :reply_sent, appliance: appliance) }
+        let(:ticket)  { create(:ticket, :challenge_sent, :response_received, :reply_sent, stencil: stencil) }
         let(:job)     { SendTicketReplyJob.new( ticket.id ) }
         it 'does not raise error' do
           expect { job.perform }.to_not raise_error
@@ -65,7 +63,7 @@ describe SendTicketReplyJob do
           expect { job.perform }.to_not change{ticket.messages(true).count}
         end
         it 'does not create a new ledger entry' do
-          expect { job.perform }.to_not change{ticket.appliance.account.ledger_entries.count}
+          expect { job.perform }.to_not change{ticket.stencil.account.ledger_entries.count}
         end
         it 'does not change ticket status' do
           expect { job.perform }.to_not change{ticket.reload.status}

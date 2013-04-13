@@ -4,7 +4,7 @@ class CreateTickets < ActiveRecord::Migration
     #  t.column :id, :bigint, null: false
     create_table :tickets do |t|
       #t.column :id, :bigint, null: false
-      t.references :appliance, null: false
+      t.references :stencil, null: false
 
       t.integer :status, null: false, default: 0, limit: 2
       t.integer :challenge_status, limit: 2
@@ -55,7 +55,7 @@ class CreateTickets < ActiveRecord::Migration
     end
     
     # Add indexes
-    add_index :tickets, :appliance_id
+    add_index :tickets, :stencil_id
     add_index :tickets, :status
     add_index :tickets, :hashed_internal_number
     add_index :tickets, :hashed_customer_number

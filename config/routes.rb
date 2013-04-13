@@ -13,7 +13,7 @@ SignalCloud::Application.routes.draw do
 
   resources :users
 
-  resources :appliances do
+  resources :stencils do
     collection do
       get 'active', action: :index, defaults: { active_filter: true }, as: 'active'
       get 'inactive', action: :index, defaults: { active_filter: false }, as: 'inactive'
@@ -82,7 +82,7 @@ SignalCloud::Application.routes.draw do
   # This functionality has been removed in favour of shadowing the current account using the session.
   #resources :accounts do
   #  resources :users
-  #  resources :appliances
+  #  resources :stencils
   #  resources :tickets, only: [ :index, :new, :create, :show ]
   #  resources :messages, only: [ :show ]
   #  resources :ledger_entries, only: [ :index, :show ]

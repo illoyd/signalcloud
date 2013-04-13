@@ -13,7 +13,7 @@
     { label: 'Details', icon: :show, link: account_path }, |
     { label: 'Edit', icon: :edit, link: edit_account_path(), if: can?(:edit, @account) }, |
     { header: 'Related' }, |
-    { label: 'Appliances', icon: :appliances, link: appliances_path, if: can?(:index, Appliance) }, |
+    { label: 'Stencils', icon: :stencils, link: stencils_path, if: can?(:index, Stencil) }, |
     { label: 'Directories', icon: :phone_directories, link: phone_directories_path, if: can?(:index, PhoneDirectory) }, |
     { label: 'Phone Numbers', icon: :phone_numbers, link: phone_numbers_path, if: can?(:index, PhoneNumber) }, |
     { label: 'Tickets', icon: :tickets, link: tickets_path, if: can?(:index, Ticket) }, |

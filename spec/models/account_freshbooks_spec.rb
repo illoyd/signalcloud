@@ -1,8 +1,6 @@
 require 'spec_helper'
 
-describe Account, 'Freshbooks Integration' do
-  before(:all) { VCR.insert_cassette 'accounts_freshbooks' }
-  after(:all)  { VCR.eject_cassette }
+describe Account, 'Freshbooks Integration', :vcr => { :cassette_name => "accounts_freshbooks" } do
   subject { create(:account) }
 
   describe '#freshbooks_client' do

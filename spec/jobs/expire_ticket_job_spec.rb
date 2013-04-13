@@ -1,8 +1,6 @@
 require 'spec_helper'
 
-describe ExpireTicketJob do
-  before(:all) { VCR.insert_cassette 'expire_ticket_job' }
-  after(:all)  { VCR.eject_cassette }
+describe ExpireTicketJob, :vcr => { :cassette_name => "expire_ticket_job" } do
 
   describe '#find_ticket' do
     let(:ticket) { create(:ticket) }
@@ -11,17 +9,17 @@ describe ExpireTicketJob do
   end
   
   describe '#perform' do
-    #let(:appliance) { appliances(:test_appliance) }
-    #let(:ticket) { appliance.open_ticket( to_number: Twilio::VALID_NUMBER, expected_confirmed_answer: 'YES' ) }
+    #let(:stencil) { stencils(:test_stencilb) }
+    #let(:ticket) { stencil.open_ticket( to_number: Twilio::VALID_NUMBER, expected_confirmed_answer: 'YES' ) }
     let(:account)           { create(:account, :test_twilio, :with_sid_and_token) }
-    let(:appliance)         { create(:appliance, account: account) }
-    let(:ticket)            { create(:ticket, appliance: appliance) }
-    let(:ready_to_expire_ticket) { create(:ticket, expires_at: 180.seconds.ago, appliance: appliance) }
-    let(:sent_ticket)       { create(:ticket, :challenge_sent, appliance: appliance) }
-    let(:confirmed_ticket)  { create(:ticket, :challenge_sent, :response_received, :reply_sent, :confirmed, appliance: appliance) }
-    let(:denied_ticket)     { create(:ticket, :challenge_sent, :response_received, :reply_sent, :denied, appliance: appliance) }
-    let(:failed_ticket)     { create(:ticket, :challenge_sent, :response_received, :reply_sent, :failed, appliance: appliance) }
-    let(:expired_ticket)    { create(:ticket, :challenge_sent, :response_received, :reply_sent, :expired, appliance: appliance) }
+    let(:stencil)         { create(:stencil, account: account) }
+    let(:ticket)            { create(:ticket, stencil: stencil) }
+    let(:ready_to_expire_ticket) { create(:ticket, expires_at: 180.seconds.ago, stencil: stencil) }
+    let(:sent_ticket)       { create(:ticket, :challenge_sent, stencil: stencil) }
+    let(:confirmed_ticket)  { create(:ticket, :challenge_sent, :response_received, :reply_sent, :confirmed, stencil: stencil) }
+    let(:denied_ticket)     { create(:ticket, :challenge_sent, :response_received, :reply_sent, :denied, stencil: stencil) }
+    let(:failed_ticket)     { create(:ticket, :challenge_sent, :response_received, :reply_sent, :failed, stencil: stencil) }
+    let(:expired_ticket)    { create(:ticket, :challenge_sent, :response_received, :reply_sent, :expired, stencil: stencil) }
 
     context 'when ticket is open' do
 
@@ -43,7 +41,7 @@ describe ExpireTicketJob do
 
               ticket.reload
     
-            }.to_not change{ticket.appliance.account.ledger_entries.count}.by(1)
+            }.to_not change{ticket.stencil.account.ledger_entries.count}.by(1)
           }.to_not change{ticket.messages.count}.by(1)
     
           # Check that the ticket status has been expired
@@ -69,7 +67,7 @@ describe ExpireTicketJob do
               
               ready_to_expire_ticket.reload
     
-            }.to_not change{ready_to_expire_ticket.appliance.account.ledger_entries.count}
+            }.to_not change{ready_to_expire_ticket.stencil.account.ledger_entries.count}
           }.to change{ready_to_expire_ticket.messages.count}.by(1)
     
           # Check that the ticket status has been expired
@@ -96,7 +94,7 @@ describe ExpireTicketJob do
   
             confirmed_ticket.reload
   
-          }.to_not change{confirmed_ticket.appliance.account.ledger_entries.count}.by(1)
+          }.to_not change{confirmed_ticket.stencil.account.ledger_entries.count}.by(1)
         }.to_not change{confirmed_ticket.messages.count}.by(1)
   
         # Check that the ticket has not been changed
@@ -120,7 +118,7 @@ describe ExpireTicketJob do
   
             denied_ticket.reload
   
-          }.to_not change{denied_ticket.appliance.account.ledger_entries.count}.by(1)
+          }.to_not change{denied_ticket.stencil.account.ledger_entries.count}.by(1)
         }.to_not change{denied_ticket.messages.count}.by(1)
   
         # Check that the ticket has not been changed
@@ -144,7 +142,7 @@ describe ExpireTicketJob do
   
             failed_ticket.reload
   
-          }.to_not change{failed_ticket.appliance.account.ledger_entries.count}.by(1)
+          }.to_not change{failed_ticket.stencil.account.ledger_entries.count}.by(1)
         }.to_not change{failed_ticket.messages.count}.by(1)
   
         # Check that the ticket has not been changed
@@ -168,7 +166,7 @@ describe ExpireTicketJob do
   
             expired_ticket.reload
   
-          }.to_not change{expired_ticket.appliance.account.ledger_entries.count}.by(1)
+          }.to_not change{expired_ticket.stencil.account.ledger_entries.count}.by(1)
         }.to_not change{expired_ticket.messages.count}.by(1)
   
         # Check that the ticket has not been changed

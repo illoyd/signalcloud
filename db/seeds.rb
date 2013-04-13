@@ -59,8 +59,8 @@ unless Rails.env.production? || Account.exists?( encrypted_twilio_account_sid: A
   example_directory.phone_directory_entries.create phone_number_id: test_numbers[:US].id, country: nil
   #test_numbers.each { |country,number| example_directory.phone_directory_entries.create country: country, phone_number_id: number.id }
   
-  example_appliance = test_account.appliances.create!({ label: 'Example Appliance', primary: true, phone_directory_id: example_directory.id, seconds_to_live: 180,
-    description: 'Example appliance for handling possibly fraudulent charges to a debit card.',
+  example_stencilb = test_account.stencils.create!({ label: 'Example Stencil', primary: true, phone_directory_id: example_directory.id, seconds_to_live: 180,
+    description: 'Example stencil for handling possibly fraudulent charges to a debit card.',
     question: 'Hello from Friendly Bank. We recently detected a possibly fraudulent charge using your debit card. To protect you, we have temporarily blocked the card. If you are making this purchase and would like us to unlock the card, please reply to this number with the amount of the transaction. If you believe this charge is fraudulent, please reply NO and we will contact you about next steps.',
     expected_denied_answer: 'NO',
     confirmed_reply: 'Thank you. We will unblock your card immediately. Please retry your purchase.',
@@ -75,7 +75,7 @@ unless Rails.env.production? || Account.exists?( encrypted_twilio_account_sid: A
   10.times { customer_numbers << random_uk_number() }
   
   customer_numbers.shuffle.each do |customer_number|
-    ticket = example_appliance.open_ticket( to_number: customer_number, expected_confirmed_answer: random_answer() )
+    ticket = example_stencilb.open_ticket( to_number: customer_number, expected_confirmed_answer: random_answer() )
     ticket.status = Ticket::STATUSES.sample
     ticket.save!
     if [ Ticket::CHALLENGE_SENT, Ticket::CONFIRMED, Ticket::DENIED, Ticket::FAILED, Ticket::EXPIRED ].include? ticket.status
@@ -112,7 +112,7 @@ unless Account.exists?( encrypted_twilio_account_sid: Account.encrypt(:twilio_ac
   master_phone_number = master_account.phone_numbers.create!( number: '+14242773034', twilio_phone_number_sid: 'PNb35b5f695c76e7f558956284204bcb45' )
   master_account.phone_directories.first.phone_directory_entries.create!( phone_number_id: master_phone_number.id, country: nil )
   
-  master_account.appliances.create!({ label: 'Silly Example', primary: true, phone_directory_id: master_account.phone_directories.first.id, seconds_to_live: 15*60,
+  master_account.stencils.create!({ label: 'Silly Example', primary: true, phone_directory_id: master_account.phone_directories.first.id, seconds_to_live: 15*60,
     description: 'A silly example to test functionality with friends and colleagues.',
     question: 'Who is cooler, Ian or Susie?',
     expected_confirmed_answer: 'Ian',
@@ -123,7 +123,7 @@ unless Account.exists?( encrypted_twilio_account_sid: Account.encrypt(:twilio_ac
     expired_reply: 'You took way to long!'
     })
   
-  master_account.appliances.create!({ label: 'Doctor Appointment Example', primary: false, phone_directory_id: master_account.phone_directories.first.id, seconds_to_live: 4*60*60,
+  master_account.stencils.create!({ label: 'Doctor Appointment Example', primary: false, phone_directory_id: master_account.phone_directories.first.id, seconds_to_live: 4*60*60,
     description: 'Example of using the service to confirm doctor appointments.',
     question: 'Reminder: Your appointment with Dr Ian is tomorrow at 08:30. To confirm this appt, reply with your postcode. To change your appt, reply CHANGE.',
     expected_denied_answer: 'CHANGE',
@@ -133,8 +133,8 @@ unless Account.exists?( encrypted_twilio_account_sid: Account.encrypt(:twilio_ac
     expired_reply: 'We are sorry, but we have not received your response. We will call you today to reschedule your appointment.'
     })
   
-  master_account.appliances.create!({ label: 'Fraud Transaction Example', primary: false, phone_directory_id: master_account.phone_directories.first.id, seconds_to_live: 5*60,
-    description: 'Example appliance for handling possibly fraudulent charges to a debit card.',
+  master_account.stencils.create!({ label: 'Fraud Transaction Example', primary: false, phone_directory_id: master_account.phone_directories.first.id, seconds_to_live: 5*60,
+    description: 'Example stencil for handling possibly fraudulent charges to a debit card.',
     question: 'Hello from Friendly Bank. We recently detected a possibly fraudulent charge using your debit card. To protect you, we have temporarily blocked the card. If you are making this purchase and would like us to unlock the card, please reply to this number with the amount of the transaction. If you believe this charge is fraudulent, please reply NO and we will contact you about next steps.',
     expected_denied_answer: 'NO',
     confirmed_reply: 'Thank you. We will unblock your card immediately. Please retry your purchase.',

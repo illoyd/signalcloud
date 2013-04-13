@@ -9,18 +9,18 @@ describe ApplicationHelper do
       output.should include('icon-blank')
       output.should include("style=''")
     end
-    it "uses appliance symbol" do
-      output = helper.icon( :appliances )
+    it "uses stencil symbol" do
+      output = helper.icon( :stencils )
       output.should include('icon-hdd')
       output.should include("style=''")
     end
-    it "uses appliance string" do
-      output = helper.icon( 'appliances' )
+    it "uses stencil string" do
+      output = helper.icon( 'stencils' )
       output.should include('icon-hdd')
       output.should include("style=''")
     end
     it "adds options" do
-      output = helper.icon( :appliances, style: "font-size: bigger" )
+      output = helper.icon( :stencils, style: "font-size: bigger" )
       output.should include('icon-hdd')
       output.should include("style='font-size: bigger'")
     end
@@ -33,20 +33,20 @@ describe ApplicationHelper do
       output.should include('header-icon')
       output.should include("style=''")
     end
-    it "uses appliance symbol" do
-      output = helper.header_icon( :appliances )
+    it "uses stencil symbol" do
+      output = helper.header_icon( :stencils )
       output.should include('icon-hdd')
       output.should include('header-icon')
       output.should include("style=''")
     end
-    it "uses appliance string" do
-      output = helper.header_icon( 'appliances' )
+    it "uses stencil string" do
+      output = helper.header_icon( 'stencils' )
       output.should include('icon-hdd')
       output.should include('header-icon')
       output.should include("style=''")
     end
     it "adds options" do
-      output = helper.header_icon( :appliances, style: "font-size: bigger" )
+      output = helper.header_icon( :stencils, style: "font-size: bigger" )
       output.should include('icon-hdd')
       output.should include('header-icon')
       output.should include("style='font-size: bigger'")

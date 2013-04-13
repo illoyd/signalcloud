@@ -23,7 +23,7 @@
           %th Directory
           %th Description
           %th Phone numbers
-          %th Appliances
+          %th Stencils
       %tbody
         - @phone_directories.each do |phone_directory|
           %tr
@@ -40,4 +40,4 @@
                 - else
                   = phone_directory.description
             %td= phone_directory.phone_directory_entries.count
-            %td= phone_directory.appliances.count
+            %td= phone_directory.stencils.count

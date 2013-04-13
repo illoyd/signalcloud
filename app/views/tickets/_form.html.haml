@@ -1,9 +1,9 @@
 -# Discard changes link
-- discard_link = @appliance.nil? ? tickets_path() : appliance_tickets_path(@appliance)
+- discard_link = @stencil.nil? ? tickets_path() : stencil_tickets_path(@stencil)
 
-= render partial: 'layouts/modal', locals: { modal_id: 'change_appliance_modal', header: 'Change Appliance', body_partial: 'appliancelist', show_accept_button: false, cancel_text: 'Cancel and go back to ticket' }
+= render partial: 'layouts/modal', locals: { modal_id: 'change_stencil_modal', header: 'Change Stencil', body_partial: 'stencillist', show_accept_button: false, cancel_text: 'Cancel and go back to ticket' }
 
-= form_for( [@appliance, @ticket], :html => { :class => 'form-horizontal' } ) do |f|
+= form_for( [@stencil, @ticket], :html => { :class => 'form-horizontal' } ) do |f|
   - if @ticket.errors.any?
     #error_explanation
       %h2
@@ -13,11 +13,11 @@
         - @ticket.errors.full_messages.each do |msg|
           %li= msg
   .control-group
-    = f.label :appliance, :class => 'control-label'
+    = f.label :stencil, :class => 'control-label'
     .controls
-      = @appliance.label
-      %a.btn.btn-mini{"data-toggle" => "modal", :href => '#change_appliance_modal', :role => "button"} Change Appliance
-    -#=f.collection_select :appliance_id, @account.appliances, :id, :label
+      = @stencil.label
+      %a.btn.btn-mini{"data-toggle" => "modal", :href => '#change_stencil_modal', :role => "button"} Change Stencil
+    -#=f.collection_select :stencil_id, @account.stencils, :id, :label
   .control-group
     = f.label :to_number, :class => 'control-label' do
       Customer number
@@ -34,28 +34,28 @@
         = f.text_field :from_number
   .control-group
     = f.label :seconds_to_live, :class => 'control-label'
-    .controls= f.number_field :seconds_to_live, :value=>@appliance.seconds_to_live
+    .controls= f.number_field :seconds_to_live, :value=>@stencil.seconds_to_live
   .control-group
     = f.label :question, :class => 'control-label'
-    .controls= f.text_area :question, :rows=>3, :value=>@appliance.question
+    .controls= f.text_area :question, :rows=>3, :value=>@stencil.question
   .control-group
     = f.label :expected_confirmed_answer, :class => 'control-label'
-    .controls= f.text_area :expected_confirmed_answer, :rows=>3, :value=>@appliance.expected_confirmed_answer
+    .controls= f.text_area :expected_confirmed_answer, :rows=>3, :value=>@stencil.expected_confirmed_answer
   .control-group
     = f.label :expected_denied_answer, :class => 'control-label'
-    .controls= f.text_area :expected_denied_answer, :rows=>3, :value=>@appliance.expected_denied_answer
+    .controls= f.text_area :expected_denied_answer, :rows=>3, :value=>@stencil.expected_denied_answer
   .control-group
     = f.label :confirmed_reply, :class => 'control-label'
-    .controls= f.text_area :confirmed_reply, :rows=>3, :value=>@appliance.confirmed_reply
+    .controls= f.text_area :confirmed_reply, :rows=>3, :value=>@stencil.confirmed_reply
   .control-group
     = f.label :denied_reply, :class => 'control-label'
-    .controls= f.text_area :denied_reply, :rows=>3, :value=>@appliance.denied_reply
+    .controls= f.text_area :denied_reply, :rows=>3, :value=>@stencil.denied_reply
   .control-group
     = f.label :failed_reply, :class => 'control-label'
-    .controls= f.text_area :failed_reply, :rows=>3, :value=>@appliance.failed_reply
+    .controls= f.text_area :failed_reply, :rows=>3, :value=>@stencil.failed_reply
   .control-group
     = f.label :expired_reply, :class => 'control-label'
-    .controls= f.text_area :expired_reply, :rows=>3, :value=>@appliance.expired_reply
+    .controls= f.text_area :expired_reply, :rows=>3, :value=>@stencil.expired_reply
 
   .control-group.actions
     .controls

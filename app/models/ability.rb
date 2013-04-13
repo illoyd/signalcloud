@@ -1,7 +1,7 @@
 class Ability
   include CanCan::Ability
   
-  STANDARD_OBJECTS = [ Appliance, PhoneNumber, PhoneDirectory, Ticket ]
+  STANDARD_OBJECTS = [ Stencil, PhoneNumber, PhoneDirectory, Ticket ]
 
   def initialize(user)
     # Define abilities for the passed in user here. For example:
@@ -44,8 +44,8 @@ class Ability
 #       # 'Normal' users - general access, but no account management
 #       when User::ROLE_USER
 #         # Can read, create, and update standard objects
-#         can [ :read, :create, :update ], [ Appliance, PhoneNumber, PhoneDirectory ], { account_id: user.account_id }
-#         can [ :read, :create, :update ], [ Ticket ], { appliance: { account_id: user.account_id } }
+#         can [ :read, :create, :update ], [ Stencil, PhoneNumber, PhoneDirectory ], { account_id: user.account_id }
+#         can [ :read, :create, :update ], [ Ticket ], { stencil: { account_id: user.account_id } }
 #         can [ :show ], Account
 #         
 #         # Can view and update own profile
@@ -58,8 +58,8 @@ class Ability
 #       # 'Owner' users - own and manage the account
 #       when User::ROLE_OWNER
 #         # Can manage standard objects
-#         can :manage, [ Appliance, PhoneNumber, PhoneDirectory ], { account_id: user.account_id }
-#         can [ :read, :create, :update ], [ Ticket ], { appliance: { account_id: user.account_id } }
+#         can :manage, [ Stencil, PhoneNumber, PhoneDirectory ], { account_id: user.account_id }
+#         can [ :read, :create, :update ], [ Ticket ], { stencil: { account_id: user.account_id } }
 #         
 #         # Can see ledger_entries
 #         can :read, LedgerEntry, { account_id: user.account_id }
@@ -81,13 +81,13 @@ class Ability
 #       end
   end
   
-  # [ :shadow_account, :manage_account, :manage_users, :manage_appliances, :manage_phone_numbers, :manage_phone_directories, :manage_tickets, :start_ticket ]
+  # [ :shadow_account, :manage_account, :manage_users, :manage_stencils, :manage_phone_numbers, :manage_phone_directories, :manage_tickets, :start_ticket ]
   
   def grant_default_privileges(user)
     # Index and show for primary objects
-    can :read, [ Appliance, PhoneNumber, PhoneDirectory ], { account_id: user.account_id }
-    can :read, [ Ticket ], { appliance: { account_id: user.account_id } }
-    can :read, [ Message ], { ticket: { appliance: { account_id: user.account_id } } }
+    can :read, [ Stencil, PhoneNumber, PhoneDirectory ], { account_id: user.account_id }
+    can :read, [ Ticket ], { stencil: { account_id: user.account_id } }
+    can :read, [ Message ], { ticket: { stencil: { account_id: user.account_id } } }
     
     # Show for owning account
     can :show, [ Account ], { id: user.account_id }
@@ -116,9 +116,9 @@ class Ability
     can :permissions, User, { account_id: user.account_id }
   end
   
-  def grant_manage_appliances_privileges(user)
-    # All for account appliances
-    can :manage, Appliance, { account_id: user.account_id }
+  def grant_manage_stencils_privileges(user)
+    # All for account stencils
+    can :manage, Stencil, { account_id: user.account_id }
   end
   
   def grant_manage_phone_numbers_privileges(user)
@@ -139,12 +139,12 @@ class Ability
   
   def grant_force_ticket_privileges(user)
     # Allow forcing tickets
-    can [:force], Ticket, { appliance: { account_id: user.account_id } }
+    can [:force], Ticket, { stencil: { account_id: user.account_id } }
   end
   
   def grant_start_ticket_privileges(user)
     # Allow new, create for tickets
-    can [:new, :create], Ticket, { appliance: { account_id: user.account_id } }
+    can [:new, :create], Ticket, { stencil: { account_id: user.account_id } }
   end
   
 end

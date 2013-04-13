@@ -79,44 +79,6 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
   add_index "addresses", ["account_id"], :name => "index_addresses_on_account_id"
   add_index "addresses", ["country"], :name => "index_addresses_on_country"
 
-  create_table "appliances", :force => true do |t|
-    t.integer  "account_id",                                                  :null => false
-    t.integer  "phone_directory_id",                                          :null => false
-    t.string   "label",                                                       :null => false
-    t.integer  "seconds_to_live",                          :default => 180,   :null => false
-    t.boolean  "primary",                                  :default => false, :null => false
-    t.boolean  "active",                                   :default => true,  :null => false
-    t.string   "webhook_uri"
-    t.text     "description"
-    t.text     "encrypted_question"
-    t.string   "encrypted_question_iv"
-    t.string   "encrypted_question_salt"
-    t.text     "encrypted_expected_confirmed_answer"
-    t.string   "encrypted_expected_confirmed_answer_iv"
-    t.string   "encrypted_expected_confirmed_answer_salt"
-    t.text     "encrypted_expected_denied_answer"
-    t.string   "encrypted_expected_denied_answer_iv"
-    t.string   "encrypted_expected_denied_answer_salt"
-    t.text     "encrypted_confirmed_reply"
-    t.string   "encrypted_confirmed_reply_iv"
-    t.string   "encrypted_confirmed_reply_salt"
-    t.text     "encrypted_denied_reply"
-    t.string   "encrypted_denied_reply_iv"
-    t.string   "encrypted_denied_reply_salt"
-    t.text     "encrypted_failed_reply"
-    t.string   "encrypted_failed_reply_iv"
-    t.string   "encrypted_failed_reply_salt"
-    t.text     "encrypted_expired_reply"
-    t.string   "encrypted_expired_reply_iv"
-    t.string   "encrypted_expired_reply_salt"
-    t.datetime "created_at",                                                  :null => false
-    t.datetime "updated_at",                                                  :null => false
-  end
-
-  add_index "appliances", ["account_id"], :name => "index_appliances_on_account_id"
-  add_index "appliances", ["phone_directory_id"], :name => "index_appliances_on_phone_directory_id"
-  add_index "appliances", ["primary"], :name => "index_appliances_on_primary"
-
   create_table "delayed_jobs", :force => true do |t|
     t.integer  "priority",   :default => 0
     t.integer  "attempts",   :default => 0
@@ -238,8 +200,46 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
   add_index "phone_numbers", ["account_id"], :name => "index_phone_numbers_on_account_id"
   add_index "phone_numbers", ["encrypted_number"], :name => "index_phone_numbers_on_encrypted_number"
 
+  create_table "stencils", :force => true do |t|
+    t.integer  "account_id",                                                  :null => false
+    t.integer  "phone_directory_id",                                          :null => false
+    t.string   "label",                                                       :null => false
+    t.integer  "seconds_to_live",                          :default => 180,   :null => false
+    t.boolean  "primary",                                  :default => false, :null => false
+    t.boolean  "active",                                   :default => true,  :null => false
+    t.string   "webhook_uri"
+    t.text     "description"
+    t.text     "encrypted_question"
+    t.string   "encrypted_question_iv"
+    t.string   "encrypted_question_salt"
+    t.text     "encrypted_expected_confirmed_answer"
+    t.string   "encrypted_expected_confirmed_answer_iv"
+    t.string   "encrypted_expected_confirmed_answer_salt"
+    t.text     "encrypted_expected_denied_answer"
+    t.string   "encrypted_expected_denied_answer_iv"
+    t.string   "encrypted_expected_denied_answer_salt"
+    t.text     "encrypted_confirmed_reply"
+    t.string   "encrypted_confirmed_reply_iv"
+    t.string   "encrypted_confirmed_reply_salt"
+    t.text     "encrypted_denied_reply"
+    t.string   "encrypted_denied_reply_iv"
+    t.string   "encrypted_denied_reply_salt"
+    t.text     "encrypted_failed_reply"
+    t.string   "encrypted_failed_reply_iv"
+    t.string   "encrypted_failed_reply_salt"
+    t.text     "encrypted_expired_reply"
+    t.string   "encrypted_expired_reply_iv"
+    t.string   "encrypted_expired_reply_salt"
+    t.datetime "created_at",                                                  :null => false
+    t.datetime "updated_at",                                                  :null => false
+  end
+
+  add_index "stencils", ["account_id"], :name => "index_stencils_on_account_id"
+  add_index "stencils", ["phone_directory_id"], :name => "index_stencils_on_phone_directory_id"
+  add_index "stencils", ["primary"], :name => "index_stencils_on_primary"
+
   create_table "tickets", :force => true do |t|
-    t.integer  "appliance_id",                                                 :null => false
+    t.integer  "stencil_id",                                                   :null => false
     t.integer  "status",                           :limit => 2, :default => 0, :null => false
     t.integer  "challenge_status",                 :limit => 2
     t.integer  "reply_status",                     :limit => 2
@@ -277,10 +277,10 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
     t.datetime "updated_at",                                                   :null => false
   end
 
-  add_index "tickets", ["appliance_id"], :name => "index_tickets_on_appliance_id"
   add_index "tickets", ["hashed_customer_number"], :name => "index_tickets_on_hashed_customer_number"
   add_index "tickets", ["hashed_internal_number"], :name => "index_tickets_on_hashed_internal_number"
   add_index "tickets", ["status"], :name => "index_tickets_on_status"
+  add_index "tickets", ["stencil_id"], :name => "index_tickets_on_stencil_id"
 
   create_table "unsolicited_calls", :force => true do |t|
     t.integer  "phone_number_id"

@@ -1,0 +1,54 @@
+.row
+  .span12
+    .page-header
+      %h1
+        = icon( :stencils )
+        Stencils
+        %small= @stencil.label
+
+.row
+  .span3
+    = render 'navlist'
+  .span9
+    %p
+      %b Description:
+      = @stencil.description || 'No description configured.'
+    %p
+      %b
+        = icon( :phone_number )
+        Phone directory:
+      = link_to @stencil.phone_directory.label, @stencil.phone_directory
+    
+    %p
+      %b
+        = icon( :time )
+        Time to live:
+      = @stencil.seconds_to_live.seconds_to_words
+    
+    %p
+      %b Question:
+    .well= @stencil.question || 'No default question configured.'
+    
+    %p
+      %b Expected confirmed answer:
+    .well= @stencil.expected_confirmed_answer || 'No default expected confirmed answer configured.'
+    
+    %p
+      %b Expected denied answer:
+    .well= @stencil.expected_denied_answer || 'No default expected denied answer configured.'
+    
+    %p
+      %b Confirmed reply:
+    .well= @stencil.confirmed_reply || 'No default reply to confirmation responses configured.'
+    
+    %p
+      %b Denied reply:
+    .well= @stencil.denied_reply || 'No default reply to denial responses configured.'
+    
+    %p
+      %b Failed reply:
+    .well= @stencil.failed_reply || 'No default reply for failed responses configured.'
+    
+    %p
+      %b Expired reply:
+    .well= @stencil.expired_reply || 'No default message for expired questions configured.'

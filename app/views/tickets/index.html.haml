@@ -1,5 +1,5 @@
 -# UI variables
-- ticket_path = new_appliance_ticket_path( @appliance.nil? ? @account.default_appliance : @appliance )
+- ticket_path = new_stencil_ticket_path( @stencil.nil? ? @account.default_stencilb : @stencil )
 
 / Page header
 .row
@@ -10,14 +10,14 @@
         Tickets
         %small
           all tickets
-          - unless @appliance.nil?
-            = "for #{@appliance.label}"
+          - unless @stencil.nil?
+            = "for #{@stencil.label}"
 
 / Page controls
 .row
   .span12.table-tools
-    = appliance_dropdown_list( @account, @appliance )
-    = status_dropdown_list( @account, @appliance, params[:status] )
+    = stencil_dropdown_list( @account, @stencil )
+    = status_dropdown_list( @account, @stencil, params[:status] )
     - if can? :new, Ticket
       .pull-right= link_to 'Start a new ticket', ticket_path, :class=>'btn btn-success btn-small'
 
@@ -28,8 +28,8 @@
       %thead
         %tr
           %th
-          - if @multiappliance
-            %th Appliance
+          - if @multistencil
+            %th Stencil
           %th Status
           %th From number
           %th To number
@@ -53,7 +53,7 @@
       %tbody
         - if @tickets.empty?
           %tr
-            %td{ colspan: 8 + (@multiappliance ? 1 : 0) }
+            %td{ colspan: 8 + (@multistencil ? 1 : 0) }
               %em No tickets match your selected filters. Please remove your filters to see more tickets.
         
         - @tickets.each do |ticket|
@@ -65,8 +65,8 @@
                 { label: 'Force status to Failed', icon: 'remove-sign', link: ticket, if: can?(:force, ticket) }, |
                 { label: 'Force status to Expired', icon: :time, link: ticket, if: can?(:force, ticket) } |
               ], {class: 'btn-mini'} ) |
-            - if @multiappliance
-              %td= link_to ticket.appliance.label, ticket.appliance
+            - if @multistencil
+              %td= link_to ticket.stencil.label, ticket.stencil
             %td
               = link_to ticket do
                 = ticket_status_icon(ticket.status)

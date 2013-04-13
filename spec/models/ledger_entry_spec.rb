@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe LedgerEntry do
-  #fixtures :accounts, :appliances, :tickets, :messages, :ledger_entries
+  #fixtures :accounts, :stencils, :tickets, :messages, :ledger_entries
   
   describe "validations" do
     before(:all) { 3.times { create :ledger_entry } }

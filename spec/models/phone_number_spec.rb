@@ -7,10 +7,7 @@ AVAILABLE_NUMBER = '+15005550006'
 UNAVAILABLE_AREACODE = '533'
 AVAILABLE_AREACODE = '500'
 
-describe PhoneNumber do
-  #fixtures :accounts, :phone_numbers
-  before(:all) { VCR.insert_cassette 'phone_number' }
-  after(:all)  { VCR.eject_cassette }
+describe PhoneNumber, :vcr => { :cassette_name => "phone_number" } do
   
   let(:account) { create :account, :test_twilio, :with_sid_and_token }
 

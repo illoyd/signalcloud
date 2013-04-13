@@ -1,11 +1,11 @@
-= form_for( @appliance, :html => { :class => 'form-horizontal' } ) do |f|
-  - if @appliance.errors.any?
+= form_for( @stencil, :html => { :class => 'form-horizontal' } ) do |f|
+  - if @stencil.errors.any?
     #error_explanation
       %h2
-        = pluralize(@appliance.errors.count, "error")
-        prohibited this appliance from being saved:
+        = pluralize(@stencil.errors.count, "error")
+        prohibited this stencil from being saved:
       %ul
-        - @appliance.errors.full_messages.each do |msg|
+        - @stencil.errors.full_messages.each do |msg|
           %li= msg
   .control-group
     = f.label :label, :class => 'control-label'
@@ -15,7 +15,7 @@
     .controls= f.text_area :description, :rows=>2
   .control-group
     = f.label :phone_directory, :class => 'control-label'
-    .controls= f.collection_select :phone_directory_id, @appliance.account.phone_directories, :id, :label
+    .controls= f.collection_select :phone_directory_id, @stencil.account.phone_directories, :id, :label
   .control-group
     = f.label :seconds_to_live, :class => 'control-label'
     .controls= f.number_field :seconds_to_live
@@ -44,4 +44,4 @@
   .control-group.actions
     .controls
       = f.submit :class => 'btn btn-primary'
-      = link_to 'Discard changes', @appliance, :class => 'btn'
+      = link_to 'Discard changes', @stencil, :class => 'btn'

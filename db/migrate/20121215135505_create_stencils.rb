@@ -1,6 +1,6 @@
-class CreateAppliances < ActiveRecord::Migration
+class CreateStencils < ActiveRecord::Migration
   def change
-    create_table :appliances do |t|
+    create_table :stencils do |t|
       t.references :account, null: false
       t.references :phone_directory, null: false
       t.string :label, null: false
@@ -43,8 +43,8 @@ class CreateAppliances < ActiveRecord::Migration
     end
     
     # Indices
-    add_index :appliances, :account_id
-    add_index :appliances, :phone_directory_id
-    add_index :appliances, :primary
+    add_index :stencils, :account_id
+    add_index :stencils, :phone_directory_id
+    add_index :stencils, :primary
   end
 end

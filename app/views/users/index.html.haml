@@ -11,8 +11,8 @@
 -#
   .row
     .span12.table-tools
-      = appliance_dropdown_list( @account, @appliance )
-      = status_dropdown_list( @account, @appliance, params[:status] )
+      = stencil_dropdown_list( @account, @stencil )
+      = status_dropdown_list( @account, @stencil, params[:status] )
       - if can? :new, Ticket
         .pull-right= link_to 'Start a new ticket', ticket_path, :class=>'btn btn-success btn-small'
 

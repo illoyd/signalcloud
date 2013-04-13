@@ -1,8 +1,6 @@
 require 'spec_helper'
 
-describe Invoice do
-  before(:all) { VCR.insert_cassette 'invoices' }
-  after(:all)  { VCR.eject_cassette }
+describe Invoice, :vcr => { :cassette_name => "invoices" } do
   
   # let(:account) { create_freshbooks_account() }
   let(:account) { create :freshbooks_account }

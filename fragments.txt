@@ -15,7 +15,7 @@ rails destroy scaffold Ticket
 
 rails generate scaffold AccountPlan label:string month:decimal phone_add:decimal phone_mult:decimal call_in_add:decimal call_in_mult:decimal sms_in_add:decimal sms_in_mult:decimal sms_out_add:decimal sms_out_mult:decimal
 
-rails generate scaffold Account sid:string account_token:string auth_token:string label:string balance:decimal default_appliance:reference account_plan:reference encrypted_twilio_account_sid:string encrypted_twilio_auth_token:string
+rails generate scaffold Account sid:string account_token:string auth_token:string label:string balance:decimal default_stencilb:reference account_plan:reference encrypted_twilio_account_sid:string encrypted_twilio_auth_token:string
 
 rails generate scaffold User account:reference first_name:string last_name:string
 rails generate devise User
@@ -24,8 +24,8 @@ rails generate scaffold PhoneNumber account:reference encrypted_number:string pr
 rails generate scaffold PhoneDirectory account:reference name:string description:text
 rails generate scaffold PhoneDirectoryEntry directory:reference phone_number:reference country:string
 
-rails generate scaffold Appliance account:reference phone_directory:reference seconds_to_live:integer encrypted_question:string encrypted_expected_confirmed_answer:string encrypted_expected_denied_answer:string encrypted_confirmed_reply:string encrypted_denied_reply:string encrypted_failed_reply:string encrypted_expired_reply:string 
-rails generate scaffold Ticket appliance:reference status:integer encrypted_from_number:string encrypted_to_number:string expires_at:datetime encrypted_question:string encrypted_expected_confirmed_answer:string encrypted_expected_denied_answer:string encrypted_actual_answer:string encrypted_confirmed_reply:string encrypted_denied_reply:string encrypted_failed_reply:string encrypted_expired_reply:string challenge_sent:datetime challenge_sms_sid:string response_received:datetime response_sms_sid:string reply_sent:datetime reply_sms_sid:string
+rails generate scaffold Stencil account:reference phone_directory:reference seconds_to_live:integer encrypted_question:string encrypted_expected_confirmed_answer:string encrypted_expected_denied_answer:string encrypted_confirmed_reply:string encrypted_denied_reply:string encrypted_failed_reply:string encrypted_expired_reply:string 
+rails generate scaffold Ticket stencil:reference status:integer encrypted_from_number:string encrypted_to_number:string expires_at:datetime encrypted_question:string encrypted_expected_confirmed_answer:string encrypted_expected_denied_answer:string encrypted_actual_answer:string encrypted_confirmed_reply:string encrypted_denied_reply:string encrypted_failed_reply:string encrypted_expired_reply:string challenge_sent:datetime challenge_sms_sid:string response_received:datetime response_sms_sid:string reply_sent:datetime reply_sms_sid:string
 rails generate scaffold Message ticket:reference provider_cost:decimal our_cost:decimal encrypted_payload:text
 
 rails generate scaffold Transaction narrative:string value:decimal item:reference

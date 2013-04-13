@@ -46,11 +46,11 @@
                       %a{ :href => users_path }
                         = icon(:users)
                         Users
-                  - if can? :index, Appliance
+                  - if can? :index, Stencil
                     %li
-                      %a{ :href => appliances_path }
-                        = icon( :appliances )
-                        Appliances
+                      %a{ :href => stencils_path }
+                        = icon( :stencils )
+                        Stencils
                   - if can? :index, PhoneDirectory
                     %li
                       %a{ :href => phone_directories_path }

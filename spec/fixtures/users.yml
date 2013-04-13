@@ -39,12 +39,12 @@ manage_users_permissions_user:
   email: users@test.com
   roles_mask: <%= User.translate_roles [ :manage_users ] %>
 
-manage_appliances_permissions_user:
+manage_stencils_permissions_user:
   account: test_account
   first_name: Default
   last_name: Guy
-  email: appliances@test.com
-  roles_mask: <%= User.translate_roles [ :manage_appliances ] %>
+  email: stencils@test.com
+  roles_mask: <%= User.translate_roles [ :manage_stencils ] %>
 
 manage_phone_numbers_permissions_user:
   account: test_account

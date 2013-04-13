@@ -3,7 +3,7 @@
   = navigation_list([ |
     { header: 'Related' }, |
     { label: 'All Tickets', icon: :tickets, link: tickets_path, if: can?(:index, Ticket) }, |
-    { label: 'All Tickets for ' + @appliance.label, icon: :appliances, link: appliance_tickets_path(@appliance), if: can?(:index, Ticket) } |
+    { label: 'All Tickets for ' + @stencil.label, icon: :stencils, link: stencil_tickets_path(@stencil), if: can?(:index, Ticket) } |
     ]) |
 - else
   -# Existing ticket navigation
@@ -14,5 +14,5 @@
     { label: 'Force status to Failed', icon: 'remove-sign', link: @ticket, if: can?(:force, @ticket) }, |
     { label: 'Force status to Expired', icon: :time, link: @ticket, if: can?(:force, @ticket) }, |
     { header: 'Related' }, |
-    { label: 'All Tickets for ' + @ticket.appliance.label, icon: :appliances, link: appliance_tickets_path(@ticket.appliance), if: can?(:index, Ticket) } |
+    { label: 'All Tickets for ' + @ticket.stencil.label, icon: :stencils, link: stencil_tickets_path(@ticket.stencil), if: can?(:index, Ticket) } |
     ]) |

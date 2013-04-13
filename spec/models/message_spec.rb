@@ -1,9 +1,7 @@
 # encoding: UTF-8
 require 'spec_helper'
 
-describe Message do
-  before(:all) { VCR.insert_cassette 'message' }
-  after(:all)  { VCR.eject_cassette }
+describe Message, :vcr => { :cassette_name => "message" } do
   
   # Helper: Build a random string for standard SMS
   def random_sms_string(length)
@@ -72,7 +70,7 @@ describe Message do
 #     context 'when costs not set' do
 #       subject { create :message }
 #       before(:each) { 
-#         subject.ticket.appliance.account.account_plan = create(:ridiculous_account_plan)
+#         subject.ticket.stencil.account.account_plan = create(:ridiculous_account_plan)
 #         subject.provider_response = subject.provider_response.with_indifferent_access.merge(price: -1.23)
 #       }
 #       its(:provider_cost) { should be_nil }
@@ -90,7 +88,7 @@ describe Message do
 #     context 'when costs already set' do
 #       subject { create :message, :settled }
 #       before(:each) { 
-#         subject.ticket.appliance.account.account_plan = create(:ridiculous_account_plan)
+#         subject.ticket.stencil.account.account_plan = create(:ridiculous_account_plan)
 #         subject.provider_response = subject.provider_response.with_indifferent_access.merge(price: -1.23)
 #       }
 #       its(:provider_cost) { should_not be_nil }
@@ -271,8 +269,8 @@ describe Message do
     let(:account) { create :account, :test_twilio, :with_sid_and_token }
     let(:phone_number) { create :valid_phone_number, account: account }
     let(:phone_directory) { create :phone_directory, account: account }
-    let(:appliance) { create :appliance, account: account, phone_directory: phone_directory }
-    let(:ticket) { create :ticket, appliance: appliance }
+    let(:stencil) { create :stencil, account: account, phone_directory: phone_directory }
+    let(:ticket) { create :ticket, stencil: stencil }
     let!(:phone_directory_entry) { create :phone_directory_entry, phone_number: phone_number, phone_directory: phone_directory }
 
     context 'when properly configured' do

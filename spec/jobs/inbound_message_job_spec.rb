@@ -1,12 +1,10 @@
 require 'spec_helper'
 
-describe InboundMessageJob do
-  before(:all) { VCR.insert_cassette 'inbound_message_job' }
-  after(:all)  { VCR.eject_cassette }
+describe InboundMessageJob, :vcr => { :cassette_name => "inbound_message_job" } do
   
   let(:account)          { create(:account, :master_twilio) }
   let(:phone_directory)  { create(:phone_directory, account: account) }
-  let(:appliance)        { create(:appliance, account: account, phone_directory: phone_directory) }
+  let(:stencil)        { create(:stencil, account: account, phone_directory: phone_directory) }
   let(:phone_number)     { create(:us_phone_number, account: account) }
   let(:customer_number)  { Twilio::VALID_NUMBER }
 
@@ -45,7 +43,7 @@ describe InboundMessageJob do
   end
   
   describe '#internal_phone_number' do
-    let(:ticket)        { create(:ticket, :challenge_sent, appliance: appliance, from_number: phone_number.number, to_number: customer_number) }
+    let(:ticket)        { create(:ticket, :challenge_sent, stencil: stencil, from_number: phone_number.number, to_number: customer_number) }
     let(:payload) { construct_inbound_payload( 'To' => ticket.from_number, 'From' => ticket.to_number ) }
     subject { InboundMessageJob.new(payload) }
     
@@ -71,7 +69,7 @@ describe InboundMessageJob do
     end
     
     context 'when replying to open ticket' do
-      let(:ticket)  { create(:ticket, :challenge_sent, appliance: appliance, from_number: phone_number.number, to_number: customer_number) }
+      let(:ticket)  { create(:ticket, :challenge_sent, stencil: stencil, from_number: phone_number.number, to_number: customer_number) }
       let(:payload) { construct_inbound_payload( 'To' => ticket.from_number, 'From' => ticket.to_number ) }
       subject { InboundMessageJob.new(payload) }
 
@@ -86,9 +84,9 @@ describe InboundMessageJob do
     end
     
     context 'when replying to multiple open ticket' do
-      let(:ticketA)  { create(:ticket, :challenge_sent, appliance: appliance, from_number: phone_number.number, to_number: customer_number) }
-      let(:ticketB)  { create(:ticket, :challenge_sent, appliance: appliance, from_number: phone_number.number, to_number: customer_number) }
-      let(:ticketC)  { create(:ticket, :challenge_sent, appliance: appliance, from_number: phone_number.number, to_number: customer_number) }
+      let(:ticketA)  { create(:ticket, :challenge_sent, stencil: stencil, from_number: phone_number.number, to_number: customer_number) }
+      let(:ticketB)  { create(:ticket, :challenge_sent, stencil: stencil, from_number: phone_number.number, to_number: customer_number) }
+      let(:ticketC)  { create(:ticket, :challenge_sent, stencil: stencil, from_number: phone_number.number, to_number: customer_number) }
       let(:tickets)  { [ ticketC, ticketA, ticketB ] }
       let(:payload)  { construct_inbound_payload( 'To' => tickets.first.from_number, 'From' => tickets.first.to_number ) }
       subject { InboundMessageJob.new(payload) }
@@ -107,7 +105,7 @@ describe InboundMessageJob do
     end
     
     context 'when replying to expired ticket' do
-      let(:ticket)  { create(:ticket, :challenge_sent, :expired, appliance: appliance, expires_at: 180.seconds.ago, from_number: phone_number.number, to_number: customer_number) }
+      let(:ticket)  { create(:ticket, :challenge_sent, :expired, stencil: stencil, expires_at: 180.seconds.ago, from_number: phone_number.number, to_number: customer_number) }
       let(:payload) { construct_inbound_payload( 'To' => ticket.from_number, 'From' => ticket.to_number ) }
       subject { InboundMessageJob.new(payload) }
 
@@ -123,7 +121,7 @@ describe InboundMessageJob do
     
     [ :confirmed, :denied, :failed ].each do |status|
       context "when replying to #{status.to_s} but not sent ticket" do
-        let(:ticket)  { create(:ticket, :challenge_sent, :response_received, status, appliance: appliance, from_number: phone_number.number, to_number: customer_number) }
+        let(:ticket)  { create(:ticket, :challenge_sent, :response_received, status, stencil: stencil, from_number: phone_number.number, to_number: customer_number) }
         let(:payload) { construct_inbound_payload( 'To' => ticket.from_number, 'From' => ticket.to_number ) }
         subject { InboundMessageJob.new(payload) }
 
@@ -137,7 +135,7 @@ describe InboundMessageJob do
 #         end
       end
       context "when replying to #{status.to_s} and sent ticket" do
-        let(:ticket)  { create(:ticket, :challenge_sent, :response_received, status, :reply_sent, appliance: appliance, from_number: phone_number.number, to_number: customer_number) }
+        let(:ticket)  { create(:ticket, :challenge_sent, :response_received, status, :reply_sent, stencil: stencil, from_number: phone_number.number, to_number: customer_number) }
         let(:payload) { construct_inbound_payload( 'To' => ticket.from_number, 'From' => ticket.to_number ) }
         subject { InboundMessageJob.new(payload) }
 

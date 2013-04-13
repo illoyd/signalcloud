@@ -1,0 +1,53 @@
+.row
+  .span12
+    .page-header
+      %h1
+        = icon(:stencils)
+        Stencils
+        %small all stencils
+
+.row
+  .span12.table-tools
+    = filter_dropdown_list()
+    - if can? :new, Stencil      
+      .pull-right= link_to 'New Stencil', new_stencil_path, :class => 'btn btn-success btn-small'
+
+.row
+  .span12
+    %table.table
+      %thead
+        %tr
+          %th.span1
+          %th Stencil
+          %th Directory
+          %th Active
+          %th Description
+          %th Open tickets
+      %tbody
+        - if @stencils.empty?
+          %tr
+            %td{ colspan: 6 }
+              %em No stencils match your selected filters. Please change your filters to view other items.
+        
+        - @stencils.each do |stencil|
+          %tr
+            %td= split_dropdown_list([ |
+              { label: 'Details', icon: :show, link: stencil, if: can?(:show, stencil) }, |
+              { label: 'Edit', icon: :edit, link: edit_stencil_path(stencil), if: can?(:edit, stencil) }, |
+              { label: 'Delete', icon: :delete, link: stencil, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, stencil) }, |
+              { label: 'Tickets', icon: :tickets, link: stencil_tickets_path(stencil), if: can?(:show, Ticket) } |
+              ], {class: 'btn-mini'}) |
+            %td= link_to_if can?(:show, stencil), stencil.label, stencil
+            %td
+              - if stencil.phone_directory.nil?
+                %em No directory assigned
+              - else
+                = link_to_if can?(:show, stencil.phone_directory), stencil.phone_directory.label, stencil.phone_directory
+            %td= icon( stencil.active ? :ok : :remove )
+            %td
+              %small
+                - if stencil.description.blank?
+                  %em No description defined.
+                - else
+                  = stencil.description
+            %td= stencil.tickets.count

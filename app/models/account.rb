@@ -14,8 +14,8 @@ class Account < ActiveRecord::Base
   # References
   belongs_to :account_plan, inverse_of: :accounts
   has_many :users, inverse_of: :account
-  has_many :appliances, inverse_of: :account
-  has_many :tickets, through: :appliances
+  has_many :stencils, inverse_of: :account
+  has_many :tickets, through: :stencils
   has_many :phone_directories, inverse_of: :account
   has_many :phone_numbers, inverse_of: :account
   has_many :ledger_entries, inverse_of: :account
@@ -24,7 +24,7 @@ class Account < ActiveRecord::Base
   has_one :secondary_address, class_name: 'Address', autosave: true, dependent: :destroy
   
   # Helper reference for all messages
-  has_many :tickets, through: :appliances
+  has_many :tickets, through: :stencils
   has_many :messages, through: :tickets
   
   # Nested resources
@@ -43,17 +43,17 @@ class Account < ActiveRecord::Base
   end
   
   ##
-  # Create starting 'default' directory and appliance for a newly created account
+  # Create starting 'default' directory and stencil for a newly created account
   def create_initial_resources
     initial_directory = self.phone_directories.create label: 'Default Directory'
-    initial_appliance = self.appliances.create label: 'Default Appliance', phone_directory_id: initial_directory.id
+    initial_stencilb = self.stencils.create label: 'Default Stencil', phone_directory_id: initial_directory.id
   end
 
   ##
-  # Return the default appliance for this account, or the first appliance if no default is set.
-  def primary_appliance
-    app = self.appliances.where( primary: true ).order('id').first
-    app = self.appliances.first if app.nil?
+  # Return the default stencil for this account, or the first stencil if no default is set.
+  def primary_stencilb
+    app = self.stencils.where( primary: true ).order('id').first
+    app = self.stencils.first if app.nil?
     app
   end
   

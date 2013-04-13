@@ -1,30 +1,30 @@
 module TicketsHelper
  
-  def appliance_dropdown_list( current_account, current_appliance )
+  def stencil_dropdown_list( current_account, current_stencilb )
     # Pick the dropdown list title
-    title = 'Appliance: ' + ( current_appliance.nil? ? 'All' : current_appliance.label )
+    title = 'Stencil: ' + ( current_stencilb.nil? ? 'All' : current_stencilb.label )
     
     # Assemble the entries based upon the current
     entries = [] # [ { label: 'Show all tickets', icon: 'ok-circle', link: tickets_path } ]
-    current_account.appliances.order(:label).each do |appliance|
-      entries << { label: 'Show ' + appliance.label, icon: :appliances, link: appliance_tickets_path( appliance ) }
+    current_account.stencils.order(:label).each do |stencil|
+      entries << { label: 'Show ' + stencil.label, icon: :stencils, link: stencil_tickets_path( stencil ) }
     end
     
     dropdown_list( title, entries, {class: 'btn-mini'} )
   end
   
-  def status_dropdown_list( current_account, current_appliance, current_status )
+  def status_dropdown_list( current_account, current_stencilb, current_status )
     # Pick the dropdown list title
     title = 'Status: ' + ( current_status.nil? ? 'All' : human_ticket_status(current_status) )
     
     # Assemble the entries based upon the current
     entries = [
-      { label: 'Show all statuses', icon: 'ok-circle', link: current_appliance.nil? ? tickets_path : appliance_tickets_path( current_appliance ) },
-      { label: 'Show Opened', icon: 'plus-sign', link: current_appliance.nil? ? open_tickets_path : open_appliance_tickets_path( current_appliance ) },
-      { label: 'Show Confirmed', icon: 'ok-sign', link: current_appliance.nil? ? confirmed_tickets_path : confirmed_appliance_tickets_path( current_appliance ) },
-      { label: 'Show Denied', icon: 'minus-sign', link: current_appliance.nil? ? denied_tickets_path : denied_appliance_tickets_path( current_appliance ) },
-      { label: 'Show Failed', icon: 'remove-sign', link: current_appliance.nil? ? failed_tickets_path : failed_appliance_tickets_path( current_appliance ) },
-      { label: 'Show Expired', icon: :time, link: current_appliance.nil? ? expired_tickets_path : expired_appliance_tickets_path( current_appliance ) }
+      { label: 'Show all statuses', icon: 'ok-circle', link: current_stencilb.nil? ? tickets_path : stencil_tickets_path( current_stencilb ) },
+      { label: 'Show Opened', icon: 'plus-sign', link: current_stencilb.nil? ? open_tickets_path : open_stencil_tickets_path( current_stencilb ) },
+      { label: 'Show Confirmed', icon: 'ok-sign', link: current_stencilb.nil? ? confirmed_tickets_path : confirmed_stencil_tickets_path( current_stencilb ) },
+      { label: 'Show Denied', icon: 'minus-sign', link: current_stencilb.nil? ? denied_tickets_path : denied_stencil_tickets_path( current_stencilb ) },
+      { label: 'Show Failed', icon: 'remove-sign', link: current_stencilb.nil? ? failed_tickets_path : failed_stencil_tickets_path( current_stencilb ) },
+      { label: 'Show Expired', icon: :time, link: current_stencilb.nil? ? expired_tickets_path : expired_stencil_tickets_path( current_stencilb ) }
     ]
 
     dropdown_list( title, entries, {class: 'btn-mini'} )

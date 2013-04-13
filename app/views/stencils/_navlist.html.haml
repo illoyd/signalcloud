@@ -1,0 +1,21 @@
+- if @stencil.new_record?  
+  -# New object navigation list
+  = navigation_list([ |
+    { header: 'Related' }, |
+    { label: 'All Stencils', icon: :stencils, link: stencils_path, if: can?(:index, Stencil) } |
+    ]) |
+
+- else
+  -# Existing object navigation list
+  = navigation_list([ |
+    { header: 'Manage' }, |
+    { label: 'Start a new ticket', icon: :tickets, link: new_stencil_ticket_path( @stencil ), if: can?(:new, Ticket) }, |
+    { label: 'Details', icon: :show, link: @stencil, if: can?(:show, @stencil) }, |
+    { label: 'Edit', icon: :edit, link: edit_stencil_path(@stencil), if: can?(:edit, @stencil) }, |
+    { label: 'Delete', icon: :delete, link: @stencil, if: can?(:destroy, @stencil), options: { method: :delete, data: { confirm: 'Are you sure?' } } }, |
+    { header: 'Related' }, |
+    { label: 'Tickets', icon: :tickets, link: stencil_tickets_path( @stencil ), if: can?(:index, Ticket) }, |
+    { label: 'Phone Directory', icon: :phone_directories, link: @stencil.phone_directory, if: can?(:show, @stencil.phone_directory) }, |
+    { divider: true }, |
+    { label: 'All Stencils', icon: :stencils, link: stencils_path, if: can?(:index, Stencil) } |
+    ]) |

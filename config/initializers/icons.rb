@@ -2,7 +2,7 @@
 # Icons for icon helper, for global management and access. May move into more efficient library later.
 ICONS = {
   # Objects
-  appliances: 'hdd',
+  stencils: 'hdd',
   phone_directories: 'book',
   phone_numbers: 'phone',
   tickets: 'tags',

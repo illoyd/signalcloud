@@ -139,7 +139,7 @@ class Message < ActiveRecord::Base
   
 #   def update_our_cost
 #     return unless self.has_provider_price?
-#     plan = self.ticket.appliance.account.account_plan
+#     plan = self.ticket.stencil.account.account_plan
 #     
 #     # Update our costs based upon the direction of the message
 #     self.our_cost = case self.direction
@@ -151,9 +151,9 @@ class Message < ActiveRecord::Base
 #   end
   
   def calculate_our_cost( value=nil )
-    return nil unless self.ticket && self.ticket.appliance && self.ticket.appliance.account && self.ticket.appliance.account.account_plan
+    return nil unless self.ticket && self.ticket.stencil && self.ticket.stencil.account && self.ticket.stencil.account.account_plan
     value = self.provider_cost if value.nil?
-    plan = self.ticket.appliance.account.account_plan
+    plan = self.ticket.stencil.account.account_plan
     return case self.direction
       when DIRECTION_OUT
         plan.calculate_outbound_sms_cost( value )
@@ -164,11 +164,11 @@ class Message < ActiveRecord::Base
   
   def deliver!()
     begin
-      self.provider_response = self.ticket.appliance.account.twilio_account.sms.messages.create({
+      self.provider_response = self.ticket.stencil.account.twilio_account.sms.messages.create({
         to: self.to_number,
         from: self.from_number,
         body: self.body,
-        status_callback: self.ticket.appliance.account.twilio_sms_status_url
+        status_callback: self.ticket.stencil.account.twilio_sms_status_url
       }).to_property_hash
 
       self.twilio_sid = self.provider_response[:sid]
@@ -305,7 +305,7 @@ class Message < ActiveRecord::Base
   ##
   # Query the Twilio status of this message.
   def twilio_status
-    self.ticket.appliance.account.twilio_account.sms.messages.get( self.twilio_sid )
+    self.ticket.stencil.account.twilio_account.sms.messages.get( self.twilio_sid )
   end
   
   def refresh_from_twilio

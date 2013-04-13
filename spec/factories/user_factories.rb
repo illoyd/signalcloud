@@ -19,8 +19,8 @@ FactoryGirl.define do
       roles_mask       { User.translate_roles [ :manage_users ] }
     end
     
-    factory :manage_appliances_permissions_user do
-      roles_mask       { User.translate_roles [ :manage_appliances ] }
+    factory :manage_stencils_permissions_user do
+      roles_mask       { User.translate_roles [ :manage_stencils ] }
     end
     
     factory :manage_phone_numbers_permissions_user do

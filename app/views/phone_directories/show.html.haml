@@ -47,24 +47,24 @@
     -# %div= link_to 'Link a phone number', new_phone_directory_phone_number_entry_path( @phone_directory ), :class => 'btn btn-success'
             
 
-    %h4 appliances using this directory
+    %h4 stencils using this directory
     %table.table.table-striped
       %thead
         %tr
           %th.span1
-          %th Appliance
+          %th Stencil
       %tbody
-        - if @phone_directory.appliances.empty?
+        - if @phone_directory.stencils.empty?
           %tr
             %td{colspan: 2}
-              %em No appliances use this directory.
+              %em No stencils use this directory.
 
-        - @phone_directory.appliances.each do |appliance|
+        - @phone_directory.stencils.each do |stencil|
           %tr
             %td= split_dropdown_list([ |
-                { label: 'Details', icon: :show, link: appliance, if: can?(:show, appliance) }, |
-                { label: 'Edit', icon: :edit, link: edit_appliance_path(appliance), if: can?(:edit, appliance) }, |
-                { label: 'Delete', icon: :delete, link: appliance, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, appliance) }, |
-                { label: 'Tickets', icon: :tickets, link: appliance_tickets_path(appliance), if: can?(:show, Ticket) } |
+                { label: 'Details', icon: :show, link: stencil, if: can?(:show, stencil) }, |
+                { label: 'Edit', icon: :edit, link: edit_stencil_path(stencil), if: can?(:edit, stencil) }, |
+                { label: 'Delete', icon: :delete, link: stencil, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, stencil) }, |
+                { label: 'Tickets', icon: :tickets, link: stencil_tickets_path(stencil), if: can?(:show, Ticket) } |
                 ], { class: "btn-mini"} ) |
-            %td= link_to_if can?(:show, appliance), appliance.label, appliance
+            %td= link_to_if can?(:show, stencil), stencil.label, stencil

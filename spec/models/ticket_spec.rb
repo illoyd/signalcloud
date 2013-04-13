@@ -4,14 +4,14 @@ require 'spec_helper'
 describe Ticket do
 
   describe 'validations' do  
-    it { should belong_to :appliance }
+    it { should belong_to :stencil }
     it { should have_many :messages }
 
-    [ :seconds_to_live, :appliance_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at ].each do |attribute| 
+    [ :seconds_to_live, :stencil_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at ].each do |attribute| 
       it { should allow_mass_assignment_of(attribute) }
     end
 
-    [:appliance_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at].each do |attribute| 
+    [:stencil_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at].each do |attribute| 
       it { should validate_presence_of(attribute) }
     end
   end
@@ -108,7 +108,7 @@ describe Ticket do
     context 'when pending' do
       subject { create(:ticket).to_webhook_data }
       it { should be_a Hash }
-      it { should include( :id, :appliance_id, :status, :status_text, :created_at, :updated_at ) }
+      it { should include( :id, :stencil_id, :status, :status_text, :created_at, :updated_at ) }
       its([:status]) { should == Ticket::PENDING }
       its([:open]) { should == 1 }
       its([:closed]) { should == 0 }
