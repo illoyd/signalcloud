@@ -154,8 +154,8 @@ class Ticket < ActiveRecord::Base
     return data
   end
   
-  def status_text
-    case self.status
+  def status_text( status_code=nil )
+    case ( status_code || self.status )
       when PENDING
         'Pending'
       when QUEUED

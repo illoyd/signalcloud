@@ -106,7 +106,7 @@ unless Account.exists?( encrypted_twilio_account_sid: Account.encrypt(:twilio_ac
     master_account.twilio_auth_token = ENV['TWILIO_MASTER_AUTH_TOKEN']
     master_account.save!
   
-  master_user = master_account.users.build first_name: 'Ian', last_name: 'Lloyd', email: 'ian.lloyd@signalcloudapp.com', password: ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['TWILIO_MASTER_ACCOUNT_SID'], roles: User::ROLES
+  master_user = master_account.users.build first_name: 'Ian', last_name: 'Lloyd', email: 'ian@signalcloudapp.com', password: ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['TWILIO_MASTER_ACCOUNT_SID'], roles: User::ROLES
     master_user.save!
   
   master_phone_number = master_account.phone_numbers.create!( number: '+14242773034', twilio_phone_number_sid: 'PNb35b5f695c76e7f558956284204bcb45' )
