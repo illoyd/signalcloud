@@ -1,4 +1,8 @@
 class Account < ActiveRecord::Base
+
+  require 'account_xt_twilio'
+  require 'account_xt_freshbooks'
+
   # General attributes
   attr_accessible :account_sid, :account_plan, :auth_token, :balance, :label, :account_plan_id, :description, :vat_name, :vat_number
   
