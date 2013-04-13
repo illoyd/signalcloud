@@ -7,4 +7,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('{{TWILIO_MASTER_TOKEN}}') { ENV['TWILIO_MASTER_AUTH_TOKEN'] }
   c.filter_sensitive_data('{{TWILIO_TEST_SID}}')     { ENV['TWILIO_TEST_ACCOUNT_SID'] }
   c.filter_sensitive_data('{{TWILIO_TEST_TOKEN}}')   { ENV['TWILIO_TEST_AUTH_TOKEN'] }
+
+  c.configure_rspec_metadata!
+
 end

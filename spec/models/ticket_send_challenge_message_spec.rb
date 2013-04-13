@@ -66,9 +66,7 @@ end
 
 ##
 # Split out the +send_challenge_message+ function for ease of use
-describe Ticket, '#send_challenge_message' do
-  before(:all) { VCR.insert_cassette 'ticket_send_challenge_message' }
-  after(:all)  { VCR.eject_cassette }
+describe Ticket, '#send_challenge_message', :vcr => { :cassette_name => "ticket_send_challenge_message" } do
 
   let(:account) { create :account, :test_twilio, :with_sid_and_token }
   let(:phone_number) { create :phone_number, :valid_number, account: account }
