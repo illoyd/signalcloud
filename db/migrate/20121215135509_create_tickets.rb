@@ -30,7 +30,6 @@ class CreateTickets < ActiveRecord::Migration
 
       t.text :hashed_expected_confirmed_answer, null: false
       t.text :hashed_expected_denied_answer, null: false
-      # t.text :encrypted_actual_answer
 
       t.text :encrypted_question, null: false
       t.string :encrypted_question_iv

@@ -32,7 +32,7 @@ class Ticket < ActiveRecord::Base
   ERROR_STATUSES = [ ERROR_INVALID_TO, ERROR_INVALID_FROM, ERROR_BLACKLISTED_TO, ERROR_NOT_SMS_CAPABLE, ERROR_CANNOT_ROUTE, ERROR_SMS_QUEUE_FULL, ERROR_INTERNATIONAL, ERROR_MISSING_BODY, ERROR_BODY_TOO_LARGE, ERROR_UNKNOWN ]
   CRITICAL_ERRORS = [ ERROR_MISSING_BODY, ERROR_BODY_TOO_LARGE, ERROR_INTERNATIONAL ]
 
-  attr_accessible :seconds_to_live, :appliance_id, :actual_answer, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry, :webhook_uri
+  attr_accessible :seconds_to_live, :appliance_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry, :webhook_uri
   attr_accessor :seconds_to_live
   
   # Encrypted attributes
@@ -41,8 +41,6 @@ class Ticket < ActiveRecord::Base
   attr_encrypted :expired_reply, key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :failed_reply, key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :question, key: ATTR_ENCRYPTED_SECRET
-  # attr_encrypted :actual_answer, key: ATTR_ENCRYPTED_SECRET  
-  
 
   attr_encrypted :to_number, key: ATTR_ENCRYPTED_SECRET #, iv: 1, salt: 'salt'
   attr_encrypted :from_number, key: ATTR_ENCRYPTED_SECRET #, iv: 1, salt: 'salt'
