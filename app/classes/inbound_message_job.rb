@@ -65,8 +65,8 @@ class InboundMessageJob < Struct.new( :provider_update )
     message.save!
 
     ticket.accept_answer! self.provider_update[:body]
-    JobTools.enqueue SendTicketReplyJob.new ticket.id
-    JobTools.enqueue SendTicketStatusWebhookJob.new ticket.id
+    JobTools.enqueue SendTicketReplyJob.new(ticket.id)
+    JobTools.enqueue SendTicketStatusWebhookJob.new(ticket.id) unless ticket.webhook_uri.blank?
   end
   
   def perform_multiple_matching_tickets_action( open_tickets )
