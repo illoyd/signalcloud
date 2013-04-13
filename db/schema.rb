@@ -245,7 +245,7 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
     t.integer  "reply_status",                     :limit => 2
     t.string   "hashed_internal_number",                                       :null => false
     t.string   "hashed_customer_number",                                       :null => false
-    t.datetime "expiry",                                                       :null => false
+    t.datetime "expires_at",                                                   :null => false
     t.datetime "challenge_sent_at"
     t.datetime "response_received_at"
     t.datetime "reply_sent_at"

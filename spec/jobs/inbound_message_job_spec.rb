@@ -107,7 +107,7 @@ describe InboundMessageJob do
     end
     
     context 'when replying to expired ticket' do
-      let(:ticket)  { create(:ticket, :challenge_sent, :expired, appliance: appliance, expiry: 180.seconds.ago, from_number: phone_number.number, to_number: customer_number) }
+      let(:ticket)  { create(:ticket, :challenge_sent, :expired, appliance: appliance, expires_at: 180.seconds.ago, from_number: phone_number.number, to_number: customer_number) }
       let(:payload) { construct_inbound_payload( 'To' => ticket.from_number, 'From' => ticket.to_number ) }
       subject { InboundMessageJob.new(payload) }
 

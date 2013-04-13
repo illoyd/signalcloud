@@ -21,7 +21,7 @@ test_ticket:
   status: 0
   encrypted_from_number: '<%= Ticket.encrypt(:from_number, FROM_VALID_NO) %>'
   encrypted_to_number: '<%= Ticket.encrypt(:to_number, TO_VALID_NO) %>'
-  expiry: '<%= 180.seconds.from_now %>'
+  expires_at: '<%= 180.seconds.from_now %>'
   encrypted_question: '<%= Ticket.encrypt(:question, "Question") %>'
   encrypted_expected_confirmed_answer: '<%= Ticket.encrypt(:expected_confirmed_answer, "yes") %>'
   encrypted_expected_denied_answer: '<%= Ticket.encrypt(:expected_denied_answer, "no") %>'
@@ -39,7 +39,7 @@ test_ticket_invalid_to:
   status: 0
   encrypted_from_number: '<%= Ticket.encrypt(:from_number, FROM_VALID_NO) %>'
   encrypted_to_number: '<%= Ticket.encrypt(:to_number, "+15005550001") %>'
-  expiry: '<%= 180.seconds.from_now %>'
+  expires_at: '<%= 180.seconds.from_now %>'
   encrypted_question: '<%= Ticket.encrypt(:question, "Question") %>'
   encrypted_expected_confirmed_answer: '<%= Ticket.encrypt(:expected_confirmed_answer, "yes") %>'
   encrypted_expected_denied_answer: '<%= Ticket.encrypt(:expected_denied_answer, "no") %>'
@@ -53,7 +53,7 @@ test_ticket_cannot_route_to:
   status: 0
   encrypted_from_number: '<%= Ticket.encrypt(:from_number, FROM_VALID_NO) %>'
   encrypted_to_number: '<%= Ticket.encrypt(:to_number, TO_CANNOT_ROUTE_NO) %>'
-  expiry: '<%= 180.seconds.from_now %>'
+  expires_at: '<%= 180.seconds.from_now %>'
   encrypted_question: '<%= Ticket.encrypt(:question, "Question") %>'
   encrypted_expected_confirmed_answer: '<%= Ticket.encrypt(:expected_confirmed_answer, "yes") %>'
   encrypted_expected_denied_answer: '<%= Ticket.encrypt(:expected_denied_answer, "no") %>'
@@ -67,7 +67,7 @@ test_ticket_international_to:
   status: 0
   encrypted_from_number: '<%= Ticket.encrypt(:from_number, FROM_VALID_NO) %>'
   encrypted_to_number: '<%= Ticket.encrypt(:to_number, TO_INTERNATIONAL_NOT_AUTH_NO) %>'
-  expiry: '<%= 180.seconds.from_now %>'
+  expires_at: '<%= 180.seconds.from_now %>'
   encrypted_question: '<%= Ticket.encrypt(:question, "Question") %>'
   encrypted_expected_confirmed_answer: '<%= Ticket.encrypt(:expected_confirmed_answer, "yes") %>'
   encrypted_expected_denied_answer: '<%= Ticket.encrypt(:expected_denied_answer, "no") %>'
@@ -81,7 +81,7 @@ test_ticket_blacklisted_to:
   status: 0
   encrypted_from_number: '<%= Ticket.encrypt(:from_number, FROM_VALID_NO) %>'
   encrypted_to_number: '<%= Ticket.encrypt(:to_number, TO_BLACKLISTED_NO) %>'
-  expiry: '<%= 180.seconds.from_now %>'
+  expires_at: '<%= 180.seconds.from_now %>'
   encrypted_question: '<%= Ticket.encrypt(:question, "Question") %>'
   encrypted_expected_confirmed_answer: '<%= Ticket.encrypt(:expected_confirmed_answer, "yes") %>'
   encrypted_expected_denied_answer: '<%= Ticket.encrypt(:expected_denied_answer, "no") %>'
@@ -95,7 +95,7 @@ test_ticket_not_sms_capable_to:
   status: 0
   encrypted_from_number: '<%= Ticket.encrypt(:from_number, FROM_VALID_NO) %>'
   encrypted_to_number: '<%= Ticket.encrypt(:to_number, TO_NOT_SMS_CAPABLE_NO) %>'
-  expiry: '<%= 180.seconds.from_now %>'
+  expires_at: '<%= 180.seconds.from_now %>'
   encrypted_question: '<%= Ticket.encrypt(:question, "Question") %>'
   encrypted_expected_confirmed_answer: '<%= Ticket.encrypt(:expected_confirmed_answer, "yes") %>'
   encrypted_expected_denied_answer: '<%= Ticket.encrypt(:expected_denied_answer, "no") %>'
@@ -109,7 +109,7 @@ test_ticket_invalid_from:
   status: 0
   encrypted_from_number: '<%= Ticket.encrypt(:from_number, FROM_INVALID_NO) %>'
   encrypted_to_number: '<%= Ticket.encrypt(:to_number, TO_VALID_NO) %>'
-  expiry: '<%= 180.seconds.from_now %>'
+  expires_at: '<%= 180.seconds.from_now %>'
   encrypted_question: '<%= Ticket.encrypt(:question, "Question") %>'
   encrypted_expected_confirmed_answer: '<%= Ticket.encrypt(:expected_confirmed_answer, "yes") %>'
   encrypted_expected_denied_answer: '<%= Ticket.encrypt(:expected_denied_answer, "no") %>'
@@ -123,7 +123,7 @@ test_ticket_not_sms_capable_from:
   status: 0
   encrypted_from_number: '<%= Ticket.encrypt(:from_number, FROM_NOT_SMS_CAPABLE_NO) %>'
   encrypted_to_number: '<%= Ticket.encrypt(:to_number, TO_VALID_NO) %>'
-  expiry: '<%= 180.seconds.from_now %>'
+  expires_at: '<%= 180.seconds.from_now %>'
   encrypted_question: '<%= Ticket.encrypt(:question, "Question") %>'
   encrypted_expected_confirmed_answer: '<%= Ticket.encrypt(:expected_confirmed_answer, "yes") %>'
   encrypted_expected_denied_answer: '<%= Ticket.encrypt(:expected_denied_answer, "no") %>'
@@ -137,7 +137,7 @@ test_ticket_sms_queue_full_from:
   status: 0
   encrypted_from_number: '<%= Ticket.encrypt(:from_number, FROM_FULL_SMS_QUEUE_NO) %>'
   encrypted_to_number: '<%= Ticket.encrypt(:to_number, TO_VALID_NO) %>'
-  expiry: '<%= 180.seconds.from_now %>'
+  expires_at: '<%= 180.seconds.from_now %>'
   encrypted_question: '<%= Ticket.encrypt(:question, "Question") %>'
   encrypted_expected_confirmed_answer: '<%= Ticket.encrypt(:expected_confirmed_answer, "yes") %>'
   encrypted_expected_denied_answer: '<%= Ticket.encrypt(:expected_denied_answer, "no") %>'
@@ -151,7 +151,7 @@ dedicated_ticket:
   status: 0
   encrypted_from_number: '<%= Ticket.encrypt(:from_number, FROM_VALID_NO) %>'
   encrypted_to_number: '<%= Ticket.encrypt(:to_number, TO_VALID_NO) %>'
-  expiry: '<%= 180.seconds.from_now %>'
+  expires_at: '<%= 180.seconds.from_now %>'
   encrypted_question: '<%= Ticket.encrypt(:question, "Question") %>'
   encrypted_expected_confirmed_answer: '<%= Ticket.encrypt(:expected_confirmed_answer, "yes") %>'
   encrypted_expected_denied_answer: '<%= Ticket.encrypt(:expected_denied_answer, "no") %>'

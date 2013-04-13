@@ -13,7 +13,7 @@ class CreateTickets < ActiveRecord::Migration
       t.string :hashed_internal_number, null: false
       t.string :hashed_customer_number, null: false
 
-      t.datetime :expiry, null: false
+      t.datetime :expires_at, null: false
       t.datetime :challenge_sent_at, null: true
       t.datetime :response_received_at, null: true
       t.datetime :reply_sent_at, null: true

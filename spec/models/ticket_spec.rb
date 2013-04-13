@@ -7,11 +7,11 @@ describe Ticket do
     it { should belong_to :appliance }
     it { should have_many :messages }
 
-    [ :seconds_to_live, :appliance_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry ].each do |attribute| 
+    [ :seconds_to_live, :appliance_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at ].each do |attribute| 
       it { should allow_mass_assignment_of(attribute) }
     end
 
-    [:appliance_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry].each do |attribute| 
+    [:appliance_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at].each do |attribute| 
       it { should validate_presence_of(attribute) }
     end
   end
@@ -81,25 +81,25 @@ describe Ticket do
   describe "#update_expiry_time_based_on_seconds_to_live" do
     let(:seconds_to_live) { 360 }
     let(:original_expiry) { 60.seconds.ago }
-    subject { build :ticket, expiry: nil }
+    subject { build :ticket, expires_at: nil }
 
-    it "overrides existing expiry" do
-      subject.expiry = original_expiry
+    it "overrides existing expires_at" do
+      subject.expires_at = original_expiry
       subject.seconds_to_live = seconds_to_live
-      expect { subject.update_expiry_time_based_on_seconds_to_live }.to change{subject.expiry}.from(original_expiry)
-      subject.expiry.should be_within(0.5).of( seconds_to_live.seconds.from_now )
+      expect { subject.update_expiry_time_based_on_seconds_to_live }.to change{subject.expires_at}.from(original_expiry)
+      subject.expires_at.should be_within(0.5).of( seconds_to_live.seconds.from_now )
     end
 
-    it "updates expiry manually" do
+    it "updates expires_at manually" do
       subject.seconds_to_live = seconds_to_live
-      expect { subject.update_expiry_time_based_on_seconds_to_live }.to change{subject.expiry}.from(nil)
-      subject.expiry.should be_within(0.5).of( seconds_to_live.seconds.from_now )
+      expect { subject.update_expiry_time_based_on_seconds_to_live }.to change{subject.expires_at}.from(nil)
+      subject.expires_at.should be_within(0.5).of( seconds_to_live.seconds.from_now )
     end
 
-    it "updates expiry on save" do
+    it "updates expires_at on save" do
       subject.seconds_to_live = seconds_to_live
-      expect { subject.save }.to change{subject.expiry}.from(nil)
-      subject.expiry.should be_within(0.5).of( seconds_to_live.seconds.from_now )
+      expect { subject.save }.to change{subject.expires_at}.from(nil)
+      subject.expires_at.should be_within(0.5).of( seconds_to_live.seconds.from_now )
     end
   end
   

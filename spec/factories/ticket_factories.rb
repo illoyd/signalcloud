@@ -4,7 +4,7 @@ FactoryGirl.define do
     appliance
     from_number               Twilio::VALID_NUMBER
     to_number                 Twilio::VALID_NUMBER
-    expiry                    180.seconds.from_now
+    expires_at                    180.seconds.from_now
     question                  'Hello, I am a question.'
     expected_confirmed_answer 'yes'
     expected_denied_answer    'no'

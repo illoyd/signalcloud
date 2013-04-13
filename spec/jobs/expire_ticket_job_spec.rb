@@ -16,7 +16,7 @@ describe ExpireTicketJob do
     let(:account)           { create(:account, :test_twilio, :with_sid_and_token) }
     let(:appliance)         { create(:appliance, account: account) }
     let(:ticket)            { create(:ticket, appliance: appliance) }
-    let(:ready_to_expire_ticket) { create(:ticket, expiry: 180.seconds.ago, appliance: appliance) }
+    let(:ready_to_expire_ticket) { create(:ticket, expires_at: 180.seconds.ago, appliance: appliance) }
     let(:sent_ticket)       { create(:ticket, :challenge_sent, appliance: appliance) }
     let(:confirmed_ticket)  { create(:ticket, :challenge_sent, :response_received, :reply_sent, :confirmed, appliance: appliance) }
     let(:denied_ticket)     { create(:ticket, :challenge_sent, :response_received, :reply_sent, :denied, appliance: appliance) }

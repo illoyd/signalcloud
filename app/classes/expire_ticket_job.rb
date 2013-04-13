@@ -17,10 +17,10 @@ class ExpireTicketJob < Struct.new( :ticket_id, :force_resend )
     return true if ticket.is_closed?
     
     # Retry expiration later if ticket has not expired
-    # say( 'Ticket is open? %s and is expired? %s' % [ ticket.is_open?, ticket.expiry <= DateTime.now ] )
+    # say( 'Ticket is open? %s and is expired? %s' % [ ticket.is_open?, ticket.expires_at <= DateTime.now ] )
     if ticket.is_open? and !ticket.is_expired?
       say( 'Ticket not expired; enqueueing new expire job.', Logger::DEBUG )
-      Delayed::Job.enqueue ExpireTicketJob.new( ticket.id ), run_at: ticket.expiry
+      Delayed::Job.enqueue ExpireTicketJob.new( ticket.id ), run_at: ticket.expires_at
       return true
     end
 

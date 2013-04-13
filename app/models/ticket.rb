@@ -32,7 +32,7 @@ class Ticket < ActiveRecord::Base
   ERROR_STATUSES = [ ERROR_INVALID_TO, ERROR_INVALID_FROM, ERROR_BLACKLISTED_TO, ERROR_NOT_SMS_CAPABLE, ERROR_CANNOT_ROUTE, ERROR_SMS_QUEUE_FULL, ERROR_INTERNATIONAL, ERROR_MISSING_BODY, ERROR_BODY_TOO_LARGE, ERROR_UNKNOWN ]
   CRITICAL_ERRORS = [ ERROR_MISSING_BODY, ERROR_BODY_TOO_LARGE, ERROR_INTERNATIONAL ]
 
-  attr_accessible :seconds_to_live, :appliance_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry, :webhook_uri
+  attr_accessible :seconds_to_live, :appliance_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at, :webhook_uri
   attr_accessor :seconds_to_live
   
   # Encrypted attributes
@@ -53,7 +53,7 @@ class Ticket < ActiveRecord::Base
   delegate :account, :to => :appliance, :allow_nil => true
   
   # Validation
-  validates_presence_of :appliance_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expiry
+  validates_presence_of :appliance_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at
   validates :to_number, phone_number: true
   validates :from_number, phone_number: true
   #validates_numericality_of :seconds_to_live
@@ -120,11 +120,11 @@ class Ticket < ActiveRecord::Base
   end
 
   ##
-  # Update expiry based upon seconds to live. Intended to be used with +before_save+ callbacks.
+  # Update expires_at based upon seconds to live. Intended to be used with +before_save+ callbacks.
   def update_expiry_time_based_on_seconds_to_live
     unless self.seconds_to_live.nil?
       ss = ( Float(self.seconds_to_live) rescue nil )
-      self.expiry = ss.seconds.from_now unless ss.nil?
+      self.expires_at = ss.seconds.from_now unless ss.nil?
     end
   end
   
@@ -217,9 +217,9 @@ class Ticket < ActiveRecord::Base
   end
   
   ##
-  # Check if ticket is open and if the ticket's expiry is in the past
+  # Check if ticket is open and if the ticket's expires_at is in the past
   def is_expired?
-    return self.expiry <= DateTime.now
+    return self.expires_at <= DateTime.now
   end
   
   ##
