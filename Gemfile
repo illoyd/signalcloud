@@ -60,7 +60,7 @@ end
 group :test do
 	gem 'shoulda-matchers'
 	gem 'vcr'
-	gem 'webmock'
+	gem 'webmock', "~> 1.9.0"
 	gem 'factory_girl'
 	gem 'fuubar'
   gem "ZenTest", "~> 4.4.2"
