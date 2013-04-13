@@ -24,10 +24,11 @@
                 = link_to new_user_session_path do
                   %i.icon-signin
                   Sign In
-              %li{ :class => ( request.path == new_user_registration_path ? 'active' : '' ) }
-                = link_to new_user_registration_path do
-                  %i.icon-upload-alt
-                  Sign Up
+              -if devise_mapping.registerable?
+                %li{ :class => ( request.path == new_user_registration_path ? 'active' : '' ) }
+                  = link_to new_user_registration_path do
+                    %i.icon-upload-alt
+                    Sign Up
           - else
             %ul.nav
               %li
@@ -111,7 +112,7 @@
             %small
               Copyright &copy; 2012-2013
               =link_to 'SignalCloud, llc.', 'http://www.signalcloudapp.com'
-              =link_to 'Contact us.', 'mailto:contact@signalcloudapp.com'
+              =link_to 'Contact us.', 'mailto:hello@signalcloudapp.com'
         .span6
           %p{style:'text-align:right'}
             %small (#{Rails.env})
