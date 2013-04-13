@@ -9,6 +9,9 @@ class CreateTickets < ActiveRecord::Migration
       t.integer :status, null: false, default: 0, limit: 2
       t.integer :challenge_status, limit: 2
       t.integer :reply_status, limit: 2
+      
+      t.string :hashed_internal_number, null: false
+      t.string :hashed_customer_number, null: false
 
       t.datetime :expiry, null: false
       t.datetime :challenge_sent_at, null: true
@@ -55,8 +58,8 @@ class CreateTickets < ActiveRecord::Migration
     # Add indexes
     add_index :tickets, :appliance_id
     add_index :tickets, :status
-    add_index :tickets, :encrypted_from_number
-    add_index :tickets, :encrypted_to_number
+    add_index :tickets, :hashed_internal_number
+    add_index :tickets, :hashed_customer_number
     
   end
 end

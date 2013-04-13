@@ -86,10 +86,11 @@ describe InboundMessageJob do
     end
     
     context 'when replying to multiple open ticket' do
-      let!(:ticket)   { create(:ticket, :challenge_sent, appliance: appliance, from_number: phone_number.number, to_number: customer_number) }
-      let!(:ticketA)  { create(:ticket, :challenge_sent, appliance: appliance, from_number: phone_number.number, to_number: customer_number) }
-      let!(:ticketB)  { create(:ticket, :challenge_sent, appliance: appliance, from_number: phone_number.number, to_number: customer_number) }
-      let(:payload)   { construct_inbound_payload( 'To' => ticket.from_number, 'From' => ticket.to_number ) }
+      let(:ticketA)  { create(:ticket, :challenge_sent, appliance: appliance, from_number: phone_number.number, to_number: customer_number) }
+      let(:ticketB)  { create(:ticket, :challenge_sent, appliance: appliance, from_number: phone_number.number, to_number: customer_number) }
+      let(:ticketC)  { create(:ticket, :challenge_sent, appliance: appliance, from_number: phone_number.number, to_number: customer_number) }
+      let(:tickets)  { [ ticketC, ticketA, ticketB ] }
+      let(:payload)  { construct_inbound_payload( 'To' => tickets.first.from_number, 'From' => tickets.first.to_number ) }
       subject { InboundMessageJob.new(payload) }
 
       its(:find_open_tickets) { should have(3).items }

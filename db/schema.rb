@@ -243,6 +243,8 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
     t.integer  "status",                           :limit => 2, :default => 0, :null => false
     t.integer  "challenge_status",                 :limit => 2
     t.integer  "reply_status",                     :limit => 2
+    t.string   "hashed_internal_number",                                       :null => false
+    t.string   "hashed_customer_number",                                       :null => false
     t.datetime "expiry",                                                       :null => false
     t.datetime "challenge_sent_at"
     t.datetime "response_received_at"
@@ -276,8 +278,8 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
   end
 
   add_index "tickets", ["appliance_id"], :name => "index_tickets_on_appliance_id"
-  add_index "tickets", ["encrypted_from_number"], :name => "index_tickets_on_encrypted_from_number"
-  add_index "tickets", ["encrypted_to_number"], :name => "index_tickets_on_encrypted_to_number"
+  add_index "tickets", ["hashed_customer_number"], :name => "index_tickets_on_hashed_customer_number"
+  add_index "tickets", ["hashed_internal_number"], :name => "index_tickets_on_hashed_internal_number"
   add_index "tickets", ["status"], :name => "index_tickets_on_status"
 
   create_table "unsolicited_calls", :force => true do |t|

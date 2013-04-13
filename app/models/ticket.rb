@@ -2,7 +2,7 @@
 class Ticket < ActiveRecord::Base
 
   before_validation :update_expiry_time_based_on_seconds_to_live
-  before_save :normalize_phone_numbers
+  before_save :normalize_phone_numbers, :hash_phone_numbers
 
   # Status constants
   PENDING = 0
@@ -40,13 +40,12 @@ class Ticket < ActiveRecord::Base
   attr_encrypted :denied_reply, key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :expired_reply, key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :failed_reply, key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :from_number, key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :question, key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :to_number, key: ATTR_ENCRYPTED_SECRET
   # attr_encrypted :actual_answer, key: ATTR_ENCRYPTED_SECRET  
   
-  # attr_encrypted :expected_confirmed_answer, key: ATTR_ENCRYPTED_SECRET
-  # attr_encrypted :expected_denied_answer, key: ATTR_ENCRYPTED_SECRET
+
+  attr_encrypted :to_number, key: ATTR_ENCRYPTED_SECRET #, iv: 1, salt: 'salt'
+  attr_encrypted :from_number, key: ATTR_ENCRYPTED_SECRET #, iv: 1, salt: 'salt'
 
   # Relationships
   belongs_to :appliance, inverse_of: :tickets
@@ -79,10 +78,21 @@ class Ticket < ActiveRecord::Base
     return msg.gsub(/[$£€¥]/, '').to_ascii.gsub(/[^[:alnum:]]/,'').downcase
   end
   
+  ##
+  # Provide a standardised way to convert a phone number into a deterministic hash.
+  def self.hash_phone_number( phone_number )
+    # BCrypt::Password.new( BCrypt::Engine.hash_secret( pn, ATTR_ENCRYPTED_SECRET, BCrypt::Engine::DEFAULT_COST ) )
+    phone_number.nil? ? nil : Digest::SHA1.base64digest( ATTR_ENCRYPTED_SECRET + phone_number.to_s )
+  end
+  
   def self.find_open_tickets( internal_number, customer_number )
-    e_internal_number = Ticket.encrypt( :from_number, PhoneNumber.normalize_phone_number(internal_number) )
-    e_customer_number = Ticket.encrypt( :to_number, PhoneNumber.normalize_phone_number(customer_number) )
-    Ticket.where( encrypted_from_number: e_internal_number, encrypted_to_number: e_customer_number, status: Ticket::OPEN_STATUSES )
+    #e_internal_number = Ticket.encrypt( :from_number, PhoneNumber.normalize_phone_number(internal_number) )
+    #e_customer_number = Ticket.encrypt( :to_number, PhoneNumber.normalize_phone_number(customer_number) )
+    #Ticket.where( encrypted_from_number: e_internal_number, encrypted_to_number: e_customer_number, status: Ticket::OPEN_STATUSES )
+    Ticket.where(
+      hashed_internal_number: Ticket.hash_phone_number( internal_number ),
+      hashed_customer_number: Ticket.hash_phone_number( customer_number )
+    ).opened
   end
   
   def self.count_by_status_hash( ticket_query )
@@ -92,20 +102,22 @@ class Ticket < ActiveRecord::Base
   end
 
   def expected_confirmed_answer
+    return nil if self.hashed_expected_confirmed_answer.nil?
     @expected_confirmed_answer ||= BCrypt::Password.new(self.hashed_expected_confirmed_answer)
   end
 
   def expected_confirmed_answer=(new_value)
-    @expected_confirmed_answer = BCrypt::Password.create(new_value)
+    @expected_confirmed_answer = new_value.nil? ? nil : BCrypt::Password.create(new_value)
     self.hashed_expected_confirmed_answer = @expected_confirmed_answer
   end
   
   def expected_denied_answer
+    return nil if self.hashed_expected_denied_answer.nil?
     @expected_denied_answer ||= BCrypt::Password.new(self.hashed_expected_denied_answer)
   end
 
   def expected_denied_answer=(new_value)
-    @expected_denied_answer = BCrypt::Password.create(new_value)
+    @expected_denied_answer = new_value.nil? ? nil : BCrypt::Password.create(new_value)
     self.hashed_expected_denied_answer = @expected_denied_answer
   end
 
@@ -123,6 +135,13 @@ class Ticket < ActiveRecord::Base
   def normalize_phone_numbers
     self.to_number = PhoneNumber.normalize_phone_number(self.to_number)
     self.from_number = PhoneNumber.normalize_phone_number(self.from_number)
+  end
+  
+  ##
+  # Standardise phone number hashes, to be used in searches for open tickets.
+  def hash_phone_numbers
+    self.hashed_internal_number = Ticket.hash_phone_number( self.from_number )
+    self.hashed_customer_number = Ticket.hash_phone_number( self.to_number )
   end
   
   def to_webhook_data
