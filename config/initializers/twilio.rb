@@ -74,7 +74,7 @@ module Twilio
       def to_property_hash
         self.sid # Must call a parameter to force querying for data
         properties = HashWithIndifferentAccess.new
-        [ :sid, :date_created, :date_updated, :date_sent, :account_sid, :to, :from, :body, :status, :direction, :api_version, :price, :parent_call_sid, :date_created, :date_updated, :account_sid, :phone_number_sid, :status, :start_time, :end_time, :duration, :answered_by, :forwarded_from, :caller_name, :uri ].map do |property|
+        [ :sid, :date_created, :date_updated, :date_sent, :account_sid, :to, :from, :body, :status, :direction, :api_version, :price, :price_unit, :parent_call_sid, :date_created, :date_updated, :account_sid, :phone_number_sid, :status, :start_time, :end_time, :duration, :answered_by, :forwarded_from, :caller_name, :uri ].map do |property|
           properties[property] = self.send(property) if self.respond_to?(property)
         end
         return properties
