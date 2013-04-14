@@ -36,12 +36,15 @@ class UpdateMessageStatusJob < Struct.new( :callback_values )
     # Update price if available
     if self.callback_values.include? :price and !self.callback_values[:price].nil?
       message.provider_cost = self.callback_values[:price].to_f
+      message.save!
       #message.our_cost = message.ticket.stencil.account.account_plan.calculate_outbound_sms_cost( message.provider_cost )
 
       # Update the ledger_entry
       #ledger_entry = message.ledger_entry
       #ledger_entry.value = message.cost
-      message.ledger_entry.settled_at = self.callback_values.fetch(:date_sent, DateTime.now)
+      date_sent = self.callback_values.fetch(:date_sent, nil)
+      date_sent = date_sent.blank? ? DateTime.now : DateTime.parse( date_sent )
+      message.ledger_entry.settled_at = date_sent
     end
     
     # Save as a db transaction
