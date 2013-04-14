@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe Invoice, :vcr => { :cassette_name => "invoices" } do
+
+  pending
   
   # let(:account) { create_freshbooks_account() }
   let(:account) { create :freshbooks_account }
