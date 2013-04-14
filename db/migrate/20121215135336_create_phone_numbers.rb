@@ -3,9 +3,7 @@ class CreatePhoneNumbers < ActiveRecord::Migration
     create_table :phone_numbers do |t|
       t.references :account, null: false
 
-      t.text :encrypted_number, null: false
-      t.string :encrypted_number_iv
-      t.string :encrypted_number_salt
+      t.string :number, null: false
 
       t.string :twilio_phone_number_sid, null: false, length: Twilio::SID_LENGTH
       t.integer :unsolicited_sms_action, null: false, limit: 1, default: 0 #PhoneNumber::IGNORE
