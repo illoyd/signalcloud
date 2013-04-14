@@ -23,7 +23,7 @@ class UpdateMessageStatusJob < Struct.new( :callback_values )
     message = Message.find_by_twilio_sid!( self.callback_values[:sms_sid] )
 
     # If the status data does not contain all the needed data, query it
-    self.callback_values.merge!( message.twilio_status ) if self.requires_requerying_sms_status?
+    self.callback_values.merge!( message.twilio_status.to_property_hash ) if self.requires_requerying_sms_status?
     self.standardise_callback_values!
     
     # Attach the callback payload
