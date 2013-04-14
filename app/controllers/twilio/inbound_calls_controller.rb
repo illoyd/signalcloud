@@ -17,6 +17,7 @@ class Twilio::InboundCallsController < ApplicationController
   #respond_to :xml
   before_filter :authenticate_account!, :authenticate_twilio!
   skip_before_filter :authenticate_user!
+  skip_before_filter :verify_authenticity_token
   
   # POST /account_plans
   # POST /account_plans.json
