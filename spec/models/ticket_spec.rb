@@ -103,66 +103,154 @@ describe Ticket do
     end
   end
   
-  describe '#to_webhook_data' do
+  describe '#compare_answer' do
+    let(:positive) { 'yes' }
+    let(:negative) { 'no' }
+    let(:failed) { 'walrus' }
+    subject { build(:ticket, expected_confirmed_answer: positive, expected_denied_answer: negative) }
 
-    context 'when pending' do
-      subject { create(:ticket).to_webhook_data }
-      it { should be_a Hash }
-      it { should include( :id, :stencil_id, :status, :status_text, :created_at, :updated_at ) }
-      its([:status]) { should == Ticket::PENDING }
-      its([:open]) { should == 1 }
-      its([:closed]) { should == 0 }
+    it 'recognises positive answer' do
+      subject.compare_answer( positive ).should == Ticket::CONFIRMED
+    end
+
+    it 'recognises uppercase positive answer' do
+      subject.compare_answer( positive.upcase ).should == Ticket::CONFIRMED
+    end
+
+    it 'recognises padded positive answer' do
+      subject.compare_answer( "   #{positive}   " ).should == Ticket::CONFIRMED
+    end
+
+    it 'recognises negative answer' do
+      subject.compare_answer( negative ).should == Ticket::DENIED
     end
     
-    context 'when challenge is sent' do
-      subject { create(:ticket, :challenge_sent).to_webhook_data }
-      it { should be_a Hash }
-      it { should include( :challenge_sent_at, :challenge_status ) }
-      its([:status]) { should == Ticket::CHALLENGE_SENT }
-      its([:open]) { should == 1 }
-      its([:closed]) { should == 0 }
+    it 'recognises uppercase negative answer' do
+      subject.compare_answer( negative.upcase ).should == Ticket::DENIED
     end
     
-    context 'when response is received' do
-      subject { create(:ticket, :response_received).to_webhook_data }
-      it { should be_a Hash }
-      it { should include( :response_received_at ) }
+    it 'recognises padded negative answer' do
+      subject.compare_answer( "   #{negative}   " ).should == Ticket::DENIED
     end
-
-    context 'when reply is sent' do
-      subject { create(:ticket, :reply_sent).to_webhook_data }
-      it { should be_a Hash }
-      it { should include( :reply_sent_at, :reply_status ) }
+    
+    it 'ignores invalid answer' do
+      subject.compare_answer( failed ).should == Ticket::FAILED
     end
-
-    context 'when confirmed' do
-      subject { create(:ticket, :confirmed, :reply_sent).to_webhook_data }
-      its([:status]) { should == Ticket::CONFIRMED }
-      its([:open]) { should == 0 }
-      its([:closed]) { should == 1 }
+    
+    it 'ignores uppercase invalid answer' do
+      subject.compare_answer( failed.upcase ).should == Ticket::FAILED
     end
-
-    context 'when denied' do
-      subject { create(:ticket, :denied, :reply_sent).to_webhook_data }
-      its([:status]) { should == Ticket::DENIED }
-      its([:open]) { should == 0 }
-      its([:closed]) { should == 1 }
-    end
-
-    context 'when failed' do
-      subject { create(:ticket, :failed, :reply_sent).to_webhook_data }
-      its([:status]) { should == Ticket::FAILED }
-      its([:open]) { should == 0 }
-      its([:closed]) { should == 1 }
-    end
-
-    context 'when expired' do
-      subject { create(:ticket, :expired, :reply_sent).to_webhook_data }
-      its([:status]) { should == Ticket::EXPIRED }
-      its([:open]) { should == 0 }
-      its([:closed]) { should == 1 }
+    
+    it 'ignores padded invalid answer' do
+      subject.compare_answer( "   #{failed}   " ).should == Ticket::FAILED
     end
 
   end
+  
+  describe '#answer_applies?' do
+    let(:positive) { 'yes' }
+    let(:negative) { 'no' }
+    let(:failed) { 'walrus' }
+    subject { build(:ticket, expected_confirmed_answer: positive, expected_denied_answer: negative) }
+
+    it 'recognises positive answer' do
+      subject.answer_applies?( positive ).should be_true
+    end
+
+    it 'recognises uppercase positive answer' do
+      subject.answer_applies?( positive.upcase ).should be_true
+    end
+
+    it 'recognises padded positive answer' do
+      subject.answer_applies?( "   #{positive}   " ).should be_true
+    end
+
+    it 'recognises negative answer' do
+      subject.answer_applies?( negative ).should be_true
+    end
+    
+    it 'recognises uppercase negative answer' do
+      subject.answer_applies?( negative.upcase ).should be_true
+    end
+    
+    it 'recognises padded negative answer' do
+      subject.answer_applies?( "   #{negative}   " ).should be_true
+    end
+    
+    it 'ignores invalid answer' do
+      subject.answer_applies?( failed ).should be_false
+    end
+    
+    it 'ignores uppercase invalid answer' do
+      subject.answer_applies?( failed.upcase ).should be_false
+    end
+    
+    it 'ignores padded invalid answer' do
+      subject.answer_applies?( "   #{failed}   " ).should be_false
+    end
+    
+  end
+  
+#   describe '#to_webhook_data' do
+# 
+#     context 'when pending' do
+#       subject { create(:ticket).to_webhook_data[:ticket] }
+#       it { should be_a Hash }
+#       it { should include( :id, :stencil_id, :status, :status_text, :created_at, :updated_at ) }
+#       its([:status]) { should == Ticket::PENDING }
+#       its([:open]) { should == 1 }
+#       its([:closed]) { should == 0 }
+#     end
+#     
+#     context 'when challenge is sent' do
+#       subject { create(:ticket, :challenge_sent).to_webhook_data[:ticket] }
+#       it { should be_a Hash }
+#       it { should include( :challenge_sent_at, :challenge_status ) }
+#       its([:status]) { should == Ticket::CHALLENGE_SENT }
+#       its([:open]) { should == 1 }
+#       its([:closed]) { should == 0 }
+#     end
+#     
+#     context 'when response is received' do
+#       subject { create(:ticket, :response_received).to_webhook_data[:ticket] }
+#       it { should be_a Hash }
+#       it { should include( :response_received_at ) }
+#     end
+# 
+#     context 'when reply is sent' do
+#       subject { create(:ticket, :reply_sent).to_webhook_data[:ticket] }
+#       it { should be_a Hash }
+#       it { should include( :reply_sent_at, :reply_status ) }
+#     end
+# 
+#     context 'when confirmed' do
+#       subject { create(:ticket, :confirmed, :reply_sent).to_webhook_data[:ticket] }
+#       its([:status]) { should == Ticket::CONFIRMED }
+#       its([:open]) { should == 0 }
+#       its([:closed]) { should == 1 }
+#     end
+# 
+#     context 'when denied' do
+#       subject { create(:ticket, :denied, :reply_sent).to_webhook_data[:ticket] }
+#       its([:status]) { should == Ticket::DENIED }
+#       its([:open]) { should == 0 }
+#       its([:closed]) { should == 1 }
+#     end
+# 
+#     context 'when failed' do
+#       subject { create(:ticket, :failed, :reply_sent).to_webhook_data[:ticket] }
+#       its([:status]) { should == Ticket::FAILED }
+#       its([:open]) { should == 0 }
+#       its([:closed]) { should == 1 }
+#     end
+# 
+#     context 'when expired' do
+#       subject { create(:ticket, :expired, :reply_sent).to_webhook_data[:ticket] }
+#       its([:status]) { should == Ticket::EXPIRED }
+#       its([:open]) { should == 0 }
+#       its([:closed]) { should == 1 }
+#     end
+# 
+#   end
 
 end

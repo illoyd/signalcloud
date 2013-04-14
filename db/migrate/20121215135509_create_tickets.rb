@@ -28,8 +28,13 @@ class CreateTickets < ActiveRecord::Migration
       t.string :encrypted_to_number_iv
       t.string :encrypted_to_number_salt
 
-      t.text :hashed_expected_confirmed_answer, null: false
-      t.text :hashed_expected_denied_answer, null: false
+      t.text :encrypted_expected_confirmed_answer, null: false
+      t.string :encrypted_expected_confirmed_iv
+      t.string :encrypted_expected_confirmed_salt
+
+      t.text :encrypted_expected_denied_answer, null: false
+      t.string :encrypted_expected_denied_answer_iv
+      t.string :encrypted_expected_denied_answer_salt
 
       t.text :encrypted_question, null: false
       t.string :encrypted_question_iv

@@ -239,42 +239,46 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
   add_index "stencils", ["primary"], :name => "index_stencils_on_primary"
 
   create_table "tickets", :force => true do |t|
-    t.integer  "stencil_id",                                                   :null => false
-    t.integer  "status",                           :limit => 2, :default => 0, :null => false
-    t.integer  "challenge_status",                 :limit => 2
-    t.integer  "reply_status",                     :limit => 2
-    t.string   "hashed_internal_number",                                       :null => false
-    t.string   "hashed_customer_number",                                       :null => false
-    t.datetime "expires_at",                                                   :null => false
+    t.integer  "stencil_id",                                                        :null => false
+    t.integer  "status",                                :limit => 2, :default => 0, :null => false
+    t.integer  "challenge_status",                      :limit => 2
+    t.integer  "reply_status",                          :limit => 2
+    t.string   "hashed_internal_number",                                            :null => false
+    t.string   "hashed_customer_number",                                            :null => false
+    t.datetime "expires_at",                                                        :null => false
     t.datetime "challenge_sent_at"
     t.datetime "response_received_at"
     t.datetime "reply_sent_at"
     t.string   "webhook_uri"
-    t.text     "encrypted_from_number",                                        :null => false
+    t.text     "encrypted_from_number",                                             :null => false
     t.string   "encrypted_from_number_iv"
     t.string   "encrypted_from_number_salt"
-    t.text     "encrypted_to_number",                                          :null => false
+    t.text     "encrypted_to_number",                                               :null => false
     t.string   "encrypted_to_number_iv"
     t.string   "encrypted_to_number_salt"
-    t.text     "hashed_expected_confirmed_answer",                             :null => false
-    t.text     "hashed_expected_denied_answer",                                :null => false
-    t.text     "encrypted_question",                                           :null => false
+    t.text     "encrypted_expected_confirmed_answer",                               :null => false
+    t.string   "encrypted_expected_confirmed_iv"
+    t.string   "encrypted_expected_confirmed_salt"
+    t.text     "encrypted_expected_denied_answer",                                  :null => false
+    t.string   "encrypted_expected_denied_answer_iv"
+    t.string   "encrypted_expected_denied_answer_salt"
+    t.text     "encrypted_question",                                                :null => false
     t.string   "encrypted_question_iv"
     t.string   "encrypted_question_salt"
-    t.text     "encrypted_confirmed_reply",                                    :null => false
+    t.text     "encrypted_confirmed_reply",                                         :null => false
     t.string   "encrypted_confirmed_reply_iv"
     t.string   "encrypted_confirmed_reply_salt"
-    t.text     "encrypted_denied_reply",                                       :null => false
+    t.text     "encrypted_denied_reply",                                            :null => false
     t.string   "encrypted_denied_reply_iv"
     t.string   "encrypted_denied_reply_salt"
-    t.text     "encrypted_failed_reply",                                       :null => false
+    t.text     "encrypted_failed_reply",                                            :null => false
     t.string   "encrypted_failed_reply_iv"
     t.string   "encrypted_failed_reply_salt"
-    t.text     "encrypted_expired_reply",                                      :null => false
+    t.text     "encrypted_expired_reply",                                           :null => false
     t.string   "encrypted_expired_reply_iv"
     t.string   "encrypted_expired_reply_salt"
-    t.datetime "created_at",                                                   :null => false
-    t.datetime "updated_at",                                                   :null => false
+    t.datetime "created_at",                                                        :null => false
+    t.datetime "updated_at",                                                        :null => false
   end
 
   add_index "tickets", ["hashed_customer_number"], :name => "index_tickets_on_hashed_customer_number"

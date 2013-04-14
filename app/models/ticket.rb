@@ -36,14 +36,17 @@ class Ticket < ActiveRecord::Base
   attr_accessor :seconds_to_live
   
   # Encrypted attributes
-  attr_encrypted :confirmed_reply, key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :denied_reply, key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :expired_reply, key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :failed_reply, key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :question, key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :question,         key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :confirmed_reply,  key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :denied_reply,     key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :failed_reply,     key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :expired_reply,    key: ATTR_ENCRYPTED_SECRET
 
-  attr_encrypted :to_number, key: ATTR_ENCRYPTED_SECRET #, iv: 1, salt: 'salt'
-  attr_encrypted :from_number, key: ATTR_ENCRYPTED_SECRET #, iv: 1, salt: 'salt'
+  attr_encrypted :expected_confirmed_answer,  key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :expected_denied_answer,     key: ATTR_ENCRYPTED_SECRET
+
+  attr_encrypted :to_number,        key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :from_number,      key: ATTR_ENCRYPTED_SECRET
 
   # Relationships
   belongs_to :stencil, inverse_of: :tickets
@@ -56,7 +59,6 @@ class Ticket < ActiveRecord::Base
   validates_presence_of :stencil_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at
   validates :to_number, phone_number: true
   validates :from_number, phone_number: true
-  #validates_numericality_of :seconds_to_live
   validates_numericality_of :challenge_status, allow_nil: true, integer_only: true, greater_than_or_equal_to: 0
   validates_numericality_of :reply_status, allow_nil: true, integer_only: true, greater_than_or_equal_to: 0
   
@@ -99,28 +101,6 @@ class Ticket < ActiveRecord::Base
     return counts
   end
 
-  def expected_confirmed_answer
-    return nil if self.hashed_expected_confirmed_answer.nil?
-    @expected_confirmed_answer ||= BCrypt::Password.new(self.hashed_expected_confirmed_answer)
-  end
-
-  def expected_confirmed_answer=(new_value)
-    new_value = Ticket.normalize_message(new_value)
-    @expected_confirmed_answer = new_value.nil? ? nil : BCrypt::Password.create(new_value)
-    self.hashed_expected_confirmed_answer = @expected_confirmed_answer
-  end
-  
-  def expected_denied_answer
-    return nil if self.hashed_expected_denied_answer.nil?
-    @expected_denied_answer ||= BCrypt::Password.new(self.hashed_expected_denied_answer)
-  end
-
-  def expected_denied_answer=(new_value)
-    new_value = Ticket.normalize_message(new_value)
-    @expected_denied_answer = new_value.nil? ? nil : BCrypt::Password.create(new_value)
-    self.hashed_expected_denied_answer = @expected_denied_answer
-  end
-
   ##
   # Update expires_at based upon seconds to live. Intended to be used with +before_save+ callbacks.
   def update_expiry_time_based_on_seconds_to_live
@@ -144,35 +124,8 @@ class Ticket < ActiveRecord::Base
     self.hashed_customer_number = Ticket.hash_phone_number( self.to_number )
   end
   
-  def to_webhook_data
-    data = [ :id, :stencil_id, :status, :status_text, :created_at, :updated_at, :challenge_sent_at, :challenge_status, :response_received_at, :reply_sent_at, :reply_status ].each_with_object({}) do |key,h|
-      value = self.send key
-      h[key] = value unless value.blank?
-    end
-    
-    data[:open] = self.is_open? ? 1 : 0
-    data[:closed] = self.is_closed? ? 1 : 0
-    
-    return data
-  end
-  
-  def status_text( status_code=nil )
-    case ( status_code || self.status )
-      when PENDING
-        'Pending'
-      when QUEUED
-        'Queued'
-      when CHALLENGE_SENT
-        'Challenge sent - Waiting for reply'
-      when CONFIRMED
-        'Confirmed'
-      when DENIED
-        'Denied'
-      when FAILED
-        'Failed'
-      when EXPIRED
-        'Expired'
-    end
+  def status_text()
+    Ticket.status_text( self.status )
   end
   
   def normalized_expected_confirmed_answer
@@ -189,9 +142,9 @@ class Ticket < ActiveRecord::Base
   
   def compare_answer( answer )
     return case Ticket.normalize_message(answer)
-      when self.expected_confirmed_answer # self.normalized_expected_confirmed_answer
+      when self.normalized_expected_confirmed_answer
         Ticket::CONFIRMED
-      when self.expected_denied_answer # self.normalized_expected_denied_answer
+      when self.normalized_expected_denied_answer
         Ticket::DENIED
       else
         Ticket::FAILED
@@ -199,10 +152,16 @@ class Ticket < ActiveRecord::Base
   end
   
   ##
-  # 
-  def accept_answer!( answer, received=DateTime.now )
+  # Update this ticket with appropriate flags indicating that a response has been received.
+  def accept_answer( answer, received=DateTime.now )
     self.status = self.compare_answer(answer)
     self.response_received_at = received
+  end
+  
+  ##
+  # Accept the given answer and force a database save.
+  def accept_answer!( answer, received=DateTime.now )
+    self.accept_answer( answer, received )
     self.save!
   end
 
@@ -430,4 +389,25 @@ class Ticket < ActiveRecord::Base
       end
   end
 
+  def self.status_text( status_code=nil )
+    case status_code
+      when PENDING
+        'Pending'
+      when QUEUED
+        'Queued'
+      when CHALLENGE_SENT
+        'Challenge sent - Waiting for reply'
+      when CONFIRMED
+        'Confirmed'
+      when DENIED
+        'Denied'
+      when FAILED
+        'Failed'
+      when EXPIRED
+        'Expired'
+      else
+        "Error: #{status_code}"
+    end
+  end
+  
 end
