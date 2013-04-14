@@ -69,7 +69,7 @@ describe InboundMessageJob, :vcr => { :cassette_name => "inbound_message_job" } 
     end
     
     context 'when replying to open ticket' do
-      let(:ticket)  { create(:ticket, :challenge_sent, stencil: stencil, from_number: phone_number.number, to_number: customer_number) }
+      let(:ticket)  { create(:ticket, :challenge_sent, :with_webhook_uri, stencil: stencil, from_number: phone_number.number, to_number: customer_number) }
       let(:payload) { construct_inbound_payload( 'To' => ticket.from_number, 'From' => ticket.to_number ) }
       subject { InboundMessageJob.new(payload) }
 
@@ -84,9 +84,9 @@ describe InboundMessageJob, :vcr => { :cassette_name => "inbound_message_job" } 
     end
     
     context 'when replying to multiple open ticket' do
-      let(:ticketA)  { create(:ticket, :challenge_sent, stencil: stencil, from_number: phone_number.number, to_number: customer_number) }
-      let(:ticketB)  { create(:ticket, :challenge_sent, stencil: stencil, from_number: phone_number.number, to_number: customer_number) }
-      let(:ticketC)  { create(:ticket, :challenge_sent, stencil: stencil, from_number: phone_number.number, to_number: customer_number) }
+      let(:ticketA)  { create(:ticket, :challenge_sent, :with_webhook_uri, stencil: stencil, from_number: phone_number.number, to_number: customer_number) }
+      let(:ticketB)  { create(:ticket, :challenge_sent, :with_webhook_uri, stencil: stencil, from_number: phone_number.number, to_number: customer_number) }
+      let(:ticketC)  { create(:ticket, :challenge_sent, :with_webhook_uri, stencil: stencil, from_number: phone_number.number, to_number: customer_number) }
       let(:tickets)  { [ ticketC, ticketA, ticketB ] }
       let(:payload)  { construct_inbound_payload( 'To' => tickets.first.from_number, 'From' => tickets.first.to_number ) }
       subject { InboundMessageJob.new(payload) }
