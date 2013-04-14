@@ -44,6 +44,37 @@ describe PhoneNumber, :vcr => { :cassette_name => "phone_number" } do
     # Twilio SID
     it { should ensure_length_of(:twilio_phone_number_sid).is_equal_to(Twilio::SID_LENGTH) }
   end
+  
+  describe '.find_by_number' do
+    let(:valid_number) { '+15551234567' }
+    let(:unknown_number) { '+18001234567' }
+    subject { create :phone_number, number: valid_number }
+    
+    it 'finds valid number' do
+      PhoneNumber.find_by_number(subject.number).first.should be_a( PhoneNumber )
+    end
+    
+    it 'cannot find a number' do
+      PhoneNumber.find_by_number(unknown_number).should be_empty
+    end
+    
+    it 'throws error on inappropriate number' do
+      expect{ PhoneNumber.find_by_number('hello') }.to raise_error
+    end
+    
+    it 'throws error on nil' do
+      expect{ PhoneNumber.find_by_number(nil) }.to raise_error
+    end
+    
+    it 'throws error on empty string' do
+      expect{ PhoneNumber.find_by_number('') }.to raise_error
+    end
+    
+    it 'throws error on blank string' do
+      expect{ PhoneNumber.find_by_number('   ') }.to raise_error
+    end
+    
+  end
 
   # Manage creation
 #   describe ".new" do

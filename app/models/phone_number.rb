@@ -89,10 +89,10 @@ class PhoneNumber < ActiveRecord::Base
   end
   
   def self.find_by_number(pn)
-    PhoneNumber.where( encrypted_number: PhoneNumber.encrypt( :number, PhoneNumber.normalize_phone_number(pn) ) )
+    raise ArgumentError.new( 'Given phone number was nil or blank.' ) if pn.blank?
+    PhoneNumber.where( number: PhoneNumber.normalize_phone_number(pn) )
   end
 
-  # alias_method :'original_number=', :'number='
   def number=(value)
     super( PhoneNumber.normalize_phone_number(value) )
   end
