@@ -15,6 +15,10 @@ FactoryGirl.define do
     failed_reply              'Wrong answer!'
     expired_reply             'Took too long!'
     
+    trait :with_webhook_uri do
+      webhook_uri             'https://app.signalcloudapp.com/bucket'
+    end
+
     #before(:create) { |stencil| generate_hashed_password(user) }
   end
 

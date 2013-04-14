@@ -50,6 +50,10 @@ FactoryGirl.define do
       challenge_sent
       status                  Ticket::EXPIRED
     end
+    
+    trait :with_webhook_uri do
+      webhook_uri             'https://app.signalcloudapp.com/bucket'
+    end
 
   end
 
