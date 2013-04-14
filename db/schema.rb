@@ -181,9 +181,7 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
 
   create_table "phone_numbers", :force => true do |t|
     t.integer  "account_id",                                                                                :null => false
-    t.text     "encrypted_number",                                                                          :null => false
-    t.string   "encrypted_number_iv"
-    t.string   "encrypted_number_salt"
+    t.string   "number",                                                                                    :null => false
     t.string   "twilio_phone_number_sid",                                                                   :null => false
     t.integer  "unsolicited_sms_action",    :limit => 2,                               :default => 0,       :null => false
     t.string   "unsolicited_sms_message"
@@ -198,7 +196,7 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
   end
 
   add_index "phone_numbers", ["account_id"], :name => "index_phone_numbers_on_account_id"
-  add_index "phone_numbers", ["encrypted_number"], :name => "index_phone_numbers_on_encrypted_number"
+  add_index "phone_numbers", ["number"], :name => "index_phone_numbers_on_number"
 
   create_table "stencils", :force => true do |t|
     t.integer  "account_id",                                                  :null => false

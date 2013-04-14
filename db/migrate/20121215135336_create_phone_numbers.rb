@@ -20,6 +20,6 @@ class CreatePhoneNumbers < ActiveRecord::Migration
     
     # Add indices
     add_index :phone_numbers, :account_id
-    add_index :phone_numbers, :encrypted_number
+    add_index :phone_numbers, :number
   end
 end
