@@ -24,29 +24,51 @@ describe ExpireTicketJob, :vcr => { :cassette_name => "expire_ticket_job" } do
     context 'when ticket is open' do
 
       context 'and ticket has not yet passed expiration' do
-        it 'enqueues a new expire ticket job' do
-          expect { # Messages count
-            expect { # Ledger entry count
-    
-              # Enqueue job
-              expect { # Job count during enqueue
-                Delayed::Job.enqueue ExpireTicketJob.new( ticket.id )
-              }.to change{Delayed::Job.count}.from(0).to(1)
-              
-              # Now, work that job!
-              expect{ # Job count after run
-                expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
-                @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-              }.to_not change{Delayed::Job.count}.from(1).to(0)
-
-              ticket.reload
-    
-            }.to_not change{ticket.stencil.account.ledger_entries.count}.by(1)
-          }.to_not change{ticket.messages.count}.by(1)
-    
-          # Check that the ticket status has been expired
-          ticket.status.should_not == Ticket::EXPIRED
+        subject { ExpireTicketJob.new( ticket.id ) }
+        
+        it 'does not raise error' do
+          expect { subject.perform }.not_to raise_error
         end
+
+        it 'does not change ticket status' do
+          expect { subject.perform }.not_to change{ticket.status}
+        end
+
+        it 'enqueues a follow-up expire job' do
+          expect { subject.perform }.to change{Delayed::Job.count}.by(1)
+        end
+
+        it 'does not create a new ledger entry' do
+          expect { subject.perform }.not_to change{ticket.stencil.account.ledger_entries.count}
+        end
+
+        it 'does not create a new message' do
+          expect { subject.perform }.not_to change{ticket.messages.count}
+        end
+        
+#         it 'enqueues a new expire ticket job' do
+#           expect { # Messages count
+#             expect { # Ledger entry count
+#     
+#               # Enqueue job
+#               expect { # Job count during enqueue
+#                 Delayed::Job.enqueue ExpireTicketJob.new( ticket.id )
+#               }.to change{Delayed::Job.count}.from(0).to(1)
+#               
+#               # Now, work that job!
+#               expect{ # Job count after run
+#                 expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
+#                 @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
+#               }.to_not change{Delayed::Job.count}.from(1).to(0)
+# 
+#               ticket.reload
+#     
+#             }.to_not change{ticket.stencil.account.ledger_entries.count}.by(1)
+#           }.to_not change{ticket.messages.count}.by(1)
+#     
+#           # Check that the ticket status has been expired
+#           ticket.status.should_not == Ticket::EXPIRED
+#         end
       end
 
       context 'and ticket has passed expiration' do

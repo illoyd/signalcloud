@@ -7,7 +7,7 @@ describe SendTicketStatusWebhookJob, :vcr => { :cassette_name => "send_ticket_st
     context 'when ticket has a webhook uri' do
       let(:account)   { create(:account, :test_twilio, :with_sid_and_token, id: 1) }
       let(:stencil)   { create(:stencil, account: account, id: 1) }
-      let(:ticket)    { create(:ticket, id: 1, stencil: stencil, webhook_uri: 'http://requestb.in/p5ox1hp5', created_at: DateTime.parse('2013-01-01'), updated_at: DateTime.parse('2013-01-02')) }
+      let(:ticket)    { create(:ticket, id: 1, stencil: stencil, webhook_uri: 'http://requestb.in/p5ox1hp5', created_at: DateTime.parse('2013-01-01'), updated_at: DateTime.parse('2013-01-02'), expires_at: DateTime.parse('2013-01-03')) }
       subject { SendTicketStatusWebhookJob.new ticket.id, TicketSerializer.new(ticket).as_json }
 
       it 'does not throw error' do

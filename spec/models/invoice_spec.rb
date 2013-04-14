@@ -1,9 +1,9 @@
 require 'spec_helper'
 
 describe Invoice, :vcr => { :cassette_name => "invoices" } do
-
-  pending
   
+  pending 'Invoicing disabled temporarily' do
+
   # let(:account) { create_freshbooks_account() }
   let(:account) { create :freshbooks_account }
 
@@ -93,4 +93,5 @@ describe Invoice, :vcr => { :cassette_name => "invoices" } do
     end
   end
   
+  end # Pending
 end
