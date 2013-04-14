@@ -58,10 +58,10 @@ class UpdateMessageStatusJob < Struct.new( :callback_values )
         unless ticket.has_outstanding_challenge_messages?
           ticket.challenge_sent_at = self.callback_values[:date_sent]
           ticket.challenge_status = Message::SENT
-          ticket.status = Ticket::CHALLENGE_SENT
+          ticket.status = Ticket::CHALLENGE_SENT unless ticket.is_closed?
         else
           ticket.challenge_status = Message::SENDING
-          ticket.status = Ticket::QUEUED
+          # ticket.status = Ticket::QUEUED
         end 
       when Message::REPLY
         unless ticket.has_outstanding_reply_messages?
