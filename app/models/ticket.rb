@@ -405,6 +405,8 @@ class Ticket < ActiveRecord::Base
         'Failed'
       when EXPIRED
         'Expired'
+      when nil
+        nil
       else
         "Error: #{status_code}"
     end
