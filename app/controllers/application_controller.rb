@@ -22,7 +22,7 @@ class ApplicationController < ActionController::Base
     # Only continue processing if the account was found
     else
       # Capture parameters
-      v_uri = request.original_request_url @account.account_sid, @account.auth_token
+      v_uri = request.original_request_url # @account.account_sid, @account.auth_token
       v_params = request.post? ? request.request_parameters : request.query_parameters
       given_header = request.headers.fetch( 'HTTP_X_TWILIO_SIGNATURE', 'NO HEADER GIVEN' )
       
