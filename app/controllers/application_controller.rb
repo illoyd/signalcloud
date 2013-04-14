@@ -24,34 +24,38 @@ class ApplicationController < ActionController::Base
       # Capture parameters
       v_uri = request.original_request_url @account.account_sid, @account.auth_token
       v_params = request.post? ? request.request_parameters : request.query_parameters
-      v_header = request.headers.fetch( 'HTTP_X_TWILIO_SIGNATURE', 'NO HEADER GIVEN' )
+      given_header = request.headers.fetch( 'HTTP_X_TWILIO_SIGNATURE', 'NO HEADER GIVEN' )
       
       #v_uri = 'http://%s:%s@localhost:5000%s' % [ @account.account_sid, @account.auth_token, request.path ]
       #v_params = env['rack.request.form_hash'] || []
-      #v_header = env['HTTP_X_TWILIO_SIGNATURE']
+      #given_header = env['HTTP_X_TWILIO_SIGNATURE']
       #v_calc = @account.twilio_validator.build_signature_for( v_uri, v_params )
       
 #       response.headers['v_uri'] = v_uri
 #       response.headers['v_params'] = v_params.to_s
-#       response.headers['v_header'] = v_header.to_s
-#       response.headers['v_header_calc'] = @account.twilio_validator.build_signature_for( v_uri, v_params )
+#       response.headers['given_header'] = given_header.to_s
+#       response.headers['given_header_calc'] = @account.twilio_validator.build_signature_for( v_uri, v_params )
 
 #       print "authenticate_twilio!\n"
 #       #print "  Base URL: %s\n" % request.url
 #       print "  New! URL: %s\n" % request.original_request_url()
 #       #print "  Params: Q:%i, R:%i, All:%i\n" % [ request.query_parameters.size, request.request_parameters.size, params.size ]
 #       #print "  Method: %s\n" % request.request_method
-#       print "  Given: %s\n" % v_header
+#       print "  Given: %s\n" % given_header
 #       print "  Expected: %s\n" % @account.twilio_validator.build_signature_for( request.original_request_url, v_params )
 #       print "  Request parameters:"
 #       pp v_params
 #       #print "  ALL parameters:"
 #       #pp params
 
-#       raise 'AUTH FAILED uri:[%s], post:[%s], header:[%s], expected:[%s]' % [v_uri, v_params, v_header, v_calc] unless @account.twilio_validator.validate( v_uri, v_params, v_header )
+#       raise 'AUTH FAILED uri:[%s], post:[%s], header:[%s], expected:[%s]' % [v_uri, v_params, given_header, v_calc] unless @account.twilio_validator.validate( v_uri, v_params, given_header )
     
       # FORBID if does not pass validation
-      head :forbidden unless @account.twilio_validator.validate( v_uri, v_params, v_header )
+      unless @account.twilio_validator.validate( v_uri, v_params, given_header )
+        expected_header = @account.twilio_validator.build_signature_for( v_uri, v_params )
+        logger.error 'Could not auth Twilio! Given %s, expected %s. Using URI %s and POST %s.' % [ given_header, expected_header, v_uri, v_params ]
+        head :forbidden
+      end
     end
   end
   
