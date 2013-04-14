@@ -35,6 +35,7 @@ SignalCloud::Application.configure do
 
   # Prepend all log lines with the following tags
   config.log_tags = [ :subdomain, :uuid ]
+  config.lograge.enabled = true
 
   # Use a different logger for distributed setups
   # config.logger = ActiveSupport::TaggedLogging.new(SyslogLogger.new)
