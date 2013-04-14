@@ -8,7 +8,6 @@ gem 'rails', '3.2.13'
 # gem 'sqlite3'
 gem 'pg'
 
-
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do
@@ -51,7 +50,6 @@ gem 'kaminari'
 gem 'phony'
 gem 'stringex'
 gem 'ruby-freshbooks'
-gem 'newrelic_rpm', group: :production
 gem 'httparty'
 
 group :test, :development do
@@ -67,4 +65,9 @@ group :test do
   gem "ZenTest", "~> 4.4.2"
   gem "autotest-rails", "~> 4.1.0"
   gem 'simplecov', :require => false
+end
+
+group :production do
+  gem 'lograge'
+  gem 'newrelic_rpm'
 end
