@@ -63,23 +63,95 @@ module Twilio
   end
 
   ##
+  # Inbound SMSs are POST'ed to the application and arrive as a key-value hash.
+  class InboundSms < ::APISmith::Smash
+
+    # Required fields
+    property :sms_sid,      :from => :SmsSid,      required: true
+    property :account_sid,  :from => :AccountSid,  required: true
+    property :from,         :from => :From,        required: true
+    property :to,           :from => :To,          required: true
+    property :body,         :from => :Body,        required: true
+
+    # Optional FROM fields
+    property :from_city,    :from => :FromCity
+    property :from_state,   :from => :FromState
+    property :from_zip,     :from => :FromZip
+    property :from_country, :from => :FromCountry
+
+    # Optional TO fields
+    property :to_city,      :from => :ToCity
+    property :to_state,     :from => :ToState
+    property :to_zip,       :from => :ToZip
+    property :to_country,   :from => :ToCountry
+  end
+
+  ##
   # REST API interface
   module REST
 
-    ##
-    # Message object
-    class Message
+    class InstanceResource
       ##
-      # Convert the 'payload' of the message back into a hash class, for ease of use later
+      # Convert the 'payload' of the message into a hash class, for ease of use later
       def to_property_hash
-        self.sid # Must call a parameter to force querying for data
-        properties = HashWithIndifferentAccess.new
-        [ :sid, :date_created, :date_updated, :date_sent, :account_sid, :to, :from, :body, :status, :direction, :api_version, :price, :price_unit, :parent_call_sid, :date_created, :date_updated, :account_sid, :phone_number_sid, :status, :start_time, :end_time, :duration, :answered_by, :forwarded_from, :caller_name, :uri ].map do |property|
+        (self.methods - self.class.instance_methods).each_with_object(HashWithIndifferentAccess.new) do |property, properties|
           properties[property] = self.send(property) if self.respond_to?(property)
         end
+      end
+
+      ##
+      # Convert the 'payload' of the message into a ApiSmith::Smash class, if available. Otherwise, default back to a hash.
+      def to_property_smash
+        properties = self.to_property_hash
+        properties = self.class::Smash.new( properties ) if self.class.has_smash?
         return properties
       end
+      
+      ##
+      # Check if a Smash is available for this class
+      def self.has_smash?
+        self.const_defined?('Smash')
+      end
     end
+
+    ##
+    # SMS send responses are returned to the application from the Twilio ruby API. These are odd criters that need extra management.
+    class Message
+      class Smash < ::APISmith::Smash
+  
+        # Required fields
+        property :sid
+        alias_method :sms_sid, :sid
+        
+        property :account_sid
+
+        property :date_created, transformer: lambda { |v| DateTime.parse(v) rescue nil }
+        alias_method :created_at, :date_created
+
+        property :date_updated, transformer: lambda { |v| DateTime.parse(v) rescue nil }
+        alias_method :updated_at, :date_updated
+
+        property :date_sent,    transformer: lambda { |v| DateTime.parse(v) rescue nil }
+        alias_method :sent_at, :date_sent
+
+        property :to
+        alias_method :customer_number, :to
+
+        property :from
+        alias_method :internal_number, :from
+
+        property :body
+        
+        property :status
+        property :direction
+
+        property :price, transformer: lambda { |v| BigDecimal.new v rescue nil }
+        property :price_unit
+        
+        property :api_version
+      end
+    end
+
   end
 
   ##

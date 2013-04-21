@@ -51,6 +51,7 @@ gem 'phony'
 gem 'stringex'
 gem 'ruby-freshbooks'
 gem 'httparty'
+gem 'api_smith'
 
 group :test, :development do
   gem "rspec-rails", "~> 2.0"
