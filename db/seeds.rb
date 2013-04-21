@@ -37,7 +37,7 @@ master_plan = AccountPlan.find_or_create_by_label( label: 'Unmetered' )
 payg_plan = AccountPlan.find_or_create_by_label( label:'PAYG', month: 0, phone_add: 1, call_in_add: 0.02, sms_in_add: 0.02, sms_out_add: 0.02 )
 dedicated_plan = AccountPlan.find_or_create_by_label( label:'Dedicated', month: 250, phone_add: 0, call_in_add: 0.01, sms_in_add: 0.01, sms_out_add: 0.01 )
 
-# Add a test account (me!)
+# Add a test account for the development environment
 unless Rails.env.production? || Account.exists?( encrypted_twilio_account_sid: Account.encrypt(:twilio_account_sid, ENV['TWILIO_TEST_ACCOUNT_SID']) )
   test_account = Account.new label:'Test Account', auth_token: 'test', account_plan: payg_plan, description: 'My test account'
     test_account.twilio_account_sid = ENV['TWILIO_TEST_ACCOUNT_SID']
@@ -45,7 +45,7 @@ unless Rails.env.production? || Account.exists?( encrypted_twilio_account_sid: A
     test_account.save!
   
   # Add users
-  test_user = test_account.users.create first_name: 'Jane', last_name: 'Doe', email: 'jane.doe@signalcloudapp.com', password: 'password', password_confirmation: 'password', roles: nil
+  test_user = test_account.users.create first_name: 'Jane', last_name: 'Doe', email: 'jane.doe@signalcloudapp.com', password: 'password', password_confirmation: 'password', roles: User::ROLES
   simple_user = test_account.users.create first_name: 'Joe', last_name: 'Bloggs', email: 'joe.bloggs@signalcloudapp.com', password: 'password', password_confirmation: 'password', roles: nil
   
   # Add example data for the test account
@@ -108,7 +108,7 @@ unless Account.exists?( encrypted_twilio_account_sid: Account.encrypt(:twilio_ac
     master_account.auth_token = '0ee1ed9c635074d1a5fc452aa2aec6d1'
     master_account.save!
   
-  master_user = master_account.users.build first_name: 'Ian', last_name: 'Lloyd', email: 'ian@signalcloudapp.com', password: ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['TWILIO_MASTER_ACCOUNT_SID'], roles: User::ROLES
+  master_user = master_account.users.build first_name: 'Ian', last_name: 'Lloyd', email: 'ian@signalcloudapp.com', password: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID'], roles: User::ROLES
     master_user.save!
   
   master_phone_number = master_account.phone_numbers.create!( number: '+14242773034', twilio_phone_number_sid: 'PNb35b5f695c76e7f558956284204bcb45' )
@@ -144,4 +144,35 @@ unless Account.exists?( encrypted_twilio_account_sid: Account.encrypt(:twilio_ac
     failed_reply: 'We are sorry, but your answer does not match your records. For your safety we have blocked your card and we will contact you shortly to discuss next steps.',
     expired_reply: 'We are sorry, but we did not receive your reply. For your safety we have blocked your card and we will contact you shortly to discuss next steps.'
     })
+end
+
+# Add a performance testing account where necessary (will not appear in Development)
+unless Account.exists?( encrypted_twilio_account_sid: Account.encrypt(:twilio_account_sid, ENV['TWILIO_TEST_ACCOUNT_SID']) )
+
+  perf_account = Account.new label:'Performance', auth_token: 'test', account_plan: master_plan, description: 'Performance testing'
+    perf_account.twilio_account_sid = ENV['TWILIO_TEST_ACCOUNT_SID']
+    perf_account.twilio_auth_token = ENV['TWILIO_TEST_AUTH_TOKEN']
+    perf_account.save!
+
+  perf_user = perf_account.users.build first_name: 'Performance', last_name: 'User', email: 'hello@signalcloudapp.com', password: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID'], roles: User::ROLES
+    perf_user.save!
+  
+  perf_phone_number = perf_account.phone_numbers.create!( number: Twilio::VALID_NUMBER, twilio_phone_number_sid: 'PX'+SecureRandom.hex(16) )
+  perf_account.phone_directories.first.phone_directory_entries.create!( phone_number_id: perf_phone_number.id, country: nil )
+
+  perf_account.stencils.create!({
+    label: 'Performance Example',
+    primary: true,
+    phone_directory_id: perf_account.phone_directories.first.id,
+    seconds_to_live: 3*60,
+    description: 'Speed test performance example.',
+    question: 'Hello, world! (Y/N)',
+    expected_confirmed_answer: 'Y',
+    expected_denied_answer: 'N',
+    confirmed_reply: '"Yes" received',
+    denied_reply: '"No" received',
+    failed_reply: 'Unknown answer received',
+    expired_reply: 'No answer received'
+    })
+  
 end
