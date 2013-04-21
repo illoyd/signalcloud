@@ -175,6 +175,43 @@ describe LedgerEntry do
     end
   end
   
+  describe '#update_account_balance' do
+    let(:original_value) { BigDecimal.new "-0.8" }
+    let(:new_value)      { BigDecimal.new "-1.2" }
+    let(:account)        { create :account }
+    let(:phone_number)   { create :phone_number, account: account }
+
+    context 'when entry is new' do
+      subject { build :ledger_entry, account: account, item: phone_number, value: original_value }
+
+      it 'changes account.balance' do
+        expect{ subject.update_account_balance }.to change(account, :balance).by( original_value )
+      end
+
+    end
+
+    context 'when value has changed' do
+      subject { create :ledger_entry, account: account, item: phone_number, value: original_value }
+
+      it 'changes account.balance' do
+        subject.value = new_value
+        expect{ subject.update_account_balance }.to change(account, :balance).by( new_value - original_value )
+      end
+
+    end
+
+    context 'when value has not changed' do
+      subject { create :ledger_entry, account: account, item: phone_number, value: original_value }
+
+      it 'does not change account.balance' do
+        subject.value = original_value
+        expect{ subject.update_account_balance }.not_to change(account, :balance)
+      end
+
+    end
+
+  end
+  
 #   describe ".new" do
 #   
 #     #before(:each) do

@@ -33,6 +33,7 @@ class LedgerEntry < ActiveRecord::Base
   validates_numericality_of :value, allow_nil: true
   
   before_validation :ensure_account
+  before_save :update_account_balance
   
   ##
   # Find all ledger_entries which have not been confirmed.
@@ -98,6 +99,12 @@ class LedgerEntry < ActiveRecord::Base
       self.account = self.item.account unless self.item.try(:account).nil?
     end
     #self.account_id = self.account.id unless self.account.try(:id).nil?
+  end
+  
+  def update_account_balance
+    difference = self.value - ( self.value_was || 0 )
+    return if difference == 0
+    self.account.update_balance! difference
   end
 
 end

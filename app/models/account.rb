@@ -6,6 +6,8 @@ class Account < ActiveRecord::Base
   # General attributes
   attr_accessible :account_sid, :account_plan, :auth_token, :balance, :label, :account_plan_id, :description, :vat_name, :vat_number
   
+  attr_accessor :balance_changed
+  
   # Encrypted attributes
   attr_encrypted :twilio_account_sid, key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :twilio_auth_token, key: ATTR_ENCRYPTED_SECRET
@@ -73,6 +75,16 @@ class Account < ActiveRecord::Base
     date = ( self.invoices.maximum('date_to') || self.ledger_entries.minimum('created_at') )
     raise 'cannot create invoice - no ledger entries' if date.nil?
     return date.to_time
+  end
+  
+  def update_balance!( delta )
+    self.class.update_all( ['balance = balance + ?', delta ], id: self.id )
+    self.balance_changed = true
+  end
+  
+  def balance()
+    self.reload if self.balance_changed
+    super
   end
 
 end

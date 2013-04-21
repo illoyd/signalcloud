@@ -80,4 +80,113 @@ describe Account, :vcr => { :cassette_name => "accounts" } do
     end
   end
   
+  describe '#balance' do
+    it 'updates balance automatically after change' do
+      expect { subject.update_balance! 5.0 }.to change{ subject.balance }
+    end
+    it 'updates balance automatically after change' do
+      expect { subject.update_balance! 0.0 }.not_to change{ subject.balance }
+    end
+  end
+  
+  describe '#update_balance!' do
+    subject { create :account }
+    let(:multiplier) { 3 }
+
+    context 'with BigDecimals' do
+      let(:credit) { BigDecimal.new "1.2" }
+      let(:debit)  { BigDecimal.new "-3.4" }
+      let(:zero)   { BigDecimal.new "0" }
+
+      it 'applies credit (+)' do
+        expect { subject.update_balance! credit }.to change{ subject.balance }.by( credit )
+      end
+  
+      it 'applies multiple credits (+)' do
+        expect { multiplier.times { subject.update_balance! credit } }.to change{ subject.balance }.by( credit * multiplier )
+      end
+  
+      it 'applies debit (-)' do
+        expect { subject.update_balance! debit }.to change{ subject.balance }.by( debit )
+      end
+      
+      it 'applies multiple debits (-)' do
+        expect { multiplier.times { subject.update_balance! debit } }.to change{ subject.balance }.by( debit * multiplier )
+      end
+      
+      it 'applies credit then debit' do
+        expect { # credit -> debit
+          subject.update_balance! credit
+          subject.update_balance! debit
+        }.to change{ subject.balance }.by( credit + debit )
+      end
+      
+      it 'applies debit then credit' do
+        expect { # debit -> credit
+          subject.update_balance! debit
+          subject.update_balance! credit
+        }.to change{ subject.balance }.by( debit + credit )
+      end
+      
+      it 'applies credit then debit then credit' do
+        expect { # credit -> debit -> credit
+          subject.update_balance! credit
+          subject.update_balance! debit
+          subject.update_balance! credit
+        }.to change{ subject.balance }.by( credit + debit + credit )
+      end
+      
+      it 'applies debit then credit then debit' do
+        expect { # debit -> credit -> debit
+          subject.update_balance! debit
+          subject.update_balance! credit
+          subject.update_balance! debit
+        }.to change{ subject.balance }.by( debit + credit + debit )
+      end
+      
+      it 'handles zero' do
+        expect { subject.update_balance! zero }.not_to change{ subject.balance }
+      end
+    end
+    
+    context 'with integers' do
+      let(:credit) { 1 }
+      let(:debit)  { -2 }
+      let(:zero)   { 0 }
+
+      it 'applies credit (+)' do
+        expect { subject.update_balance! credit }.to change{ subject.balance }.by( credit )
+      end
+  
+      it 'applies multiple credits (+)' do
+        expect { multiplier.times { subject.update_balance! credit } }.to change{ subject.balance }.by( credit * multiplier )
+      end
+
+      it 'handles zero' do
+        expect { subject.update_balance! zero }.not_to change{ subject.balance }
+      end
+
+    end
+    
+    context 'with floats' do
+      let(:credit) { 1.5 }
+      let(:debit)  { -2.4 }
+      let(:zero)   { 0.0 }
+
+      it 'applies credit (+)' do
+        expect { subject.update_balance! credit }.to change{ subject.balance }.by( credit )
+      end
+  
+      it 'applies multiple credits (+)' do
+        expect { multiplier.times { subject.update_balance! credit } }.to change{ subject.balance }.by( credit * multiplier )
+      end
+
+      it 'handles zero' do
+        expect { subject.update_balance! zero }.not_to change{ subject.balance }
+      end
+
+    end
+    
+  end
+  
 end
