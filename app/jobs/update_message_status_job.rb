@@ -43,7 +43,9 @@ class UpdateMessageStatusJob < Struct.new( :callback_values )
       #ledger_entry = message.ledger_entry
       #ledger_entry.value = message.cost
       date_sent = self.callback_values.fetch(:date_sent, nil)
-      date_sent = date_sent.blank? ? DateTime.now : DateTime.parse( date_sent )
+      date_sent = DateTime.now if date_sent.blank?
+      date_sent = DateTime.parse( date_sent ) if date_sent.is_a?( String )
+      # date_sent = date_sent.blank? ? DateTime.now : DateTime.parse( date_sent )
       message.ledger_entry.settled_at = date_sent
     end
     
@@ -61,7 +63,7 @@ class UpdateMessageStatusJob < Struct.new( :callback_values )
           ticket.status = Ticket::CHALLENGE_SENT unless ticket.is_closed?
         else
           ticket.challenge_status = Message::SENDING
-          # ticket.status = Ticket::QUEUED
+          ticket.status = Ticket::QUEUED unless ticket.is_closed?
         end 
       when Message::REPLY
         unless ticket.has_outstanding_reply_messages?

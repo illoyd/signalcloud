@@ -8,8 +8,20 @@ FactoryGirl.define do
       FactoryGirl.create(:ledger_entry, account: message.ticket.stencil.account, item: message, value: message.cost, narrative: LedgerEntry::OUTBOUND_SMS_NARRATIVE )
     end
     
-    trait :with_provider_response do
+    trait :with_costs do
+      provider_cost    { random_cost() }
+      our_cost         { random_cost() }
+    end
+    
+    trait :with_twilio_sid do
+      twilio_sid        'SMe7a99c10b98ee37aa680ee0617c76d21'
+    end
+    
+    trait :with_random_twilio_sid do
       twilio_sid        { 'SM' + SecureRandom.hex(16) }
+    end
+    
+    trait :with_provider_response do
       provider_response { {
                           "sid" => twilio_sid,
                           "date_created" => DateTime.now,

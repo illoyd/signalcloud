@@ -5,6 +5,11 @@ FactoryGirl.define do
     twilio_phone_number_sid     { 'PN' + SecureRandom.hex(16) }
     account
     
+    trait :with_costs do
+      provider_cost    { random_cost() }
+      our_cost         { random_cost() }
+    end
+    
     factory :valid_phone_number do
       number                    { Twilio::VALID_NUMBER }
     end

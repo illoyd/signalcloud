@@ -36,10 +36,10 @@ class ExpireTicketJob < Struct.new( :ticket_id, :force_resend )
       say( 'Sent expiration message (Twilio: %s).' % [messages.first.twilio_sid] )
 
     rescue SignalCloud::ReplyAlreadySentError => ex
-     say( 'Skipping as message has already been sent.', Logger::DEBUG )
+      say( 'Skipping as message has already been sent.', Logger::DEBUG )
     
     rescue SignalCloud::MessageSendingError => ex
-     say( ex.message, Logger::WARN )
+      say( ex.message, Logger::WARN )
     
     rescue => ex
       say( 'FAILED to send message: %s.' % [ex.message], Logger::ERROR )

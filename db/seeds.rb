@@ -104,6 +104,7 @@ unless Account.exists?( encrypted_twilio_account_sid: Account.encrypt(:twilio_ac
   master_account = Account.new label:'Master Account', account_plan: master_plan, description: 'Primary account'
     master_account.twilio_account_sid = ENV['TWILIO_MASTER_ACCOUNT_SID']
     master_account.twilio_auth_token = ENV['TWILIO_MASTER_AUTH_TOKEN']
+    master_account.twilio_application_sid = ENV['TWILIO_APPLICATION']
     master_account.account_sid = '76f78f836d4563bf4824da02b506346d'
     master_account.auth_token = '0ee1ed9c635074d1a5fc452aa2aec6d1'
     master_account.save!

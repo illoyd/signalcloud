@@ -7,10 +7,12 @@ AVAILABLE_NUMBER = '+15005550006'
 UNAVAILABLE_AREACODE = '533'
 AVAILABLE_AREACODE = '500'
 
-describe PhoneNumber, :vcr => { :cassette_name => "phone_number" } do
+describe PhoneNumber, :vcr do
   
-  let(:account) { create :account, :test_twilio, :with_sid_and_token }
+  it_behaves_like 'a costable item', :phone_number
 
+  let(:account) { create :account, :test_twilio, :with_sid_and_token }
+  
   # Manage all validations
   describe "validations" do
     before(:all) { 3.times { create :phone_number } }
@@ -193,13 +195,14 @@ describe PhoneNumber, :vcr => { :cassette_name => "phone_number" } do
 
   end
   
-  describe '#cost' do
-    [ [nil,nil], [nil,1], [1,nil], [1,1], [1,-1], [-1,1], [0.25,-0.32] ].each do |costs|
-      it "properly sums provider:#{costs.first} and our:#{costs.second}" do
-        phone_number = build :phone_number, provider_cost: costs.first, our_cost: costs.second
-        phone_number.cost.should == costs.reject{ |entry| entry.nil? }.sum
-      end
-    end
-  end
+#   describe '#cost' do
+#     [ [nil,nil], [nil,1], [1,nil], [1,1], [1,-1], [-1,1], [0.25,-0.32] ].each do |costs|
+#       
+#       it "properly sums provider:#{costs.first} and our:#{costs.second}" do
+#         phone_number = build :phone_number, provider_cost: costs.first, our_cost: costs.second
+#         phone_number.cost.should == costs.reject{ |entry| entry.nil? }.sum
+#       end
+#     end
+#   end
 
 end

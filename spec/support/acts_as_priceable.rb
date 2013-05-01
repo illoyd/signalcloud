@@ -2,6 +2,7 @@ shared_examples 'a priceable item' do |factory|
 
   describe '#price' do
     [ [nil,nil], [nil,1], [1,nil], [1,1], [1,-1], [-1,1], [0.25,-0.32] ].each do |prices|
+      prices.map!{ |price| price.nil? ? nil : BigDecimal.new(price.to_s) }
       it "properly sums provider:#{prices.first} and our:#{prices.second}" do
         msg = build factory, provider_price: prices.first, our_price: prices.second
         msg.price.should == prices.reject{ |entry| entry.nil? }.sum

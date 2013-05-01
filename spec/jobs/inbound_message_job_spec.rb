@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe InboundMessageJob, :vcr => { :cassette_name => "inbound_message_job" } do
+describe InboundMessageJob, :vcr do
   
   let(:account)          { create(:account, :master_twilio) }
   let(:phone_directory)  { create(:phone_directory, account: account) }
@@ -12,7 +12,7 @@ describe InboundMessageJob, :vcr => { :cassette_name => "inbound_message_job" } 
   
   def construct_inbound_payload( options={} )
     options.reverse_merge({
-      'SmsSid' => 'SM5e27df39904bc98686355dd7ec98f8a9',
+      'SmsSid' => 'SMe7a99c10b98ee37aa680ee0617c76d21',
       'AccountSid' => ENV['TWILIO_TEST_ACCOUNT_SID'],
       'From' => Twilio::VALID_NUMBER,
       'To' => Twilio::VALID_NUMBER,

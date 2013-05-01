@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe SendTicketChallengeJob, :vcr => { :cassette_name => "send_challenge_job" } do
+describe SendTicketChallengeJob, :vcr do
 
   describe '.new' do
     let(:ticket)  { create(:ticket) }

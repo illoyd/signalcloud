@@ -44,6 +44,9 @@ RSpec.configure do |config|
 
   # Mix-in the FactoryGirl methods
   config.include FactoryGirl::Syntax::Methods
+
+  config.treat_symbols_as_metadata_keys_with_true_values = true
+
 end
 
 FactoryGirl.find_definitions

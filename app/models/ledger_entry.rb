@@ -102,7 +102,7 @@ class LedgerEntry < ActiveRecord::Base
   end
   
   def update_account_balance
-    difference = self.value - ( self.value_was || 0 )
+    difference = ( self.value || 0 ) - ( self.value_was || 0 )
     return if difference == 0
     self.account.update_balance! difference
   end

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe CreateTwilioAccountJob, :vcr => { :cassette_name => "accounts" } do
+describe CreateTwilioAccountJob, :vcr do
   
   describe '#perform' do
     subject { CreateTwilioAccountJob.new account.id }

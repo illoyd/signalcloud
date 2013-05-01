@@ -1,24 +1,19 @@
 # encoding: UTF-8
 require 'spec_helper'
 
-describe Message, :vcr => { :cassette_name => "message" } do
+describe Message, :vcr do
   
+  it_behaves_like 'a costable item', :message
+
   # Helper: Build a random string for standard SMS
   def random_sms_string(length)
     charset_length = Message::SMS_CHARSET_LIST.length
     (1..length).map{ Message::SMS_CHARSET_LIST[rand(charset_length)] }.join('')
   end
   
-  # Helper: Build a random string for unicode SMS
-  def random_unicode_string(length)
-    charset_length = Message::SMS_CHARSET_LIST.length
-    str = (1..length).map{ (rand(111411)+1).chr(Encoding::UTF_8) }.join('')
-    str.ascii_only? ? random_unicode_string(length) : str
-  end
-  
   # Validations
   describe 'validations' do
-    before(:all) { 3.times { create :message, :with_provider_response } }
+    before(:all) { 3.times { create :message, :with_random_twilio_sid, :with_provider_response } }
     [ :our_cost, :provider_cost, :ticket_id, :provider_response, :provider_update, :twilio_sid ].each do |attribute| 
       it { should allow_mass_assignment_of attribute }
     end
@@ -157,14 +152,14 @@ describe Message, :vcr => { :cassette_name => "message" } do
 #     end
 #   end
 
-  describe '#cost' do
-    [ [nil,nil], [nil,1], [1,nil], [1,1], [1,-1], [-1,1], [0.25,-0.32] ].each do |costs|
-      it "properly sums provider:#{costs.first} and our:#{costs.second}" do
-        msg = build :message, provider_cost: costs.first, our_cost: costs.second
-        msg.cost.should == costs.reject{ |entry| entry.nil? }.sum
-      end
-    end
-  end
+#   describe '#cost' do
+#     [ [nil,nil], [nil,1], [1,nil], [1,1], [1,-1], [-1,1], [0.25,-0.32] ].each do |costs|
+#       it "properly sums provider:#{costs.first} and our:#{costs.second}" do
+#         msg = build :message, provider_cost: costs.first, our_cost: costs.second
+#         msg.cost.should == costs.reject{ |entry| entry.nil? }.sum
+#       end
+#     end
+#   end
 
   describe '#has_cost?' do
     context 'when both costs are present' do
@@ -187,7 +182,7 @@ describe Message, :vcr => { :cassette_name => "message" } do
   
   describe '#provider_cost=' do
     context 'when cost is not nil' do
-      subject { build :message, :with_provider_response }
+      subject { build :message, :with_random_twilio_sid, :with_provider_response }
       let(:provider_cost) { -1.00 }
       it 'updates provider_cost' do
         expect{ subject.provider_cost = provider_cost }.to change{ subject.provider_cost }.to(provider_cost)
@@ -197,7 +192,7 @@ describe Message, :vcr => { :cassette_name => "message" } do
       end
     end
     context 'when cost is nil' do
-      subject { build :message, :with_provider_response, provider_cost: -1.00, our_cost: -0.50 }
+      subject { build :message, :with_random_twilio_sid, :with_provider_response, provider_cost: -1.00, our_cost: -0.50 }
       let(:provider_cost) { nil }
       it 'updates provider_cost' do
         expect{ subject.provider_cost = provider_cost }.to change{ subject.provider_cost }.to(nil)
@@ -211,7 +206,7 @@ describe Message, :vcr => { :cassette_name => "message" } do
   describe 'callbacks' do
     let(:provider_cost) { -0.01 }
     let(:provider_response) { { body: 'Hello!', to: '+12121234567', from: '+4561237890', status: 'queued' } }
-    subject { build :message, :with_provider_response, body: provider_response[:body], to_number: provider_response[:to], from_number: provider_response[:from], provider_response: provider_response }
+    subject { build :message, :with_random_twilio_sid, :with_provider_response, body: provider_response[:body], to_number: provider_response[:to], from_number: provider_response[:from], provider_response: provider_response }
 
     context 'when price is set' do
       it 'creates a ledger entry' do

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Invoice, :vcr => { :cassette_name => "invoices" } do
+describe Invoice, :vcr do
   
   pending 'Invoicing disabled temporarily' do
 

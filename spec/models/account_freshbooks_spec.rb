@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Account, 'Freshbooks Integration', :vcr => { :cassette_name => "accounts_freshbooks" } do
+describe Account, 'Freshbooks Integration', :vcr do
   subject { create(:account) }
 
   describe '#freshbooks_client' do

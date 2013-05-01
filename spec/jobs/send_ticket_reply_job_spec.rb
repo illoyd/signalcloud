@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe SendTicketReplyJob, :vcr => { :cassette_name => "send_ticket_reply_job" } do
+describe SendTicketReplyJob, :vcr do
 
   describe '.new' do
     let(:ticket)  { create(:ticket) }
@@ -25,7 +25,7 @@ describe SendTicketReplyJob, :vcr => { :cassette_name => "send_ticket_reply_job"
   end
   
   describe '#perform' do
-    let(:account)           { create(:account, :test_twilio, :with_sid_and_token) }
+    let(:account)         { create(:account, :test_twilio, :with_sid_and_token) }
     let(:stencil)         { create(:stencil, account: account) }
 
     [ :confirmed, :denied, :failed, :expired ].each do |status|

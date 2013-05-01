@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe UpdateMessageStatusJob, :vcr => { :cassette_name => "update_message_status_job" } do
+describe UpdateMessageStatusJob, :vcr do
   
   def create_message_update_payload( message, body=nil, reply=false, others={} )
     body = message.ticket.question if body.nil?

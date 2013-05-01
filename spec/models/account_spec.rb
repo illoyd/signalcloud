@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Account, :vcr => { :cassette_name => "accounts" } do
+describe Account, :vcr do
   subject { create(:account) }
 
   describe '#primary_stencil' do

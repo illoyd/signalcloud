@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe ExpireTicketJob, :vcr => { :cassette_name => "expire_ticket_job" } do
+describe ExpireTicketJob, :vcr do
 
   describe '#find_ticket' do
     let(:ticket) { create(:ticket) }
@@ -12,8 +12,8 @@ describe ExpireTicketJob, :vcr => { :cassette_name => "expire_ticket_job" } do
     #let(:stencil) { stencils(:test_stencil) }
     #let(:ticket) { stencil.open_ticket( to_number: Twilio::VALID_NUMBER, expected_confirmed_answer: 'YES' ) }
     let(:account)           { create(:account, :test_twilio, :with_sid_and_token) }
-    let(:stencil)         { create(:stencil, account: account) }
-    let(:ticket)            { create(:ticket, stencil: stencil) }
+    let(:stencil)           { create(:stencil, account: account) }
+    let(:ticket)            { create(:ticket, stencil: stencil, expires_at: 900.seconds.from_now) }
     let(:ready_to_expire_ticket) { create(:ticket, expires_at: 180.seconds.ago, stencil: stencil) }
     let(:sent_ticket)       { create(:ticket, :challenge_sent, stencil: stencil) }
     let(:confirmed_ticket)  { create(:ticket, :challenge_sent, :response_received, :reply_sent, :confirmed, stencil: stencil) }

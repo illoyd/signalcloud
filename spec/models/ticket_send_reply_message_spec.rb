@@ -66,7 +66,7 @@ end
 
 ##
 # Split out the +send_reply_message+ function for ease of use
-describe Ticket, '#send_reply_message', :vcr => { :cassette_name => "ticket_send_reply_message" } do
+describe Ticket, '#send_reply_message', :vcr do
 
   let(:account) { create :account, :test_twilio, :with_sid_and_token }
   let(:phone_number) { create :phone_number, :valid_number, account: account }

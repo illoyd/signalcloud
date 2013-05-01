@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe SendTicketStatusWebhookJob, :vcr => { :cassette_name => "send_ticket_status_webhook_job" } do
+describe SendTicketStatusWebhookJob, :vcr do
 
   describe '#perform' do
 
