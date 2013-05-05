@@ -29,9 +29,7 @@
     = f.label :from_number, :class => 'control-label' do
       Service number
     .controls
-      .input-prepend
-        %span.add-on= icon( :rss )
-        = f.text_field :from_number
+      = f.collection_select :from_number, @stencil.phone_book.phone_numbers, :number, :human_number
   .control-group
     = f.label :seconds_to_live, :class => 'control-label'
     .controls= f.number_field :seconds_to_live, :value=>@stencil.seconds_to_live

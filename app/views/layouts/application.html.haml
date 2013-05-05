@@ -89,7 +89,7 @@
                         Switch accounts
                   - if can? :change_password, current_user
                     %li
-                      = link_to edit_user_registration_path do
+                      = link_to edit_user_path( current_user ) do
                         %i.icon-key
                         Change password
                   %li

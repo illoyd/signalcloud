@@ -54,6 +54,10 @@ class PhoneNumber < ActiveRecord::Base
   validates_inclusion_of :unsolicited_call_voice, allow_nil: true, in: VOICES, if: :'should_reply_to_unsolicited_call?'
   
   before_validation :ensure_normalized_phone_number
+  
+  def human_number
+    PhoneTools.humanize( self.number )
+  end
 
   ##
   # Update provider cost and, by extension, our cost.
