@@ -1,3 +1,12 @@
+GIT
+  remote: git://github.com/stouset/twitter_bootstrap_form_for.git
+  revision: 263774b4fca23987640d2586941584433b70c8d9
+  branch: bootstrap-2.0
+  specs:
+    twitter_bootstrap_form_for (2.0.1.0.rc1)
+      actionpack (>= 3)
+      railties (>= 3)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -229,6 +238,7 @@ DEPENDENCIES
   simplecov
   stringex
   twilio-ruby
+  twitter_bootstrap_form_for!
   uglifier (>= 1.0.3)
   unicorn
   vcr
