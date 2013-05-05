@@ -17,7 +17,7 @@
           %th Plan
           %th Balance
           %th Users
-          %th Tickets
+          %th Conversations
           %th Has Twilio?
           %th
       %tbody
@@ -29,7 +29,7 @@
               %small US
               = '$%0.4f' % account.balance
             %td{'align'=>'right'}= account.users.count
-            %td{'align'=>'right'}= account.tickets.count
+            %td{'align'=>'right'}= account.conversations.count
             %td= ( !account.twilio_account_sid.nil? && !account.twilio_auth_token.nil? ) ? 'Yes' : 'No'
             %td
               = dropdown_list( 'Manage', [ |

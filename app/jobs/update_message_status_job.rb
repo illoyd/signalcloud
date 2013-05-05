@@ -37,7 +37,7 @@ class UpdateMessageStatusJob < Struct.new( :callback_values )
     if self.callback_values.include? :price and !self.callback_values[:price].nil?
       message.provider_cost = self.callback_values[:price].to_f
       message.save!
-      #message.our_cost = message.ticket.stencil.account.account_plan.calculate_outbound_sms_cost( message.provider_cost )
+      #message.our_cost = message.conversation.stencil.account.account_plan.calculate_outbound_sms_cost( message.provider_cost )
 
       # Update the ledger_entry
       #ledger_entry = message.ledger_entry
@@ -53,27 +53,27 @@ class UpdateMessageStatusJob < Struct.new( :callback_values )
     message.save!
     message.ledger_entry.save!
     
-    # Check and close the ticket's phase if appropriate
-    ticket = message.ticket
+    # Check and close the conversation's phase if appropriate
+    conversation = message.conversation
     case message.message_kind
       when Message::CHALLENGE
-        unless ticket.has_outstanding_challenge_messages?
-          ticket.challenge_sent_at = self.callback_values[:date_sent]
-          ticket.challenge_status = Message::SENT
-          ticket.status = Ticket::CHALLENGE_SENT unless ticket.is_closed?
+        unless conversation.has_outstanding_challenge_messages?
+          conversation.challenge_sent_at = self.callback_values[:date_sent]
+          conversation.challenge_status = Message::SENT
+          conversation.status = Conversation::CHALLENGE_SENT unless conversation.is_closed?
         else
-          ticket.challenge_status = Message::SENDING
-          ticket.status = Ticket::QUEUED unless ticket.is_closed?
+          conversation.challenge_status = Message::SENDING
+          conversation.status = Conversation::QUEUED unless conversation.is_closed?
         end 
       when Message::REPLY
-        unless ticket.has_outstanding_reply_messages?
-          ticket.reply_sent_at = self.callback_values[:date_sent]
-          ticket.reply_status = Message::SENT
+        unless conversation.has_outstanding_reply_messages?
+          conversation.reply_sent_at = self.callback_values[:date_sent]
+          conversation.reply_status = Message::SENT
         else
-          ticket.reply_status = Message::SENDING
+          conversation.reply_status = Message::SENDING
         end
     end
-    ticket.save!
+    conversation.save!
   end
   
   ##

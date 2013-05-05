@@ -1,0 +1,81 @@
+-# UI variables
+- conversation_path = new_stencil_conversation_path( @stencil.nil? ? @account.default_stencil : @stencil )
+
+/ Page header
+.row
+  .span12
+    .page-header
+      %h1
+        = icon( :conversations )
+        Conversations
+        %small
+          all conversations
+          - unless @stencil.nil?
+            = "for #{@stencil.label}"
+
+/ Page controls
+.row
+  .span12.table-tools
+    = stencil_dropdown_list( @account, @stencil )
+    = status_dropdown_list( @account, @stencil, params[:status] )
+    - if can? :new, Conversation
+      .pull-right= link_to 'Start a new conversation', conversation_path, :class=>'btn btn-success btn-small'
+
+/ Page body
+.row
+  .span12
+    %table.table.table-condensed
+      %thead
+        %tr
+          %th
+          - if @multistencil
+            %th Stencil
+          %th Status
+          %th From number
+          %th To number
+          %th Expires On
+          %th
+            %span{ rel: 'tooltip', title: 'Message sent to person' }
+              = icon( :rss )
+              = icon( 'arrow-right' )
+              = icon( :user )
+          %th
+            %span{ rel: 'tooltip', title: 'Message received from person' }
+              = icon( :rss )
+              = icon( 'arrow-left' )
+              = icon( :user )
+          %th
+            %span{ rel: 'tooltip', title: 'Reply sent to person' }
+              = icon( :rss )
+              = icon( 'arrow-right' )
+              = icon( :user )
+            / Manage toolbox
+      %tbody
+        - if @conversations.empty?
+          %tr
+            %td{ colspan: 8 + (@multistencil ? 1 : 0) }
+              %em No conversations match your selected filters. Please remove your filters to see more conversations.
+        
+        - @conversations.each do |conversation|
+          %tr{ :class=>conversation_class(conversation.status) }
+            %td= split_dropdown_list([ |
+                { label: 'Details', icon: :show, link: conversation, if: can?(:show, conversation) }, |
+                { label: 'Force status to Confirmed', icon: 'ok-sign', link: conversation, if: can?(:force, conversation) }, |
+                { label: 'Force status to Denied', icon: 'minus-sign', link: conversation, if: can?(:force, conversation) }, |
+                { label: 'Force status to Failed', icon: 'remove-sign', link: conversation, if: can?(:force, conversation) }, |
+                { label: 'Force status to Expired', icon: :time, link: conversation, if: can?(:force, conversation) } |
+              ], {class: 'btn-mini'} ) |
+            - if @multistencil
+              %td= link_to conversation.stencil.label, conversation.stencil
+            %td
+              = link_to conversation do
+                = conversation_status_icon(conversation.status)
+                = human_conversation_status(conversation.status)
+            %td= humanize_phone_number Phony.normalize conversation.from_number
+            %td= humanize_phone_number Phony.normalize conversation.to_number
+            %td= conversation.expires_at
+            %td{style:'text-align:center'}= conversation.challenge_sent_at ? icon(:ok) : ''
+            %td{style:'text-align:center'}= conversation.response_received_at ? icon(:ok) : ''
+            %td{style:'text-align:center'}= conversation.reply_sent_at ? icon(:ok) : ''
+
+  = paginate @conversations

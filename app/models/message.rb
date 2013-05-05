@@ -1,6 +1,6 @@
 # encoding: UTF-8
 class Message < ActiveRecord::Base
-  attr_accessible :status, :sent_at, :our_cost, :provider_cost, :ticket_id, :provider_response, :provider_update, :twilio_sid, :message_kind, :to_number, :from_number, :body, :direction
+  attr_accessible :status, :sent_at, :our_cost, :provider_cost, :conversation_id, :provider_response, :provider_update, :twilio_sid, :message_kind, :to_number, :from_number, :body, :direction
   
   before_save :update_ledger_entry
 
@@ -40,19 +40,19 @@ class Message < ActiveRecord::Base
   attr_encrypted :body, key: ATTR_ENCRYPTED_SECRET
 
   ##
-  # Parent ticket, of which this message is part of the conversation.
-  belongs_to :ticket, inverse_of: :messages
+  # Parent conversation, of which this message is part of the conversation.
+  belongs_to :conversation, inverse_of: :messages
   
   ##
   # Chain up to parent's account.
-  delegate :account, :to => :ticket, :allow_nil => true
+  delegate :account, :to => :conversation, :allow_nil => true
   
   ##
   # LedgerEntry for this message.
   has_one :ledger_entry, as: :item #, autosave: true
 
   # Validations
-  validates_presence_of :ticket_id #, :twilio_sid
+  validates_presence_of :conversation_id #, :twilio_sid
   validates_numericality_of :our_cost, allow_nil: true
   validates_numericality_of :provider_cost, allow_nil: true
   validates_length_of :twilio_sid, is: Twilio::SID_LENGTH, allow_nil: true
@@ -139,7 +139,7 @@ class Message < ActiveRecord::Base
   
 #   def update_our_cost
 #     return unless self.has_provider_price?
-#     plan = self.ticket.stencil.account.account_plan
+#     plan = self.conversation.stencil.account.account_plan
 #     
 #     # Update our costs based upon the direction of the message
 #     self.our_cost = case self.direction
@@ -151,9 +151,9 @@ class Message < ActiveRecord::Base
 #   end
   
   def calculate_our_cost( value=nil )
-    return nil unless self.ticket && self.ticket.stencil && self.ticket.stencil.account && self.ticket.stencil.account.account_plan
+    return nil unless self.conversation && self.conversation.stencil && self.conversation.stencil.account && self.conversation.stencil.account.account_plan
     value = self.provider_cost if value.nil?
-    plan = self.ticket.stencil.account.account_plan
+    plan = self.conversation.stencil.account.account_plan
     return case self.direction
       when DIRECTION_OUT
         plan.calculate_outbound_sms_cost( value )
@@ -164,11 +164,11 @@ class Message < ActiveRecord::Base
   
   def deliver!()
     begin
-      self.provider_response = self.ticket.stencil.account.twilio_account.sms.messages.create({
+      self.provider_response = self.conversation.stencil.account.twilio_account.sms.messages.create({
         to: self.to_number,
         from: self.from_number,
         body: self.body,
-        status_callback: self.ticket.stencil.account.twilio_sms_status_url
+        status_callback: self.conversation.stencil.account.twilio_sms_status_url
       }).to_property_hash
 
       self.twilio_sid = self.provider_response[:sid]
@@ -178,8 +178,8 @@ class Message < ActiveRecord::Base
     rescue Twilio::REST::RequestError => ex
       self.status = FAILED
 
-      error_code = Ticket.translate_twilio_error_to_ticket_status ex.code
-      if Ticket::CRITICAL_ERRORS.include? error_code
+      error_code = Conversation.translate_twilio_error_to_conversation_status ex.code
+      if Conversation::CRITICAL_ERRORS.include? error_code
         raise SignalCloud::CriticalMessageSendingError.new( self.body, ex, error_code ) # Rethrow as a critical error
       else
         raise SignalCloud::MessageSendingError.new( self.body, ex, error_code ) # Rethrow in nice wrapper error
@@ -305,7 +305,7 @@ class Message < ActiveRecord::Base
   ##
   # Query the Twilio status of this message.
   def twilio_status
-    self.ticket.stencil.account.twilio_account.sms.messages.get( self.twilio_sid )
+    self.conversation.stencil.account.twilio_account.sms.messages.get( self.twilio_sid )
   end
   
   def refresh_from_twilio

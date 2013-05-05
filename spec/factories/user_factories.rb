@@ -31,12 +31,12 @@ FactoryGirl.define do
       roles_mask       { User.translate_roles [ :manage_phone_books ] }
     end
     
-    factory :start_ticket_permissions_user do
-      roles_mask       { User.translate_roles [ :start_ticket ] }
+    factory :start_conversation_permissions_user do
+      roles_mask       { User.translate_roles [ :start_conversation ] }
     end
     
-    factory :force_ticket_permissions_user do
-      roles_mask       { User.translate_roles [ :force_ticket ] }
+    factory :force_conversation_permissions_user do
+      roles_mask       { User.translate_roles [ :force_conversation ] }
     end
     
     factory :manage_ledger_entries_permissions_user do

@@ -75,26 +75,26 @@ unless Rails.env.production? || Account.exists?( encrypted_twilio_account_sid: A
   10.times { customer_numbers << random_uk_number() }
   
   customer_numbers.shuffle.each do |customer_number|
-    ticket = example_stencil.open_ticket( to_number: customer_number, expected_confirmed_answer: random_answer() )
-    ticket.status = Ticket::STATUSES.sample
-    ticket.save!
-    if [ Ticket::CHALLENGE_SENT, Ticket::CONFIRMED, Ticket::DENIED, Ticket::FAILED, Ticket::EXPIRED ].include? ticket.status
-      ticket.messages.build( to_number: ticket.to_number, from_number: ticket.from_number, body: ticket.question, message_kind: Message::CHALLENGE, direction: Message::DIRECTION_OUT, provider_cost: 0.01, sent_at: 5.seconds.ago, status: Message::SENT )
+    conversation = example_stencil.open_conversation( to_number: customer_number, expected_confirmed_answer: random_answer() )
+    conversation.status = Conversation::STATUSES.sample
+    conversation.save!
+    if [ Conversation::CHALLENGE_SENT, Conversation::CONFIRMED, Conversation::DENIED, Conversation::FAILED, Conversation::EXPIRED ].include? conversation.status
+      conversation.messages.build( to_number: conversation.to_number, from_number: conversation.from_number, body: conversation.question, message_kind: Message::CHALLENGE, direction: Message::DIRECTION_OUT, provider_cost: 0.01, sent_at: 5.seconds.ago, status: Message::SENT )
     end
-    case ticket.status
-      when Ticket::CONFIRMED
-        ticket.messages.build( to_number: ticket.from_number, from_number: ticket.to_number, body: ticket.expected_confirmed_answer, direction: Message::DIRECTION_IN, provider_cost: 0.01, sent_at: 4.seconds.ago )
-        ticket.messages.build( to_number: ticket.to_number, from_number: ticket.from_number, body: ticket.confirmed_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT, provider_cost: 0.01, sent_at: 3.seconds.ago, status: Message::SENT )
-      when Ticket::DENIED
-        ticket.messages.build( to_number: ticket.from_number, from_number: ticket.to_number, body: ticket.expected_denied_answer, direction: Message::DIRECTION_IN, provider_cost: 0.01, sent_at: 4.seconds.ago )
-        ticket.messages.build( to_number: ticket.to_number, from_number: ticket.from_number, body: ticket.denied_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT, provider_cost: 0.01, sent_at: 3.seconds.ago, status: Message::SENT )
-      when Ticket::FAILED
-        ticket.messages.build( to_number: ticket.from_number, from_number: ticket.to_number, body: random_answer(), direction: Message::DIRECTION_IN, provider_cost: 0.01, sent_at: 4.seconds.ago )
-        ticket.messages.build( to_number: ticket.to_number, from_number: ticket.from_number, body: ticket.failed_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT, provider_cost: 0.01, sent_at: 3.seconds.ago, status: Message::SENT )
-      when Ticket::EXPIRED
-        ticket.messages.build( to_number: ticket.to_number, from_number: ticket.from_number, body: ticket.expired_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT, provider_cost: 0.01, sent_at: 3.seconds.ago, status: Message::SENT )
+    case conversation.status
+      when Conversation::CONFIRMED
+        conversation.messages.build( to_number: conversation.from_number, from_number: conversation.to_number, body: conversation.expected_confirmed_answer, direction: Message::DIRECTION_IN, provider_cost: 0.01, sent_at: 4.seconds.ago )
+        conversation.messages.build( to_number: conversation.to_number, from_number: conversation.from_number, body: conversation.confirmed_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT, provider_cost: 0.01, sent_at: 3.seconds.ago, status: Message::SENT )
+      when Conversation::DENIED
+        conversation.messages.build( to_number: conversation.from_number, from_number: conversation.to_number, body: conversation.expected_denied_answer, direction: Message::DIRECTION_IN, provider_cost: 0.01, sent_at: 4.seconds.ago )
+        conversation.messages.build( to_number: conversation.to_number, from_number: conversation.from_number, body: conversation.denied_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT, provider_cost: 0.01, sent_at: 3.seconds.ago, status: Message::SENT )
+      when Conversation::FAILED
+        conversation.messages.build( to_number: conversation.from_number, from_number: conversation.to_number, body: random_answer(), direction: Message::DIRECTION_IN, provider_cost: 0.01, sent_at: 4.seconds.ago )
+        conversation.messages.build( to_number: conversation.to_number, from_number: conversation.from_number, body: conversation.failed_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT, provider_cost: 0.01, sent_at: 3.seconds.ago, status: Message::SENT )
+      when Conversation::EXPIRED
+        conversation.messages.build( to_number: conversation.to_number, from_number: conversation.from_number, body: conversation.expired_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT, provider_cost: 0.01, sent_at: 3.seconds.ago, status: Message::SENT )
     end
-    ticket.save!
+    conversation.save!
   end
 end
 

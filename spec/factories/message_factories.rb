@@ -1,11 +1,11 @@
 FactoryGirl.define do
 
   factory :message do
-    ticket
+    conversation
     status        Message::PENDING
     
     after(:create) do |message, evaluator|
-      FactoryGirl.create(:ledger_entry, account: message.ticket.stencil.account, item: message, value: message.cost, narrative: LedgerEntry::OUTBOUND_SMS_NARRATIVE )
+      FactoryGirl.create(:ledger_entry, account: message.conversation.stencil.account, item: message, value: message.cost, narrative: LedgerEntry::OUTBOUND_SMS_NARRATIVE )
     end
     
     trait :with_costs do
@@ -27,15 +27,15 @@ FactoryGirl.define do
                           "date_created" => DateTime.now,
                           "date_updated" => DateTime.now,
                           "date_sent" => nil,
-                          "account_sid" => ticket.stencil.account.twilio_account_sid,
-                          "to" => ticket.to_number,
-                          "from" => ticket.from_number,
-                          "body" => ticket.question,
+                          "account_sid" => conversation.stencil.account.twilio_account_sid,
+                          "to" => conversation.to_number,
+                          "from" => conversation.from_number,
+                          "body" => conversation.question,
                           "status" => "queued",
                           "direction" => "outbound-api",
                           "api_version" => "2010-04-01",
                           "price" => nil,
-                          "uri" => "\/2010-04-01\/Accounts\/#{ticket.stencil.account.twilio_account_sid}\/SMS\/Messages\/#{twilio_sid}.json"
+                          "uri" => "\/2010-04-01\/Accounts\/#{conversation.stencil.account.twilio_account_sid}\/SMS\/Messages\/#{twilio_sid}.json"
                         } }
     end
 

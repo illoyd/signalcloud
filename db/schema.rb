@@ -79,6 +79,54 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
   add_index "addresses", ["account_id"], :name => "index_addresses_on_account_id"
   add_index "addresses", ["country"], :name => "index_addresses_on_country"
 
+  create_table "conversations", :force => true do |t|
+    t.integer  "stencil_id",                                                           :null => false
+    t.integer  "status",                                   :limit => 2, :default => 0, :null => false
+    t.integer  "challenge_status",                         :limit => 2
+    t.integer  "reply_status",                             :limit => 2
+    t.string   "hashed_internal_number",                                               :null => false
+    t.string   "hashed_customer_number",                                               :null => false
+    t.datetime "expires_at",                                                           :null => false
+    t.datetime "challenge_sent_at"
+    t.datetime "response_received_at"
+    t.datetime "reply_sent_at"
+    t.string   "webhook_uri"
+    t.text     "encrypted_from_number",                                                :null => false
+    t.string   "encrypted_from_number_iv"
+    t.string   "encrypted_from_number_salt"
+    t.text     "encrypted_to_number",                                                  :null => false
+    t.string   "encrypted_to_number_iv"
+    t.string   "encrypted_to_number_salt"
+    t.text     "encrypted_expected_confirmed_answer",                                  :null => false
+    t.string   "encrypted_expected_confirmed_answer_iv"
+    t.string   "encrypted_expected_confirmed_answer_salt"
+    t.text     "encrypted_expected_denied_answer",                                     :null => false
+    t.string   "encrypted_expected_denied_answer_iv"
+    t.string   "encrypted_expected_denied_answer_salt"
+    t.text     "encrypted_question",                                                   :null => false
+    t.string   "encrypted_question_iv"
+    t.string   "encrypted_question_salt"
+    t.text     "encrypted_confirmed_reply",                                            :null => false
+    t.string   "encrypted_confirmed_reply_iv"
+    t.string   "encrypted_confirmed_reply_salt"
+    t.text     "encrypted_denied_reply",                                               :null => false
+    t.string   "encrypted_denied_reply_iv"
+    t.string   "encrypted_denied_reply_salt"
+    t.text     "encrypted_failed_reply",                                               :null => false
+    t.string   "encrypted_failed_reply_iv"
+    t.string   "encrypted_failed_reply_salt"
+    t.text     "encrypted_expired_reply",                                              :null => false
+    t.string   "encrypted_expired_reply_iv"
+    t.string   "encrypted_expired_reply_salt"
+    t.datetime "created_at",                                                           :null => false
+    t.datetime "updated_at",                                                           :null => false
+  end
+
+  add_index "conversations", ["hashed_customer_number"], :name => "index_conversations_on_hashed_customer_number"
+  add_index "conversations", ["hashed_internal_number"], :name => "index_conversations_on_hashed_internal_number"
+  add_index "conversations", ["status"], :name => "index_conversations_on_status"
+  add_index "conversations", ["stencil_id"], :name => "index_conversations_on_stencil_id"
+
   create_table "delayed_jobs", :force => true do |t|
     t.integer  "priority",   :default => 0
     t.integer  "attempts",   :default => 0
@@ -125,7 +173,7 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
   end
 
   create_table "messages", :force => true do |t|
-    t.integer  "ticket_id",                                                                                   :null => false
+    t.integer  "conversation_id",                                                                             :null => false
     t.string   "twilio_sid",                       :limit => 34
     t.string   "message_kind",                     :limit => 1
     t.integer  "status",                           :limit => 2,                                :default => 0, :null => false
@@ -152,9 +200,9 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
     t.datetime "updated_at",                                                                                  :null => false
   end
 
+  add_index "messages", ["conversation_id"], :name => "index_messages_on_conversation_id"
   add_index "messages", ["message_kind"], :name => "index_messages_on_message_kind"
   add_index "messages", ["status"], :name => "index_messages_on_status"
-  add_index "messages", ["ticket_id"], :name => "index_messages_on_ticket_id"
   add_index "messages", ["updated_at"], :name => "index_messages_on_updated_at"
 
   create_table "phone_book_entries", :force => true do |t|
@@ -235,54 +283,6 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
   add_index "stencils", ["account_id"], :name => "index_stencils_on_account_id"
   add_index "stencils", ["phone_book_id"], :name => "index_stencils_on_phone_book_id"
   add_index "stencils", ["primary"], :name => "index_stencils_on_primary"
-
-  create_table "tickets", :force => true do |t|
-    t.integer  "stencil_id",                                                           :null => false
-    t.integer  "status",                                   :limit => 2, :default => 0, :null => false
-    t.integer  "challenge_status",                         :limit => 2
-    t.integer  "reply_status",                             :limit => 2
-    t.string   "hashed_internal_number",                                               :null => false
-    t.string   "hashed_customer_number",                                               :null => false
-    t.datetime "expires_at",                                                           :null => false
-    t.datetime "challenge_sent_at"
-    t.datetime "response_received_at"
-    t.datetime "reply_sent_at"
-    t.string   "webhook_uri"
-    t.text     "encrypted_from_number",                                                :null => false
-    t.string   "encrypted_from_number_iv"
-    t.string   "encrypted_from_number_salt"
-    t.text     "encrypted_to_number",                                                  :null => false
-    t.string   "encrypted_to_number_iv"
-    t.string   "encrypted_to_number_salt"
-    t.text     "encrypted_expected_confirmed_answer",                                  :null => false
-    t.string   "encrypted_expected_confirmed_answer_iv"
-    t.string   "encrypted_expected_confirmed_answer_salt"
-    t.text     "encrypted_expected_denied_answer",                                     :null => false
-    t.string   "encrypted_expected_denied_answer_iv"
-    t.string   "encrypted_expected_denied_answer_salt"
-    t.text     "encrypted_question",                                                   :null => false
-    t.string   "encrypted_question_iv"
-    t.string   "encrypted_question_salt"
-    t.text     "encrypted_confirmed_reply",                                            :null => false
-    t.string   "encrypted_confirmed_reply_iv"
-    t.string   "encrypted_confirmed_reply_salt"
-    t.text     "encrypted_denied_reply",                                               :null => false
-    t.string   "encrypted_denied_reply_iv"
-    t.string   "encrypted_denied_reply_salt"
-    t.text     "encrypted_failed_reply",                                               :null => false
-    t.string   "encrypted_failed_reply_iv"
-    t.string   "encrypted_failed_reply_salt"
-    t.text     "encrypted_expired_reply",                                              :null => false
-    t.string   "encrypted_expired_reply_iv"
-    t.string   "encrypted_expired_reply_salt"
-    t.datetime "created_at",                                                           :null => false
-    t.datetime "updated_at",                                                           :null => false
-  end
-
-  add_index "tickets", ["hashed_customer_number"], :name => "index_tickets_on_hashed_customer_number"
-  add_index "tickets", ["hashed_internal_number"], :name => "index_tickets_on_hashed_internal_number"
-  add_index "tickets", ["status"], :name => "index_tickets_on_status"
-  add_index "tickets", ["stencil_id"], :name => "index_tickets_on_stencil_id"
 
   create_table "unsolicited_calls", :force => true do |t|
     t.integer  "phone_number_id"

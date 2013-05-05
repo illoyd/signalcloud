@@ -1,0 +1,18 @@
+- if @conversation.new_record?
+  -# New conversation navigation
+  = navigation_list([ |
+    { header: 'Related' }, |
+    { label: 'All Conversations', icon: :conversations, link: conversations_path, if: can?(:index, Conversation) }, |
+    { label: 'All Conversations for ' + @stencil.label, icon: :stencils, link: stencil_conversations_path(@stencil), if: can?(:index, Conversation) } |
+    ]) |
+- else
+  -# Existing conversation navigation
+  = navigation_list([ |
+    { header: 'Manage' }, |
+    { label: 'Force status to Confirmed', icon: 'ok-sign', link: @conversation, if: can?(:force, @conversation) }, |
+    { label: 'Force status to Denied', icon: 'minus-sign', link: @conversation, if: can?(:force, @conversation) }, |
+    { label: 'Force status to Failed', icon: 'remove-sign', link: @conversation, if: can?(:force, @conversation) }, |
+    { label: 'Force status to Expired', icon: :time, link: @conversation, if: can?(:force, @conversation) }, |
+    { header: 'Related' }, |
+    { label: 'All Conversations for ' + @conversation.stencil.label, icon: :stencils, link: stencil_conversations_path(@conversation.stencil), if: can?(:index, Conversation) } |
+    ]) |

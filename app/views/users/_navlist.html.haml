@@ -1,11 +1,11 @@
 - if @user.new_record?
-  -# New ticket navigation
+  -# New conversation navigation
   = navigation_list([ |
     { header: 'Related' }, |
     { label: 'All Users', icon: :user, link: users_path, if: can?(:index, User) } |
     ]) |
 - else
-  -# Existing ticket navigation
+  -# Existing conversation navigation
   = navigation_list([ |
     { header: 'Manage' }, |
     { label: 'Details', icon: :show, link: @user, if: can?(:show, @user) }, |

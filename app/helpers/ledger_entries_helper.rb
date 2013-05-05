@@ -3,7 +3,7 @@ module LedgerEntriesHelper
   def item_link( item )
     return case item.class.to_s
       when 'Message'
-        item.ticket
+        item.conversation
       when 'PhoneNumber', 'UnsolicitedMessage', 'UnsolicitedCall'
         item
       else
@@ -14,7 +14,7 @@ module LedgerEntriesHelper
   def item_label( item )
     return case item.class.to_s
       when 'Message'
-        'Ticket'
+        'Conversation'
       when 'PhoneNumber'
         'Phone Number'
       when 'UnsolicitedMessage'
@@ -29,7 +29,7 @@ module LedgerEntriesHelper
   def item_icon( item )
     return case item.class.to_s
       when 'Message'
-        :tickets
+        :conversations
       when 'PhoneNumber'
         :phone_numbers
       when 'UnsolicitedMessage'

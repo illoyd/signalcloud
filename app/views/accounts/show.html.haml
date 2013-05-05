@@ -24,21 +24,21 @@
         .thumbnail.tile
           %p.information= "%0.2f" % @account.ledger_entries.yesterday.sum(:value)
           %p.information-label Used yesterday
-      / Open Tickets
+      / Open Conversations
       %li.span3
         .thumbnail.tile
-          %p.information= "%i" % @account.tickets.today.opened.count
-          %p.information-label Open tickets
-      / Tickets Today
+          %p.information= "%i" % @account.conversations.today.opened.count
+          %p.information-label Open conversations
+      / Conversations Today
       %li.span3
         .thumbnail.tile
-          %p.information= "%i" % @account.tickets.today.count
-          %p.information-label Tickets today
-      / Tickets Yesterday
+          %p.information= "%i" % @account.conversations.today.count
+          %p.information-label Conversations today
+      / Conversations Yesterday
       %li.span3
         .thumbnail.tile
-          %p.information= "%i" % @account.tickets.yesterday.count
-          %p.information-label Tickets yesterday
+          %p.information= "%i" % @account.conversations.yesterday.count
+          %p.information-label Conversations yesterday
       / Account Plan
       /
         %li.span3
@@ -46,16 +46,16 @@
             %p.information= @account.account_plan.label
             %p.information-label Plan
     
-    %h4 ticket breakdown
+    %h4 conversation breakdown
     %div.tabbable    
       %ul.nav.nav-pills
         %li.active= link_to 'today', '#today', {'data-toggle'=>'pill'}
         %li= link_to 'yesterday', '#yesterday', {'data-toggle'=>'pill'}
         %li= link_to 'last 7 days', '#lastweek', {'data-toggle'=>'pill'}
       %div.tab-content.fade.in
-        %div#today.tab-pane.fade.in.active= ticket_status_breakdown( @account.tickets.today.count_by_status )
-        %div#yesterday.tab-pane.fade= ticket_status_breakdown( @account.tickets.yesterday.count_by_status )
-        %div#lastweek.tab-pane.fade= ticket_status_breakdown( @account.tickets.last_x_days.count_by_status )
+        %div#today.tab-pane.fade.in.active= conversation_status_breakdown( @account.conversations.today.count_by_status )
+        %div#yesterday.tab-pane.fade= conversation_status_breakdown( @account.conversations.yesterday.count_by_status )
+        %div#lastweek.tab-pane.fade= conversation_status_breakdown( @account.conversations.last_x_days.count_by_status )
     
     %h4 tokens
     %p Tokens are used to authenticate with the SignalCloud API.

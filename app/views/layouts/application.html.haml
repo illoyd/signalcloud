@@ -61,11 +61,11 @@
                       %a{ :href => phone_numbers_path }
                         = icon( :phone_numbers )
                         Phone Numbers
-                  - if can? :index, Ticket
+                  - if can? :index, Conversation
                     %li
-                      %a{ :href => tickets_path }
-                        = icon( :tickets )
-                        Tickets
+                      %a{ :href => conversations_path }
+                        = icon( :conversations )
+                        Conversations
                   - if can? :index, LedgerEntry
                     %li
                       %a{ :href => ledger_entries_path }
@@ -98,8 +98,8 @@
                     = link_to destroy_user_session_path, :method => :delete do
                       %i.icon-off
                       Sign out
-            = form_tag tickets_path, :method => 'get', :class => 'navbar-search pull-right' do
-              = text_field_tag :search, params[:search], class: 'search-query', placeholder: 'Search Tickets'
+            = form_tag conversations_path, :method => 'get', :class => 'navbar-search pull-right' do
+              = text_field_tag :search, params[:search], class: 'search-query', placeholder: 'Search Conversations'
   
       / Body
       = render 'layouts/messages'

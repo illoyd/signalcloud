@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe LedgerEntry do
-  #fixtures :accounts, :stencils, :tickets, :messages, :ledger_entries
+  #fixtures :accounts, :stencils, :conversations, :messages, :ledger_entries
   
   describe "validations" do
     before(:all) { 3.times { create :ledger_entry } }
@@ -217,13 +217,13 @@ describe LedgerEntry do
 #     #before(:each) do
 #       # Get all needed objects in the ownership chain
 #       #@account = accounts(:test_account)
-#       #@ticket = @account.tickets.first
-#       #@message = @ticket.messages.first
+#       #@conversation = @account.conversations.first
+#       #@message = @conversation.messages.first
 #     #end
 # 
 #     let(:account) { create_freshbooks_account(10) }
-#     #let(:ticket)  { account.tickets.first }
-#     let(:message) { account.tickets.where( status: [Ticket::CHALLENGE_SENT, Ticket::CONFIRMED, Ticket::DENIED, Ticket::FAILED, Ticket::EXPIRED] ).first.messages.first }
+#     #let(:conversation)  { account.conversations.first }
+#     let(:message) { account.conversations.where( status: [Conversation::CHALLENGE_SENT, Conversation::CONFIRMED, Conversation::DENIED, Conversation::FAILED, Conversation::EXPIRED] ).first.messages.first }
 # 
 #     it "should create a new pending ledger_entry from scratch" do
 #       # Count the number of ledger_entries for the message

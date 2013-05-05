@@ -1,7 +1,7 @@
 class Ability
   include CanCan::Ability
   
-  STANDARD_OBJECTS = [ Stencil, PhoneNumber, PhoneBook, Ticket ]
+  STANDARD_OBJECTS = [ Stencil, PhoneNumber, PhoneBook, Conversation ]
 
   def initialize(user)
     # Define abilities for the passed in user here. For example:
@@ -45,7 +45,7 @@ class Ability
 #       when User::ROLE_USER
 #         # Can read, create, and update standard objects
 #         can [ :read, :create, :update ], [ Stencil, PhoneNumber, PhoneBook ], { account_id: user.account_id }
-#         can [ :read, :create, :update ], [ Ticket ], { stencil: { account_id: user.account_id } }
+#         can [ :read, :create, :update ], [ Conversation ], { stencil: { account_id: user.account_id } }
 #         can [ :show ], Account
 #         
 #         # Can view and update own profile
@@ -59,7 +59,7 @@ class Ability
 #       when User::ROLE_OWNER
 #         # Can manage standard objects
 #         can :manage, [ Stencil, PhoneNumber, PhoneBook ], { account_id: user.account_id }
-#         can [ :read, :create, :update ], [ Ticket ], { stencil: { account_id: user.account_id } }
+#         can [ :read, :create, :update ], [ Conversation ], { stencil: { account_id: user.account_id } }
 #         
 #         # Can see ledger_entries
 #         can :read, LedgerEntry, { account_id: user.account_id }
@@ -81,13 +81,13 @@ class Ability
 #       end
   end
   
-  # [ :shadow_account, :manage_account, :manage_users, :manage_stencils, :manage_phone_numbers, :manage_phone_books, :manage_tickets, :start_ticket ]
+  # [ :shadow_account, :manage_account, :manage_users, :manage_stencils, :manage_phone_numbers, :manage_phone_books, :manage_conversations, :start_conversation ]
   
   def grant_default_privileges(user)
     # Index and show for primary objects
     can :read, [ Stencil, PhoneNumber, PhoneBook, PhoneBookEntry ], { account_id: user.account_id }
-    can :read, [ Ticket ], { stencil: { account_id: user.account_id } }
-    can :read, [ Message ], { ticket: { stencil: { account_id: user.account_id } } }
+    can :read, [ Conversation ], { stencil: { account_id: user.account_id } }
+    can :read, [ Message ], { conversation: { stencil: { account_id: user.account_id } } }
     
     # Show for owning account
     can :show, [ Account ], { id: user.account_id }
@@ -137,14 +137,14 @@ class Ability
     can :read, LedgerEntry, { account_id: user.account_id }
   end
   
-  def grant_force_ticket_privileges(user)
-    # Allow forcing tickets
-    can [:force], Ticket, { stencil: { account_id: user.account_id } }
+  def grant_force_conversation_privileges(user)
+    # Allow forcing conversations
+    can [:force], Conversation, { stencil: { account_id: user.account_id } }
   end
   
-  def grant_start_ticket_privileges(user)
-    # Allow new, create for tickets
-    can [:new, :create], Ticket, { stencil: { account_id: user.account_id } }
+  def grant_start_conversation_privileges(user)
+    # Allow new, create for conversations
+    can [:new, :create], Conversation, { stencil: { account_id: user.account_id } }
   end
   
 end

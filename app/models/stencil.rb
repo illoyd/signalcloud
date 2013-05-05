@@ -16,9 +16,9 @@ class Stencil < ActiveRecord::Base
   # Relationships
   belongs_to :account, inverse_of: :stencils
   belongs_to :phone_book, inverse_of: :stencils
-  has_many :tickets, inverse_of: :stencil
+  has_many :conversations, inverse_of: :stencil
   
-  def open_ticket( passed_options )
+  def open_conversation( passed_options )
     # Build a hash of options using self as a default, merging passed options
     options = {
       seconds_to_live: self.seconds_to_live,
@@ -33,6 +33,6 @@ class Stencil < ActiveRecord::Base
     
     # Add a randomly selected from number if needed
     options[:from_number] = self.phone_book.select_from_number( options[:to_number] ).number unless options.key? :from_number
-    return self.tickets.build( options )
+    return self.conversations.build( options )
   end
 end

@@ -79,52 +79,52 @@ class FreshBooksClientAlreadyExistsError < FreshBooksError
   end
 end
 
-class TicketError < SignalCloudError
-  attr_accessor :ticket
-  def initialize( msg, ticket, original = nil, code = nil )
+class ConversationError < SignalCloudError
+  attr_accessor :conversation
+  def initialize( msg, conversation, original = nil, code = nil )
     super( msg, original, code )
-    self.ticket = ticket
+    self.conversation = conversation
   end
 end
 
 class MessageError < SignalCloudError
-  attr_accessor :ticket_message
-  def initialize( msg, ticket_message, original = nil, code = nil )
+  attr_accessor :conversation_message
+  def initialize( msg, conversation_message, original = nil, code = nil )
     super( msg, original, code )
-    self.ticket_message = ticket_message
+    self.conversation_message = conversation_message
   end
 end
 
-class TicketSendingError < TicketError
-  def initialize(ticket, original = nil, code = nil)
-    super( 'Ticket encountered an error while sending.', ticket, original, code )
+class ConversationSendingError < ConversationError
+  def initialize(conversation, original = nil, code = nil)
+    super( 'Conversation encountered an error while sending.', conversation, original, code )
   end
 end
 
 class MessageSendingError < MessageError
   def initialize(message, original = nil, code = nil)
-    super( 'Ticket encountered an error while sending (code %i).' % [code], message, original, code )
+    super( 'Conversation encountered an error while sending (code %i).' % [code], message, original, code )
   end
 end
 
 class CriticalMessageSendingError < MessageSendingError
 end
 
-class InvalidTicketStateError < TicketError
-  def initialize(ticket, original = nil, code = nil)
-    super( 'The ticket is in an invalid state.', ticket, original, code )
+class InvalidConversationStateError < ConversationError
+  def initialize(conversation, original = nil, code = nil)
+    super( 'The conversation is in an invalid state.', conversation, original, code )
   end
 end
 
-class ChallengeAlreadySentError < TicketError
-  def initialize(ticket, original = nil, code = nil)
-    super( 'The ticket challenge has already been sent. Use force_resend to resend the message.', ticket, original, code )
+class ChallengeAlreadySentError < ConversationError
+  def initialize(conversation, original = nil, code = nil)
+    super( 'The conversation challenge has already been sent. Use force_resend to resend the message.', conversation, original, code )
   end
 end
 
-class ReplyAlreadySentError < TicketError
-  def initialize(ticket, original = nil, code = nil)
-    super( 'The ticket reply has already been sent. Use force_resend to resend the message.', ticket, original, code )
+class ReplyAlreadySentError < ConversationError
+  def initialize(conversation, original = nil, code = nil)
+    super( 'The conversation reply has already been sent. Use force_resend to resend the message.', conversation, original, code )
   end
 end
 

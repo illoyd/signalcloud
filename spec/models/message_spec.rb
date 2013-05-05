@@ -14,12 +14,12 @@ describe Message, :vcr do
   # Validations
   describe 'validations' do
     before(:all) { 3.times { create :message, :with_random_twilio_sid, :with_provider_response } }
-    [ :our_cost, :provider_cost, :ticket_id, :provider_response, :provider_update, :twilio_sid ].each do |attribute| 
+    [ :our_cost, :provider_cost, :conversation_id, :provider_response, :provider_update, :twilio_sid ].each do |attribute| 
       it { should allow_mass_assignment_of attribute }
     end
-    it { should belong_to(:ticket) }
+    it { should belong_to(:conversation) }
     it { should have_one(:ledger_entry) }
-    it { should validate_presence_of(:ticket_id) }
+    it { should validate_presence_of(:conversation_id) }
     it { should ensure_length_of(:twilio_sid).is_equal_to(Twilio::SID_LENGTH) }
     it { should validate_numericality_of(:our_cost) }
     it { should validate_numericality_of(:provider_cost) }
@@ -65,7 +65,7 @@ describe Message, :vcr do
 #     context 'when costs not set' do
 #       subject { create :message }
 #       before(:each) { 
-#         subject.ticket.stencil.account.account_plan = create(:ridiculous_account_plan)
+#         subject.conversation.stencil.account.account_plan = create(:ridiculous_account_plan)
 #         subject.provider_response = subject.provider_response.with_indifferent_access.merge(price: -1.23)
 #       }
 #       its(:provider_cost) { should be_nil }
@@ -83,7 +83,7 @@ describe Message, :vcr do
 #     context 'when costs already set' do
 #       subject { create :message, :settled }
 #       before(:each) { 
-#         subject.ticket.stencil.account.account_plan = create(:ridiculous_account_plan)
+#         subject.conversation.stencil.account.account_plan = create(:ridiculous_account_plan)
 #         subject.provider_response = subject.provider_response.with_indifferent_access.merge(price: -1.23)
 #       }
 #       its(:provider_cost) { should_not be_nil }
@@ -229,7 +229,7 @@ describe Message, :vcr do
 
 #     it 'should auto-save ledger entry' do
 #       message = Message.new( payload: { body: 'Hello!', to: '+12121234567', from: '+4561237890' }, twilio_sid: 'XX' + SecureRandom.hex(16) )
-#       message.ticket = tickets(:test_ticket)
+#       message.conversation = conversations(:test_conversation)
 #       message.account.should_not be_nil
 #       #expect{ message.save! }.to_not raise_error
 #       
@@ -265,11 +265,11 @@ describe Message, :vcr do
     let(:phone_number) { create :valid_phone_number, account: account }
     let(:phone_book) { create :phone_book, account: account }
     let(:stencil) { create :stencil, account: account, phone_book: phone_book }
-    let(:ticket) { create :ticket, stencil: stencil }
+    let(:conversation) { create :conversation, stencil: stencil }
     let!(:phone_book_entry) { create :phone_book_entry, phone_number: phone_number, phone_book: phone_book }
 
     context 'when properly configured' do
-      subject { build :message, ticket: ticket, to_number: Twilio::VALID_NUMBER, from_number: Twilio::VALID_NUMBER, body: 'Hello!' }
+      subject { build :message, conversation: conversation, to_number: Twilio::VALID_NUMBER, from_number: Twilio::VALID_NUMBER, body: 'Hello!' }
       it 'does not raise error' do
         expect { subject.deliver! }.to_not raise_error
       end
@@ -285,7 +285,7 @@ describe Message, :vcr do
     end
 
     context 'when missing TO' do
-      subject { build :message, ticket: ticket, to_number: nil, from_number: Twilio::VALID_NUMBER, body: 'Hello!' }
+      subject { build :message, conversation: conversation, to_number: nil, from_number: Twilio::VALID_NUMBER, body: 'Hello!' }
       it "raises error" do
         expect{ subject.deliver! }.to raise_error( SignalCloud::MessageSendingError )
       end
@@ -295,7 +295,7 @@ describe Message, :vcr do
     end
 
     context 'when missing FROM' do
-      subject { build :message, ticket: ticket, to_number: Twilio::VALID_NUMBER, from_number: nil, body: 'Hello!' }
+      subject { build :message, conversation: conversation, to_number: Twilio::VALID_NUMBER, from_number: nil, body: 'Hello!' }
       it "raises error" do
         expect{ subject.deliver! }.to raise_error( SignalCloud::MessageSendingError )
       end
@@ -305,7 +305,7 @@ describe Message, :vcr do
     end
 
     context 'when missing BODY' do
-      subject { build :message, ticket: ticket, to_number: Twilio::VALID_NUMBER, from_number: Twilio::VALID_NUMBER, body: nil }
+      subject { build :message, conversation: conversation, to_number: Twilio::VALID_NUMBER, from_number: Twilio::VALID_NUMBER, body: nil }
       it "raises error" do
         expect{ subject.deliver! }.to raise_error( SignalCloud::CriticalMessageSendingError )
       end

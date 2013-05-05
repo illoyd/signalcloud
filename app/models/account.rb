@@ -17,7 +17,7 @@ class Account < ActiveRecord::Base
   belongs_to :account_plan, inverse_of: :accounts
   has_many :users, inverse_of: :account
   has_many :stencils, inverse_of: :account
-  has_many :tickets, through: :stencils
+  has_many :conversations, through: :stencils
   has_many :phone_books, inverse_of: :account
   has_many :phone_book_entries, through: :phone_books
   has_many :phone_numbers, inverse_of: :account
@@ -27,8 +27,8 @@ class Account < ActiveRecord::Base
   has_one :secondary_address, class_name: 'Address', autosave: true, dependent: :destroy
   
   # Helper reference for all messages
-  has_many :tickets, through: :stencils
-  has_many :messages, through: :tickets
+  has_many :conversations, through: :stencils
+  has_many :messages, through: :conversations
   
   # Nested resources
   accepts_nested_attributes_for :primary_address
@@ -61,9 +61,9 @@ class Account < ActiveRecord::Base
   end
   
   ##
-  # Get statistics and counts for all tickets in this account. With return a hash of nicely labeled counts.
-  def ticket_count_by_status()
-    statuses = Ticket.count_by_status_hash( self.tickets.today )
+  # Get statistics and counts for all conversations in this account. With return a hash of nicely labeled counts.
+  def conversation_count_by_status()
+    statuses = Conversation.count_by_status_hash( self.conversations.today )
   end
   
   def last_invoice_date()

@@ -1,6 +1,6 @@
-== ticketplease
+== conversationplease
 
-ticketplease is a simple business-to-consumer too for managing challenge/response patterns over SMS.
+conversationplease is a simple business-to-consumer too for managing challenge/response patterns over SMS.
 
 == configuration & use
 

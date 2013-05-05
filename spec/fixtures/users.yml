@@ -4,13 +4,13 @@ payg_user:
   account: test_account
   first_name: Jane
   last_name: Doe
-  email: jan.doe@ticketpleaseapp.com
+  email: jan.doe@conversationpleaseapp.com
 
 dedicated_user:
   account: dedicated_account
   first_name: Joe
   last_name: Bloggs
-  email: joe.bloggs@ticketpleaseapp.com
+  email: joe.bloggs@conversationpleaseapp.com
 
 default_permissions_user:
   account: test_account
@@ -60,19 +60,19 @@ manage_phone_books_permissions_user:
   email: directories@test.com
   roles_mask: <%= User.translate_roles [ :manage_phone_books ] %>
 
-start_ticket_permissions_user:
+start_conversation_permissions_user:
   account: test_account
   first_name: Default
   last_name: Guy
-  email: start_ticket@test.com
-  roles_mask: <%= User.translate_roles [ :start_ticket ] %>
+  email: start_conversation@test.com
+  roles_mask: <%= User.translate_roles [ :start_conversation ] %>
 
-force_ticket_permissions_user:
+force_conversation_permissions_user:
   account: test_account
   first_name: Default
   last_name: Guy
-  email: force_ticket@test.com
-  roles_mask: <%= User.translate_roles [ :force_ticket ] %>
+  email: force_conversation@test.com
+  roles_mask: <%= User.translate_roles [ :force_conversation ] %>
 
 manage_ledger_entries_permissions_user:
   account: test_account
