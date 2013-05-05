@@ -87,6 +87,10 @@
                         = icon( :accounts )
                         Switch accounts
                   %li
+                    = link_to edit_user_registration_path do
+                      %i.icon-key
+                      Change password
+                  %li
                     = link_to current_user do
                       %i.icon-cogs
                       Preferences
