@@ -26,7 +26,7 @@ class PhoneNumber < ActiveRecord::Base
   attr_accessible :number, :twilio_phone_number_sid, :account_id, :our_cost, :provider_cost, :unsolicited_sms_action, :unsolicited_sms_message, :unsolicited_call_action, :unsolicited_call_message, :unsolicited_call_language, :unsolicited_call_voice
 
   belongs_to :account, inverse_of: :phone_numbers
-  has_many :phone_directory_entries, inverse_of: :phone_number
+  has_many :phone_directory_entries, inverse_of: :phone_number, dependent: :destroy
   has_many :phone_directories, through: :phone_directory_entries
   has_many :unsolicited_calls, inverse_of: :phone_number
   has_many :unsolicited_messages, inverse_of: :phone_number

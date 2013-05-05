@@ -19,6 +19,7 @@ class Account < ActiveRecord::Base
   has_many :stencils, inverse_of: :account
   has_many :tickets, through: :stencils
   has_many :phone_directories, inverse_of: :account
+  has_many :phone_directory_entries, through: :phone_directories
   has_many :phone_numbers, inverse_of: :account
   has_many :ledger_entries, inverse_of: :account
   has_many :invoices, inverse_of: :account

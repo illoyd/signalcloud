@@ -85,7 +85,7 @@ class Ability
   
   def grant_default_privileges(user)
     # Index and show for primary objects
-    can :read, [ Stencil, PhoneNumber, PhoneDirectory ], { account_id: user.account_id }
+    can :read, [ Stencil, PhoneNumber, PhoneDirectory, PhoneDirectoryEntry ], { account_id: user.account_id }
     can :read, [ Ticket ], { stencil: { account_id: user.account_id } }
     can :read, [ Message ], { ticket: { stencil: { account_id: user.account_id } } }
     
