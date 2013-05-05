@@ -64,7 +64,7 @@ class AccountsController < ApplicationController
   
   def shadow
     # Only set the shadow option if allows
-    if current_user.can_shadow_account?
+    if can? :shadow, Account
       session[:shadow_account_id] = params[:id]
     end
     redirect_to account_path

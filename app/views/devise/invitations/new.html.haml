@@ -1,0 +1,33 @@
+/ Page header
+.row
+  .span12
+    .page-header
+      %h1
+        = icon( :users )
+        Users
+        %small invite user
+
+/ Page body
+.row
+  .span3= render :partial => 'users/navlist'
+  .span9
+    = twitter_bootstrap_form_for resource, :as => resource_name, :url => invitation_path(resource_name), :html => {:method => :post, class: 'form-horizontal'} do |f|
+      = devise_error_messages!
+      -#
+        - resource.class.invite_key_fields.each do |field|
+          = f.text_field field
+      = f.text_field :first_name, 'Given Name'
+      = f.text_field :last_name, 'Family Name'
+      = f.email_field :email, add_on: :prepend do
+        %span.add-on @
+
+      = f.label "Roles" do
+        - User::ROLES.each do |role|
+          - next if role == :super_user && !current_user.is_super_user?
+          - disabled = cannot?(:edit, @user) || ( ( role == :super_user || role == :account_administrator ) && @user.id == current_user.id )
+          %label.checkbox
+            = check_box_tag 'user[roles][]', role, @user.roles.include?(role), { id: 'user_role_%s' % role, disabled: disabled }
+            = role.to_s.humanize
+
+      .control-group
+        .controls= f.submit t("devise.invitations.new.submit_button"), class: 'btn btn-primary'

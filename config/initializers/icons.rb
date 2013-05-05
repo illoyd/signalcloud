@@ -5,7 +5,7 @@ ICONS = {
   stencils: 'hdd',
   phone_books: 'book',
   phone_numbers: 'phone',
-  conversations: 'tags',
+  conversations: 'comments',
   accounts: 'briefcase',
   users: 'group',
   ledger_entries: 'list-alt',

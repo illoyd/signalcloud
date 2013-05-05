@@ -32,7 +32,7 @@ class Ability
     
     # Loop over the collection of roles to grant special privileges
     User::ROLES.each do |role|
-      if user.send("can_#{role.to_s}?")
+      if user.send("is_#{role.to_s}?")
         send("grant_#{role.to_s}_privileges", user)
       end
     end
@@ -81,16 +81,43 @@ class Ability
 #       end
   end
   
-  # [ :shadow_account, :manage_account, :manage_users, :manage_stencils, :manage_phone_numbers, :manage_phone_books, :manage_conversations, :start_conversation ]
+  # Roles, from User, for ease of reference
+  # [ :super_user, :account_administrator, :developer, :billing_liaison, :conversation_manager ]
+  
+  def grant_super_user_privileges(user)
+    grant_shadow_account_privileges user
+    can :manage, AccountPlan
+  end
+  
+  def grant_account_administrator_privileges(user)
+    grant_manage_users_privileges user
+    grant_manage_user_permissions_privileges user
+  end
+  
+  def grant_developer_privileges(user)
+    grant_manage_stencils_privileges user
+    grant_manage_phone_numbers_privileges user
+    grant_manage_phone_books_privileges user
+  end
+  
+  def grant_billing_liaison_privileges(user)
+    grant_manage_account_privileges user
+    grant_manage_ledger_entries_privileges user
+  end
+  
+  def grant_conversation_manager_privileges(user)
+    grant_force_conversation_privileges user
+    grant_start_conversation_privileges user
+  end
   
   def grant_default_privileges(user)
+    # Show for owning account
+    can :show, [ Account ], { id: user.account_id }
+    
     # Index and show for primary objects
     can :read, [ Stencil, PhoneNumber, PhoneBook, PhoneBookEntry ], { account_id: user.account_id }
     can :read, [ Conversation ], { stencil: { account_id: user.account_id } }
     can :read, [ Message ], { conversation: { stencil: { account_id: user.account_id } } }
-    
-    # Show for owning account
-    can :show, [ Account ], { id: user.account_id }
     
     # Show, edit, and update self
     can [ :show, :edit, :update ], User, { id: user.id }

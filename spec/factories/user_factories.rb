@@ -7,9 +7,15 @@ FactoryGirl.define do
     sequence(:email)   { |n| "user#{n}@signalcloudapp.com" }
     password           { SecureRandom.hex(4) }
     
-    factory :shadow_account_permissions_user do
-      roles_mask       { User.translate_roles [ :shadow_account ] }
+    User::ROLES.each do |role|
+      factory "#{role}_user".to_sym do
+        roles_mask       { User.translate_roles [ role ] }
+      end
     end
+
+    #factory :super_user do
+    #  roles_mask       { User.translate_roles [ :super_user ] }
+    #end
     
     factory :manage_account_permissions_user do
       roles_mask       { User.translate_roles [ :manage_account ] }

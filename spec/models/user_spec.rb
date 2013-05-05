@@ -34,11 +34,11 @@ describe User do
         # Test entire role set
         user.roles.sort.should eq(role_set.sort)
         
-        # Test all positive roles via the can_*? function
-        role_set.each { |role| user.send("can_#{role}?".to_sym).should == true }
+        # Test all positive roles via the is_*? function
+        role_set.each { |role| user.send("is_#{role}?".to_sym).should == true }
 
-        # Test all negative roles via the can_*? function
-        (User::ROLES - role_set).each { |role| user.send("can_#{role}?".to_sym).should == false }
+        # Test all negative roles via the is_*? function
+        (User::ROLES - role_set).each { |role| user.send("is_#{role}?".to_sym).should == false }
       end
 
     end

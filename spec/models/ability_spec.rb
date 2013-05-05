@@ -68,76 +68,63 @@ describe User, '.abilities' do
     it{ should_not have_ability(:manage, for: other_ledger_entry) }
   end
   
-  context "can shadow account" do
-    subject { create(:shadow_account_permissions_user, account: test_account) }
+  context 'as super user' do
+    subject { create(:super_user_user, account: test_account) }
 
-    # Test account
+    # Should be able to view and shadow other accounts
     it{ should have_ability({index: true, show: true, new: false, create: false, edit: false, update: false, destroy: false}, for: test_account) }
     it{ should have_ability({index: true, show: false, new: false, create: false, edit: false, update: false, destroy: false}, for: other_account) }
     it{ should have_ability( :shadow, for: test_account ) }
     it{ should have_ability( :shadow, for: other_account ) }
+    
+    # Should be able to manage AccountPlans
+    it{ should have_ability( :manage, for: AccountPlan ) }
+    it{ should have_ability( :manage, for: test_account.account_plan ) }
+    it{ should have_ability( :manage, for: other_account.account_plan ) }
   end
-
-  context "can manage account" do
-    subject { create(:manage_account_permissions_user, account: test_account) }
-
-    # Test account
-    it{ should have_ability({index: false, show: true, new: false, create: false, edit: true, update: true, destroy: false}, for: test_account) }
-    it{ should_not have_ability(:manage, for: other_account) }
-  end
-
-  context "can manage users" do
-    subject { create(:manage_users_permissions_user, account: test_account) }
+  
+  context 'as account administrator' do
+    subject { create(:account_administrator_user, account: test_account) }
 
     # Test users
     it{ should have_ability(:manage, for: test_user) }
     it{ should_not have_ability(:manage, for: other_user) }
   end
 
-  context "can manage stencils" do
-    subject { create(:manage_stencils_permissions_user, account: test_account) }
+  context 'as developer' do
+    subject { create(:developer_user, account: test_account) }
 
     # Test stencils
     it{ should have_ability(:manage, for: test_stencil) }
     it{ should_not have_ability(:manage, for: other_stencil) }
-  end
 
-  context "can manage phone books" do
-    subject { create(:manage_phone_books_permissions_user, account: test_account) }
-
-    # Test stencils
+    # Test phone book
     it{ should have_ability(:manage, for: test_phone_book) }
     it{ should_not have_ability(:manage, for: other_phone_book) }
-  end
 
-  context "can manage phone numbers" do
-    subject { create(:manage_phone_numbers_permissions_user, account: test_account) }
-
-    # Test stencils
+    # Test phone numbers
     it{ should have_ability(:manage, for: test_phone_number) }
     it{ should_not have_ability(:manage, for: other_phone_number) }
   end
-
-  context "can start conversation" do
-    subject { create(:start_conversation_permissions_user, account: test_account) }
-
-    # Test stencils
-    it{ should have_ability({index: true, show: true, new: true, create: true, edit: false, update: false, destroy: false, force: false}, for: test_conversation) }
-    it{ should_not have_ability(:manage, for: other_conversation) }
-  end
-
-  context "can force conversation" do
-    subject { create(:force_conversation_permissions_user, account: test_account) }
-
-    # Test stencils
-    it{ should have_ability({index: true, show: true, new: false, create: false, edit: false, update: false, destroy: false, force: true}, for: test_conversation) }
-    it{ should_not have_ability(:manage, for: other_conversation) }
-  end
   
-  context 'can manage ledger_entries' do
-    subject { create(:manage_ledger_entries_permissions_user, account: test_account) }
+  context 'as billing liaison' do
+    subject { create(:billing_liaison_user, account: test_account) }
+
+    # Test account
+    it{ should have_ability({index: false, show: true, new: false, create: false, edit: true, update: true, destroy: false}, for: test_account) }
+    it{ should_not have_ability(:manage, for: other_account) }
+
+    # Test viewing ledger entries
     it{ should have_ability({index: true, show: true, new: false, create: false, edit: false, update: false, destroy: false}, for: test_ledger_entry) }
     it{ should_not have_ability(:manage, for: other_ledger_entry) }
   end
   
+  context 'as conversation manager' do
+    subject { create(:conversation_manager_user, account: test_account) }
+
+    # Test starting and forcing a conversation
+    it{ should have_ability({index: true, show: true, new: true, create: true, edit: false, update: false, destroy: false, force: true}, for: test_conversation) }
+    it{ should_not have_ability(:manage, for: other_conversation) }
+  end
+
 end

@@ -5,7 +5,7 @@ class UsersController < ApplicationController
   # GET /users
   # GET /users.json
   def index
-    @users = current_account.users.all
+    @users = current_account.users #.all
 
     respond_to do |format|
       format.html # index.html.erb
@@ -27,7 +27,7 @@ class UsersController < ApplicationController
   # GET /users/new
   # GET /users/new.json
   def new
-    @user = User.new
+    @user = current_account.users.build
 
     respond_to do |format|
       format.html # new.html.erb
@@ -43,7 +43,7 @@ class UsersController < ApplicationController
   # POST /users
   # POST /users.json
   def create
-    @user = User.new(params[:user])
+    @user = current_account.users.build(params[:user])
 
     respond_to do |format|
       if @user.save
@@ -61,10 +61,11 @@ class UsersController < ApplicationController
   def update
     @user = current_account.users.find(params[:id])
 
-    if can?(:permissions, @user)
+    if current_user.is_account_administrator?
       params[:user][:roles] ||= []
-      params[:user][:roles] << :manage_user_permissions if @user.id == current_user.id
-      params[:user][:roles] = params[:user][:roles].reject{ |entry| entry.blank? }.map{ |entry| entry.to_sym }.uniq
+      params[:user][:roles] << :super_user if ( @user.id == current_user.id and @user.is_super_user? )
+      params[:user][:roles] << :account_administrator if ( @user.id == current_user.id and @user.is_account_administrator? )
+      params[:user][:roles] = params[:user][:roles].keep_if{ |entry| User::ROLES.include?( (entry.to_sym rescue nil) ) }.map{ |entry| entry.to_sym }.uniq
     else
       params[:user].remove(:roles)
     end
