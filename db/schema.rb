@@ -157,6 +157,18 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
   add_index "messages", ["ticket_id"], :name => "index_messages_on_ticket_id"
   add_index "messages", ["updated_at"], :name => "index_messages_on_updated_at"
 
+  create_table "phone_book_entries", :force => true do |t|
+    t.integer  "phone_book_id",   :null => false
+    t.integer  "phone_number_id", :null => false
+    t.string   "country"
+    t.datetime "created_at",      :null => false
+    t.datetime "updated_at",      :null => false
+  end
+
+  add_index "phone_book_entries", ["country"], :name => "index_phone_book_entries_on_country"
+  add_index "phone_book_entries", ["phone_book_id"], :name => "index_phone_book_entries_on_phone_book_id"
+  add_index "phone_book_entries", ["phone_number_id"], :name => "index_phone_book_entries_on_phone_number_id"
+
   create_table "phone_books", :force => true do |t|
     t.integer  "account_id",  :null => false
     t.string   "label",       :null => false
@@ -166,18 +178,6 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
   end
 
   add_index "phone_books", ["account_id"], :name => "index_phone_books_on_account_id"
-
-  create_table "phone_book_entries", :force => true do |t|
-    t.integer  "phone_book_id", :null => false
-    t.integer  "phone_number_id",    :null => false
-    t.string   "country"
-    t.datetime "created_at",         :null => false
-    t.datetime "updated_at",         :null => false
-  end
-
-  add_index "phone_book_entries", ["country"], :name => "index_phone_book_entries_on_country"
-  add_index "phone_book_entries", ["phone_book_id"], :name => "index_phone_book_entries_on_phone_book_id"
-  add_index "phone_book_entries", ["phone_number_id"], :name => "index_phone_book_entries_on_phone_number_id"
 
   create_table "phone_numbers", :force => true do |t|
     t.integer  "account_id",                                                                                :null => false
@@ -200,7 +200,7 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
 
   create_table "stencils", :force => true do |t|
     t.integer  "account_id",                                                  :null => false
-    t.integer  "phone_book_id",                                          :null => false
+    t.integer  "phone_book_id",                                               :null => false
     t.string   "label",                                                       :null => false
     t.integer  "seconds_to_live",                          :default => 180,   :null => false
     t.boolean  "primary",                                  :default => false, :null => false
