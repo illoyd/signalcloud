@@ -16,7 +16,25 @@
       - else
         = @phone_directory.description
 
-    %h4 phone numbers
+    %h4 Phone Numbers
+    
+    = form_for( @phone_directory.phone_directory_entries.build, class:'form-inline' ) do |f|
+      - if flash[:validation_errors]
+        .error
+          %h2
+            -# = pluralize(@stencil.errors.count, "error")
+            prohibited this stencil from being saved:
+          %ul
+            = flash[:validation_errors]
+            -#
+              - @phone_directory.errors.full_messages.each do |msg|
+                %li= msg
+
+      = f.hidden_field :phone_directory_id
+      = f.collection_select :phone_number_id, @phone_directory.account.phone_numbers, :id, :number, class: 'input-small'
+      = f.country_select :country
+      = submit_tag 'Add', class: 'btn btn-primary btn-small'
+
     %table.table.table-striped
       %thead
         %tr
@@ -29,7 +47,7 @@
             %td{colspan: 3}
               %em No phone numbers are used by this directory.
         
-        - @phone_directory.phone_directory_entries( order: 'country desc, number' ).each do |entry|
+        - @phone_directory.phone_directory_entries( order: 'number, country' ).each do |entry|
           %tr
             %td= split_dropdown_list([ |
               { label: 'Details', icon: :show, link: entry.phone_number, if: can?(:show, entry.phone_number) }, |
@@ -41,13 +59,15 @@
                 = flag_icon()
                 %em Any
               - else
-                = flag_icon(entry.county)
-                = entry.country
+                = flag_icon(entry.country)
+                = Country[entry.country].name rescue entry.country
+    
+                
 
     -# %div= link_to 'Link a phone number', new_phone_directory_phone_number_entry_path( @phone_directory ), :class => 'btn btn-success'
             
 
-    %h4 stencils using this directory
+    %h4 Stencils using this directory
     %table.table.table-striped
       %thead
         %tr
