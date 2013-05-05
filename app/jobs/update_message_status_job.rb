@@ -51,7 +51,7 @@ class UpdateMessageStatusJob < Struct.new( :callback_values )
     
     # Save as a db transaction
     message.save!
-    message.ledger_entry.save!
+    message.ledger_entry.save! if message.ledger_entry
     
     # Check and close the conversation's phase if appropriate
     conversation = message.conversation
