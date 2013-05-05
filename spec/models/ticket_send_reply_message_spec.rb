@@ -70,8 +70,8 @@ describe Ticket, '#send_reply_message', :vcr do
 
   let(:account) { create :account, :test_twilio, :with_sid_and_token }
   let(:phone_number) { create :phone_number, :valid_number, account: account }
-  let(:phone_directory) { create :phone_directory, account: account }
-  let(:stencil) { create :stencil, account: account, phone_directory: phone_directory }
+  let(:phone_book) { create :phone_book, account: account }
+  let(:stencil) { create :stencil, account: account, phone_book: phone_book }
 
   context 'when sending confirmation reply' do
     context 'when not already sent' do

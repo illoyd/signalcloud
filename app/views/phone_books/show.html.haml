@@ -2,23 +2,23 @@
   .span12
     .page-header
       %h1
-        = icon( :phone_directories )
-        Directories
-        %small= @phone_directory.label
+        = icon( :phone_books )
+        Phone Books
+        %small= @phone_book.label
 
 .row
   .span3
     = render 'navlist'
   .span9
     %p.well
-      - if @phone_directory.description.nil?
+      - if @phone_book.description.nil?
         %em No description configured.
       - else
-        = @phone_directory.description
+        = @phone_book.description
 
     %h4 Phone Numbers
     
-    = form_for( @phone_directory.phone_directory_entries.build, class:'form-inline' ) do |f|
+    = form_for( @phone_book.phone_book_entries.build, class:'form-inline' ) do |f|
       - if flash[:validation_errors]
         .error
           %h2
@@ -27,11 +27,11 @@
           %ul
             = flash[:validation_errors]
             -#
-              - @phone_directory.errors.full_messages.each do |msg|
+              - @phone_book.errors.full_messages.each do |msg|
                 %li= msg
 
-      = f.hidden_field :phone_directory_id
-      = f.collection_select :phone_number_id, @phone_directory.account.phone_numbers, :id, :number, class: 'input-small'
+      = f.hidden_field :phone_book_id
+      = f.collection_select :phone_number_id, @phone_book.account.phone_numbers, :id, :number, class: 'input-small'
       = f.country_select :country
       = submit_tag 'Add', class: 'btn btn-primary btn-small'
 
@@ -42,16 +42,16 @@
           %th Number
           %th Country
       %tbody
-        - if @phone_directory.phone_directory_entries.empty?
+        - if @phone_book.phone_book_entries.empty?
           %tr
             %td{colspan: 3}
-              %em No phone numbers are used by this directory.
+              %em No phone numbers are used by this book.
         
-        - @phone_directory.phone_directory_entries( order: 'number, country' ).each do |entry|
+        - @phone_book.phone_book_entries( order: 'number, country' ).each do |entry|
           %tr
             %td= split_dropdown_list([ |
               { label: 'Details', icon: :show, link: entry.phone_number, if: can?(:show, entry.phone_number) }, |
-              { label: 'Remove from directory', icon: :delete, link: entry, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, entry) } |
+              { label: 'Remove from book', icon: :delete, link: entry, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, entry) } |
               ], {class:'btn-mini'}) |
             %td= link_to_if can?(:show, entry.phone_number), humanize_phone_number(entry.phone_number.number), entry.phone_number
             %td
@@ -64,22 +64,22 @@
     
                 
 
-    -# %div= link_to 'Link a phone number', new_phone_directory_phone_number_entry_path( @phone_directory ), :class => 'btn btn-success'
+    -# %div= link_to 'Link a phone number', new_phone_book_phone_number_entry_path( @phone_book ), :class => 'btn btn-success'
             
 
-    %h4 Stencils using this directory
+    %h4 Stencils using this book
     %table.table.table-striped
       %thead
         %tr
           %th.span1
           %th Stencil
       %tbody
-        - if @phone_directory.stencils.empty?
+        - if @phone_book.stencils.empty?
           %tr
             %td{colspan: 2}
-              %em No stencils use this directory.
+              %em No stencils use this book.
 
-        - @phone_directory.stencils.each do |stencil|
+        - @phone_book.stencils.each do |stencil|
           %tr
             %td= split_dropdown_list([ |
                 { label: 'Details', icon: :show, link: stencil, if: can?(:show, stencil) }, |

@@ -1,11 +1,11 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
 
 one:
-  directory: 
+  book: 
   phone_number: 
   country: MyString
 
 two:
-  directory: 
+  book: 
   phone_number: 
   country: MyString

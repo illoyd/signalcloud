@@ -26,7 +26,7 @@ describe PhoneNumber, :vcr do
     it { should belong_to(:account) }
 
     # Have-Many
-    [ :phone_directories, :phone_directory_entries ].each do |entry|
+    [ :phone_books, :phone_book_entries ].each do |entry|
       it { should have_many(entry) }
     end
     

@@ -18,8 +18,8 @@ class Account < ActiveRecord::Base
   has_many :users, inverse_of: :account
   has_many :stencils, inverse_of: :account
   has_many :tickets, through: :stencils
-  has_many :phone_directories, inverse_of: :account
-  has_many :phone_directory_entries, through: :phone_directories
+  has_many :phone_books, inverse_of: :account
+  has_many :phone_book_entries, through: :phone_books
   has_many :phone_numbers, inverse_of: :account
   has_many :ledger_entries, inverse_of: :account
   has_many :invoices, inverse_of: :account
@@ -46,10 +46,10 @@ class Account < ActiveRecord::Base
   end
   
   ##
-  # Create starting 'default' directory and stencil for a newly created account
+  # Create starting 'default' book and stencil for a newly created account
   def create_initial_resources
-    initial_directory = self.phone_directories.create label: 'Default Directory'
-    initial_stencil = self.stencils.create label: 'Default Stencil', phone_directory_id: initial_directory.id
+    initial_book = self.phone_books.create label: 'Default Book'
+    initial_stencil = self.stencils.create label: 'Default Stencil', phone_book_id: initial_book.id
   end
 
   ##

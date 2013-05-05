@@ -1,11 +1,11 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
 
-test_directory:
+test_book:
   account: test_account
-  label: My Test Directory
+  label: My Test Book
   description: A general purpose test directory
 
-dedicated_directory:
+dedicated_book:
   account: dedicated_account
-  label: A dedicated directory
+  label: A dedicated book
   description: A general purpose test directory

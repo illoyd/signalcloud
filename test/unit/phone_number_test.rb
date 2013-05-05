@@ -18,8 +18,8 @@ class PhoneNumberTest < ActiveSupport::TestCase
     should validate_presense_of(:account)
     
     # Other relationships
-    should have_many(:phone_directories)
-    should have_many(:phone_number_entries)
+    should have_many(:phone_books)
+    should have_many(:phone_book_entries)
     
     # Values and attributes
     should allow_mass_assignment_of(:number, :twilio_phone_number_sid, :account_id, :our_cost, :provider_cost)

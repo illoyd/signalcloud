@@ -3,8 +3,8 @@ require 'spec_helper'
 describe InboundMessageJob, :vcr do
   
   let(:account)          { create(:account, :master_twilio) }
-  let(:phone_directory)  { create(:phone_directory, account: account) }
-  let(:stencil)        { create(:stencil, account: account, phone_directory: phone_directory) }
+  let(:phone_book)  { create(:phone_book, account: account) }
+  let(:stencil)        { create(:stencil, account: account, phone_book: phone_book) }
   let(:phone_number)     { create(:us_phone_number, account: account) }
   let(:customer_number)  { Twilio::VALID_NUMBER }
 

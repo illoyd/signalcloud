@@ -1,0 +1,43 @@
+/ Page header
+.row
+  .span12
+    .page-header
+      %h1
+        = icon( :phone_books )
+        Phone Books
+        %small all books
+
+/ Table header
+.row
+  .span12.table-tools
+    - if can? :new, PhoneBook      
+      %div.pull-right= link_to 'New Phone Book', new_phone_book_path, :class => 'btn btn-success btn-small'
+
+/ Page body
+.row
+  .span12
+    %table.table.table-striped
+      %thead
+        %tr
+          %th.span1
+          %th Directory
+          %th Description
+          %th Phone numbers
+          %th Stencils
+      %tbody
+        - @phone_books.each do |phone_book|
+          %tr
+            %td= split_dropdown_list([ |
+                { label: 'Details', icon: :show, link: phone_book, if: can?(:show, phone_book) }, |
+                { label: 'Edit', icon: :edit, link: edit_phone_book_path(phone_book), if: can?(:edit, phone_book) }, |
+                { label: 'Delete', icon: :delete, link: phone_book, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, phone_book) } |
+              ], { class: 'btn-mini' }) |
+            %td= link_to phone_book.label, phone_book
+            %td
+              %small
+                - if phone_book.description.blank?
+                  %em No description configured.
+                - else
+                  = phone_book.description
+            %td= phone_book.phone_book_entries.count
+            %td= phone_book.stencils.count

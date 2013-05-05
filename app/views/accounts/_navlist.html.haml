@@ -14,7 +14,7 @@
     { label: 'Edit', icon: :edit, link: edit_account_path(), if: can?(:edit, @account) }, |
     { header: 'Related' }, |
     { label: 'Stencils', icon: :stencils, link: stencils_path, if: can?(:index, Stencil) }, |
-    { label: 'Directories', icon: :phone_directories, link: phone_directories_path, if: can?(:index, PhoneDirectory) }, |
+    { label: 'Phone Books', icon: :phone_books, link: phone_books_path, if: can?(:index, PhoneBook) }, |
     { label: 'Phone Numbers', icon: :phone_numbers, link: phone_numbers_path, if: can?(:index, PhoneNumber) }, |
     { label: 'Tickets', icon: :tickets, link: tickets_path, if: can?(:index, Ticket) }, |
     { label: 'Users', icon: :users, link: users_path, if: can?(:index, User) }, |

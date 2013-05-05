@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class PhoneDirectoryEntryTest < ActiveSupport::TestCase
+class PhoneBookTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end

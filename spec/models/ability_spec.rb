@@ -5,8 +5,8 @@ describe User, '.abilities' do
 
   let(:test_account) { create :account }
   let(:test_phone_number) { create :phone_number, account: test_account }
-  let(:test_phone_directory) { create :phone_directory, account: test_account }
-  let(:test_stencil) { create :stencil, account: test_account, phone_directory: test_phone_directory }
+  let(:test_phone_book) { create :phone_book, account: test_account }
+  let(:test_stencil) { create :stencil, account: test_account, phone_book: test_phone_book }
   let(:test_ticket) { create :ticket, stencil: test_stencil }
   let(:test_message) { create :message, ticket: test_ticket }
   let(:test_user) { create :user, account: test_account }
@@ -14,8 +14,8 @@ describe User, '.abilities' do
 
   let(:other_account) { create :account }
   let(:other_phone_number) { create :phone_number, account: other_account }
-  let(:other_phone_directory) { create :phone_directory, account: other_account }
-  let(:other_stencil) { create :stencil, account: other_account, phone_directory: other_phone_directory }
+  let(:other_phone_book) { create :phone_book, account: other_account }
+  let(:other_stencil) { create :stencil, account: other_account, phone_book: other_phone_book }
   let(:other_ticket) { create :ticket, stencil: other_stencil }
   let(:other_message) { create :message, ticket: other_ticket }
   let(:other_user) { create :user, account: other_account }
@@ -47,10 +47,10 @@ describe User, '.abilities' do
     it{ should have_ability({show: true, edit: false, update: false, destroy: false}, for: test_phone_number) }
     it{ should_not have_ability(:manage, for: other_phone_number) }
     
-    # Test phone directories
+    # Test phone books
     it{ should have_ability({index: true, new: false, create: false}, for: PhoneNumber) }
-    it{ should have_ability({show: true, edit: false, update: false, destroy: false}, for: test_phone_directory) }
-    it{ should_not have_ability(:manage, for: other_phone_directory) }
+    it{ should have_ability({show: true, edit: false, update: false, destroy: false}, for: test_phone_book) }
+    it{ should_not have_ability(:manage, for: other_phone_book) }
     
     # Test tickets
     it{ should have_ability({index: true, new: false, create: false}, for: Ticket) }
@@ -102,12 +102,12 @@ describe User, '.abilities' do
     it{ should_not have_ability(:manage, for: other_stencil) }
   end
 
-  context "can manage phone directories" do
-    subject { create(:manage_phone_directories_permissions_user, account: test_account) }
+  context "can manage phone books" do
+    subject { create(:manage_phone_books_permissions_user, account: test_account) }
 
     # Test stencils
-    it{ should have_ability(:manage, for: test_phone_directory) }
-    it{ should_not have_ability(:manage, for: other_phone_directory) }
+    it{ should have_ability(:manage, for: test_phone_book) }
+    it{ should_not have_ability(:manage, for: other_phone_book) }
   end
 
   context "can manage phone numbers" do

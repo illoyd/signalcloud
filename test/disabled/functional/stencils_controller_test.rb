@@ -18,7 +18,7 @@ class StencilsControllerTest < ActionController::TestCase
 
   test "should create stencil" do
     assert_difference('Stencil.count') do
-      post :create, stencil: { account: @stencil.account, encrypted_confirmed_reply: @stencil.encrypted_confirmed_reply, encrypted_denied_reply: @stencil.encrypted_denied_reply, encrypted_expected_confirmed_answer: @stencil.encrypted_expected_confirmed_answer, encrypted_expected_denied_answer: @stencil.encrypted_expected_denied_answer, encrypted_expired_reply: @stencil.encrypted_expired_reply, encrypted_failed_reply: @stencil.encrypted_failed_reply, encrypted_question: @stencil.encrypted_question, phone_directory: @stencil.phone_directory, seconds_to_live: @stencil.seconds_to_live }
+      post :create, stencil: { account: @stencil.account, encrypted_confirmed_reply: @stencil.encrypted_confirmed_reply, encrypted_denied_reply: @stencil.encrypted_denied_reply, encrypted_expected_confirmed_answer: @stencil.encrypted_expected_confirmed_answer, encrypted_expected_denied_answer: @stencil.encrypted_expected_denied_answer, encrypted_expired_reply: @stencil.encrypted_expired_reply, encrypted_failed_reply: @stencil.encrypted_failed_reply, encrypted_question: @stencil.encrypted_question, phone_book: @stencil.phone_book, seconds_to_live: @stencil.seconds_to_live }
     end
 
     assert_redirected_to stencil_path(assigns(:stencil))
@@ -35,7 +35,7 @@ class StencilsControllerTest < ActionController::TestCase
   end
 
   test "should update stencil" do
-    put :update, id: @stencil, stencil: { account: @stencil.account, encrypted_confirmed_reply: @stencil.encrypted_confirmed_reply, encrypted_denied_reply: @stencil.encrypted_denied_reply, encrypted_expected_confirmed_answer: @stencil.encrypted_expected_confirmed_answer, encrypted_expected_denied_answer: @stencil.encrypted_expected_denied_answer, encrypted_expired_reply: @stencil.encrypted_expired_reply, encrypted_failed_reply: @stencil.encrypted_failed_reply, encrypted_question: @stencil.encrypted_question, phone_directory: @stencil.phone_directory, seconds_to_live: @stencil.seconds_to_live }
+    put :update, id: @stencil, stencil: { account: @stencil.account, encrypted_confirmed_reply: @stencil.encrypted_confirmed_reply, encrypted_denied_reply: @stencil.encrypted_denied_reply, encrypted_expected_confirmed_answer: @stencil.encrypted_expected_confirmed_answer, encrypted_expected_denied_answer: @stencil.encrypted_expected_denied_answer, encrypted_expired_reply: @stencil.encrypted_expired_reply, encrypted_failed_reply: @stencil.encrypted_failed_reply, encrypted_question: @stencil.encrypted_question, phone_book: @stencil.phone_book, seconds_to_live: @stencil.seconds_to_live }
     assert_redirected_to stencil_path(assigns(:stencil))
   end
 

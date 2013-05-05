@@ -1,0 +1,25 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+test_book_us_1:
+  phone_book: test_directory
+  phone_number: test_us
+  country: US
+
+test_book_us_2:
+  phone_book: test_directory
+  phone_number: test_ca
+  country: US
+
+test_book_ca_1:
+  phone_book: test_directory
+  phone_number: test_ca
+  country: CA
+
+test_book_uk_1:
+  phone_book: test_directory
+  phone_number: test_uk
+  country: GB
+
+test_book_default_1:
+  phone_book: test_directory
+  phone_number: test_us

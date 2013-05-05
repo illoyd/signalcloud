@@ -19,7 +19,7 @@
         %tr
           %th.span1
           %th Phone Number
-          %th Directories
+          %th Phone Books
           %th Monthly fee
       %tbody
         - if @phone_numbers.empty?
@@ -33,7 +33,7 @@
                 { label: 'Delete', icon: :delete, link: phone_number, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, phone_number) } |
               ], { class: 'btn-mini' }) |
             %td= humanize_phone_number phone_number.number
-            %td= phone_number.phone_directories.count
+            %td= phone_number.phone_books.count
             %td= phone_number.cost.round(2)
             -# %td= link_to 'Show', phone_number
             -# %td= link_to 'Edit', edit_phone_number_path(phone_number)
