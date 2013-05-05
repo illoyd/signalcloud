@@ -36,8 +36,9 @@ module ApplicationHelper
     PhoneTools.humanize( number )
   end
   
-  def flag_icon( country='global', size='medium' )
-    image_tag 'flag-%s-%s.png' % [country.downcase, size.downcase], { style: 'vertical-align: bottom' }
+  def flag_icon( country='_global', size='medium' )
+    country_name = Country[country].name rescue nil
+    image_tag 'flags/%s/%s.png' % [size.downcase, country.downcase], alt: country_name, title: country_name, style: 'vertical-align: bottom'
   end
 
 end
