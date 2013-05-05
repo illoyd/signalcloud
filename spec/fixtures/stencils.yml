@@ -4,7 +4,7 @@ test_stencil:
   account: test_account
   label: My Test Stencil
   description: A simple toaster
-  phone_directory: test_directory
+  phone_book: test_book
   seconds_to_live: 180
   encrypted_question: "<%= Stencil.encrypt :question, 'Hello, I am a question.' %>"
   encrypted_expected_confirmed_answer: "<%= Stencil.encrypt :expected_confirmed_answer, 'yes' %>"
@@ -18,7 +18,7 @@ dedicated_stencil:
   account: dedicated_account
   label: A dedicated stencil
   description: A simple coffee maker
-  phone_directory: dedicated_directory
+  phone_book: dedicated_book
   seconds_to_live: 180
   encrypted_question: "<%= Stencil.encrypt :question, 'Hello, I am a question.' %>"
   encrypted_expected_confirmed_answer: "<%= Stencil.encrypt :expected_confirmed_answer, 'yes' %>"

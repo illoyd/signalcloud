@@ -15,7 +15,7 @@
     { label: 'Delete', icon: :delete, link: @stencil, if: can?(:destroy, @stencil), options: { method: :delete, data: { confirm: 'Are you sure?' } } }, |
     { header: 'Related' }, |
     { label: 'Tickets', icon: :tickets, link: stencil_tickets_path( @stencil ), if: can?(:index, Ticket) }, |
-    { label: 'Phone Directory', icon: :phone_directories, link: @stencil.phone_directory, if: can?(:show, @stencil.phone_directory) }, |
+    { label: 'Phone Book', icon: :phone_books, link: @stencil.phone_book, if: can?(:show, @stencil.phone_book) }, |
     { divider: true }, |
     { label: 'All Stencils', icon: :stencils, link: stencils_path, if: can?(:index, Stencil) } |
     ]) |

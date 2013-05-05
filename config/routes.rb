@@ -75,8 +75,8 @@ SignalCloud::Application.routes.draw do
     end
   end
 
-  resources :phone_directories
-  resources :phone_directory_entries, only: [:create, :destroy]
+  resources :phone_books
+  resources :phone_book_entries, only: [:create, :destroy]
   
   # Nested resources via account
   # This functionality has been removed in favour of shadowing the current account using the session.
@@ -87,7 +87,7 @@ SignalCloud::Application.routes.draw do
   #  resources :messages, only: [ :show ]
   #  resources :ledger_entries, only: [ :index, :show ]
   #  resources :phone_numbers, only: [ :index, :create ]
-  #  resources :phone_directories
+  #  resources :phone_books
   #end
   
   # Twilio API extension

@@ -27,8 +27,8 @@ FactoryGirl.define do
       roles_mask       { User.translate_roles [ :manage_phone_numbers ] }
     end
     
-    factory :manage_phone_directories_permissions_user do
-      roles_mask       { User.translate_roles [ :manage_phone_directories ] }
+    factory :manage_phone_books_permissions_user do
+      roles_mask       { User.translate_roles [ :manage_phone_books ] }
     end
     
     factory :start_ticket_permissions_user do

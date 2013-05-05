@@ -1,5 +1,5 @@
 require 'spec_helper'
 
-describe PhoneDirectoryEntriesController do
+describe PhoneBookEntriesController do
 
 end

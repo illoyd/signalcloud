@@ -1,85 +1,85 @@
-class PhoneDirectoriesController < ApplicationController
+class PhoneBooksController < ApplicationController
 
   load_and_authorize_resource
 
-  # GET /phone_directories
-  # GET /phone_directories.json
+  # GET /phone_books
+  # GET /phone_books.json
   def index
-    @phone_directories = current_account.phone_directories.order('label desc')
+    @phone_books = current_account.phone_books.order('label desc')
 
     respond_to do |format|
       format.html # index.html.erb
-      format.json { render json: @phone_directories }
+      format.json { render json: @phone_books }
     end
   end
 
-  # GET /phone_directories/1
-  # GET /phone_directories/1.json
+  # GET /phone_books/1
+  # GET /phone_books/1.json
   def show
-    @phone_directory = current_account.phone_directories.find(params[:id])
+    @phone_book = current_account.phone_books.find(params[:id])
 
     respond_to do |format|
       format.html # show.html.erb
-      format.json { render json: @phone_directory }
+      format.json { render json: @phone_book }
     end
   end
 
-  # GET /phone_directories/new
-  # GET /phone_directories/new.json
+  # GET /phone_books/new
+  # GET /phone_books/new.json
   def new
-    @phone_directory = current_account.phone_directories.build
+    @phone_book = current_account.phone_books.build
 
     respond_to do |format|
       format.html # new.html.erb
-      format.json { render json: @phone_directory }
+      format.json { render json: @phone_book }
     end
   end
 
-  # GET /phone_directories/1/edit
+  # GET /phone_books/1/edit
   def edit
-    @phone_directory = current_account.phone_directories.find(params[:id])
+    @phone_book = current_account.phone_books.find(params[:id])
   end
 
-  # POST /phone_directories
-  # POST /phone_directories.json
+  # POST /phone_books
+  # POST /phone_books.json
   def create
-    @phone_directory = current_account.phone_directories.build(params[:phone_directory])
+    @phone_book = current_account.phone_books.build(params[:phone_book])
 
     respond_to do |format|
-      if @phone_directory.save
-        format.html { redirect_to @phone_directory, notice: 'Phone directory was successfully created.' }
-        format.json { render json: @phone_directory, status: :created, location: @phone_directory }
+      if @phone_book.save
+        format.html { redirect_to @phone_book, notice: 'Phone book was successfully created.' }
+        format.json { render json: @phone_book, status: :created, location: @phone_book }
       else
         format.html { render action: "new" }
-        format.json { render json: @phone_directory.errors, status: :unprocessable_entity }
+        format.json { render json: @phone_book.errors, status: :unprocessable_entity }
       end
     end
   end
 
-  # PUT /phone_directories/1
-  # PUT /phone_directories/1.json
+  # PUT /phone_books/1
+  # PUT /phone_books/1.json
   def update
-    @phone_directory = current_account.phone_directories.find(params[:id])
+    @phone_book = current_account.phone_books.find(params[:id])
 
     respond_to do |format|
-      if @phone_directory.update_attributes(params[:phone_directory])
-        format.html { redirect_to @phone_directory, notice: 'Phone directory was successfully updated.' }
+      if @phone_book.update_attributes(params[:phone_book])
+        format.html { redirect_to @phone_book, notice: 'Phone book was successfully updated.' }
         format.json { head :no_content }
       else
         format.html { render action: "edit" }
-        format.json { render json: @phone_directory.errors, status: :unprocessable_entity }
+        format.json { render json: @phone_book.errors, status: :unprocessable_entity }
       end
     end
   end
 
-  # DELETE /phone_directories/1
-  # DELETE /phone_directories/1.json
+  # DELETE /phone_books/1
+  # DELETE /phone_books/1.json
   def destroy
-    @phone_directory = current_account.phone_directories.find(params[:id])
-    @phone_directory.destroy
+    @phone_book = current_account.phone_books.find(params[:id])
+    @phone_book.destroy
 
     respond_to do |format|
-      format.html { redirect_to phone_directories_url }
+      format.html { redirect_to phone_books_url }
       format.json { head :no_content }
     end
   end

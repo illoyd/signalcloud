@@ -263,10 +263,10 @@ describe Message, :vcr do
   describe '#deliver!' do
     let(:account) { create :account, :test_twilio, :with_sid_and_token }
     let(:phone_number) { create :valid_phone_number, account: account }
-    let(:phone_directory) { create :phone_directory, account: account }
-    let(:stencil) { create :stencil, account: account, phone_directory: phone_directory }
+    let(:phone_book) { create :phone_book, account: account }
+    let(:stencil) { create :stencil, account: account, phone_book: phone_book }
     let(:ticket) { create :ticket, stencil: stencil }
-    let!(:phone_directory_entry) { create :phone_directory_entry, phone_number: phone_number, phone_directory: phone_directory }
+    let!(:phone_book_entry) { create :phone_book_entry, phone_number: phone_number, phone_book: phone_book }
 
     context 'when properly configured' do
       subject { build :message, ticket: ticket, to_number: Twilio::VALID_NUMBER, from_number: Twilio::VALID_NUMBER, body: 'Hello!' }

@@ -1,14 +1,14 @@
 require 'test_helper'
 
-class PhoneDirectoryEntriesControllerTest < ActionController::TestCase
+class PhoneBookEntriesControllerTest < ActionController::TestCase
   setup do
-    @phone_directory_entry = phone_directory_entries(:one)
+    @phone_book_entry = phone_book_entries(:one)
   end
 
   test "should get index" do
     get :index
     assert_response :success
-    assert_not_nil assigns(:phone_directory_entries)
+    assert_not_nil assigns(:phone_book_entries)
   end
 
   test "should get new" do
@@ -16,34 +16,34 @@ class PhoneDirectoryEntriesControllerTest < ActionController::TestCase
     assert_response :success
   end
 
-  test "should create phone_directory_entry" do
-    assert_difference('PhoneDirectoryEntry.count') do
-      post :create, phone_directory_entry: { country: @phone_directory_entry.country, directory: @phone_directory_entry.directory, phone_number: @phone_directory_entry.phone_number }
+  test "should create phone_book_entry" do
+    assert_difference('PhoneBookEntry.count') do
+      post :create, phone_book_entry: { country: @phone_book_entry.country, book: @phone_book_entry.book, phone_number: @phone_book_entry.phone_number }
     end
 
-    assert_redirected_to phone_directory_entry_path(assigns(:phone_directory_entry))
+    assert_redirected_to phone_book_entry_path(assigns(:phone_book_entry))
   end
 
-  test "should show phone_directory_entry" do
-    get :show, id: @phone_directory_entry
+  test "should show phone_book_entry" do
+    get :show, id: @phone_book_entry
     assert_response :success
   end
 
   test "should get edit" do
-    get :edit, id: @phone_directory_entry
+    get :edit, id: @phone_book_entry
     assert_response :success
   end
 
-  test "should update phone_directory_entry" do
-    put :update, id: @phone_directory_entry, phone_directory_entry: { country: @phone_directory_entry.country, directory: @phone_directory_entry.directory, phone_number: @phone_directory_entry.phone_number }
-    assert_redirected_to phone_directory_entry_path(assigns(:phone_directory_entry))
+  test "should update phone_book_entry" do
+    put :update, id: @phone_book_entry, phone_book_entry: { country: @phone_book_entry.country, book: @phone_book_entry.book, phone_number: @phone_book_entry.phone_number }
+    assert_redirected_to phone_book_entry_path(assigns(:phone_book_entry))
   end
 
-  test "should destroy phone_directory_entry" do
-    assert_difference('PhoneDirectoryEntry.count', -1) do
-      delete :destroy, id: @phone_directory_entry
+  test "should destroy phone_book_entry" do
+    assert_difference('PhoneBookEntry.count', -1) do
+      delete :destroy, id: @phone_book_entry
     end
 
-    assert_redirected_to phone_directory_entries_path
+    assert_redirected_to phone_book_entries_path
   end
 end

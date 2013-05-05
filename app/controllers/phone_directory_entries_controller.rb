@@ -1,30 +1,30 @@
-class PhoneDirectoryEntriesController < ApplicationController
+class PhoneBookEntriesController < ApplicationController
 
   load_and_authorize_resource
 
   respond_to :html, :json
 
-  # POST /phone_directory_entries
-  # POST /phone_directory_entries.json
+  # POST /phone_book_entries
+  # POST /phone_book_entries.json
   def create
-    @phone_directory_entry = current_account.phone_directory_entries.build( params[:phone_directory_entry] )
-    if @phone_directory_entry.save
-      flash[:success] = 'Phone number was successfully added to phone directory.'
+    @phone_book_entry = current_account.phone_book_entries.build( params[:phone_book_entry] )
+    if @phone_book_entry.save
+      flash[:success] = 'Phone number was successfully added to phone book.'
     else
       flash[:error] = 'Oops! We errored.'
-      flash[:validation_errors] = @phone_directory_entry.errors.to_yaml
+      flash[:validation_errors] = @phone_book_entry.errors.to_yaml
     end
-    respond_with @phone_directory_entry.phone_directory
+    respond_with @phone_book_entry.phone_book
   end
 
-  # DELETE /phone_directory_entries/1
-  # DELETE /phone_directory_entries/1.json
+  # DELETE /phone_book_entries/1
+  # DELETE /phone_book_entries/1.json
   def destroy
-   @phone_directory_entry = current_account.phone_directory_entries.find(params[:id])
-   @phone_directory = @phone_directory_entry.phone_directory
-   @phone_directory_entry.destroy
+   @phone_book_entry = current_account.phone_book_entries.find(params[:id])
+   @phone_book = @phone_book_entry.phone_book
+   @phone_book_entry.destroy
    
-   respond_with @phone_directory
+   respond_with @phone_book
   end
 
 end

@@ -53,12 +53,12 @@ manage_phone_numbers_permissions_user:
   email: numbers@test.com
   roles_mask: <%= User.translate_roles [ :manage_phone_numbers ] %>
 
-manage_phone_directories_permissions_user:
+manage_phone_books_permissions_user:
   account: test_account
   first_name: Default
   last_name: Guy
   email: directories@test.com
-  roles_mask: <%= User.translate_roles [ :manage_phone_directories ] %>
+  roles_mask: <%= User.translate_roles [ :manage_phone_books ] %>
 
 start_ticket_permissions_user:
   account: test_account

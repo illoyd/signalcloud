@@ -19,7 +19,7 @@
         %tr
           %th.span1
           %th Stencil
-          %th Directory
+          %th Book
           %th Active
           %th Description
           %th Open tickets
@@ -39,10 +39,10 @@
               ], {class: 'btn-mini'}) |
             %td= link_to_if can?(:show, stencil), stencil.label, stencil
             %td
-              - if stencil.phone_directory.nil?
-                %em No directory assigned
+              - if stencil.phone_book.nil?
+                %em No book assigned
               - else
-                = link_to_if can?(:show, stencil.phone_directory), stencil.phone_directory.label, stencil.phone_directory
+                = link_to_if can?(:show, stencil.phone_book), stencil.phone_book.label, stencil.phone_book
             %td= icon( stencil.active ? :ok : :remove )
             %td
               %small

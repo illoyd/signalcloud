@@ -3,7 +3,7 @@
 ICONS = {
   # Objects
   stencils: 'hdd',
-  phone_directories: 'book',
+  phone_books: 'book',
   phone_numbers: 'phone',
   tickets: 'tags',
   accounts: 'briefcase',

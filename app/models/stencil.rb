@@ -1,7 +1,7 @@
 class Stencil < ActiveRecord::Base
   # Attributes
-  #attr_accessible :encrypted_confirmed_reply, :encrypted_denied_reply, :encrypted_expected_confirmed_answer, :encrypted_expected_denied_answer, :encrypted_expired_reply, :encrypted_failed_reply, :encrypted_question, :phone_directory, :seconds_to_live
-  attr_accessible :label, :primary, :phone_directory_id, :seconds_to_live, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :question, :description, :webhook_uri
+  #attr_accessible :encrypted_confirmed_reply, :encrypted_denied_reply, :encrypted_expected_confirmed_answer, :encrypted_expected_denied_answer, :encrypted_expired_reply, :encrypted_failed_reply, :encrypted_question, :phone_book, :seconds_to_live
+  attr_accessible :label, :primary, :phone_book_id, :seconds_to_live, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :question, :description, :webhook_uri
   
   # Encrypted attributes
   attr_encrypted :confirmed_reply, key: ATTR_ENCRYPTED_SECRET
@@ -15,7 +15,7 @@ class Stencil < ActiveRecord::Base
   
   # Relationships
   belongs_to :account, inverse_of: :stencils
-  belongs_to :phone_directory, inverse_of: :stencils
+  belongs_to :phone_book, inverse_of: :stencils
   has_many :tickets, inverse_of: :stencil
   
   def open_ticket( passed_options )
@@ -32,7 +32,7 @@ class Stencil < ActiveRecord::Base
     }.with_indifferent_access.merge( passed_options.with_indifferent_access )
     
     # Add a randomly selected from number if needed
-    options[:from_number] = self.phone_directory.select_from_number( options[:to_number] ).number unless options.key? :from_number
+    options[:from_number] = self.phone_book.select_from_number( options[:to_number] ).number unless options.key? :from_number
     return self.tickets.build( options )
   end
 end

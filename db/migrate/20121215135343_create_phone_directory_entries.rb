@@ -1,7 +1,7 @@
-class CreatePhoneDirectoryEntries < ActiveRecord::Migration
+class CreatePhoneBookEntries < ActiveRecord::Migration
   def change
-    create_table :phone_directory_entries do |t|
-      t.references :phone_directory, null: false
+    create_table :phone_book_entries do |t|
+      t.references :phone_book, null: false
       t.references :phone_number, null: false
       t.string :country
 
@@ -9,8 +9,8 @@ class CreatePhoneDirectoryEntries < ActiveRecord::Migration
     end
     
     # More indices
-    add_index :phone_directory_entries, :phone_directory_id
-    add_index :phone_directory_entries, :phone_number_id
-    add_index :phone_directory_entries, :country
+    add_index :phone_book_entries, :phone_book_id
+    add_index :phone_book_entries, :phone_number_id
+    add_index :phone_book_entries, :country
   end
 end

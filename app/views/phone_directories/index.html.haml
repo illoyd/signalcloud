@@ -3,15 +3,15 @@
   .span12
     .page-header
       %h1
-        = icon( :phone_directories )
-        Directories
-        %small all directories
+        = icon( :phone_books )
+        Phone Books
+        %small all books
 
 / Table header
 .row
   .span12.table-tools
-    - if can? :new, PhoneDirectory      
-      %div.pull-right= link_to 'New Directory', new_phone_directory_path, :class => 'btn btn-success btn-small'
+    - if can? :new, PhoneBook      
+      %div.pull-right= link_to 'New Phone Book', new_phone_book_path, :class => 'btn btn-success btn-small'
 
 / Page body
 .row
@@ -25,19 +25,19 @@
           %th Phone numbers
           %th Stencils
       %tbody
-        - @phone_directories.each do |phone_directory|
+        - @phone_books.each do |phone_book|
           %tr
             %td= split_dropdown_list([ |
-                { label: 'Details', icon: :show, link: phone_directory, if: can?(:show, phone_directory) }, |
-                { label: 'Edit', icon: :edit, link: edit_phone_directory_path(phone_directory), if: can?(:edit, phone_directory) }, |
-                { label: 'Delete', icon: :delete, link: phone_directory, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, phone_directory) } |
+                { label: 'Details', icon: :show, link: phone_book, if: can?(:show, phone_book) }, |
+                { label: 'Edit', icon: :edit, link: edit_phone_book_path(phone_book), if: can?(:edit, phone_book) }, |
+                { label: 'Delete', icon: :delete, link: phone_book, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, phone_book) } |
               ], { class: 'btn-mini' }) |
-            %td= link_to phone_directory.label, phone_directory
+            %td= link_to phone_book.label, phone_book
             %td
               %small
-                - if phone_directory.description.blank?
+                - if phone_book.description.blank?
                   %em No description configured.
                 - else
-                  = phone_directory.description
-            %td= phone_directory.phone_directory_entries.count
-            %td= phone_directory.stencils.count
+                  = phone_book.description
+            %td= phone_book.phone_book_entries.count
+            %td= phone_book.stencils.count

@@ -1,12 +1,12 @@
 FactoryGirl.define do
 
-  factory :phone_directory do
+  factory :phone_book do
     account
-    label         "Baby's first directory"
-    description   "A test directory."
+    label         "Baby's first book"
+    description   "A test book."
   end
   
-  factory :phone_directory_entry do
+  factory :phone_book_entry do
     country       nil
   end
 

@@ -1,4 +1,4 @@
 require 'test_helper'
 
-class PhoneDirectoriesHelperTest < ActionView::TestCase
+class PhoneBooksHelperTest < ActionView::TestCase
 end

@@ -6,9 +6,9 @@ FactoryGirl.define do
     after(:create) do |account, evaluator|
       # Create basics
       phone_number    = create(:phone_number, account: account)
-      phone_directory = create(:phone_directory, account: account)
-      create(:phone_directory_entry, phone_number: phone_number, phone_directory: phone_directory)
-      stencil       = create(:stencil, account: account, phone_directory: phone_directory)
+      phone_book = create(:phone_book, account: account)
+      create(:phone_book_entry, phone_number: phone_number, phone_book: phone_book)
+      stencil       = create(:stencil, account: account, phone_book: phone_book)
       
       # December 2012: 5 confirmed, 5 failed, 5 denied, 5 expired, 5 unsettled tickets (25; 55 ledger entries)
       create_tickets_for_month( stencil, '2012-12-01', 5 )
@@ -35,7 +35,7 @@ def create_tickets_for_month( stencil, month, count )
 end
 
 def open_and_configure_ticket( stencil, settled=false, date_sent=nil, status=nil, outbound_price=0.04, inbound_price=0.01 )
-  ticket = stencil.open_ticket( to_number: random_us_number(), from_number: stencil.phone_directory.phone_numbers.first.number )
+  ticket = stencil.open_ticket( to_number: random_us_number(), from_number: stencil.phone_book.phone_numbers.first.number )
   ticket.status = status || Ticket::STATUSES.sample
   ticket.created_at = date_sent if date_sent
   ticket.save!

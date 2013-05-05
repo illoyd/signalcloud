@@ -14,8 +14,8 @@
     = f.label :description, :class => 'control-label'
     .controls= f.text_area :description, :rows=>2
   .control-group
-    = f.label :phone_directory, :class => 'control-label'
-    .controls= f.collection_select :phone_directory_id, @stencil.account.phone_directories, :id, :label
+    = f.label :phone_book, :class => 'control-label'
+    .controls= f.collection_select :phone_book_id, @stencil.account.phone_books, :id, :label
   .control-group
     = f.label :seconds_to_live, :class => 'control-label'
     .controls= f.number_field :seconds_to_live

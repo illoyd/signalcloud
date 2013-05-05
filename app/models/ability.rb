@@ -1,7 +1,7 @@
 class Ability
   include CanCan::Ability
   
-  STANDARD_OBJECTS = [ Stencil, PhoneNumber, PhoneDirectory, Ticket ]
+  STANDARD_OBJECTS = [ Stencil, PhoneNumber, PhoneBook, Ticket ]
 
   def initialize(user)
     # Define abilities for the passed in user here. For example:
@@ -44,7 +44,7 @@ class Ability
 #       # 'Normal' users - general access, but no account management
 #       when User::ROLE_USER
 #         # Can read, create, and update standard objects
-#         can [ :read, :create, :update ], [ Stencil, PhoneNumber, PhoneDirectory ], { account_id: user.account_id }
+#         can [ :read, :create, :update ], [ Stencil, PhoneNumber, PhoneBook ], { account_id: user.account_id }
 #         can [ :read, :create, :update ], [ Ticket ], { stencil: { account_id: user.account_id } }
 #         can [ :show ], Account
 #         
@@ -58,7 +58,7 @@ class Ability
 #       # 'Owner' users - own and manage the account
 #       when User::ROLE_OWNER
 #         # Can manage standard objects
-#         can :manage, [ Stencil, PhoneNumber, PhoneDirectory ], { account_id: user.account_id }
+#         can :manage, [ Stencil, PhoneNumber, PhoneBook ], { account_id: user.account_id }
 #         can [ :read, :create, :update ], [ Ticket ], { stencil: { account_id: user.account_id } }
 #         
 #         # Can see ledger_entries
@@ -81,11 +81,11 @@ class Ability
 #       end
   end
   
-  # [ :shadow_account, :manage_account, :manage_users, :manage_stencils, :manage_phone_numbers, :manage_phone_directories, :manage_tickets, :start_ticket ]
+  # [ :shadow_account, :manage_account, :manage_users, :manage_stencils, :manage_phone_numbers, :manage_phone_books, :manage_tickets, :start_ticket ]
   
   def grant_default_privileges(user)
     # Index and show for primary objects
-    can :read, [ Stencil, PhoneNumber, PhoneDirectory, PhoneDirectoryEntry ], { account_id: user.account_id }
+    can :read, [ Stencil, PhoneNumber, PhoneBook, PhoneBookEntry ], { account_id: user.account_id }
     can :read, [ Ticket ], { stencil: { account_id: user.account_id } }
     can :read, [ Message ], { ticket: { stencil: { account_id: user.account_id } } }
     
@@ -126,14 +126,14 @@ class Ability
     can :manage, PhoneNumber, { account_id: user.account_id }
   end
   
-  def grant_manage_phone_directories_privileges(user)
-    # All for account phone directories
-    can :manage, PhoneDirectory, { account_id: user.account_id }
-    can [:create, :destroy], PhoneDirectoryEntry, { phone_directory: { account_id: user.account_id } }
+  def grant_manage_phone_books_privileges(user)
+    # All for account phone books
+    can :manage, PhoneBook, { account_id: user.account_id }
+    can [:create, :destroy], PhoneBookEntry, { phone_book: { account_id: user.account_id } }
   end
   
   def grant_manage_ledger_entries_privileges(user)
-    # All for account phone directories
+    # Read (no editing!) for ledger entries
     can :read, LedgerEntry, { account_id: user.account_id }
   end
   

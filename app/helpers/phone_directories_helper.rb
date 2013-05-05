@@ -1,2 +1,2 @@
-module PhoneDirectoriesHelper
+module PhoneBooksHelper
 end
