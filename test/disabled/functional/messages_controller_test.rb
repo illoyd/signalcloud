@@ -18,7 +18,7 @@ class MessagesControllerTest < ActionController::TestCase
 
   test "should create message" do
     assert_difference('Message.count') do
-      post :create, message: { encrypted_payload: @message.encrypted_payload, our_cost: @message.our_cost, provider_cost: @message.provider_cost, ticket: @message.ticket }
+      post :create, message: { encrypted_payload: @message.encrypted_payload, our_cost: @message.our_cost, provider_cost: @message.provider_cost, conversation: @message.conversation }
     end
 
     assert_redirected_to message_path(assigns(:message))
@@ -35,7 +35,7 @@ class MessagesControllerTest < ActionController::TestCase
   end
 
   test "should update message" do
-    put :update, id: @message, message: { encrypted_payload: @message.encrypted_payload, our_cost: @message.our_cost, provider_cost: @message.provider_cost, ticket: @message.ticket }
+    put :update, id: @message, message: { encrypted_payload: @message.encrypted_payload, our_cost: @message.our_cost, provider_cost: @message.provider_cost, conversation: @message.conversation }
     assert_redirected_to message_path(assigns(:message))
   end
 

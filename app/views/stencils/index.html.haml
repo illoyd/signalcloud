@@ -22,7 +22,7 @@
           %th Book
           %th Active
           %th Description
-          %th Open tickets
+          %th Open conversations
       %tbody
         - if @stencils.empty?
           %tr
@@ -35,7 +35,7 @@
               { label: 'Details', icon: :show, link: stencil, if: can?(:show, stencil) }, |
               { label: 'Edit', icon: :edit, link: edit_stencil_path(stencil), if: can?(:edit, stencil) }, |
               { label: 'Delete', icon: :delete, link: stencil, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, stencil) }, |
-              { label: 'Tickets', icon: :tickets, link: stencil_tickets_path(stencil), if: can?(:show, Ticket) } |
+              { label: 'Conversations', icon: :conversations, link: stencil_conversations_path(stencil), if: can?(:show, Conversation) } |
               ], {class: 'btn-mini'}) |
             %td= link_to_if can?(:show, stencil), stencil.label, stencil
             %td
@@ -50,4 +50,4 @@
                   %em No description defined.
                 - else
                   = stencil.description
-            %td= stencil.tickets.count
+            %td= stencil.conversations.count

@@ -1,5 +1,5 @@
 ##
-# Represents a purchased telephone number which may be used in tickets. Additionally, these numbers are charged per
+# Represents a purchased telephone number which may be used in conversations. Additionally, these numbers are charged per
 # month.
 class PhoneNumber < ActiveRecord::Base
 

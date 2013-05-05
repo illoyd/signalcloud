@@ -18,47 +18,47 @@ SignalCloud::Application.routes.draw do
       get 'active', action: :index, defaults: { active_filter: true }, as: 'active'
       get 'inactive', action: :index, defaults: { active_filter: false }, as: 'inactive'
     end
-    resources :tickets, only: [ :index, :new, :create ] do
+    resources :conversations, only: [ :index, :new, :create ] do
       member do
         post 'force', action: 'force_status', as: 'force_status'
       end
       collection do
         get 'page/:page', action: :index
-        get 'confirmed', action: :index, defaults: { status: Ticket::CONFIRMED } do
+        get 'confirmed', action: :index, defaults: { status: Conversation::CONFIRMED } do
           get 'page/:page', action: :index
         end
-        get 'denied', action: :index, defaults: { status: Ticket::DENIED } do
+        get 'denied', action: :index, defaults: { status: Conversation::DENIED } do
           get 'page/:page', action: :index, on: :collection
         end
-        get 'failed', action: :index, defaults: { status: Ticket::FAILED } do
+        get 'failed', action: :index, defaults: { status: Conversation::FAILED } do
           get 'page/:page', action: :index, on: :collection
         end
-        get 'expired', action: :index, defaults: { status: Ticket::EXPIRED } do
+        get 'expired', action: :index, defaults: { status: Conversation::EXPIRED } do
           get 'page/:page', action: :index, on: :collection
         end
-        get 'open', action: :index, defaults: { status: Ticket::OPEN_STATUSES } do
+        get 'open', action: :index, defaults: { status: Conversation::OPEN_STATUSES } do
           get 'page/:page', action: :index, on: :collection
         end
       end
     end
   end
 
-  resources :tickets, only: [ :index, :show ] do
+  resources :conversations, only: [ :index, :show ] do
     collection do
       get 'page/:page', action: :index
-      get 'confirmed', action: :index, defaults: { status: Ticket::CONFIRMED } do
+      get 'confirmed', action: :index, defaults: { status: Conversation::CONFIRMED } do
         get 'page/:page', action: :index, on: :collection
       end
-      get 'denied', action: :index, defaults: { status: Ticket::DENIED } do
+      get 'denied', action: :index, defaults: { status: Conversation::DENIED } do
         get 'page/:page', action: :index, on: :collection
       end
-      get 'failed', action: :index, defaults: { status: Ticket::FAILED } do
+      get 'failed', action: :index, defaults: { status: Conversation::FAILED } do
         get 'page/:page', action: :index, on: :collection
       end
-      get 'expired', action: :index, defaults: { status: Ticket::EXPIRED } do
+      get 'expired', action: :index, defaults: { status: Conversation::EXPIRED } do
         get 'page/:page', action: :index, on: :collection
       end
-      get 'open', action: :index, defaults: { status: [Ticket::QUEUED, Ticket::CHALLENGE_SENT] } do
+      get 'open', action: :index, defaults: { status: [Conversation::QUEUED, Conversation::CHALLENGE_SENT] } do
         get 'page/:page', action: :index, on: :collection
       end
     end
@@ -83,7 +83,7 @@ SignalCloud::Application.routes.draw do
   #resources :accounts do
   #  resources :users
   #  resources :stencils
-  #  resources :tickets, only: [ :index, :new, :create, :show ]
+  #  resources :conversations, only: [ :index, :new, :create, :show ]
   #  resources :messages, only: [ :show ]
   #  resources :ledger_entries, only: [ :index, :show ]
   #  resources :phone_numbers, only: [ :index, :create ]

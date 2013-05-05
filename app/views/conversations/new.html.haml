@@ -1,0 +1,13 @@
+/ Page header
+.row
+  .span12
+    .page-header
+      %h1
+        = icon( :conversations )
+        Conversations
+        %small new
+
+/ Page body
+.row
+  .span3= render :partial => 'navlist'
+  .span9= render 'form'

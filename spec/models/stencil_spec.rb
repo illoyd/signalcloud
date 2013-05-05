@@ -1,16 +1,16 @@
 require 'spec_helper'
 
 describe Stencil do
-  #fixtures :account_plans, :accounts, :stencils, :phone_books, :phone_book_entries, :phone_numbers, :tickets
+  #fixtures :account_plans, :accounts, :stencils, :phone_books, :phone_book_entries, :phone_numbers, :conversations
 
-#   describe '.open_ticket' do
+#   describe '.open_conversation' do
 #     
-# #     it 'should create a new ticket and normalize numbers' do
+# #     it 'should create a new conversation and normalize numbers' do
 # #       stencil = stencils(:test_stencil)
 # #       
-# #       ticket = stencil.open_ticket( to_number: Twilio::VALID_NUMBER )
-# #       ticket.save
-# #       ticket.to_number.should == Twilio::VALID_NUMBER
+# #       conversation = stencil.open_conversation( to_number: Twilio::VALID_NUMBER )
+# #       conversation.save
+# #       conversation.to_number.should == Twilio::VALID_NUMBER
 # #       
 # #     end
 #     
