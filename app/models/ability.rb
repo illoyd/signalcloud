@@ -120,7 +120,7 @@ class Ability
     can :read, [ Message ], { conversation: { stencil: { account_id: user.account_id } } }
     
     # Show, edit, and update self
-    can [ :show, :edit, :update ], User, { id: user.id }
+    can [ :show, :edit, :update, :change_password ], User, { id: user.id }
   end
   
   def grant_shadow_account_privileges(user)
@@ -135,7 +135,7 @@ class Ability
   
   def grant_manage_users_privileges(user)
     # All for account users
-    can :manage, User, { account_id: user.account_id }
+    can [:create, :read, :update, :destroy], User, { account_id: user.account_id }
   end
   
   def grant_manage_user_permissions_privileges(user)

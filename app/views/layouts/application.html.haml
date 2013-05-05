@@ -46,6 +46,11 @@
                       %a{ :href => users_path }
                         = icon(:users)
                         Users
+                  - if can? :index, Conversation
+                    %li
+                      %a{ :href => conversations_path }
+                        = icon( :conversations )
+                        Conversations
                   - if can? :index, Stencil
                     %li
                       %a{ :href => stencils_path }
@@ -61,20 +66,16 @@
                       %a{ :href => phone_numbers_path }
                         = icon( :phone_numbers )
                         Phone Numbers
-                  - if can? :index, Conversation
-                    %li
-                      %a{ :href => conversations_path }
-                        = icon( :conversations )
-                        Conversations
                   - if can? :index, LedgerEntry
                     %li
                       %a{ :href => ledger_entries_path }
                         = icon( :ledger_entries )
                         Ledger
-              %li
-                %a{ :href => "#" }
-                  %i.icon-bar-chart  
-                  Reports
+              -#
+                %li
+                  %a{ :href => "#" }
+                    %i.icon-bar-chart  
+                    Reports
               %li.dropdown
                 %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#"}
                   %i.icon-user
@@ -86,10 +87,11 @@
                       = link_to accounts_path do
                         = icon( :accounts )
                         Switch accounts
-                  %li
-                    = link_to edit_user_registration_path do
-                      %i.icon-key
-                      Change password
+                  - if can? :change_password, current_user
+                    %li
+                      = link_to edit_user_registration_path do
+                        %i.icon-key
+                        Change password
                   %li
                     = link_to current_user do
                       %i.icon-cogs

@@ -10,6 +10,7 @@
     { header: 'Manage' }, |
     { label: 'Details', icon: :show, link: @user, if: can?(:show, @user) }, |
     { label: 'Edit', icon: :edit, link: edit_user_path( @user ), if: can?(:edit, @user) }, |
+    { label: 'Change password', icon: :key, link: edit_user_registration_path(  ), if: can?(:change_password, @user) }, |
     { label: 'Delete', icon: :delete, link: @user, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: ( can?(:destroy, @user) && @user.id != current_user.id ) }, |
     { header: 'Related', if: can?(:index, User) }, |
     { label: 'All Users', icon: :user, link: users_path, if: can?(:index, User) } |
