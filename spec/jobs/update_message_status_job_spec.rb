@@ -5,7 +5,7 @@ describe UpdateMessageStatusJob, :vcr do
   def create_message_update_payload( message, body=nil, reply=false, others={} )
     body = message.conversation.question if body.nil?
     {
-      'AccountSid' => message.conversation.account.twilio_account_sid,
+      'AccountSid' => message.conversation.organization.twilio_account_sid,
       'SmsSid' =>     message.twilio_sid,
       'ApiVersion' => '2010-04-01',
       'From' =>       reply ? message.conversation.to_number : message.conversation.from_number,

@@ -1,7 +1,7 @@
-class CreateAccounts < ActiveRecord::Migration
+class CreateOrganizations < ActiveRecord::Migration
   def change
-    create_table :accounts do |t|
-      t.string :account_sid, null: false, length: 32
+    create_table :organizations do |t|
+      t.string :sid, null: false, length: 32
       t.string :auth_token, null: false, length: 32
       t.string :label, null: false
       t.decimal :balance, default: 0, null: false, precision: 8, scale: 4
@@ -32,8 +32,8 @@ class CreateAccounts < ActiveRecord::Migration
     end
     
     # Add indices
-    add_index :accounts, :account_sid, unique: true
-    add_index :accounts, :label
-    add_index :accounts, :encrypted_twilio_account_sid
+    add_index :organizations, :sid, unique: true
+    add_index :organizations, :label
+    add_index :organizations, :encrypted_twilio_account_sid
   end
 end

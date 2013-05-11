@@ -31,7 +31,7 @@
       = f.label "Roles" do
         - User::ROLES.each do |role|
           - next if role == :super_user && !current_user.is_super_user?
-          - disabled = cannot?(:edit, @user) || ( ( role == :super_user || role == :account_administrator ) && @user.id == current_user.id )
+          - disabled = cannot?(:edit, @user) || ( ( role == :super_user || role == :organization_administrator ) && @user.id == current_user.id )
           %label.checkbox
             = check_box_tag 'user[roles][]', role, @user.roles.include?(role), { id: 'user_role_%s' % role, disabled: disabled }
             = role.to_s.humanize

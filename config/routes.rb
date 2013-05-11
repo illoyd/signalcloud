@@ -6,10 +6,10 @@ SignalCloud::Application.routes.draw do
   # Global resources
   resources :account_plans
   
-  # All resources should be accessible outside the account scope as well
+  # All resources should be accessible outside the organization scope as well
   
-  # Prevent accounts from being deleted
-  resource :account, only: [ :show, :new, :create, :update, :edit ]
+  # Prevent organizations from being deleted
+  resource :organization, only: [ :show, :new, :create, :update, :edit ]
 
   resources :users
 
@@ -78,9 +78,9 @@ SignalCloud::Application.routes.draw do
   resources :phone_books
   resources :phone_book_entries, only: [:create, :destroy]
   
-  # Nested resources via account
-  # This functionality has been removed in favour of shadowing the current account using the session.
-  #resources :accounts do
+  # Nested resources via organization
+  # This functionality has been removed in favour of shadowing the current organization using the session.
+  #resources :organizations do
   #  resources :users
   #  resources :stencils
   #  resources :conversations, only: [ :index, :new, :create, :show ]
@@ -98,7 +98,7 @@ SignalCloud::Application.routes.draw do
     resource :sms_update, only: [ :create ], defaults: { format: 'xml' }
   end
 
-  resources :accounts, only: [:index] do
+  resources :organizations, only: [:index] do
     member do
       get 'shadow', action: 'shadow' #, as: 'shadow'
     end
@@ -153,7 +153,7 @@ SignalCloud::Application.routes.draw do
 
   # You can have the root of your site routed with "root"
   # just remember to delete public/index.html.
-  root :to => 'accounts#show'
+  root :to => 'organizations#show'
 
   # See how all your routes lay out with "rake routes"
 

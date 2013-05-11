@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'routing to users' do
+describe 'routing to organizations' do
   #fixtures :organizations, :account_plans, :users
 
 #   it 'routes /organizations/:id to organizations#show for id' do
@@ -11,8 +11,8 @@ describe 'routing to users' do
 #     )
 #   end  
 
-#   it 'does not allow deleting' do
-#     expect( :delete => '/users' ).not_to be_routable
-#   end
+  it 'does not allow deleting' do
+    expect( :delete => '/organizations' ).not_to be_routable
+  end
 
 end

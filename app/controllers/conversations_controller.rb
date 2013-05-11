@@ -1,13 +1,13 @@
 class ConversationsController < ApplicationController
 
   respond_to :html, :json, :xml
-  before_filter :setup_account_and_stencil
+  before_filter :setup_organization_and_stencil
 
   load_and_authorize_resource
   skip_authorize_resource only: [:new, :create]
   
-  def setup_account_and_stencil
-    @account = current_account()
+  def setup_organization_and_stencil
+    @organization = current_organization()
     @stencil = current_stencil(false)
   end
   
@@ -37,7 +37,7 @@ class ConversationsController < ApplicationController
   # GET /conversations/1
   # GET /conversations/1.json
   def show
-    # @conversation = ( @stencil.nil? ? @account : @stencil ).conversations.find(params[:id])
+    # @conversation = ( @stencil.nil? ? @organization : @stencil ).conversations.find(params[:id])
     respond_with @conversation
   end
 
@@ -50,13 +50,13 @@ class ConversationsController < ApplicationController
 
   # GET /conversations/1/edit
   #   def edit
-  #     @conversation = ( @stencil.nil? ? @account : @stencil ).conversations.find(params[:id])
+  #     @conversation = ( @stencil.nil? ? @organization : @stencil ).conversations.find(params[:id])
   #   end
 
   # POST /conversations
   # POST /conversations.json
   def create
-    # @conversation = ( @stencil.nil? ? @account : @stencil ).conversations.create( params[:conversation] )
+    # @conversation = ( @stencil.nil? ? @organization : @stencil ).conversations.create( params[:conversation] )
     @conversation = @stencil.open_conversation( params[:conversation] )
     authorize!( :create, @conversation )
 
@@ -70,7 +70,7 @@ class ConversationsController < ApplicationController
   # PUT /conversations/1
   # PUT /conversations/1.json
   #   def update
-  #     @conversation = ( @stencil.nil? ? @account : @stencil ).conversations.find(params[:id])
+  #     @conversation = ( @stencil.nil? ? @organization : @stencil ).conversations.find(params[:id])
   # 
   #     respond_to do |format|
   #       if @conversation.update_attributes(params[:conversation])
@@ -86,7 +86,7 @@ class ConversationsController < ApplicationController
   # DELETE /conversations/1
   # DELETE /conversations/1.json
   #   def destroy
-  #     @conversation = ( @stencil.nil? ? @account : @stencil ).conversations.find(params[:id])
+  #     @conversation = ( @stencil.nil? ? @organization : @stencil ).conversations.find(params[:id])
   #     @conversation.destroy
   # 
   #     respond_to do |format|

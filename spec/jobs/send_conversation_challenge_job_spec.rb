@@ -25,8 +25,8 @@ describe SendConversationChallengeJob, :vcr do
   end
   
   describe '#perform' do
-    let(:account)           { create(:account, :test_twilio, :with_sid_and_token) }
-    let(:stencil)         { create(:stencil, account: account) }
+    let(:organization)           { create(:organization, :test_twilio, :with_sid_and_token) }
+    let(:stencil)         { create(:stencil, organization: organization) }
 
     context 'when conversation has not been sent' do
       let(:conversation)  { create(:conversation, stencil: stencil, to_number: Twilio::VALID_NUMBER, from_number: Twilio::VALID_NUMBER) }
@@ -35,7 +35,7 @@ describe SendConversationChallengeJob, :vcr do
         expect { job.perform }.to change{conversation.messages(true).count}.by(1)
       end
       it 'does not create a new ledger entry' do
-        expect { job.perform }.to_not change{conversation.stencil.account.ledger_entries.count}
+        expect { job.perform }.to_not change{conversation.stencil.organization.ledger_entries.count}
       end
       it 'sets conversation status to queued' do
         expect { job.perform }.to change{conversation.reload.status}.to(Conversation::QUEUED)
@@ -55,7 +55,7 @@ describe SendConversationChallengeJob, :vcr do
         expect { job.perform }.to_not change{conversation.messages(true).count}
       end
       it 'does not create a new ledger entry' do
-        expect { job.perform }.to_not change{conversation.stencil.account.ledger_entries.count}
+        expect { job.perform }.to_not change{conversation.stencil.organization.ledger_entries.count}
       end
       it 'does not change conversation status' do
         expect { job.perform }.to_not change{conversation.reload.status}
@@ -79,7 +79,7 @@ describe SendConversationChallengeJob, :vcr do
         conversation.messages(true).order('created_at').last.status.should == Message::FAILED
       end
       it 'does not create a new ledger entry' do
-        expect { job.perform }.to_not change{conversation.stencil.account.ledger_entries.count}
+        expect { job.perform }.to_not change{conversation.stencil.organization.ledger_entries.count}
       end
       it 'changes conversation status to error' do
         expect { job.perform }.to change{conversation.reload.status}.to(Conversation::ERROR_INVALID_TO)
@@ -103,7 +103,7 @@ describe SendConversationChallengeJob, :vcr do
         conversation.messages(true).order('created_at').last.status.should == Message::FAILED
       end
       it 'does not create a new ledger entry' do
-        expect { job.perform }.to_not change{conversation.stencil.account.ledger_entries(true).count}
+        expect { job.perform }.to_not change{conversation.stencil.organization.ledger_entries(true).count}
       end
       it 'changes conversation status to error' do
         expect { job.perform }.to change{conversation.reload.status}.to(Conversation::ERROR_INVALID_FROM)

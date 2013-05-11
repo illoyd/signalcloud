@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe 'routing to conversations' do
-  #fixtures :accounts, :account_plans, :users, :stencils,
+  #fixtures :organizations, :account_plans, :users, :stencils,
 
   # Shallow routes
   it 'allows indexing' do

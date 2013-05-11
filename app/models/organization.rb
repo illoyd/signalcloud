@@ -1,10 +1,10 @@
-class Account < ActiveRecord::Base
+class Organization < ActiveRecord::Base
 
-  require 'account_xt_twilio'
-  require 'account_xt_freshbooks'
+  require 'organization_xt_twilio'
+  require 'organization_xt_freshbooks'
 
   # General attributes
-  attr_accessible :account_sid, :account_plan, :auth_token, :balance, :label, :account_plan_id, :description, :vat_name, :vat_number
+  attr_accessible :sid, :account_plan, :auth_token, :balance, :label, :account_plan_id, :description, :vat_name, :vat_number
   
   attr_accessor :balance_changed
   
@@ -14,15 +14,15 @@ class Account < ActiveRecord::Base
   attr_encrypted :freshbooks_id, key: ATTR_ENCRYPTED_SECRET
 
   # References
-  belongs_to :account_plan, inverse_of: :accounts
-  has_many :users, inverse_of: :account
-  has_many :stencils, inverse_of: :account
+  belongs_to :account_plan, inverse_of: :organizations
+  has_many :users, inverse_of: :organization
+  has_many :stencils, inverse_of: :organization
   has_many :conversations, through: :stencils
-  has_many :phone_books, inverse_of: :account
+  has_many :phone_books, inverse_of: :organization
   has_many :phone_book_entries, through: :phone_books
-  has_many :phone_numbers, inverse_of: :account
-  has_many :ledger_entries, inverse_of: :account
-  has_many :invoices, inverse_of: :account
+  has_many :phone_numbers, inverse_of: :organization
+  has_many :ledger_entries, inverse_of: :organization
+  has_many :invoices, inverse_of: :organization
   has_one :primary_address, class_name: 'Address', autosave: true, dependent: :destroy
   has_one :secondary_address, class_name: 'Address', autosave: true, dependent: :destroy
   
@@ -35,25 +35,25 @@ class Account < ActiveRecord::Base
   accepts_nested_attributes_for :secondary_address
   
   # Validations
-  before_validation :ensure_account_sid_and_token
-  validates_presence_of :account_sid, :auth_token, :label
-  validates_uniqueness_of :account_sid
+  before_validation :ensure_sid_and_token
+  validates_presence_of :sid, :auth_token, :label
+  validates_uniqueness_of :sid
   after_create :create_initial_resources
   
-  def ensure_account_sid_and_token
-    self.account_sid ||= SecureRandom.hex(16)
+  def ensure_sid_and_token
+    self.sid ||= SecureRandom.hex(16)
     self.auth_token ||= SecureRandom.hex(16)
   end
   
   ##
-  # Create starting 'default' book and stencil for a newly created account
+  # Create starting 'default' book and stencil for a newly created organization
   def create_initial_resources
     initial_book = self.phone_books.create label: 'Default Book'
     initial_stencil = self.stencils.create label: 'Default Stencil', phone_book_id: initial_book.id
   end
 
   ##
-  # Return the default stencil for this account, or the first stencil if no default is set.
+  # Return the default stencil for this organization, or the first stencil if no default is set.
   def primary_stencil
     app = self.stencils.where( primary: true ).order('id').first
     app = self.stencils.first if app.nil?
@@ -61,7 +61,7 @@ class Account < ActiveRecord::Base
   end
   
   ##
-  # Get statistics and counts for all conversations in this account. With return a hash of nicely labeled counts.
+  # Get statistics and counts for all conversations in this organization. With return a hash of nicely labeled counts.
   def conversation_count_by_status()
     statuses = Conversation.count_by_status_hash( self.conversations.today )
   end

@@ -1,19 +1,19 @@
 module ConversationsHelper
  
-  def stencil_dropdown_list( current_account, current_stencil )
+  def stencil_dropdown_list( current_organization, current_stencil )
     # Pick the dropdown list title
     title = 'Stencil: ' + ( current_stencil.nil? ? 'All' : current_stencil.label )
     
     # Assemble the entries based upon the current
     entries = [] # [ { label: 'Show all conversations', icon: 'ok-circle', link: conversations_path } ]
-    current_account.stencils.order(:label).each do |stencil|
+    current_organization.stencils.order(:label).each do |stencil|
       entries << { label: 'Show ' + stencil.label, icon: :stencils, link: stencil_conversations_path( stencil ) }
     end
     
     dropdown_list( title, entries, {class: 'btn-mini'} )
   end
   
-  def status_dropdown_list( current_account, current_stencil, current_status )
+  def status_dropdown_list( current_organization, current_stencil, current_status )
     # Pick the dropdown list title
     title = 'Status: ' + ( current_status.nil? ? 'All' : human_conversation_status(current_status) )
     

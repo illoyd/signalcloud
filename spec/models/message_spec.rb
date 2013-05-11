@@ -65,7 +65,7 @@ describe Message, :vcr do
 #     context 'when costs not set' do
 #       subject { create :message }
 #       before(:each) { 
-#         subject.conversation.stencil.account.account_plan = create(:ridiculous_account_plan)
+#         subject.conversation.stencil.organization.account_plan = create(:ridiculous_account_plan)
 #         subject.provider_response = subject.provider_response.with_indifferent_access.merge(price: -1.23)
 #       }
 #       its(:provider_cost) { should be_nil }
@@ -83,7 +83,7 @@ describe Message, :vcr do
 #     context 'when costs already set' do
 #       subject { create :message, :settled }
 #       before(:each) { 
-#         subject.conversation.stencil.account.account_plan = create(:ridiculous_account_plan)
+#         subject.conversation.stencil.organization.account_plan = create(:ridiculous_account_plan)
 #         subject.provider_response = subject.provider_response.with_indifferent_access.merge(price: -1.23)
 #       }
 #       its(:provider_cost) { should_not be_nil }
@@ -230,7 +230,7 @@ describe Message, :vcr do
 #     it 'should auto-save ledger entry' do
 #       message = Message.new( payload: { body: 'Hello!', to: '+12121234567', from: '+4561237890' }, twilio_sid: 'XX' + SecureRandom.hex(16) )
 #       message.conversation = conversations(:test_conversation)
-#       message.account.should_not be_nil
+#       message.organization.should_not be_nil
 #       #expect{ message.save! }.to_not raise_error
 #       
 #       ledger_entry = message.build_ledger_entry( narrative: 'TEST' )
@@ -241,11 +241,11 @@ describe Message, :vcr do
 #       ledger_entry.item_type.should eq( message.class.name.to_s )
 #       ledger_entry.item.should eq( message )
 # 
-#       #ledger_entry.item.respond_to?(:account).should == true
+#       #ledger_entry.item.respond_to?(:organization).should == true
 #       #ledger_entry.item.should_not be_nil
 # 
-#       expect{ ledger_entry.ensure_account }.to_not raise_error      
-#       ledger_entry.account_id.should eq( message.account.id )
+#       expect{ ledger_entry.ensure_organization }.to_not raise_error      
+#       ledger_entry.organization_id.should eq( message.organization.id )
 #       
 #       expect{ message.save! }.to_not raise_error
 #     end
@@ -261,10 +261,10 @@ describe Message, :vcr do
 #   end
   
   describe '#deliver!' do
-    let(:account) { create :account, :test_twilio, :with_sid_and_token }
-    let(:phone_number) { create :valid_phone_number, account: account }
-    let(:phone_book) { create :phone_book, account: account }
-    let(:stencil) { create :stencil, account: account, phone_book: phone_book }
+    let(:organization) { create :organization, :test_twilio, :with_sid_and_token }
+    let(:phone_number) { create :valid_phone_number, organization: organization }
+    let(:phone_book) { create :phone_book, organization: organization }
+    let(:stencil) { create :stencil, organization: organization, phone_book: phone_book }
     let(:conversation) { create :conversation, stencil: stencil }
     let!(:phone_book_entry) { create :phone_book_entry, phone_number: phone_number, phone_book: phone_book }
 

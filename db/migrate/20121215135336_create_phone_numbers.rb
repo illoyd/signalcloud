@@ -1,7 +1,7 @@
 class CreatePhoneNumbers < ActiveRecord::Migration
   def change
     create_table :phone_numbers do |t|
-      t.references :account, null: false
+      t.references :organization, null: false
 
       t.string :number, null: false
 
@@ -19,7 +19,7 @@ class CreatePhoneNumbers < ActiveRecord::Migration
     end
     
     # Add indices
-    add_index :phone_numbers, :account_id
+    add_index :phone_numbers, :organization_id
     add_index :phone_numbers, :number
   end
 end

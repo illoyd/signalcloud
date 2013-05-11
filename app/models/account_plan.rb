@@ -6,10 +6,13 @@ class AccountPlan < ActiveRecord::Base
   attr_accessible :plan_kind, :default, :call_in_add, :call_in_mult, :label, :month, :phone_add, :phone_mult, :sms_in_add, :sms_in_mult, :sms_out_add, :sms_out_mult
   
   # Relationships
-  has_many :accounts, inverse_of: :account_plan
+  has_many :organizations, inverse_of: :account_plan
   
   # Validations
   validates_inclusion_of :plan_kind, in: [ ARREARS, CREDIT ]
+  validates :phone_add,  :call_in_add,  :sms_in_add,  :sms_out_add,  numericality: { allow_nil: true, less_than_or_equal_to: 0.0 }
+  validates :phone_mult, :call_in_mult, :sms_in_mult, :sms_out_mult, numericality: { allow_nil: true, greater_than_or_equal_to: -1.0 }
+  
   
   ##
   # Calculate the cost of a phone number, based on the cost from the provider

@@ -1,7 +1,7 @@
 FactoryGirl.define do
 
   factory :user do
-    account
+    organization
     first_name         'John'
     last_name          'Doe'
     sequence(:email)   { |n| "user#{n}@signalcloudapp.com" }
@@ -17,8 +17,8 @@ FactoryGirl.define do
     #  roles_mask       { User.translate_roles [ :super_user ] }
     #end
     
-    factory :manage_account_permissions_user do
-      roles_mask       { User.translate_roles [ :manage_account ] }
+    factory :manage_organization_permissions_user do
+      roles_mask       { User.translate_roles [ :manage_organization ] }
     end
     
     factory :manage_users_permissions_user do

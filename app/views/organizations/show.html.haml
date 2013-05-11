@@ -1,7 +1,7 @@
-- content_for :title, "#{@account.label} Account"
-- content_for :page_title, 'Account'
-- content_for :page_subtitle, @account.label
-- content_for :page_icon, :accounts
+- content_for :title, "#{@organization.label} Organization"
+- content_for :page_title, 'Organization'
+- content_for :page_subtitle, @organization.label
+- content_for :page_icon, :organizations
 
 / Page body
 .row
@@ -12,38 +12,38 @@
       / Current Balance
       %li.span3
         .thumbnail.tile
-          %p.information= "%0.2f" % @account.balance
+          %p.information= "%0.2f" % @organization.balance
           %p.information-label Current credits
       / Balance Used Today
       %li.span3
         .thumbnail.tile
-          %p.information= "%0.2f" % @account.ledger_entries.today.sum(:value)
+          %p.information= "%0.2f" % @organization.ledger_entries.today.sum(:value)
           %p.information-label Used today
       / Balance Used Today
       %li.span3
         .thumbnail.tile
-          %p.information= "%0.2f" % @account.ledger_entries.yesterday.sum(:value)
+          %p.information= "%0.2f" % @organization.ledger_entries.yesterday.sum(:value)
           %p.information-label Used yesterday
       / Open Conversations
       %li.span3
         .thumbnail.tile
-          %p.information= "%i" % @account.conversations.today.opened.count
+          %p.information= "%i" % @organization.conversations.today.opened.count
           %p.information-label Open conversations
       / Conversations Today
       %li.span3
         .thumbnail.tile
-          %p.information= "%i" % @account.conversations.today.count
+          %p.information= "%i" % @organization.conversations.today.count
           %p.information-label Conversations today
       / Conversations Yesterday
       %li.span3
         .thumbnail.tile
-          %p.information= "%i" % @account.conversations.yesterday.count
+          %p.information= "%i" % @organization.conversations.yesterday.count
           %p.information-label Conversations yesterday
-      / Account Plan
+      / Organization Plan
       /
         %li.span3
           .thumbnail.tile
-            %p.information= @account.account_plan.label
+            %p.information= @organization.account_plan.label
             %p.information-label Plan
     
     %h4 conversation breakdown
@@ -53,9 +53,9 @@
         %li= link_to 'yesterday', '#yesterday', {'data-toggle'=>'pill'}
         %li= link_to 'last 7 days', '#lastweek', {'data-toggle'=>'pill'}
       %div.tab-content.fade.in
-        %div#today.tab-pane.fade.in.active= conversation_status_breakdown( @account.conversations.today.count_by_status )
-        %div#yesterday.tab-pane.fade= conversation_status_breakdown( @account.conversations.yesterday.count_by_status )
-        %div#lastweek.tab-pane.fade= conversation_status_breakdown( @account.conversations.last_x_days.count_by_status )
+        %div#today.tab-pane.fade.in.active= conversation_status_breakdown( @organization.conversations.today.count_by_status )
+        %div#yesterday.tab-pane.fade= conversation_status_breakdown( @organization.conversations.yesterday.count_by_status )
+        %div#lastweek.tab-pane.fade= conversation_status_breakdown( @organization.conversations.last_x_days.count_by_status )
     
     %h4 tokens
     %p Tokens are used to authenticate with the SignalCloud API.
@@ -69,11 +69,11 @@
         / production
         %tr
           %td SignalCloud
-          %td= @account.account_sid
-          %td= @account.auth_token
+          %td= @organization.sid
+          %td= @organization.auth_token
         / Twilio
         -# TODO Remove this section from general view!
         %tr
           %td Twilio
-          %td= @account.twilio_account_sid
-          %td= @account.twilio_auth_token
+          %td= @organization.twilio_account_sid
+          %td= @organization.twilio_auth_token

@@ -7,15 +7,15 @@ class User < ActiveRecord::Base
 
   # Setup accessible (or protected) attributes for your model
   attr_accessible :email, :password, :password_confirmation, :remember_me
-  attr_accessible :account, :account_id, :first_name, :last_name, :roles
+  attr_accessible :organization, :organization_id, :first_name, :last_name, :roles
   
-  belongs_to :account, inverse_of: :users
+  belongs_to :organization, inverse_of: :users
   
-  validates_presence_of :first_name, :last_name, :roles_mask, :account_id
+  validates_presence_of :first_name, :last_name, :roles_mask, :organization_id
 
-  ROLES = [ :super_user, :account_administrator, :developer, :billing_liaison, :conversation_manager ]
+  ROLES = [ :super_user, :organization_administrator, :developer, :billing_liaison, :conversation_manager ]
   
-  before_validation :ensure_account_when_invited
+  before_validation :ensure_organization_when_invited
 
 #   def method_missing(sym, *args, &block)
 #     if /^can_(.+)\?$/.match(sym) and User::ROLES.include?($1.to_sym)
@@ -29,9 +29,9 @@ class User < ActiveRecord::Base
 #     return (/^can_(.+)\?$/.match(sym) and User::ROLES.include?($1.to_sym)) || super( sym, include_private )
 #   end
 
-  def ensure_account_when_invited
-    if self.account_id.blank? and !self.invited_by.nil?
-      self.account_id = self.invited_by.account_id
+  def ensure_organization_when_invited
+    if self.organization_id.blank? and !self.invited_by.nil?
+      self.organization_id = self.invited_by.organization_id
     end
   end
   

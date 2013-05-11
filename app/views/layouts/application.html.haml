@@ -82,11 +82,11 @@
                   = current_user.first_name
                   %b.caret
                 %ul.dropdown-menu
-                  - if can? :shadow, Account
+                  - if can? :shadow, Organization
                     %li
-                      = link_to accounts_path do
-                        = icon( :accounts )
-                        Switch accounts
+                      = link_to organizations_path do
+                        = icon( :organizations )
+                        Switch organizations
                   - if can? :change_password, current_user
                     %li
                       = link_to edit_user_path( current_user ) do

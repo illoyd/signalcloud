@@ -9,15 +9,15 @@ describe User do
   end
 
   describe 'validations' do  
-    [ :account, :first_name, :last_name, :roles, :email, :password, :password_confirmation, :remember_me ].each do |attribute| 
+    [ :organization, :first_name, :last_name, :roles, :email, :password, :password_confirmation, :remember_me ].each do |attribute| 
       it { should allow_mass_assignment_of(attribute) }
     end
 
-    [ :account_id, :first_name, :last_name, :email, :password ].each do |attribute| 
+    [ :organization_id, :first_name, :last_name, :email, :password ].each do |attribute| 
       it { should validate_presence_of(attribute) }
     end
 
-    it { should belong_to(:account) }
+    it { should belong_to(:organization) }
   end
   
   # Roles and bitmask

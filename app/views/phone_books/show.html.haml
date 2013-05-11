@@ -31,7 +31,7 @@
                 %li= msg
 
       = f.hidden_field :phone_book_id
-      = f.collection_select :phone_number_id, @phone_book.account.phone_numbers, :id, :number, class: 'input-small'
+      = f.collection_select :phone_number_id, @phone_book.organization.phone_numbers, :id, :number, class: 'input-small'
       = f.country_select :country
       = submit_tag 'Add', class: 'btn btn-primary btn-small'
 

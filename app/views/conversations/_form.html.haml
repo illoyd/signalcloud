@@ -17,7 +17,7 @@
     .controls
       = @stencil.label
       %a.btn.btn-mini{"data-toggle" => "modal", :href => '#change_stencil_modal', :role => "button"} Change Stencil
-    -#=f.collection_select :stencil_id, @account.stencils, :id, :label
+    -#=f.collection_select :stencil_id, @organization.stencils, :id, :label
   .control-group
     = f.label :to_number, :class => 'control-label' do
       Customer number

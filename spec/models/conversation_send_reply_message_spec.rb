@@ -22,7 +22,7 @@ shared_examples 'sends reply messages' do |body, message_count, body_length|
   end
   it 'does not create new ledger entry' do
     # Does not create it because no price was given
-    expect{ subject.send_reply_message!() }.to_not change{subject.stencil.account.ledger_entries.count}
+    expect{ subject.send_reply_message!() }.to_not change{subject.stencil.organization.ledger_entries.count}
   end
 end
 
@@ -41,7 +41,7 @@ shared_examples 'raises reply message error (without save)' do |message_count, e
     expect{ subject.send_reply_message() rescue nil }.to change{subject.messages.count}.by(message_count)
   end
   it 'does not create ledger entries' do
-    expect{ subject.send_reply_message() rescue nil }.to_not change{subject.stencil.account.ledger_entries.count}
+    expect{ subject.send_reply_message() rescue nil }.to_not change{subject.stencil.organization.ledger_entries.count}
   end
 end
 
@@ -60,7 +60,7 @@ shared_examples 'raises reply message error' do |message_count, error, error_cod
     expect{ subject.send_reply_message!() rescue nil }.to change{subject.messages.count}.by(message_count)
   end
   it 'does not create ledger entries' do
-    expect{ subject.send_reply_message!() rescue nil }.to_not change{subject.stencil.account.ledger_entries.count}
+    expect{ subject.send_reply_message!() rescue nil }.to_not change{subject.stencil.organization.ledger_entries.count}
   end
 end
 
@@ -68,10 +68,10 @@ end
 # Split out the +send_reply_message+ function for ease of use
 describe Conversation, '#send_reply_message', :vcr do
 
-  let(:account) { create :account, :test_twilio, :with_sid_and_token }
-  let(:phone_number) { create :phone_number, :valid_number, account: account }
-  let(:phone_book) { create :phone_book, account: account }
-  let(:stencil) { create :stencil, account: account, phone_book: phone_book }
+  let(:organization) { create :organization, :test_twilio, :with_sid_and_token }
+  let(:phone_number) { create :phone_number, :valid_number, organization: organization }
+  let(:phone_book) { create :phone_book, organization: organization }
+  let(:stencil) { create :stencil, organization: organization, phone_book: phone_book }
 
   context 'when sending confirmation reply' do
     context 'when not already sent' do

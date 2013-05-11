@@ -1,0 +1,41 @@
+/ Page header
+.row
+  .span12
+    .page-header
+      %h1
+        = icon( :organizations )
+        Organizations
+        %small all organizations
+
+/ Page body
+.row
+  .span12
+    %table.table.table-striped
+      %thead
+        %tr
+          %th Label
+          %th Plan
+          %th Balance
+          %th Users
+          %th Conversations
+          %th Has Twilio?
+          %th
+      %tbody
+        - @organizations.each do |organization|
+          %tr
+            %td= link_to organization.label, shadow_organization_path(organization)
+            %td= organization.account_plan.label
+            %td{'align'=>'right'}
+              %small US
+              = '$%0.4f' % organization.balance
+            %td{'align'=>'right'}= organization.users.count
+            %td{'align'=>'right'}= organization.conversations.count
+            %td= ( !organization.twilio_account_sid.nil? && !organization.twilio_auth_token.nil? ) ? 'Yes' : 'No'
+            %td
+              = dropdown_list( 'Manage', [ |
+                { label: 'Details', icon: :show, link: organization }, |
+                { label: 'Edit', icon: :edit, link: edit_organization_path(organization) }, |
+                { label: 'Delete', icon: :delete, link: organization, options: { method: :delete, data: { confirm: 'Are you sure?' } } } |
+              ]) |
+
+    %div= link_to 'New Organization', new_organization_path, :class => 'btn btn-success'

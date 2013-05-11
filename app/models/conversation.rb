@@ -53,7 +53,7 @@ class Conversation < ActiveRecord::Base
   has_many :messages, inverse_of: :conversation
   #has_many :ledger_entries, as: :item
 
-  delegate :account, :to => :stencil, :allow_nil => true
+  delegate :organization, :to => :stencil, :allow_nil => true
   
   # Validation
   validates_presence_of :stencil_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at
@@ -296,7 +296,7 @@ class Conversation < ActiveRecord::Base
         msg.deliver!
         msg
         # Send the SMS
-        #results = self.stencil.account.send_sms( self.to_number, self.from_number, message_part )
+        #results = self.stencil.organization.send_sms( self.to_number, self.from_number, message_part )
   
         # Build a message and ledger_entry to hold the results
         # sent_message = self.messages.build( twilio_sid: results.sid, provider_response: results.to_property_hash )

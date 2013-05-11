@@ -1,12 +1,12 @@
 require 'spec_helper'
 
-describe Account, 'Twilio Integration', :vcr do
-  subject { create(:account) }
+describe Organization, 'Twilio Integration', :vcr do
+  subject { create(:organization) }
 
   describe '#twilio_client' do
 
     context 'when not configured' do
-      subject { create :account }
+      subject { create :organization }
       it 'throws error when SID and Token are missing' do
         expect{ subject.twilio_client }.to raise_error(SignalCloud::MissingTwilioAccountError)
       end
@@ -21,7 +21,7 @@ describe Account, 'Twilio Integration', :vcr do
     end
 
     context 'when configured' do
-      subject { create :account, :test_twilio, :with_sid_and_token }
+      subject { create :organization, :test_twilio, :with_sid_and_token }
       it 'returns instance of twilio client' do
         expect { subject.twilio_client }.to_not raise_error
       end
@@ -35,15 +35,15 @@ describe Account, 'Twilio Integration', :vcr do
   describe '#twilio_account' do
 
     context 'when not configured' do
-      subject { create :account }
+      subject { create :organization }
       it 'throws error' do
         expect{ subject.twilio_account }.to raise_error(SignalCloud::MissingTwilioAccountError)
       end
     end
 
     context 'when configured' do
-      subject { create :account, :test_twilio, :with_sid_and_token }
-      it 'returns instance of twilio account' do
+      subject { create :organization, :test_twilio, :with_sid_and_token }
+      it 'returns instance of twilio organization' do
         expect{ subject.twilio_account }.to_not raise_error
       end
     end
@@ -53,14 +53,14 @@ describe Account, 'Twilio Integration', :vcr do
   describe '#twilio_validator' do
 
     context 'when not configured' do
-      subject { create :account }
+      subject { create :organization }
       it 'throws error' do
         expect{ subject.twilio_validator }.to raise_error(SignalCloud::MissingTwilioAccountError)
       end
     end
 
     context 'when configured' do
-      subject { create :account, :test_twilio, :with_sid_and_token }
+      subject { create :organization, :test_twilio, :with_sid_and_token }
       it 'returns instance of twilio validator' do
         expect{ subject.twilio_validator }.to_not raise_error
       end
@@ -69,8 +69,8 @@ describe Account, 'Twilio Integration', :vcr do
   end
   
   describe '#create_twilio_account' do
-    context 'when account already created' do
-      subject { create :account, :test_twilio, :with_sid_and_token }
+    context 'when organization already created' do
+      subject { create :organization, :test_twilio, :with_sid_and_token }
       it 'does not raise error' do
         expect{ subject.create_twilio_account }.to_not raise_error
       end
@@ -85,8 +85,8 @@ describe Account, 'Twilio Integration', :vcr do
   
   describe '#create_twilio_account!' do
 
-    context 'when account not already created' do
-      subject { create :account, :with_sid_and_token }
+    context 'when organization not already created' do
+      subject { create :organization, :with_sid_and_token }
       it 'does not raise error' do
         expect{ subject.create_twilio_account! }.to_not raise_error
       end
@@ -103,8 +103,8 @@ describe Account, 'Twilio Integration', :vcr do
       end
     end
 
-    context 'when account already created' do
-      subject { create :account, :test_twilio, :with_sid_and_token }
+    context 'when organization already created' do
+      subject { create :organization, :test_twilio, :with_sid_and_token }
       it 'raises error' do
         expect{ subject.create_twilio_account! }.to raise_error(SignalCloud::TwilioAccountAlreadyExistsError)
       end
@@ -120,36 +120,36 @@ describe Account, 'Twilio Integration', :vcr do
   
   describe '#create_or_update_twilio_application' do
   
-    context 'when account is not configured' do
-      let(:account)   { create :account, :with_sid_and_token }
+    context 'when organization is not configured' do
+      let(:organization)   { create :organization, :with_sid_and_token }
       it 'raises error' do
-        expect { account.create_or_update_twilio_application }.to raise_error(SignalCloud::MissingTwilioAccountError)
+        expect { organization.create_or_update_twilio_application }.to raise_error(SignalCloud::MissingTwilioAccountError)
       end
     end
     
     context 'when application is not configured, creates' do
-      let(:account)   { create :account, :master_twilio, :with_sid_and_token, twilio_application_sid: nil }
+      let(:organization)   { create :organization, :master_twilio, :with_sid_and_token, twilio_application_sid: nil }
       it 'does not raise error' do
-        expect { account.create_or_update_twilio_application }.to_not raise_error()
+        expect { organization.create_or_update_twilio_application }.to_not raise_error()
       end
       it 'returns a response' do
-        account.create_or_update_twilio_application.should_not be_nil
+        organization.create_or_update_twilio_application.should_not be_nil
       end
       it 'updates twilio application' do
-        expect { account.create_or_update_twilio_application }.to change{ account.twilio_application_sid }.from(nil)
+        expect { organization.create_or_update_twilio_application }.to change{ organization.twilio_application_sid }.from(nil)
       end
     end
     
     context 'when application is configured, updates' do
-      let(:account)   { create :account, :master_twilio, :with_sid_and_token }
+      let(:organization)   { create :organization, :master_twilio, :with_sid_and_token }
       it 'does not raise error' do
-        expect { account.create_or_update_twilio_application }.to_not raise_error()
+        expect { organization.create_or_update_twilio_application }.to_not raise_error()
       end
       it 'returns a response' do
-        account.create_or_update_twilio_application.should_not be_nil
+        organization.create_or_update_twilio_application.should_not be_nil
       end
       it 'does not change twilio application' do
-        expect { account.create_or_update_twilio_application }.not_to change{ account.twilio_application_sid }
+        expect { organization.create_or_update_twilio_application }.not_to change{ organization.twilio_application_sid }
       end
     end
     
@@ -158,12 +158,12 @@ describe Account, 'Twilio Integration', :vcr do
   describe '#has_twilio_application?' do
 
     context 'when application is configured' do
-      subject { create :account, :test_twilio }
+      subject { create :organization, :test_twilio }
       its(:'has_twilio_application?') { should be_true }
     end
 
     context 'when application is not configured' do
-      subject { create :account }
+      subject { create :organization }
       its(:'has_twilio_application?') { should be_false }
     end
 
@@ -171,9 +171,9 @@ describe Account, 'Twilio Integration', :vcr do
   
   describe '#create_twilio_application' do
     
-    context 'when account is configured' do
+    context 'when organization is configured' do
       context 'and when application is configured' do
-        subject { create :account, :master_twilio, :with_sid_and_token }
+        subject { create :organization, :master_twilio, :with_sid_and_token }
         it 'does not raise error' do
           expect { subject.create_twilio_application }.not_to raise_error
         end
@@ -186,7 +186,7 @@ describe Account, 'Twilio Integration', :vcr do
       end
 
       context 'and when application is not configured' do
-        subject { create :account, :master_twilio, :with_sid_and_token, twilio_application_sid: nil }
+        subject { create :organization, :master_twilio, :with_sid_and_token, twilio_application_sid: nil }
         it 'does not raise error' do
           expect { subject.create_twilio_application }.not_to raise_error
         end
@@ -199,8 +199,8 @@ describe Account, 'Twilio Integration', :vcr do
       end
     end
     
-    context 'when account is not configured' do
-      subject { create :account }
+    context 'when organization is not configured' do
+      subject { create :organization }
       it 'raises error' do
         expect{ subject.create_twilio_application }.to raise_error(SignalCloud::MissingTwilioAccountError)
       end
@@ -210,7 +210,7 @@ describe Account, 'Twilio Integration', :vcr do
   
   describe '#create_twilio_application!' do
     context 'when accout and application are configured' do
-      subject { create :account, :master_twilio, :with_sid_and_token }
+      subject { create :organization, :master_twilio, :with_sid_and_token }
       it 'raises application-exists error' do
         expect { subject.create_twilio_application! }.to raise_error(SignalCloud::TwilioApplicationAlreadyExistsError)
       end
@@ -219,9 +219,9 @@ describe Account, 'Twilio Integration', :vcr do
   
   describe '#update_twilio_application' do
     
-    context 'when account is configured' do
+    context 'when organization is configured' do
       context 'and when application is configured' do
-        subject { create :account, :master_twilio, :with_sid_and_token }
+        subject { create :organization, :master_twilio, :with_sid_and_token }
         it 'does not raise error' do
           expect { subject.update_twilio_application }.not_to raise_error
         end
@@ -234,7 +234,7 @@ describe Account, 'Twilio Integration', :vcr do
       end
 
       context 'and when application is not configured' do
-        subject { create :account, :master_twilio, :with_sid_and_token, twilio_application_sid: nil }
+        subject { create :organization, :master_twilio, :with_sid_and_token, twilio_application_sid: nil }
         it 'does not raise error' do
           expect { subject.update_twilio_application }.not_to raise_error
         end
@@ -247,8 +247,8 @@ describe Account, 'Twilio Integration', :vcr do
       end
     end
     
-    context 'when account is not configured' do
-      subject { create :account }
+    context 'when organization is not configured' do
+      subject { create :organization }
       it 'raises error' do
         expect{ subject.create_twilio_application }.to raise_error(SignalCloud::MissingTwilioAccountError)
       end
@@ -257,8 +257,8 @@ describe Account, 'Twilio Integration', :vcr do
   end
   
   describe '#update_twilio_application!' do
-    context 'when account is configured but application is not configured' do
-      subject { create :account, :master_twilio, :with_sid_and_token, twilio_application_sid: nil }
+    context 'when organization is configured but application is not configured' do
+      subject { create :organization, :master_twilio, :with_sid_and_token, twilio_application_sid: nil }
       it 'raises application-missing error' do
         expect { subject.update_twilio_application! }.to raise_error(SignalCloud::MissingTwilioApplicationError)
       end
@@ -267,17 +267,17 @@ describe Account, 'Twilio Integration', :vcr do
   
   describe '#twilio_*_url' do
 
-    context 'when account is configured' do
-      subject { create :account, :test_twilio }
-      let(:digest_auth)             { "https://#{subject.account_sid}:#{subject.auth_token}" }
+    context 'when organization is configured' do
+      subject { create :organization, :test_twilio }
+      let(:digest_auth)             { "https://#{subject.sid}:#{subject.auth_token}" }
       its(:twilio_voice_url)        { should start_with(digest_auth) }
       its(:twilio_voice_status_url) { should start_with(digest_auth) }
       its(:twilio_sms_url)          { should start_with(digest_auth) }
       its(:twilio_sms_status_url)   { should start_with(digest_auth) }
     end
 
-    context 'when account is not configured' do
-      subject { create :account }
+    context 'when organization is not configured' do
+      subject { create :organization }
       it 'fails on voice url' do
         expect{ subject.twilio_voice_url }.to raise_error(SignalCloud::MissingTwilioAccountError)
       end
@@ -296,9 +296,9 @@ describe Account, 'Twilio Integration', :vcr do
   
   describe '#twilio_application_configuration' do
 
-    context 'when account is configured' do
-      subject { create :account, :test_twilio }
-      let(:digest_auth) { "https://#{subject.account_sid}:#{subject.auth_token}" }
+    context 'when organization is configured' do
+      subject { create :organization, :test_twilio }
+      let(:digest_auth) { "https://#{subject.sid}:#{subject.auth_token}" }
       its(:twilio_application_configuration) { should be_a Hash }
 
       [ 'VoiceUrl', 'VoiceFallbackUrl', 'StatusCallback', 'SmsUrl', 'SmsFallbackUrl', 'SmsStatusCallback' ].each do |key|
@@ -317,8 +317,8 @@ describe Account, 'Twilio Integration', :vcr do
 
     end
 
-    context 'when account is not configured' do
-      subject { create :account }
+    context 'when organization is not configured' do
+      subject { create :organization }
       it 'raises error' do
         expect{ subject.twilio_application_configuration }.to raise_error(SignalCloud::MissingTwilioAccountError)
       end

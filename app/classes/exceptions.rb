@@ -15,11 +15,11 @@ class SignalCloudError < StandardError
 end
 
 ##
-# Thrown whenever the given object does not have an associated account. This is a CRITICAL error as no
-# object should ever be created without an account!
-class AccountNotAssociatedError < SignalCloudError
+# Thrown whenever the given object does not have an associated organization. This is a CRITICAL error as no
+# object should ever be created without an organization!
+class OrganizationNotAssociatedError < SignalCloudError
   def initialize( original = nil, code = nil )
-    super( 'Object not associated to an account.', original, code )
+    super( 'Object not associated to an organization.', original, code )
   end
 end
 
@@ -30,32 +30,32 @@ class TwilioError < SignalCloudError; end
 ##
 # Thrown whenever a Twilio client is requested but not configured.
 class MissingTwilioAccountError < TwilioError
-  def initialize( account, original = nil, code = nil )
-    super( 'Twilio not configured for Account %i.' % [account.id], original, code )
+  def initialize( organization, original = nil, code = nil )
+    super( 'Twilio not configured for Organization %i.' % [organization.id], original, code )
   end
 end
 
 ##
-# Thrown if attempting to create a Twilio account for an Account which already has a Twilio account.
+# Thrown if attempting to create a Twilio organization for an Organization which already has a Twilio organization.
 class TwilioAccountAlreadyExistsError < TwilioError
-  def initialize( account, original = nil, code = nil )
-    super( 'Twilio already exists for Account %i.' % [account.id], original, code )
+  def initialize( organization, original = nil, code = nil )
+    super( 'Twilio already exists for Organization %i.' % [organization.id], original, code )
   end
 end
 
 ##
-# Thrown if attempting to create a Twilio application for an Account which already has a Twilio account.
+# Thrown if attempting to create a Twilio application for an Organization which already has a Twilio organization.
 class TwilioApplicationAlreadyExistsError < TwilioError
-  def initialize( account, original = nil, code = nil )
-    super( 'Twilio application already exists for Account %i.' % [account.id], original, code )
+  def initialize( organization, original = nil, code = nil )
+    super( 'Twilio application already exists for Organization %i.' % [organization.id], original, code )
   end
 end
 
 ##
-# Thrown if attempting to use a Twilio application for an Account which does not have an application configured.
+# Thrown if attempting to use a Twilio application for an Organization which does not have an application configured.
 class MissingTwilioApplicationError < TwilioError
-  def initialize( account, original = nil, code = nil )
-    super( 'Twilio application not configured for Account %i.' % [account.id], original, code )
+  def initialize( organization, original = nil, code = nil )
+    super( 'Twilio application not configured for Organization %i.' % [organization.id], original, code )
   end
 end
 
@@ -64,18 +64,18 @@ end
 class FreshBooksError < SignalCloudError; end
 
 ##
-# Thrown whenever the given item does not have a FreshBooks account yet.
+# Thrown whenever the given item does not have a FreshBooks organization yet.
 class MissingFreshBooksClientError < FreshBooksError
-  def initialize( account, original = nil, code = nil )
-    super( 'FreshBooks client not created for Account %i.' % [account.id], original, code )
+  def initialize( organization, original = nil, code = nil )
+    super( 'FreshBooks client not created for Organization %i.' % [organization.id], original, code )
   end
 end
 
 ##
-# Thrown if attempting to create a FreshBooks client for an Account which already has a FreshBooks client.
+# Thrown if attempting to create a FreshBooks client for an Organization which already has a FreshBooks client.
 class FreshBooksClientAlreadyExistsError < FreshBooksError
-  def initialize( account, original = nil, code = nil )
-    super( 'FreshBooks client already exists for Account %i.' % [account.id], original, code )
+  def initialize( organization, original = nil, code = nil )
+    super( 'FreshBooks client already exists for Organization %i.' % [organization.id], original, code )
   end
 end
 

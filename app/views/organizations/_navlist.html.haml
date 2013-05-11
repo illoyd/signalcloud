@@ -1,17 +1,17 @@
-- if @account.new_record?
-  -# New account
+- if @organization.new_record?
+  -# New organization
   = navigation_list([ |
     { header: 'Related' }, |
     { label: 'Dashboard', icon: :dashboard, link: '#' }, |
-    { label: 'All Accounts', icon: :accounts, link: accounts_path } |
+    { label: 'All Organizations', icon: :organizations, link: organizations_path } |
     ]) |
 
 - else
-  -# Existing account
+  -# Existing organization
   = navigation_list([ |
     { header: 'Manage' }, |
-    { label: 'Details', icon: :show, link: account_path }, |
-    { label: 'Edit', icon: :edit, link: edit_account_path(), if: can?(:edit, @account) }, |
+    { label: 'Details', icon: :show, link: organization_path }, |
+    { label: 'Edit', icon: :edit, link: edit_organization_path(), if: can?(:edit, @organization) }, |
     { header: 'Related' }, |
     { label: 'Users', icon: :users, link: users_path, if: can?(:index, User) }, |
     { label: 'Conversations', icon: :conversations, link: conversations_path, if: can?(:index, Conversation) }, |

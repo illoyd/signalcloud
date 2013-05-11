@@ -5,7 +5,7 @@ class LedgerEntriesController < ApplicationController
   # GET /ledger_entries
   # GET /ledger_entries.json
   def index
-    @ledger_entries = current_account.ledger_entries
+    @ledger_entries = current_organization.ledger_entries
     @ledger_entries = @ledger_entries.page(params[:page])
 
     respond_to do |format|
@@ -17,7 +17,7 @@ class LedgerEntriesController < ApplicationController
   # GET /ledger_entries/1
   # GET /ledger_entries/1.json
   def show
-    @ledger_entry = current_account.ledger_entries.find(params[:id])
+    @ledger_entry = current_organization.ledger_entries.find(params[:id])
 
     respond_to do |format|
       format.html # show.html.erb

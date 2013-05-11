@@ -1,29 +1,29 @@
 FactoryGirl.define do
 
-  factory :account do
-    account_sid         { SecureRandom.hex(16) }
+  factory :organization do
+    sid                 { SecureRandom.hex(16) }
     auth_token          { SecureRandom.hex(16) }
     label               'Test Account'
     balance             9.99
     association         :primary_address, factory: :white_house_address
     association         :secondary_address, factory: :address
-    account_plan
+    account_plan        { create :payg_account_plan }
     #test_twilio
     #test_freshbooks_client
 
-    factory :test_account do
+    factory :test_organization do
       label               'White House'
       test_freshbooks
     end
     
-    factory :master_account do
+    factory :master_organization do
       label               'signalcloud'
       master_twilio
       test_freshbooks
     end
     
     trait :with_sid_and_token do
-      account_sid       '6cc9f11f2c466d4f443453257eb76a2a'
+      sid               '6cc9f11f2c466d4f443453257eb76a2a'
       auth_token        '247e210af4ee43c1509e5c8508184bf5'
     end
     
@@ -52,8 +52,8 @@ FactoryGirl.define do
       ignore do
         users_count 3
       end
-      after(:create) do |account, evaluator|
-        FactoryGirl.create_list(:user, evaluator.users_count, account: account)
+      after(:create) do |organization, evaluator|
+        FactoryGirl.create_list(:user, evaluator.users_count, organization: organization)
       end
     end
     

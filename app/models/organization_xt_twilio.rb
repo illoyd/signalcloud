@@ -1,4 +1,4 @@
-class Account < ActiveRecord::Base
+class Organization < ActiveRecord::Base
 
   ##
   # Send an SMS using the Twilio API.
@@ -19,7 +19,7 @@ class Account < ActiveRecord::Base
   end
   
   ##
-  # Return a Twilio Account.
+  # Return a Twilio Organization.
   def twilio_account
     return self.twilio_client.account
   end
@@ -41,7 +41,7 @@ class Account < ActiveRecord::Base
   end
   
   ##
-  # Create a Twilio sub-account.
+  # Create a Twilio sub-organization.
   def create_twilio_account!
     raise SignalCloud::TwilioAccountAlreadyExistsError.new(self) unless self.twilio_account_sid.blank? and self.twilio_auth_token.blank?
     response = Twilio.master_client.accounts.create( 'FriendlyName' => self.label )
@@ -52,7 +52,7 @@ class Account < ActiveRecord::Base
   end
   
   ##
-  # Create, or update if it exists, the Twilio application used for this account.
+  # Create, or update if it exists, the Twilio application used for this organization.
   def create_or_update_twilio_application
     return self.twilio_application_sid.blank? ? self.create_twilio_application : self.update_twilio_application
   end
@@ -141,7 +141,7 @@ class Account < ActiveRecord::Base
   
     # Insert digest authentication
     unless self.twilio_account_sid.blank?
-      auth_string = self.account_sid
+      auth_string = self.sid
       auth_string += ':' + self.auth_token unless self.auth_token.blank?
       url = url.gsub( /(https?:\/\/)/, '\1' + auth_string + '@' )
     end

@@ -89,13 +89,13 @@ def build_authenticated_request_url( url, username=nil, password=nil )
   temp_path
 end
 
-def build_twilio_signature( url, account=nil, post_params={} )
-  url = build_authenticated_request_url( url, account.account_sid, account.auth_token )
-  account.twilio_validator.build_signature_for( url, post_params )
+def build_twilio_signature( url, organization=nil, post_params={} )
+  url = build_authenticated_request_url( url, organization.sid, organization.auth_token )
+  organization.twilio_validator.build_signature_for( url, post_params )
 end
 
-def inject_twilio_signature( url, account=nil, post_params={} )
-  request.env['HTTP_X_TWILIO_SIGNATURE'] = build_twilio_signature( url, account, post_params )
+def inject_twilio_signature( url, organization=nil, post_params={} )
+  request.env['HTTP_X_TWILIO_SIGNATURE'] = build_twilio_signature( url, organization, post_params )
 end
   
 def enqueue_and_work_jobs( jobs, options={} )

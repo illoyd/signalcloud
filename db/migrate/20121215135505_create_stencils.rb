@@ -1,7 +1,7 @@
 class CreateStencils < ActiveRecord::Migration
   def change
     create_table :stencils do |t|
-      t.references :account, null: false
+      t.references :organization, null: false
       t.references :phone_book, null: false
       t.string :label, null: false
       t.integer :seconds_to_live, default: 180, null: false
@@ -43,7 +43,7 @@ class CreateStencils < ActiveRecord::Migration
     end
     
     # Indices
-    add_index :stencils, :account_id
+    add_index :stencils, :organization_id
     add_index :stencils, :phone_book_id
     add_index :stencils, :primary
   end

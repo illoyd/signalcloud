@@ -23,9 +23,9 @@ class PhoneNumber < ActiveRecord::Base
   ITALIAN = 'it'
   LANGUAGES = [ AMERICAN_ENGLISH, BRITISH_ENGLISH, SPANISH, FRENCH, GERMAN, ITALIAN ]
 
-  attr_accessible :number, :twilio_phone_number_sid, :account_id, :our_cost, :provider_cost, :unsolicited_sms_action, :unsolicited_sms_message, :unsolicited_call_action, :unsolicited_call_message, :unsolicited_call_language, :unsolicited_call_voice
+  attr_accessible :number, :twilio_phone_number_sid, :organization_id, :our_cost, :provider_cost, :unsolicited_sms_action, :unsolicited_sms_message, :unsolicited_call_action, :unsolicited_call_message, :unsolicited_call_language, :unsolicited_call_voice
 
-  belongs_to :account, inverse_of: :phone_numbers
+  belongs_to :organization, inverse_of: :phone_numbers
   has_many :phone_book_entries, inverse_of: :phone_number, dependent: :destroy
   has_many :phone_books, through: :phone_book_entries
   has_many :unsolicited_calls, inverse_of: :phone_number
@@ -35,9 +35,10 @@ class PhoneNumber < ActiveRecord::Base
   # LedgerEntries for this message - usually one per month
   has_many :ledger_entries, as: :item
 
-  validates_presence_of :account_id, :twilio_phone_number_sid, :number
-  validates_numericality_of :our_cost, :provider_cost, :account_id
-  
+  validates_presence_of :organization_id, :twilio_phone_number_sid, :number
+  validates_numericality_of :our_cost, :provider_cost, :organization_id
+  validates_uniqueness_of :number
+
   validates_length_of :twilio_phone_number_sid, is: Twilio::SID_LENGTH
   validates_uniqueness_of :twilio_phone_number_sid, :case_sensitive => false
 
@@ -79,9 +80,9 @@ class PhoneNumber < ActiveRecord::Base
   end
 
   def purchase
-    # If not assigned to an account, cannot buy a number!
-    raise AccountNotAssociatedError.new if self.account.nil?
-    results = self.account.twilio_account.incoming_phone_numbers.create( { phone_number: self.number, application_sid: self.account.twilio_application_sid } )
+    # If not assigned to an organization, cannot buy a number!
+    raise OrganizationNotAssociatedError.new if self.organization.nil?
+    results = self.organization.twilio_account.incoming_phone_numbers.create( { phone_number: self.number, application_sid: self.organization.twilio_application_sid } )
     self.twilio_phone_number_sid = results.sid
     return results
   end
@@ -122,14 +123,14 @@ class PhoneNumber < ActiveRecord::Base
   end
   
   def send_reply_to_unsolicited_sms( customer_number )
-    sms = self.account.send_sms( customer_number, self.number, self.unsolicited_sms_message )
+    sms = self.organization.send_sms( customer_number, self.number, self.unsolicited_sms_message )
     #sms.stac
   end
 
   def calculate_our_cost( value=nil )
-    return nil unless self.account && self.account.account_plan
+    return nil unless self.organization && self.organization.account_plan
     value = self.provider_cost if value.nil?
-    return self.account.account_plan.calculate_phone_number_cost( value )
+    return self.organization.account_plan.calculate_phone_number_cost( value )
   end
   
   def record_unsolicited_message( options={} )

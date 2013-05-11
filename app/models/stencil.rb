@@ -14,7 +14,7 @@ class Stencil < ActiveRecord::Base
   attr_encrypted :expected_denied_answer, key: ATTR_ENCRYPTED_SECRET
   
   # Relationships
-  belongs_to :account, inverse_of: :stencils
+  belongs_to :organization, inverse_of: :stencils
   belongs_to :phone_book, inverse_of: :stencils
   has_many :conversations, inverse_of: :stencil
   

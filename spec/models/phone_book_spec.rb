@@ -6,23 +6,23 @@ describe PhoneBook do
   def create_book( defaults=0, us_numbers=0, ca_numbers=0, gb_numbers=0 )
     book = create(:phone_book)
     
-    defaults.times do
-      pn = create :phone_number, account: book.account
+    defaults.times do |n|
+      pn = create :phone_number, organization: book.organization
       book.phone_book_entries.create phone_number_id: pn.id, country: nil
     end
     
     us_numbers.times do
-      pn = create :us_phone_number, account: book.account
+      pn = create :us_phone_number, organization: book.organization
       book.phone_book_entries.create phone_number_id: pn.id, country: PhoneBookEntry::US
     end
     
     ca_numbers.times do
-      pn = create :ca_phone_number, account: book.account
+      pn = create :ca_phone_number, organization: book.organization
       book.phone_book_entries.create phone_number_id: pn.id, country: PhoneBookEntry::CA
     end
     
     gb_numbers.times do
-      pn = create :uk_phone_number, account: book.account
+      pn = create :uk_phone_number, organization: book.organization
       book.phone_book_entries.create phone_number_id: pn.id, country: PhoneBookEntry::GB
     end
     

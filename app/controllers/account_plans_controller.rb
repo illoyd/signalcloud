@@ -48,7 +48,7 @@ class AccountPlansController < ApplicationController
 
     respond_to do |format|
       if @account_plan.save
-        format.html { redirect_to @account_plan, notice: 'Account plan was successfully created.' }
+        format.html { redirect_to @account_plan, notice: 'Organization plan was successfully created.' }
         format.json { render json: @account_plan, status: :created, location: @account_plan }
       else
         format.html { render action: "new" }
@@ -64,7 +64,7 @@ class AccountPlansController < ApplicationController
 
     respond_to do |format|
       if @account_plan.update_attributes(params[:account_plan])
-        format.html { redirect_to @account_plan, notice: 'Account plan was successfully updated.' }
+        format.html { redirect_to @account_plan, notice: 'Organization plan was successfully updated.' }
         format.json { head :no_content }
       else
         format.html { render action: "edit" }

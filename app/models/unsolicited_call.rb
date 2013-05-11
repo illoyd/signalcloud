@@ -11,7 +11,7 @@ class UnsolicitedCall < ActiveRecord::Base
   validates_presence_of :customer_number, :call_content, :received_at
   validates_inclusion_of :action_taken, in: PhoneNumber::CALL_ACTIONS
   
-  delegate :account, to: :phone_number
+  delegate :organization, to: :phone_number
   
   ##
   # Query the Twilio status of this message. The standard returned parameters are as follows:
@@ -19,7 +19,7 @@ class UnsolicitedCall < ActiveRecord::Base
   #   +parent_call_sid+   A 34 character string that uniquely identifies the call that created this leg.
   #   +date_created+      The date that this resource was created, given as GMT in RFC 2822 format.
   #   +date_updated+      The date that this resource was last updated, given as GMT in RFC 2822 format.
-  #   +account_sid+       The unique id of the Account responsible for creating this call.
+  #   +account_sid+       The unique id of the Organization responsible for creating this call.
   #   +to+                The phone number or Client identifier that received this call. Phone numbers are in E.164 format (e.g. +16175551212). Client identifiers are formatted client:name.
   #   +from+              The phone number or Client identifier that made this call. Phone numbers are in E.164 format (e.g. +16175551212). Client identifiers are formatted client:name.
   #   +phone_number_sid+  If the call was inbound, this is the Sid of the IncomingPhoneNumber that received the call. If the call was outbound, it is the Sid of the OutgoingCallerId from which the call was placed.
@@ -34,7 +34,7 @@ class UnsolicitedCall < ActiveRecord::Base
   #   +caller_name+       If this call was an incoming call from a phone number with Caller ID Lookup enabled, the caller's name. Empty otherwise.
   #   +uri+               The URI for this resource, relative to https://api.twilio.comment
   def twilio_status
-    self.account.twilio_account.calls.get( self.twilio_call_sid )
+    self.organization.twilio_account.calls.get( self.twilio_call_sid )
   end
   
   ##
@@ -70,9 +70,9 @@ class UnsolicitedCall < ActiveRecord::Base
   end
   
   def calculate_our_price( value=nil )
-    return nil unless self.phone_number && self.account
+    return nil unless self.phone_number && self.organization
     value = self.provider_price if value.nil?
-    self.account.account_plan.calculate_inbound_call_price( value )
+    self.organization.account_plan.calculate_inbound_call_price( value )
   end
 
 end

@@ -4,7 +4,7 @@ module JobTools
   ##
   # Hash containing the default job priorities for each 'kind' of job.
   JOB_PRIORITIES = {
-    # Create account jobs
+    # Create organization jobs
     CreateTwilioAccountJob: 8,
     CreateFreshBooksClientJob: 8,
   

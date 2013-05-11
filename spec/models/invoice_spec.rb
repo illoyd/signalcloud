@@ -4,21 +4,21 @@ describe Invoice, :vcr do
   
   pending 'Invoicing disabled temporarily' do
 
-  # let(:account) { create_freshbooks_account() }
-  let(:account) { create :freshbooks_account }
+  # let(:organization) { create_freshbooks_account() }
+  let(:organization) { create :freshbooks_account }
 
   let(:november) { '2012-11-30'.to_datetime.end_of_month }
   let(:december) { '2012-12-31'.to_datetime.end_of_month }
   let(:january)  { '2013-01-30'.to_datetime.end_of_month }
 
-  [ :account_id, :date_to ].each do |attribute|
+  [ :organization_id, :date_to ].each do |attribute|
     it { should validate_presence_of( attribute ) }
   end
   
   describe '#capture_uninvoiced_ledger_entries' do
-    let(:november_invoice) { create(:invoice, account: account, date_to: november) }
-    let(:december_invoice) { create(:invoice, account: account, date_to: december) }
-    let(:january_invoice)  { create(:invoice, account: account, date_to: january) }
+    let(:november_invoice) { create(:invoice, organization: organization, date_to: november) }
+    let(:december_invoice) { create(:invoice, organization: organization, date_to: december) }
+    let(:january_invoice)  { create(:invoice, organization: organization, date_to: january) }
     
     it 'captures November 2012 (and earlier) entries' do
       expect{ november_invoice.capture_uninvoiced_ledger_entries }.to change{ november_invoice.ledger_entries(true).count }.from(0).to(44)
@@ -47,7 +47,7 @@ describe Invoice, :vcr do
   
   describe '#create_invoice! and #send_invoice!' do
     context 'when invoice has not been created' do
-      subject { build(:invoice, account: account) }
+      subject { build(:invoice, organization: organization) }
   
       it { should_not have_invoice }
   
@@ -61,7 +61,7 @@ describe Invoice, :vcr do
     end
     
     context 'when invoice has been created' do
-      subject { build(:invoice, freshbooks_invoice_id: 1, account: account) }
+      subject { build(:invoice, freshbooks_invoice_id: 1, organization: organization) }
   
       it { should have_invoice }
   
@@ -77,7 +77,7 @@ describe Invoice, :vcr do
   end
   
   describe '#construct_freshbooks_invoice_data' do
-    subject { create(:invoice, account: account, date_from: november ) }
+    subject { create(:invoice, organization: organization, date_from: november ) }
     before(:each) { subject.capture_uninvoiced_ledger_entries }
     
     it 'includes necessary data' do
@@ -85,7 +85,7 @@ describe Invoice, :vcr do
     end
     
     it 'includes the freshbooks id' do
-      subject.construct_freshbooks_invoice_data[:client_id].should == account.freshbooks_id
+      subject.construct_freshbooks_invoice_data[:client_id].should == organization.freshbooks_id
     end
     
     it 'includes ledger entry lines' do

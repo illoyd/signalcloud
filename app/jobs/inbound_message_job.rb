@@ -6,7 +6,7 @@
 #
 # Generally +provider_update+ will include the following:
 #   +SmsSid+:     A 34 character unique identifier for the message. May be used to later retrieve this message from the REST API.
-#   +AccountSid+: The 34 character id of the Account this message is associated with.
+#   +AccountSid+: The 34 character id of the Organization this message is associated with.
 #   +To+:         The phone number of the recipient.
 #   +From+:       The phone number that sent this message.
 #   +Body+:       The text body of the SMS message. Up to 160 characters long.
@@ -131,12 +131,12 @@ class InboundMessageJob < Struct.new( :provider_update )
 
 
 #   def record_unsolicited_message()
-#     message_status = self.internal_phone_number.account.twilio_account.sms.messages.get( self.provider_update[:sms_sid] )
+#     message_status = self.internal_phone_number.organization.twilio_account.sms.messages.get( self.provider_update[:sms_sid] )
 #     ledger_entry = self.internal_phone_number.ledger_entries.create( narrative: LedgerEntry::UNSOLICITED_SMS_NARRATIVE, price: message_status.price, notes: self.provider_update.to_property_hash )
 #   end
 
 #   def send_reply_to_unsolicited_message()
-#     message_status = self.internal_phone_number.account.send_sms( self.provider_update[:from], self.provider_update[:to], self.internal_phone_number.unsolicited_sms_message )
+#     message_status = self.internal_phone_number.organization.send_sms( self.provider_update[:from], self.provider_update[:to], self.internal_phone_number.unsolicited_sms_message )
 #     ledger_entry = self.internal_phone_number.ledger_entries.create( narrative: LedgerEntry::UNSOLICITED_SMS_REPLY_NARRATIVE, price: message_status.price, notes: self.provider_update )
 #   end
 

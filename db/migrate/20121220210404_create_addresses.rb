@@ -1,7 +1,7 @@
 class CreateAddresses < ActiveRecord::Migration
   def change
     create_table :addresses do |t|
-      t.references :account
+      t.references :organization
       t.string :first_name
       t.string :last_name
       t.string :email
@@ -17,7 +17,7 @@ class CreateAddresses < ActiveRecord::Migration
     end
     
     # Add indices
-    add_index :addresses, :account_id
+    add_index :addresses, :organization_id
     add_index :addresses, :country
   end
 end

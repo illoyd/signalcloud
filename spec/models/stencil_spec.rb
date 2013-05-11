@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Stencil do
-  #fixtures :account_plans, :accounts, :stencils, :phone_books, :phone_book_entries, :phone_numbers, :conversations
+  #fixtures :account_plans, :organizations, :stencils, :phone_books, :phone_book_entries, :phone_numbers, :conversations
 
 #   describe '.open_conversation' do
 #     
