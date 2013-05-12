@@ -325,5 +325,79 @@ describe Organization, 'Twilio Integration', :vcr do
     end
 
   end
+  
+  describe '#send_sms', :vcr do
+    let(:organization) { create :organization, :test_twilio, :with_sid_and_token }
+    let(:to_number)    { Twilio::VALID_NUMBER }
+    let(:from_number)  { Twilio::VALID_NUMBER }
+    let(:body)         { 'Hello, world!' }
+    
+    context 'when requesting default response' do
+      subject { organization.send_sms( to_number, from_number, body ) }
+      it { should be_a Twilio::REST::InstanceResource }
+    end
+    
+    context 'when requesting raw response' do
+      subject { organization.send_sms( to_number, from_number, body, response_format: :raw ) }
+      it { should be_a Twilio::REST::InstanceResource }
+      its(:to)   { should == to_number }
+      its(:from) { should == from_number }
+      its(:body) { should == body }
+      it 'errors with #[:to]' do
+        expect {subject[:to] }.to raise_error
+      end
+      it 'errors with #[:from]' do
+        expect {subject[:from] }.to raise_error
+      end
+      it 'errors with #[:body]' do
+        expect {subject[:body] }.to raise_error
+      end
+    end
+    
+    context 'when requesting with callback'  do
+      subject { organization.send_sms( to_number, from_number, body, default_callback: true ) }
+      it { should be_a Twilio::REST::InstanceResource }
+      its(:to)     { should == to_number }
+      its(:from)   { should == from_number }
+      its(:body)   { should == body }
+    end
+    
+    context 'when requesting hash response' do
+      subject { organization.send_sms( to_number, from_number, body, response_format: :hash ) }
+      it { should be_a Hash }
+      its([:to])   { should == to_number }
+      its([:from]) { should == from_number }
+      its([:body]) { should == body }
+      its(['to'])   { should == to_number }
+      its(['from']) { should == from_number }
+      its(['body']) { should == body }
+      it 'errors with #to' do
+        expect {subject.to }.to raise_error
+      end
+      it 'errors with #from' do
+        expect {subject.from }.to raise_error
+      end
+      it 'errors with #body' do
+        expect {subject.body }.to raise_error
+      end
+    end
+    
+    context 'when requesting smash response' do
+      subject { organization.send_sms( to_number, from_number, body, response_format: :smash ) }
+      it { should be_a APISmith::Smash }
+      its(:to)     { should == to_number }
+      its(:from)   { should == from_number }
+      its(:body)   { should == body }
+      its([:to])   { should == to_number }
+      its([:from]) { should == from_number }
+      its([:body]) { should == body }
+
+      its(:customer_number)  { should == to_number }
+      its(:internal_number)  { should == from_number }
+      
+      its(:date_created) { should be_a DateTime }
+      its(:created_at)   { should be_a DateTime }
+    end
+  end
 
 end

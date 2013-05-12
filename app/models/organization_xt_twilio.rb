@@ -2,12 +2,24 @@ class Organization < ActiveRecord::Base
 
   ##
   # Send an SMS using the Twilio API.
-  def send_sms( to_number, from_number, body )
-    return self.twilio_account.sms.messages.create(
+  def send_sms( to_number, from_number, body, options={} )
+    payload = {
       to: to_number,
       from: from_number,
       body: body
-    )
+    }
+    
+    payload[:status_callback] = self.twilio_sms_status_url if options.fetch( :default_callback, false )
+
+    response = self.twilio_account.sms.messages.create( payload )
+    return case options.fetch( :response_format, :raw )
+      when :smash
+        response.to_property_smash
+      when :hash
+        response.to_property_hash
+      else
+        response
+    end
   end
   
   ##

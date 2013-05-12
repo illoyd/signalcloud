@@ -164,16 +164,18 @@ class Message < ActiveRecord::Base
   
   def deliver!()
     begin
-      self.provider_response = self.conversation.stencil.organization.twilio_account.sms.messages.create({
-        to: self.to_number,
-        from: self.from_number,
-        body: self.body,
-        status_callback: self.conversation.stencil.organization.twilio_sms_status_url
-      }).to_property_hash
+      #self.provider_response = self.conversation.stencil.organization.twilio_account.sms.messages.create({
+      #  to: self.to_number,
+      #  from: self.from_number,
+      #  body: self.body,
+      #  status_callback: self.conversation.stencil.organization.twilio_sms_status_url
+      #}).to_property_hash
+      
+      self.provider_response = self.conversation.stencil.organization.send_sms( self.to_number, self.from_number, body, { default_callback: true, response_format: :smash })
 
-      self.twilio_sid = self.provider_response[:sid]
-      self.status = Message.translate_twilio_message_status( self.provider_response[:status] )
-      self.provider_cost = self.provider_response.fetch(:price, nil)
+      self.twilio_sid = self.provider_response.sms_sid
+      self.status = Message.translate_twilio_message_status( self.provider_response.status )
+      self.provider_cost = self.provider_response.price
 
     rescue Twilio::REST::RequestError => ex
       self.status = FAILED
