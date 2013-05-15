@@ -34,8 +34,8 @@ end
 
 # Add plan data
 master_plan = AccountPlan.find_or_create_by_label( label: 'Unmetered' )
-payg_plan = AccountPlan.find_or_create_by_label( label:'PAYG', month: 0, phone_add: 1, call_in_add: 0.02, sms_in_add: 0.02, sms_out_add: 0.02 )
-dedicated_plan = AccountPlan.find_or_create_by_label( label:'Dedicated', month: 250, phone_add: 0, call_in_add: 0.01, sms_in_add: 0.01, sms_out_add: 0.01 )
+payg_plan = AccountPlan.find_or_create_by_label( label:'PAYG', month: 0, phone_add: -1, call_in_add: -0.02, sms_in_add: -0.02, sms_out_add: -0.02 )
+dedicated_plan = AccountPlan.find_or_create_by_label( label:'Dedicated', month: -250, phone_add: 0, call_in_add: -0.01, sms_in_add: -0.01, sms_out_add: -0.01 )
 
 # Master organization tools
 unless Organization.exists?( encrypted_twilio_account_sid: Organization.encrypt(:twilio_account_sid, ENV['TWILIO_MASTER_ACCOUNT_SID']) )
@@ -57,7 +57,7 @@ unless Organization.exists?( encrypted_twilio_account_sid: Organization.encrypt(
   
   master_organization.stencils.create!({ label: 'Are you human?', primary: true, phone_book_id: master_organization.phone_books.first.id, seconds_to_live: 15*60,
     description: 'A simple test to see if the recipient can do simple math.',
-    question: 'Are you human. What is two plus two? (Answer with numbers only!)',
+    question: 'Let\'s see if you\'re human. What is two plus two? (Answer with numbers only!)',
     expected_confirmed_answer: '4',
     expected_denied_answer: 'four',
     confirmed_reply: 'Yup, you are definitely human!',
