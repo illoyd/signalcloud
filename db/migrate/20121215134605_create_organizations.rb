@@ -6,6 +6,10 @@ class CreateOrganizations < ActiveRecord::Migration
       t.string :label, null: false
       t.decimal :balance, default: 0, null: false, precision: 8, scale: 4
       t.references :account_plan, null: false
+
+      t.integer :primary_address_id
+      t.integer :secondary_address_id
+
       t.string :purchase_order
       t.string :vat_name
       t.string :vat_number
@@ -24,8 +28,10 @@ class CreateOrganizations < ActiveRecord::Migration
       t.string :encrypted_freshbooks_id_iv
       t.string :encrypted_freshbooks_id_salt
 
-      t.integer :primary_address_id
-      t.integer :secondary_address_id
+      t.text :encrypted_braintree_id
+      t.string :encrypted_braintree_id_iv
+      t.string :encrypted_braintree_id_salt
+
       t.text :description
 
       t.timestamps

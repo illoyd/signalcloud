@@ -181,6 +181,8 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
     t.string   "label",                                                                            :null => false
     t.decimal  "balance",                           :precision => 8, :scale => 4, :default => 0.0, :null => false
     t.integer  "account_plan_id",                                                                  :null => false
+    t.integer  "primary_address_id"
+    t.integer  "secondary_address_id"
     t.string   "purchase_order"
     t.string   "vat_name"
     t.string   "vat_number"
@@ -194,8 +196,9 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
     t.text     "encrypted_freshbooks_id"
     t.string   "encrypted_freshbooks_id_iv"
     t.string   "encrypted_freshbooks_id_salt"
-    t.integer  "primary_address_id"
-    t.integer  "secondary_address_id"
+    t.text     "encrypted_braintree_id"
+    t.string   "encrypted_braintree_id_iv"
+    t.string   "encrypted_braintree_id_salt"
     t.text     "description"
     t.datetime "created_at",                                                                       :null => false
     t.datetime "updated_at",                                                                       :null => false
