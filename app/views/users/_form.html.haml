@@ -24,16 +24,15 @@
             - @user.errors.full_messages.each do |msg|
               %li= msg
       = f.text_field :first_name, 'Given Name'
-      = f.text_field :last_name, 'Full Name'
+      = f.text_field :last_name, 'Family Name'
       = f.email_field :email, add_on: :prepend do
         %span.add-on @
 
       = f.label "Roles" do
         - UserRole::ROLES.each do |role|
-          - next if role == :super_user && !current_user.is_super_user?
-          - disabled = cannot?(:edit, @user) || ( ( role == :super_user || role == :organization_administrator ) && @user.id == current_user.id )
+          - disabled = cannot?(:edit, @user) || ( ( role == :organization_administrator ) && @user.id == current_user.id )
           %label.checkbox
-            = check_box_tag 'user[roles][]', role, @user.roles.include?(role), { id: 'user_role_%s' % role, disabled: disabled }
+            = check_box_tag 'roles[]', role, @user.roles_for(current_organization).roles.include?(role), { id: 'user_role_%s' % role, disabled: disabled }
             = role.to_s.humanize
 
       .control-group

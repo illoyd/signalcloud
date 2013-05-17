@@ -1,6 +1,7 @@
 class PhoneBooksController < ApplicationController
 
   load_and_authorize_resource
+  before_filter :assign_organization
 
   # GET /phone_books
   # GET /phone_books.json

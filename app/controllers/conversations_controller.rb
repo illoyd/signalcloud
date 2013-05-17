@@ -1,24 +1,19 @@
 class ConversationsController < ApplicationController
 
   respond_to :html, :json, :xml
-  before_filter :setup_organization_and_stencil
+  before_filter :assign_organization
+  before_filter :assign_stencil
 
   load_and_authorize_resource
   skip_authorize_resource only: [:new, :create]
   
-  def setup_organization_and_stencil
-    @organization = current_organization()
+  def assign_stencil
     @stencil = current_stencil(false)
   end
   
   # GET /conversations
   # GET /conversations.json
   def index
-    if @stencil.nil?
-      redirect_to stencil_conversations_path(current_stencil(true))
-      return
-    end
-
     @multistencil = @stencil.nil?
     if !@multistencil
       @conversations = @conversations.where( stencil_id: @stencil.id )

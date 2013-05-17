@@ -3,8 +3,16 @@ class ApplicationController < ActionController::Base
   
   before_filter :authenticate_user!
   
+  helper_method :current_organization
+  helper_method :current_stencil
+  
   rescue_from CanCan::AccessDenied do |exception|
     redirect_to root_url, :alert => exception.message
+  end
+  
+  def assign_organization
+    @organization = Organization.find(params[:organization_id])
+    authorize! :show, @organization
   end
 
   def authenticate_organization!
@@ -43,7 +51,7 @@ class ApplicationController < ActionController::Base
   # Will default to the +current_user+ parent organization.
   def current_organization
     return Organization.find( session[:shadow_organization_id] ) if can?( :shadow, Organization ) && session.include?(:shadow_organization_id)
-    return current_user.organization
+    return current_user.organizations.first
   end
   
   ##

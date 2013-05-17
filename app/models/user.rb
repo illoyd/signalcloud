@@ -13,7 +13,7 @@ class User < ActiveRecord::Base
   has_many :organizations, through: :user_roles
   
   validates_presence_of :first_name, :last_name
-
+  
 #   def method_missing(sym, *args, &block)
 #     if /^can_(.+)\?$/.match(sym) and UserRole::ROLES.include?($1.to_sym)
 #       return self.roles.include? $1.to_sym
@@ -25,5 +25,10 @@ class User < ActiveRecord::Base
 #   def respond_to?(sym, include_private=false)
 #     return (/^can_(.+)\?$/.match(sym) and UserRole::ROLES.include?($1.to_sym)) || super( sym, include_private )
 #   end
+
+  def roles_for(org)
+    org = org.id if org.is_a? Organization
+    self.user_roles.where( organization_id: org ).first
+  end
 
 end

@@ -11,7 +11,7 @@
 .row
   .span12.table-tools
     - if can? :new, PhoneBook      
-      %div.pull-right= link_to 'New Phone Book', new_phone_book_path, :class => 'btn btn-success btn-small'
+      %div.pull-right= link_to 'New Phone Book', new_organization_phone_book_path(@organization), :class => 'btn btn-success btn-small'
 
 / Page body
 .row
@@ -28,11 +28,11 @@
         - @phone_books.each do |phone_book|
           %tr
             %td= split_dropdown_list([ |
-                { label: 'Details', icon: :show, link: phone_book, if: can?(:show, phone_book) }, |
-                { label: 'Edit', icon: :edit, link: edit_phone_book_path(phone_book), if: can?(:edit, phone_book) }, |
-                { label: 'Delete', icon: :delete, link: phone_book, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, phone_book) } |
+                { label: 'Details', icon: :show, link: [@organization, phone_book], if: can?(:show, phone_book) }, |
+                { label: 'Edit', icon: :edit, link: edit_organization_phone_book_path(@organization, phone_book), if: can?(:edit, phone_book) }, |
+                { label: 'Delete', icon: :delete, link: [@organization, phone_book], options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, phone_book) } |
               ], { class: 'btn-mini' }) |
-            %td= link_to phone_book.label, phone_book
+            %td= link_to phone_book.label, [@organization, phone_book]
             %td
               %small
                 - if phone_book.description.blank?

@@ -16,7 +16,7 @@ class Organization < ActiveRecord::Base
   # References
   has_many :user_roles, inverse_of: :organization
   has_many :users, through: :user_roles
-
+  
   belongs_to :account_plan, inverse_of: :organizations
   has_many :stencils, inverse_of: :organization
   has_many :conversations, through: :stencils
@@ -56,7 +56,7 @@ class Organization < ActiveRecord::Base
 
   ##
   # Return the default stencil for this organization, or the first stencil if no default is set.
-  def primary_stencil
+  def default_stencil
     app = self.stencils.where( primary: true ).order('id').first
     app = self.stencils.first if app.nil?
     app

@@ -30,16 +30,15 @@
         = f.label :email, class: 'control-label'
         .controls= f.email_field :email
       
-      - if @user.is_organization_administrator?
+      - if @user.roles_for(current_organization).is_organization_administrator?
         .control-group
           = f.label :roles, class: 'control-label'
           .controls
             - UserRole::ROLES.each do |role|
-              - disabled = ( role == :super_user || role == :organization_administrator ) && @user.id == current_user.id
-              -# disabled = can?( :permissions, @user )
+              - disabled = ( role == :organization_administrator ) && @user.id == current_user.id
               - next if role == :super_user && !current_user.is_super_user?
               %label.checkbox
-                = check_box_tag 'user[roles][]', role, @user.roles.include?(role), { id: 'user_%s' % role, disabled: disabled }
+                = check_box_tag 'roles[]', role, @user.roles_for(current_organization).roles.include?(role), { id: 'user_%s' % role, disabled: disabled }
                 = role.to_s.humanize
 
       .control-group

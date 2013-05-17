@@ -29,7 +29,8 @@
                   = link_to new_user_registration_path do
                     %i.icon-upload-alt
                     Sign Up
-          - else
+
+          - if @organization
             %ul.nav
               %li
                 %a{ :href => "/" }
@@ -43,32 +44,32 @@
                 %ul.dropdown-menu
                   - if can? :index, User
                     %li
-                      %a{ :href => users_path }
+                      %a{ :href => organization_users_path(@organization) }
                         = icon(:users)
                         Users
                   - if can? :index, Conversation
                     %li
-                      %a{ :href => conversations_path }
+                      %a{ :href => organization_conversations_path(@organization) }
                         = icon( :conversations )
                         Conversations
                   - if can? :index, Stencil
                     %li
-                      %a{ :href => stencils_path }
+                      %a{ :href => organization_stencils_path(@organization) }
                         = icon( :stencils )
                         Stencils
                   - if can? :index, PhoneBook
                     %li
-                      %a{ :href => phone_books_path }
+                      %a{ :href => organization_phone_books_path(@organization) }
                         = icon( :phone_books )
                         Phone Books
                   - if can? :index, PhoneNumber
                     %li
-                      %a{ :href => phone_numbers_path }
+                      %a{ :href => organization_phone_numbers_path(@organization) }
                         = icon( :phone_numbers )
                         Phone Numbers
                   - if can? :index, LedgerEntry
                     %li
-                      %a{ :href => ledger_entries_path }
+                      %a{ :href => organization_ledger_entries_path(@organization) }
                         = icon( :ledger_entries )
                         Ledger
               -#
@@ -76,10 +77,13 @@
                   %a{ :href => "#" }
                     %i.icon-bar-chart  
                     Reports
+
+          %ul.nav.pull-right
+            - if @organization
               %li.dropdown
                 %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#"}
-                  %i.icon-user
-                  = current_user.first_name
+                  = icon( :organizations )
+                  = current_organization.label
                   %b.caret
                 %ul.dropdown-menu
                   - if can? :shadow, Organization
@@ -87,21 +91,25 @@
                       = link_to organizations_path do
                         = icon( :organizations )
                         Switch organizations
-                  - if can? :change_password, current_user
-                    %li
-                      = link_to edit_user_path( current_user ) do
-                        %i.icon-key
-                        Change password
+            %li.dropdown
+              %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#"}
+                %i.icon-user
+                = current_user.first_name
+                %b.caret
+              %ul.dropdown-menu
+                - if can? :change_password, current_user
                   %li
-                    = link_to current_user do
-                      %i.icon-cogs
-                      Preferences
-                  %li
-                    = link_to destroy_user_session_path, :method => :delete do
-                      %i.icon-off
-                      Sign out
-            = form_tag conversations_path, :method => 'get', :class => 'navbar-search pull-right' do
-              = text_field_tag :search, params[:search], class: 'search-query', placeholder: 'Search Conversations'
+                    = link_to edit_user_path( current_user ) do
+                      %i.icon-key
+                      Change password
+                %li
+                  = link_to current_user do
+                    %i.icon-cogs
+                    Preferences
+                %li
+                  = link_to destroy_user_session_path, :method => :delete do
+                    %i.icon-off
+                    Sign out
   
       / Body
       = render 'layouts/messages'

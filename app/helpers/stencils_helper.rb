@@ -11,9 +11,9 @@ module StencilsHelper
     label = '%s Current Filter: %s' % [ icon( :filter ), filter ]
     label = 'Current Filter: %s' % [ filter ]
     return dropdown_list( label, [
-      { label: 'Show all stencils', link: stencils_path },
-      { label: 'Show active stencils', link: active_stencils_path },
-      { label: 'Show inactive stencils', link: inactive_stencils_path }
+      { label: 'Show all stencils', link: organization_stencils_path(@organization) },
+      { label: 'Show active stencils', link: active_organization_stencils_path(@organization) },
+      { label: 'Show inactive stencils', link: inactive_organization_stencils_path(@organization) }
       ])
   end
 

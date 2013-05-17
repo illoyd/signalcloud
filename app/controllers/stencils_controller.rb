@@ -1,6 +1,7 @@
 class StencilsController < ApplicationController
   
   respond_to :html, :json, :xml
+  before_filter :assign_organization
   load_and_authorize_resource
 
   # GET /stencils

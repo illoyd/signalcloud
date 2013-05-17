@@ -23,7 +23,7 @@
       %tbody
         - @organizations.each do |organization|
           %tr
-            %td= link_to organization.label, shadow_organization_path(organization)
+            %td= link_to organization.label, organization
             %td= organization.account_plan.label
             %td{'align'=>'right'}
               %small US

@@ -1,49 +1,43 @@
 class UsersController < ApplicationController
   
-  load_and_authorize_resource
+  # load_and_authorize_resource
+  respond_to :html, :json, :xml
+  before_filter :assign_organization
 
   # GET /users
   # GET /users.json
   def index
-    @users = current_organization.users #.all
-
-    respond_to do |format|
-      format.html # index.html.erb
-      format.json { render json: @users }
-    end
+    @users = current_organization.users
+    authorize! :index, User
+    respond_with @users
   end
 
   # GET /users/1
   # GET /users/1.json
   def show
     @user = current_organization.users.find(params[:id])
-
-    respond_to do |format|
-      format.html # show.html.erb
-      format.json { render json: @user }
-    end
+    authorize! :show, @user
+    respond_with @user
   end
 
   # GET /users/new
   # GET /users/new.json
   def new
     @user = current_organization.users.build
-
-    respond_to do |format|
-      format.html # new.html.erb
-      format.json { render json: @user }
-    end
+    authorize! :new, @user
   end
 
   # GET /users/1/edit
   def edit
     @user = current_organization.users.find(params[:id])
+    authorize! :edit, @user
   end
 
   # POST /users
   # POST /users.json
   def create
     @user = current_organization.users.build(params[:user])
+    authorize! @user
 
     respond_to do |format|
       if @user.save
@@ -60,14 +54,15 @@ class UsersController < ApplicationController
   # PUT /users/1.json
   def update
     @user = current_organization.users.find(params[:id])
+    authorize! :update, @user
 
-    if current_user.is_organization_administrator?
-      params[:user][:roles] ||= []
-      params[:user][:roles] << :super_user if ( @user.id == current_user.id and @user.is_super_user? )
-      params[:user][:roles] << :organization_administrator if ( @user.id == current_user.id and @user.is_organization_administrator? )
-      params[:user][:roles] = params[:user][:roles].keep_if{ |entry| UserRole::ROLES.include?( (entry.to_sym rescue nil) ) }.map{ |entry| entry.to_sym }.uniq
-    else
-      params[:user].remove(:roles)
+    if current_user.roles_for(current_organization).is_organization_administrator?
+      params[:roles] ||= []
+      params[:roles] << :organization_administrator if ( @user.id == current_user.id and @user.roles_for(current_organization).is_organization_administrator? )
+      params[:roles] = params[:roles].keep_if{ |entry| UserRole::ROLES.include?( (entry.to_sym rescue nil) ) }.map{ |entry| entry.to_sym }.uniq
+      user_roles = @user.roles_for(current_organization)
+      user_roles.roles = params[:roles]
+      user_roles.save
     end
 
     respond_to do |format|
@@ -85,6 +80,8 @@ class UsersController < ApplicationController
   # DELETE /users/1.json
   def destroy
     @user = current_organization.users.find(params[:id])
+    authorize! :destroy, @user
+
     @user.destroy
 
     respond_to do |format|

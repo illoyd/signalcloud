@@ -1,6 +1,7 @@
 class PhoneNumbersController < ApplicationController
 
   load_and_authorize_resource
+  before_filter :assign_organization
 
   respond_to :html
 
@@ -56,7 +57,7 @@ class PhoneNumbersController < ApplicationController
         else
           flash[:error] = 'Unknown error! (%s)' % [ex.message]
       end
-      redirect_to search_phone_numbers_path
+      redirect_to search_organization_phone_numbers_path(@organization)
     end
   end
 

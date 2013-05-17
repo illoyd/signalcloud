@@ -18,7 +18,7 @@
 
     %h4 Phone Numbers
     
-    = form_for( @phone_book.phone_book_entries.build, class:'form-inline' ) do |f|
+    = form_for( [@organization, @phone_book.phone_book_entries.build], class:'form-inline' ) do |f|
       - if flash[:validation_errors]
         .error
           %h2
@@ -50,10 +50,10 @@
         - @phone_book.phone_book_entries( order: 'number, country' ).each do |entry|
           %tr
             %td= split_dropdown_list([ |
-              { label: 'Details', icon: :show, link: entry.phone_number, if: can?(:show, entry.phone_number) }, |
-              { label: 'Remove from book', icon: :delete, link: entry, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, entry) } |
+              { label: 'Details', icon: :show, link: [@organization, entry.phone_number], if: can?(:show, entry.phone_number) }, |
+              { label: 'Remove from book', icon: :delete, link: [@organization, entry], options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, entry) } |
               ], {class:'btn-mini'}) |
-            %td= link_to_if can?(:show, entry.phone_number), humanize_phone_number(entry.phone_number.number), entry.phone_number
+            %td= link_to_if can?(:show, entry.phone_number), humanize_phone_number(entry.phone_number.number), [@organization, entry.phone_number]
             %td
               - if entry.country.blank?
                 = flag_icon()
@@ -82,9 +82,9 @@
         - @phone_book.stencils.each do |stencil|
           %tr
             %td= split_dropdown_list([ |
-                { label: 'Details', icon: :show, link: stencil, if: can?(:show, stencil) }, |
-                { label: 'Edit', icon: :edit, link: edit_stencil_path(stencil), if: can?(:edit, stencil) }, |
-                { label: 'Delete', icon: :delete, link: stencil, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, stencil) }, |
-                { label: 'Conversations', icon: :conversations, link: stencil_conversations_path(stencil), if: can?(:show, Conversation) } |
+                { label: 'Details', icon: :show, link: [@organization, stencil], if: can?(:show, stencil) }, |
+                { label: 'Edit', icon: :edit, link: edit_organization_stencil_path(@organization, stencil), if: can?(:edit, stencil) }, |
+                { label: 'Delete', icon: :delete, link: [@organization, stencil], options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, stencil) }, |
+                { label: 'Conversations', icon: :conversations, link: organization_stencil_conversations_path(@organization, stencil), if: can?(:show, Conversation) } |
                 ], { class: "btn-mini"} ) |
-            %td= link_to_if can?(:show, stencil), stencil.label, stencil
+            %td= link_to_if can?(:show, stencil), stencil.label, [@organization, stencil]

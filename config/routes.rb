@@ -7,23 +7,44 @@ SignalCloud::Application.routes.draw do
   resources :account_plans
   
   # All resources should be accessible outside the organization scope as well
+  resources :users, only: [ :show, :update, :edit ]
   
-  # Prevent organizations from being deleted
-  resource :organization, only: [ :show, :new, :create, :update, :edit ]
+  # Nest all underneath organizations
+  resources :organizations, only: [ :index, :show, :new, :create, :update, :edit ] do
+    resources :users
 
-  resources :users
-
-  resources :stencils do
-    collection do
-      get 'active', action: :index, defaults: { active_filter: true }, as: 'active'
-      get 'inactive', action: :index, defaults: { active_filter: false }, as: 'inactive'
+    resources :stencils do
+      collection do
+        get 'active', action: :index, defaults: { active_filter: true }, as: 'active'
+        get 'inactive', action: :index, defaults: { active_filter: false }, as: 'inactive'
+      end
+      resources :conversations, only: [ :index, :new, :create ] do
+        collection do
+          get 'page/:page', action: :index
+          get 'confirmed', action: :index, defaults: { status: Conversation::CONFIRMED } do
+            get 'page/:page', action: :index
+          end
+          get 'denied', action: :index, defaults: { status: Conversation::DENIED } do
+            get 'page/:page', action: :index, on: :collection
+          end
+          get 'failed', action: :index, defaults: { status: Conversation::FAILED } do
+            get 'page/:page', action: :index, on: :collection
+          end
+          get 'expired', action: :index, defaults: { status: Conversation::EXPIRED } do
+            get 'page/:page', action: :index, on: :collection
+          end
+          get 'open', action: :index, defaults: { status: Conversation::OPEN_STATUSES } do
+            get 'page/:page', action: :index, on: :collection
+          end
+        end
+      end
     end
-    resources :conversations, only: [ :index, :new, :create ] do
+  
+    resources :conversations, only: [ :index, :show ] do
       member do
         post 'force', action: 'force_status', as: 'force_status'
       end
       collection do
-        get 'page/:page', action: :index
         get 'confirmed', action: :index, defaults: { status: Conversation::CONFIRMED } do
           get 'page/:page', action: :index
         end
@@ -41,43 +62,23 @@ SignalCloud::Application.routes.draw do
         end
       end
     end
-  end
 
-  resources :conversations, only: [ :index, :show ] do
-    collection do
+    resources :ledger_entries, only: [ :index, :show ] do
       get 'page/:page', action: :index
-      get 'confirmed', action: :index, defaults: { status: Conversation::CONFIRMED } do
-        get 'page/:page', action: :index, on: :collection
-      end
-      get 'denied', action: :index, defaults: { status: Conversation::DENIED } do
-        get 'page/:page', action: :index, on: :collection
-      end
-      get 'failed', action: :index, defaults: { status: Conversation::FAILED } do
-        get 'page/:page', action: :index, on: :collection
-      end
-      get 'expired', action: :index, defaults: { status: Conversation::EXPIRED } do
-        get 'page/:page', action: :index, on: :collection
-      end
-      get 'open', action: :index, defaults: { status: [Conversation::QUEUED, Conversation::CHALLENGE_SENT] } do
-        get 'page/:page', action: :index, on: :collection
-      end
     end
-  end
-
-  resources :ledger_entries, only: [ :index, :show ] do
-    get 'page/:page', action: :index
-  end
-
-  resources :phone_numbers, only: [ :index, :show, :edit, :update ] do
-    collection do
-      get 'search/:country', action: 'search', defaults: { country: 'US' }, constraint: { country: /(US|CA|GB)/ }, as: 'search'
-      post 'buy', action: 'buy', as: 'buy'
-    end
-  end
-
-  resources :phone_books
-  resources :phone_book_entries, only: [:create, :destroy]
   
+    resources :phone_numbers, only: [ :index, :show, :edit, :update ] do
+      collection do
+        get 'search/:country', action: 'search', defaults: { country: 'US' }, constraint: { country: /(US|CA|GB)/ }, as: 'search'
+        post 'buy', action: 'buy', as: 'buy'
+      end
+    end
+  
+    resources :phone_books
+    resources :phone_book_entries, only: [:create, :destroy]
+
+  end
+
   # Nested resources via organization
   # This functionality has been removed in favour of shadowing the current organization using the session.
   #resources :organizations do
@@ -98,11 +99,11 @@ SignalCloud::Application.routes.draw do
     resource :sms_update, only: [ :create ], defaults: { format: 'xml' }
   end
 
-  resources :organizations, only: [:index] do
-    member do
-      get 'shadow', action: 'shadow' #, as: 'shadow'
-    end
-  end
+#   resources :organizations, only: [:index] do
+#     member do
+#       get 'shadow', action: 'shadow' #, as: 'shadow'
+#     end
+#   end
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
@@ -153,7 +154,7 @@ SignalCloud::Application.routes.draw do
 
   # You can have the root of your site routed with "root"
   # just remember to delete public/index.html.
-  root :to => 'organizations#show'
+  root :to => 'organizations#index'
 
   # See how all your routes lay out with "rake routes"
 

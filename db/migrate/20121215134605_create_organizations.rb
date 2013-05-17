@@ -9,7 +9,7 @@ class CreateOrganizations < ActiveRecord::Migration
 
       t.integer :primary_address_id
       t.integer :secondary_address_id
-
+      
       t.string :purchase_order
       t.string :vat_name
       t.string :vat_number

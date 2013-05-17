@@ -42,6 +42,11 @@ RSpec.configure do |config|
   # Include auth digest helper
   config.include AuthSpecHelpers, :type => :controller
 
+  # Include devise helpers
+  config.include Devise::TestHelpers, :type => :controller
+  config.extend ControllerMacros, :type => :controller
+  config.include ValidUserRequestHelper, :type => :request
+  
   # Mix-in the FactoryGirl methods
   config.include FactoryGirl::Syntax::Methods
 

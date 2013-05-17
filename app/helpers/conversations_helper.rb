@@ -7,7 +7,7 @@ module ConversationsHelper
     # Assemble the entries based upon the current
     entries = [] # [ { label: 'Show all conversations', icon: 'ok-circle', link: conversations_path } ]
     current_organization.stencils.order(:label).each do |stencil|
-      entries << { label: 'Show ' + stencil.label, icon: :stencils, link: stencil_conversations_path( stencil ) }
+      entries << { label: 'Show ' + stencil.label, icon: :stencils, link: organization_stencil_conversations_path( @organization, stencil ) }
     end
     
     dropdown_list( title, entries, {class: 'btn-mini'} )
@@ -19,12 +19,12 @@ module ConversationsHelper
     
     # Assemble the entries based upon the current
     entries = [
-      { label: 'Show all statuses', icon: 'ok-circle', link: current_stencil.nil? ? conversations_path : stencil_conversations_path( current_stencil ) },
-      { label: 'Show Opened', icon: 'plus-sign', link: current_stencil.nil? ? open_conversations_path : open_stencil_conversations_path( current_stencil ) },
-      { label: 'Show Confirmed', icon: 'ok-sign', link: current_stencil.nil? ? confirmed_conversations_path : confirmed_stencil_conversations_path( current_stencil ) },
-      { label: 'Show Denied', icon: 'minus-sign', link: current_stencil.nil? ? denied_conversations_path : denied_stencil_conversations_path( current_stencil ) },
-      { label: 'Show Failed', icon: 'remove-sign', link: current_stencil.nil? ? failed_conversations_path : failed_stencil_conversations_path( current_stencil ) },
-      { label: 'Show Expired', icon: :time, link: current_stencil.nil? ? expired_conversations_path : expired_stencil_conversations_path( current_stencil ) }
+#       { label: 'Show all statuses', icon: 'ok-circle', link: current_stencil.nil? ? conversations_path : stencil_conversations_path( current_stencil ) },
+#       { label: 'Show Opened', icon: 'plus-sign', link: current_stencil.nil? ? open_conversations_path : open_stencil_conversations_path( current_stencil ) },
+#       { label: 'Show Confirmed', icon: 'ok-sign', link: current_stencil.nil? ? confirmed_conversations_path : confirmed_stencil_conversations_path( current_stencil ) },
+#       { label: 'Show Denied', icon: 'minus-sign', link: current_stencil.nil? ? denied_conversations_path : denied_stencil_conversations_path( current_stencil ) },
+#       { label: 'Show Failed', icon: 'remove-sign', link: current_stencil.nil? ? failed_conversations_path : failed_stencil_conversations_path( current_stencil ) },
+#       { label: 'Show Expired', icon: :time, link: current_stencil.nil? ? expired_conversations_path : expired_stencil_conversations_path( current_stencil ) }
     ]
 
     dropdown_list( title, entries, {class: 'btn-mini'} )

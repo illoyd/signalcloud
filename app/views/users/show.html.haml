@@ -18,7 +18,7 @@
       %b E-mail:
       = mail_to @user.email
     %p
-      %b Privileges:
+      %b Roles:
       %ul
-      - @user.roles.each do |role|
+      - @user.roles_for(current_organization).roles.each do |role|
         %li= role.to_s.humanize

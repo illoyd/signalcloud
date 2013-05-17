@@ -1,17 +1,13 @@
 class OrganizationsController < ApplicationController
 
   respond_to :html, :json, :xml
-  before_filter :assign_current_organization, only: [:show, :edit, :update, :destroy]
+  before_filter :assign_organization, only: [:show, :edit, :update, :destroy]
   load_and_authorize_resource
   
-  def assign_current_organization
-    @organization = current_organization
-  end
-
   # GET /organizations
   # GET /organizations.json
   def index
-    @organizations = Organization.all( order: :label )
+    # @organizations = Organization.all( order: :label )
     respond_with @organizations
   end
 
