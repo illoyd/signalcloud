@@ -1,7 +1,6 @@
 class OrganizationsController < ApplicationController
 
   respond_to :html, :json, :xml
-  before_filter :assign_organization, only: [:show, :edit, :update, :destroy]
   load_and_authorize_resource
   
   # GET /organizations
