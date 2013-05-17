@@ -1,6 +1,6 @@
 class UserRole < ActiveRecord::Base
 
-  ROLES = [ :super_user, :organization_administrator, :developer, :billing_liaison, :conversation_manager ]
+  ROLES = [ :organization_administrator, :developer, :billing_liaison, :conversation_manager ]
   
   attr_accessible :roles, :user, :organization
 

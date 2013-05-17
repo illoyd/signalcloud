@@ -88,21 +88,6 @@ describe User, '.abilities' do
     it{ should_not have_ability(:manage, for: other_ledger_entry) }
   end
   
-  context 'as super user' do
-    subject { create :user, user_roles: [ UserRole.new( organization: test_organization, roles: [ :super_user ] ) ] }
-
-    # Should be able to view and shadow other organizations
-    it{ should have_ability({index: true, show: true, new: false, create: false, edit: false, update: false, destroy: false}, for: test_organization) }
-    it{ should have_ability({index: false, show: false, new: false, create: false, edit: false, update: false, destroy: false}, for: other_organization) }
-    it{ should have_ability( :shadow, for: test_organization ) }
-    it{ should_not have_ability( :shadow, for: other_organization ) }
-    
-    # Should be able to manage AccountPlans
-    it{ should have_ability( :manage, for: AccountPlan ) }
-    it{ should have_ability( :manage, for: test_organization.account_plan ) }
-    it{ should have_ability( :manage, for: other_organization.account_plan ) }
-  end
-  
   context 'as organization administrator' do
     subject { create :user, user_roles: [ UserRole.new( organization: test_organization, roles: [ :organization_administrator ] ) ] }
 

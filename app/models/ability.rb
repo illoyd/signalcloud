@@ -47,8 +47,7 @@ class Ability
   # Roles, from User, for ease of reference
   # [ :super_user, :organization_administrator, :developer, :billing_liaison, :conversation_manager ]
   
-  def grant_super_user_privileges(user, organization_id)
-    grant_shadow_organization_privileges user, organization_id
+  def grant_system_admin_privileges(user, organization_id)
     can :manage, AccountPlan
   end
   
@@ -75,7 +74,7 @@ class Ability
   
   def grant_default_privileges(user)
     # Show for owning organization
-    can [ :index, :show ], [ Organization ], { id: user.organization_ids }
+    can [ :index, :show, :shadow ], [ Organization ], { id: user.organization_ids }
     
     # Index and show for primary objects
     can :read, [ Stencil, PhoneNumber, PhoneBook, PhoneBookEntry ], { organization_id: user.organization_ids }
@@ -84,11 +83,6 @@ class Ability
     
     # Show, edit, and update self
     can [ :show, :edit, :update, :change_password ], User, { id: user.id }
-  end
-  
-  def grant_shadow_organization_privileges(user, organization_id)
-    # Edit, update for owning organization
-    can [:shadow], Organization, { id: organization_id }
   end
   
   def grant_manage_organization_privileges(user, organization_id)
