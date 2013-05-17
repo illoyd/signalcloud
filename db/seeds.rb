@@ -47,8 +47,8 @@ unless Organization.exists?( encrypted_twilio_account_sid: Organization.encrypt(
     master_organization.auth_token = '0ee1ed9c635074d1a5fc452aa2aec6d1'
     master_organization.save!
   
-  master_user = master_organization.users.build first_name: 'Ian', last_name: 'Lloyd', email: 'ian@signalcloudapp.com', password: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID'], roles: User::ROLES
-    master_user.save!
+  master_user = User.create first_name: 'Ian', last_name: 'Lloyd', email: 'ian@signalcloudapp.com', password: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID']
+    master_organization.user_roles.create user: master_user, roles: UserRole::ROLES
   
   master_phone_number = master_organization.phone_numbers.create!( number: '+1 202-601-3854', twilio_phone_number_sid: 'PNf7abf4d06e5faecb7d6878fa37b8cdc3' )
   master_phone_number_gb = master_organization.phone_numbers.create!( number: '+44 1753 254372', twilio_phone_number_sid: 'PNa11b228979b0759de22e39a8e6f8585c' )
@@ -106,8 +106,10 @@ unless Rails.env.production? || Organization.exists?( encrypted_twilio_account_s
     test_organization.save!
   
   # Add users
-  test_user = test_organization.users.create first_name: 'Jane', last_name: 'Doe', email: 'jane.doe@signalcloudapp.com', password: 'password', password_confirmation: 'password', roles: User::ROLES
-  simple_user = test_organization.users.create first_name: 'Joe', last_name: 'Bloggs', email: 'joe.bloggs@signalcloudapp.com', password: 'password', password_confirmation: 'password', roles: nil
+  test_user = User.create! first_name: 'Jane', last_name: 'Doe', email: 'jane.doe@signalcloudapp.com', password: 'password', password_confirmation: 'password'
+    test_organization.user_roles.create! user: test_user, roles: UserRole::ROLES
+  simple_user = User.create! first_name: 'Joe', last_name: 'Bloggs', email: 'joe.bloggs@signalcloudapp.com', password: 'password', password_confirmation: 'password'
+    test_organization.user_roles.create! user: simple_user, roles: nil
   
   # Add example data for the test organization
   test_numbers = {
@@ -168,8 +170,8 @@ unless Organization.exists?( encrypted_twilio_account_sid: Organization.encrypt(
     perf_organization.twilio_auth_token = ENV['TWILIO_TEST_AUTH_TOKEN']
     perf_organization.save!
 
-  perf_user = perf_organization.users.build first_name: 'Performance', last_name: 'User', email: 'hello@signalcloudapp.com', password: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID'], roles: User::ROLES
-    perf_user.save!
+  perf_user = User.create! first_name: 'Performance', last_name: 'User', email: 'hello@signalcloudapp.com', password: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID']
+    perf_organization.user_roles.create! user: perf_user, roles: UserRole::ROLES
   
   perf_phone_number = perf_organization.phone_numbers.create!( number: Twilio::VALID_NUMBER, twilio_phone_number_sid: 'PX'+SecureRandom.hex(16) )
   perf_organization.phone_books.first.phone_book_entries.create!( phone_number_id: perf_phone_number.id, country: nil )

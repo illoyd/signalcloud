@@ -65,7 +65,7 @@ class UsersController < ApplicationController
       params[:user][:roles] ||= []
       params[:user][:roles] << :super_user if ( @user.id == current_user.id and @user.is_super_user? )
       params[:user][:roles] << :organization_administrator if ( @user.id == current_user.id and @user.is_organization_administrator? )
-      params[:user][:roles] = params[:user][:roles].keep_if{ |entry| User::ROLES.include?( (entry.to_sym rescue nil) ) }.map{ |entry| entry.to_sym }.uniq
+      params[:user][:roles] = params[:user][:roles].keep_if{ |entry| UserRole::ROLES.include?( (entry.to_sym rescue nil) ) }.map{ |entry| entry.to_sym }.uniq
     else
       params[:user].remove(:roles)
     end

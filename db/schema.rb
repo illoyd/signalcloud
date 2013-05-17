@@ -176,11 +176,11 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
   add_index "messages", ["updated_at"], :name => "index_messages_on_updated_at"
 
   create_table "organizations", :force => true do |t|
+    t.integer  "account_plan_id",                                                                  :null => false
     t.string   "sid",                                                                              :null => false
     t.string   "auth_token",                                                                       :null => false
     t.string   "label",                                                                            :null => false
     t.decimal  "balance",                           :precision => 8, :scale => 4, :default => 0.0, :null => false
-    t.integer  "account_plan_id",                                                                  :null => false
     t.integer  "primary_address_id"
     t.integer  "secondary_address_id"
     t.string   "purchase_order"
@@ -321,11 +321,20 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
 
   add_index "unsolicited_messages", ["phone_number_id"], :name => "index_unsolicited_messages_on_phone_number_id"
 
-  create_table "users", :force => true do |t|
+  create_table "user_roles", :force => true do |t|
     t.integer  "organization_id"
+    t.integer  "user_id"
+    t.integer  "roles_mask",      :null => false
+    t.datetime "created_at",      :null => false
+    t.datetime "updated_at",      :null => false
+  end
+
+  add_index "user_roles", ["organization_id"], :name => "index_user_roles_on_organization_id"
+  add_index "user_roles", ["user_id"], :name => "index_user_roles_on_user_id"
+
+  create_table "users", :force => true do |t|
     t.string   "first_name"
     t.string   "last_name"
-    t.integer  "roles_mask",                           :default => 0
     t.datetime "created_at",                                           :null => false
     t.datetime "updated_at",                                           :null => false
     t.string   "email",                                :default => "", :null => false
@@ -348,7 +357,6 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
   add_index "users", ["authentication_token"], :name => "index_users_on_authentication_token", :unique => true
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true
   add_index "users", ["invitation_token"], :name => "index_users_on_invitation_token", :unique => true
-  add_index "users", ["organization_id"], :name => "index_users_on_organization_id"
   add_index "users", ["reset_password_token"], :name => "index_users_on_reset_password_token", :unique => true
   add_index "users", ["unlock_token"], :name => "index_users_on_unlock_token", :unique => true
 

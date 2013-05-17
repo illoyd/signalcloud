@@ -1,11 +1,11 @@
 class CreateOrganizations < ActiveRecord::Migration
   def change
     create_table :organizations do |t|
+      t.references :account_plan, null: false
       t.string :sid, null: false, length: 32
       t.string :auth_token, null: false, length: 32
       t.string :label, null: false
       t.decimal :balance, default: 0, null: false, precision: 8, scale: 4
-      t.references :account_plan, null: false
 
       t.integer :primary_address_id
       t.integer :secondary_address_id

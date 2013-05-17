@@ -53,7 +53,9 @@ FactoryGirl.define do
         users_count 3
       end
       after(:create) do |organization, evaluator|
-        FactoryGirl.create_list(:user, evaluator.users_count, organization: organization)
+        evaluator.users_count.times do
+          organization.user_roles.create user: FactoryGirl.create(:user)
+        end
       end
     end
     

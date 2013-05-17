@@ -3,33 +3,53 @@ require "cancan/matchers"
 
 describe User, '.abilities' do
 
-  let(:test_organization) { create :organization }
-  let(:test_phone_number) { create :phone_number, organization: test_organization }
-  let(:test_phone_book) { create :phone_book, organization: test_organization }
-  let(:test_stencil) { create :stencil, organization: test_organization, phone_book: test_phone_book }
-  let(:test_conversation) { create :conversation, stencil: test_stencil }
-  let(:test_message) { create :message, conversation: test_conversation }
-  let(:test_user) { create :user, organization: test_organization }
-  let(:test_ledger_entry) { create :ledger_entry, item: test_message }
+  let(:test_organization)  { create :organization }
+  let(:test_phone_number)  { create :phone_number, organization: test_organization }
+  let(:test_phone_book)    { create :phone_book, organization: test_organization }
+  let(:test_stencil)       { create :stencil, organization: test_organization, phone_book: test_phone_book }
+  let(:test_conversation)  { create :conversation, stencil: test_stencil }
+  let(:test_message)       { create :message, conversation: test_conversation }
+  let(:test_user)          { create :user, user_roles: [ UserRole.new( organization: test_organization, roles: nil ) ] }
+  let(:test_ledger_entry)  { create :ledger_entry, item: test_message }
 
   let(:other_organization) { create :organization }
   let(:other_phone_number) { create :phone_number, organization: other_organization }
-  let(:other_phone_book) { create :phone_book, organization: other_organization }
-  let(:other_stencil) { create :stencil, organization: other_organization, phone_book: other_phone_book }
+  let(:other_phone_book)   { create :phone_book, organization: other_organization }
+  let(:other_stencil)      { create :stencil, organization: other_organization, phone_book: other_phone_book }
   let(:other_conversation) { create :conversation, stencil: other_stencil }
-  let(:other_message) { create :message, conversation: other_conversation }
-  let(:other_user) { create :user, organization: other_organization }
+  let(:other_message)      { create :message, conversation: other_conversation }
+  let(:other_user)         { create :user, user_roles: [ UserRole.new( organization: other_organization, roles: nil ) ] }
   let(:other_ledger_entry) { create :ledger_entry, item: other_message }
+  
+  context 'granting privileges' do
+    it 'has no organizations' do
+      user = create :user, user_roles: []
+      user.user_roles.should be_empty
+    end
+    it 'has 1 organization' do
+      user = create :user, user_roles: [
+        UserRole.new( organization: test_organization, roles: [] )
+      ]
+      user.user_roles.should have(1).item
+    end
+    it 'has 2 organizations' do
+      user = create :user, user_roles: [
+        UserRole.new( organization: test_organization, roles: [] ),
+        UserRole.new( organization: other_organization, roles: [] )
+      ]
+      user.user_roles.should have(2).items
+    end
+  end
 
   context "with default permissions" do
-    subject { create :user, organization: test_organization }
+    subject { create :user, user_roles: [ UserRole.new( organization: test_organization, roles: [] ) ] }
 
     # Test parent organization
-    it{ should have_ability({index: false, new: false, create: false}, for: Organization) }
-    it{ should have_ability({show: true, edit: false, update: false, destroy: false}, for: test_organization) }
+    it{ should have_ability({index: true, new: false, create: false}, for: Organization) }
+    it{ should have_ability({index: true, show: true, edit: false, update: false, destroy: false}, for: test_organization) }
 
     # Test non-parent organization - should have NO privileges
-    it{ should have_ability({show: false, edit: false, update: false, destroy: false}, for: other_organization) }
+    it{ should have_ability({index: false, show: false, edit: false, update: false, destroy: false}, for: other_organization) }
 
     # Test users
     it{ should have_ability({index: false, new: false, create: false}, for: User) }
@@ -69,13 +89,13 @@ describe User, '.abilities' do
   end
   
   context 'as super user' do
-    subject { create(:super_user_user, organization: test_organization) }
+    subject { create :user, user_roles: [ UserRole.new( organization: test_organization, roles: [ :super_user ] ) ] }
 
     # Should be able to view and shadow other organizations
     it{ should have_ability({index: true, show: true, new: false, create: false, edit: false, update: false, destroy: false}, for: test_organization) }
-    it{ should have_ability({index: true, show: false, new: false, create: false, edit: false, update: false, destroy: false}, for: other_organization) }
+    it{ should have_ability({index: false, show: false, new: false, create: false, edit: false, update: false, destroy: false}, for: other_organization) }
     it{ should have_ability( :shadow, for: test_organization ) }
-    it{ should have_ability( :shadow, for: other_organization ) }
+    it{ should_not have_ability( :shadow, for: other_organization ) }
     
     # Should be able to manage AccountPlans
     it{ should have_ability( :manage, for: AccountPlan ) }
@@ -84,15 +104,16 @@ describe User, '.abilities' do
   end
   
   context 'as organization administrator' do
-    subject { create(:organization_administrator_user, organization: test_organization) }
+    subject { create :user, user_roles: [ UserRole.new( organization: test_organization, roles: [ :organization_administrator ] ) ] }
 
     # Test users
-    it{ should have_ability([:create, :read, :update, :destroy], for: test_user) }
+    it{ should have_ability([:create, :read, :update, :destroy], for: test_user.user_roles.where( organization_id: test_organization.id ).first) }
+    it{ should_not have_ability(:manage, for: test_user) }
     it{ should_not have_ability(:manage, for: other_user) }
   end
 
   context 'as developer' do
-    subject { create(:developer_user, organization: test_organization) }
+    subject { create :user, user_roles: [ UserRole.new( organization: test_organization, roles: [ :developer ] ) ] }
 
     # Test stencils
     it{ should have_ability(:manage, for: test_stencil) }
@@ -108,10 +129,10 @@ describe User, '.abilities' do
   end
   
   context 'as billing liaison' do
-    subject { create(:billing_liaison_user, organization: test_organization) }
+    subject { create :user, user_roles: [ UserRole.new( organization: test_organization, roles: [ :billing_liaison ] ) ] }
 
     # Test organization
-    it{ should have_ability({index: false, show: true, new: false, create: false, edit: true, update: true, destroy: false}, for: test_organization) }
+    it{ should have_ability({index: true, show: true, new: false, create: false, edit: true, update: true, destroy: false}, for: test_organization) }
     it{ should_not have_ability(:manage, for: other_organization) }
 
     # Test viewing ledger entries
@@ -120,7 +141,7 @@ describe User, '.abilities' do
   end
   
   context 'as conversation manager' do
-    subject { create(:conversation_manager_user, organization: test_organization) }
+    subject { create :user, user_roles: [ UserRole.new( organization: test_organization, roles: [ :conversation_manager ] ) ] }
 
     # Test starting and forcing a conversation
     it{ should have_ability({index: true, show: true, new: true, create: true, edit: false, update: false, destroy: false, force: true}, for: test_conversation) }

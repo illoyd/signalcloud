@@ -34,7 +34,7 @@
         .control-group
           = f.label :roles, class: 'control-label'
           .controls
-            - User::ROLES.each do |role|
+            - UserRole::ROLES.each do |role|
               - disabled = ( role == :super_user || role == :organization_administrator ) && @user.id == current_user.id
               -# disabled = can?( :permissions, @user )
               - next if role == :super_user && !current_user.is_super_user?

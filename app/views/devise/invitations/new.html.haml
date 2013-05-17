@@ -22,7 +22,7 @@
         %span.add-on @
 
       = f.label "Roles" do
-        - User::ROLES.each do |role|
+        - UserRole::ROLES.each do |role|
           - next if role == :super_user && !current_user.is_super_user?
           - disabled = cannot?(:edit, @user) || ( ( role == :super_user || role == :organization_administrator ) && @user.id == current_user.id )
           %label.checkbox
