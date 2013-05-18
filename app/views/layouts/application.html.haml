@@ -102,7 +102,7 @@
               - if @organization
                 %li.dropdown
                   %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#"}
-                    = icon( @organization.icon )
+                    = icon( @organization.icon || :organizations )
                     = @organization.label
                     %b.caret
                   %ul.dropdown-menu
@@ -112,8 +112,8 @@
                           = icon( :exchange )
                           Switch organizations
               %li.dropdown
-                %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#"}
-                  %i.icon-user
+                %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#", style: 'padding-left: 40px' }
+                  = gravatar_for current_user, 30, { style: 'position: absolute; top: 10px; left: 5px; background-color: yellow;' }
                   = current_user.first_name
                   %b.caret
                 %ul.dropdown-menu
