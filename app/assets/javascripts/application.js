@@ -12,7 +12,7 @@
 //
 //= require jquery
 //= require jquery_ujs
-//= require twitter/bootstrap.min.js
+//= require bootstrap/bootstrap.min.js
 //= require_tree .
 
 // Add tooltips and popovers
