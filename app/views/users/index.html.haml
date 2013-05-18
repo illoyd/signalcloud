@@ -22,7 +22,7 @@
           %th{style:'text-align:center'} Conversation Manager
       %tbody
         - @users.where( 'invitation_sent_at is NULL or (invitation_sent_at is not NULL and invitation_accepted_at is not NULL)' ).each do |user|
-          - user_roles = user.roles_for(current_organization)
+          - user_roles = user.roles_for(@organization)
           %tr
             %td= split_dropdown_list([ |
               { label: 'Details', icon: :show, link: user, if: can?(:show, user) }, |

@@ -6,14 +6,12 @@ class OrganizationsController < ApplicationController
   # GET /organizations
   # GET /organizations.json
   def index
-    # @organizations = Organization.all( order: :label )
     respond_with @organizations
   end
 
   # GET /organizations/1
   # GET /organizations/1.json
   def show
-    #@organization = current_organization # Organization.find( params.fetch( :organization_id, params[:id] ) )
     respond_with @organization
   end
 
@@ -41,7 +39,14 @@ class OrganizationsController < ApplicationController
   # PUT /organizations/1
   # PUT /organizations/1.json
   def update
-    #@organization = current_organization
+    
+    # Delete the sensitive settings unless system admin
+    unless current_user.system_admin
+      params[:organization].remove( :account_plan_id ) 
+      params[:organization].remove( :account_plan ) 
+    end
+
+    # Save
     if @organization.update_attributes(params[:organization])
       flash[:success] = 'Your organization has been updated.'
     end
@@ -57,11 +62,4 @@ class OrganizationsController < ApplicationController
   #     respond_with(@organization)
   #   end
   
-  def shadow
-    # Only set the shadow option if allows
-    if can? :shadow, Organization
-      session[:shadow_organization_id] = params[:id]
-    end
-    redirect_to organization_path
-  end
 end

@@ -23,7 +23,10 @@
       %tbody
         - @organizations.each do |organization|
           %tr
-            %td= link_to organization.label, organization
+            %td
+              = link_to organization do
+                = icon(organization.icon || :organizations )
+                = organization.label
             %td= organization.account_plan.label
             %td{'align'=>'right'}
               %small US

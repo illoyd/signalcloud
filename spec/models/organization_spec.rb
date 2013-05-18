@@ -18,9 +18,9 @@ describe Organization, :vcr do
 
       it 'returns primary stencil' do
         stencil.should_not be_nil
-        organization.reload.primary_stencil.id.should eq(stencil.id)
-        organization.reload.primary_stencil.primary.should be_true
-        organization.reload.primary_stencil.id.should_not == nonprimary_stencil.id
+        organization.reload.default_stencil.id.should eq(stencil.id)
+        organization.reload.default_stencil.primary.should be_true
+        organization.reload.default_stencil.id.should_not == nonprimary_stencil.id
       end
     end
     
@@ -36,8 +36,8 @@ describe Organization, :vcr do
       end
 
       it 'returns first non-primary stencil' do
-        organization.primary_stencil.id.should_not eq(stencil.id)
-        organization.primary_stencil.id.should eq(nonprimary_stencil.id)
+        organization.default_stencil.id.should_not eq(stencil.id)
+        organization.default_stencil.id.should eq(nonprimary_stencil.id)
       end
     end
 

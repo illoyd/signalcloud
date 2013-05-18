@@ -5,6 +5,7 @@ class CreateOrganizations < ActiveRecord::Migration
       t.string :sid, null: false, length: 32
       t.string :auth_token, null: false, length: 32
       t.string :label, null: false
+      t.string :icon
       t.decimal :balance, default: 0, null: false, precision: 8, scale: 4
 
       t.integer :primary_address_id

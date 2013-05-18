@@ -180,6 +180,7 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
     t.string   "sid",                                                                              :null => false
     t.string   "auth_token",                                                                       :null => false
     t.string   "label",                                                                            :null => false
+    t.string   "icon"
     t.decimal  "balance",                           :precision => 8, :scale => 4, :default => 0.0, :null => false
     t.integer  "primary_address_id"
     t.integer  "secondary_address_id"
@@ -335,9 +336,10 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
   create_table "users", :force => true do |t|
     t.string   "first_name"
     t.string   "last_name"
-    t.datetime "created_at",                                           :null => false
-    t.datetime "updated_at",                                           :null => false
-    t.string   "email",                                :default => "", :null => false
+    t.boolean  "system_admin",                         :default => false, :null => false
+    t.datetime "created_at",                                              :null => false
+    t.datetime "updated_at",                                              :null => false
+    t.string   "email",                                :default => "",    :null => false
     t.string   "encrypted_password",                   :default => ""
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"

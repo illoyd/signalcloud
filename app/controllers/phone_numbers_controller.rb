@@ -8,7 +8,7 @@ class PhoneNumbersController < ApplicationController
   # GET /phone_numbers
   # GET /phone_numbers.json
   def index
-    @phone_numbers = current_organization.phone_numbers #.order()
+    @phone_numbers = @organization.phone_numbers #.order()
     respond_with @phone_numbers
   end
 
@@ -44,7 +44,7 @@ class PhoneNumbersController < ApplicationController
   def create
 
     # Purchase the number
-    @phone_number = current_organization.phone_numbers.build( params )
+    @phone_number = @organization.phone_numbers.build( params )
     begin
       # @phone_number.buy
       flash[:success] = 'Phone number was successfully created.' if @phone_number.save
@@ -64,7 +64,7 @@ class PhoneNumbersController < ApplicationController
   # PUT /phone_numbers/1
   # PUT /phone_numbers/1.json
   def update
-   @phone_number = current_organization.phone_numbers.find(params[:id])
+   @phone_number = @organization.phone_numbers.find(params[:id])
   
    respond_to do |format|
      if @phone_number.update_attributes(params[:phone_number])
@@ -99,7 +99,7 @@ class PhoneNumbersController < ApplicationController
     
     # Search and reply
     begin
-      @available_phone_numbers = current_organization.twilio_account.available_phone_numbers.get( country_code ).local.list( search_params )
+      @available_phone_numbers = @organization.twilio_account.available_phone_numbers.get( country_code ).local.list( search_params )
       respond_with @available_phone_numbers
     rescue Twilio::REST::RequestError => ex
       flash.now[:error] = '%s (%s)' % [ ex.message, ex.code ]
@@ -107,18 +107,18 @@ class PhoneNumbersController < ApplicationController
     end
   end
 
-#   def buy
-#     # Purchase the number
-#     phone_number_to_buy = params[:phone_number]
-#     begin
-#       @available_phone_numbers = current_organization.twilio_client.incoming_phone_numbers.create({:phone_number => phone_number_to_buy})
-#     rescue Twilio::Rest::RequestError => ex
-#       if ex.code = 21452
-#         flash[:error] = 'Number not available. (%s)' % [ex.message]
-#       else
-#         flash[:error] = 'Unknown error! (%s)' % [ex.message] 
-#       end
-#     end
-#   end
+  def buy
+    # Purchase the number
+    phone_number_to_buy = params[:phone_number]
+    begin
+      @available_phone_numbers = @organization.twilio_client.incoming_phone_numbers.create({:phone_number => phone_number_to_buy})
+    rescue Twilio::Rest::RequestError => ex
+      if ex.code = 21452
+        flash[:error] = 'Number not available. (%s)' % [ex.message]
+      else
+        flash[:error] = 'Unknown error! (%s)' % [ex.message] 
+      end
+    end
+  end
 
 end

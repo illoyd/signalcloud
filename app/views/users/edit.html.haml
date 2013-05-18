@@ -30,7 +30,7 @@
         = f.label :email, class: 'control-label'
         .controls= f.email_field :email
       
-      - if @user.roles_for(current_organization).is_organization_administrator?
+      - if @user.roles_for(@organization).is_organization_administrator?
         .control-group
           = f.label :roles, class: 'control-label'
           .controls

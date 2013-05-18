@@ -1,15 +1,3 @@
--#
-  = form_for( @user, html: { class: 'form-horizontal' } ) do |f|
-    - if @user.errors.any?
-      #error_explanation
-        %h2
-          = pluralize(@user.errors.count, "error")
-          prohibited this user from being saved:
-        %ul
-          - @user.errors.full_messages.each do |msg|
-            %li= msg
-
-/ Page body
 .row
   .span3= render :partial => 'navlist'
   .span9
@@ -32,7 +20,7 @@
         - UserRole::ROLES.each do |role|
           - disabled = cannot?(:edit, @user) || ( ( role == :organization_administrator ) && @user.id == current_user.id )
           %label.checkbox
-            = check_box_tag 'roles[]', role, @user.roles_for(current_organization).roles.include?(role), { id: 'user_role_%s' % role, disabled: disabled }
+            = check_box_tag 'roles[]', role, @user.roles_for(@organization).roles.include?(role), { id: 'user_role_%s' % role, disabled: disabled }
             = role.to_s.humanize
 
       .control-group

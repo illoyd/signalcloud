@@ -4,7 +4,7 @@ class Organization < ActiveRecord::Base
   require 'organization_xt_freshbooks'
 
   # General attributes
-  attr_accessible :sid, :account_plan, :auth_token, :balance, :label, :account_plan_id, :description, :vat_name, :vat_number
+  attr_accessible :sid, :account_plan, :auth_token, :balance, :label, :account_plan_id, :description, :vat_name, :vat_number, :icon
   
   attr_accessor :balance_changed
   

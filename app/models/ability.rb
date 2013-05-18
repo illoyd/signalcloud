@@ -39,6 +39,9 @@ class Ability
       end
     end
     
+    # Grant system admin
+    grant_system_admin_privileges(user) if user.system_admin
+    
     # Specifically do not allow deleting self
     cannot :destroy, user
 
@@ -47,7 +50,7 @@ class Ability
   # Roles, from User, for ease of reference
   # [ :super_user, :organization_administrator, :developer, :billing_liaison, :conversation_manager ]
   
-  def grant_system_admin_privileges(user, organization_id)
+  def grant_system_admin_privileges(user)
     can :manage, AccountPlan
   end
   

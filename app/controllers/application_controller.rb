@@ -3,7 +3,7 @@ class ApplicationController < ActionController::Base
   
   before_filter :authenticate_user!
   
-  helper_method :current_organization
+  # helper_method :current_organization
   helper_method :current_stencil
   
   rescue_from CanCan::AccessDenied do |exception|
@@ -49,10 +49,10 @@ class ApplicationController < ActionController::Base
   ##
   # Return the organization of the current request, based upon the request as well as user privileges.
   # Will default to the +current_user+ parent organization.
-  def current_organization
-    return Organization.find( session[:shadow_organization_id] ) if can?( :shadow, Organization ) && session.include?(:shadow_organization_id)
-    return current_user.organizations.first
-  end
+#   def current_organization
+#     return Organization.find( session[:shadow_organization_id] ) if can?( :shadow, Organization ) && session.include?(:shadow_organization_id)
+#     return current_user.organizations.first
+#   end
   
   ##
   # Return the stencil of the current request, based upon the request and filtered to the current organization.
