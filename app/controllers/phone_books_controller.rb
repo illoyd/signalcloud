@@ -1,11 +1,12 @@
 class PhoneBooksController < ApplicationController
 
   load_and_authorize_resource
+  before_filter :assign_organization
 
   # GET /phone_books
   # GET /phone_books.json
   def index
-    @phone_books = current_account.phone_books.order('label desc')
+    @phone_books = @organization.phone_books.order('label desc')
 
     respond_to do |format|
       format.html # index.html.erb
@@ -16,7 +17,7 @@ class PhoneBooksController < ApplicationController
   # GET /phone_books/1
   # GET /phone_books/1.json
   def show
-    @phone_book = current_account.phone_books.find(params[:id])
+    @phone_book = @organization.phone_books.find(params[:id])
 
     respond_to do |format|
       format.html # show.html.erb
@@ -27,7 +28,7 @@ class PhoneBooksController < ApplicationController
   # GET /phone_books/new
   # GET /phone_books/new.json
   def new
-    @phone_book = current_account.phone_books.build
+    @phone_book = @organization.phone_books.build
 
     respond_to do |format|
       format.html # new.html.erb
@@ -37,13 +38,13 @@ class PhoneBooksController < ApplicationController
 
   # GET /phone_books/1/edit
   def edit
-    @phone_book = current_account.phone_books.find(params[:id])
+    @phone_book = @organization.phone_books.find(params[:id])
   end
 
   # POST /phone_books
   # POST /phone_books.json
   def create
-    @phone_book = current_account.phone_books.build(params[:phone_book])
+    @phone_book = @organization.phone_books.build(params[:phone_book])
 
     respond_to do |format|
       if @phone_book.save
@@ -59,7 +60,7 @@ class PhoneBooksController < ApplicationController
   # PUT /phone_books/1
   # PUT /phone_books/1.json
   def update
-    @phone_book = current_account.phone_books.find(params[:id])
+    @phone_book = @organization.phone_books.find(params[:id])
 
     respond_to do |format|
       if @phone_book.update_attributes(params[:phone_book])
@@ -75,7 +76,7 @@ class PhoneBooksController < ApplicationController
   # DELETE /phone_books/1
   # DELETE /phone_books/1.json
   def destroy
-    @phone_book = current_account.phone_books.find(params[:id])
+    @phone_book = @organization.phone_books.find(params[:id])
     @phone_book.destroy
 
     respond_to do |format|

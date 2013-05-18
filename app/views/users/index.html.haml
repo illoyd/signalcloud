@@ -22,6 +22,7 @@
           %th{style:'text-align:center'} Conversation Manager
       %tbody
         - @users.where( 'invitation_sent_at is NULL or (invitation_sent_at is not NULL and invitation_accepted_at is not NULL)' ).each do |user|
+          - user_roles = user.roles_for(@organization)
           %tr
             %td= split_dropdown_list([ |
               { label: 'Details', icon: :show, link: user, if: can?(:show, user) }, |
@@ -31,10 +32,10 @@
 
             %td= link_to "#{user.first_name} #{user.last_name}", user
             %td= mail_to user.email
-            %td{style:'text-align:center'}= user.is_account_administrator? ? icon(:ok) : ''
-            %td{style:'text-align:center'}= user.is_developer? ? icon(:ok) : ''
-            %td{style:'text-align:center'}= user.is_billing_liaison? ? icon(:ok) : ''
-            %td{style:'text-align:center'}= user.is_conversation_manager? ? icon(:ok) : ''            
+            %td{style:'text-align:center'}= user_roles.is_organization_administrator? ? icon(:ok) : ''
+            %td{style:'text-align:center'}= user_roles.is_developer? ? icon(:ok) : ''
+            %td{style:'text-align:center'}= user_roles.is_billing_liaison? ? icon(:ok) : ''
+            %td{style:'text-align:center'}= user_roles.is_conversation_manager? ? icon(:ok) : ''            
 
 / Invited list
 - @invited_users = @users.where( 'invitation_sent_at is not NULL and invitation_accepted_at is NULL' )
@@ -60,6 +61,7 @@
             %td{ colspan: 6 }
               %em No outstanding invitations.
         - @invited_users.each do |user|
+          - user_roles = user.roles_for(current_organization)
           %tr
             %td= split_dropdown_list([ |
               { label: 'Details', icon: :show, link: user, if: can?(:show, user) }, |
@@ -69,7 +71,7 @@
 
             %td= link_to "#{user.first_name} #{user.last_name}", user
             %td= mail_to user.email
-            %td{style:'text-align:center'}= user.is_account_administrator? ? icon(:ok) : ''
-            %td{style:'text-align:center'}= user.is_developer? ? icon(:ok) : ''
-            %td{style:'text-align:center'}= user.is_billing_liaison? ? icon(:ok) : ''
-            %td{style:'text-align:center'}= user.is_conversation_manager? ? icon(:ok) : ''            
+            %td{style:'text-align:center'}= user_roles.is_organization_administrator? ? icon(:ok) : ''
+            %td{style:'text-align:center'}= user_roles.is_developer? ? icon(:ok) : ''
+            %td{style:'text-align:center'}= user_roles.is_billing_liaison? ? icon(:ok) : ''
+            %td{style:'text-align:center'}= user_roles.is_conversation_manager? ? icon(:ok) : ''            

@@ -1,20 +1,20 @@
 require 'spec_helper'
 
-describe Account, 'Freshbooks Integration', :vcr do
-  subject { create(:account) }
+describe Organization, 'Freshbooks Integration', :vcr do
+  subject { create(:organization) }
 
   describe '#freshbooks_client' do
 
     context 'when not configured' do
-      subject { create :account }
+      subject { create :organization }
       it 'throws error' do
         expect{ subject.freshbooks_client }.to raise_error(SignalCloud::MissingFreshBooksClientError)
       end
     end
 
     context 'when configured' do
-      subject { create :account, :test_freshbooks }
-      it 'returns instance of twilio account' do
+      subject { create :organization, :test_freshbooks }
+      it 'returns instance of twilio organization' do
         expect{ subject.freshbooks_client }.to_not raise_error
       end
     end
@@ -24,21 +24,21 @@ describe Account, 'Freshbooks Integration', :vcr do
   describe '#create_freshbooks_client' do
   
     context 'when not configured' do
-      subject { create :account }
+      subject { create :organization }
       it 'creates a freshbooks client' do
         expect{ subject.create_freshbooks_client }.to_not raise_error
       end
     end
   
     context 'when configured with users' do
-      subject { create :account, :test_freshbooks, :with_users }
+      subject { create :organization, :test_freshbooks, :with_users }
       it 'throws an error' do
         expect{ subject.create_freshbooks_client }.to raise_error(SignalCloud::FreshBooksClientAlreadyExistsError)
       end
     end
   
     context 'when configured without users' do
-      subject { create :account, :test_freshbooks, :with_users }
+      subject { create :organization, :test_freshbooks, :with_users }
       it 'throws an error' do
         expect{ subject.create_freshbooks_client }.to raise_error(SignalCloud::FreshBooksError)
       end

@@ -12,7 +12,7 @@ describe AccountPlan do
       ADDITION_VALUES.each do |add_value|
         PROVIDER_COSTS.each do |provider_cost|
           plan = build :account_plan, phone_add: add_value
-          plan.calculate_phone_number_cost(provider_cost).should == provider_cost + add_value
+          plan.calculate_phone_number_cost(provider_cost).should == add_value
         end
       end
     end
@@ -45,7 +45,7 @@ describe AccountPlan do
       ADDITION_VALUES.each do |add_value|
         PROVIDER_COSTS.each do |provider_cost|
           plan = build :account_plan, call_in_add: add_value
-          plan.calculate_inbound_call_cost(provider_cost).should == provider_cost + add_value
+          plan.calculate_inbound_call_cost(provider_cost).should == add_value
         end
       end
     end
@@ -78,7 +78,7 @@ describe AccountPlan do
       ADDITION_VALUES.each do |add_value|
         PROVIDER_COSTS.each do |provider_cost|
           plan = build :account_plan, sms_in_add: add_value
-          plan.calculate_inbound_sms_cost(provider_cost).should == provider_cost + add_value
+          plan.calculate_inbound_sms_cost(provider_cost).should == add_value
         end
       end
     end
@@ -111,7 +111,7 @@ describe AccountPlan do
       ADDITION_VALUES.each do |add_value|
         PROVIDER_COSTS.each do |provider_cost|
           plan = build :account_plan, sms_out_add: add_value
-          plan.calculate_outbound_sms_cost(provider_cost).should == provider_cost + add_value
+          plan.calculate_outbound_sms_cost(provider_cost).should == add_value
         end
       end
     end

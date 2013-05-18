@@ -1,7 +1,7 @@
 FactoryGirl.define do
 
   factory :phone_book do
-    account
+    organization
     label         "Baby's first book"
     description   "A test book."
   end

@@ -15,9 +15,9 @@
       = @stencil.description || 'No description configured.'
     %p
       %b
-        = icon( :phone_number )
+        = icon( :phone_books )
         Phone book:
-      = link_to @stencil.phone_book.label, @stencil.phone_book
+      = link_to @stencil.phone_book.label, [@organization, @stencil.phone_book]
     
     %p
       %b

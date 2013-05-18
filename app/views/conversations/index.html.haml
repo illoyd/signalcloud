@@ -1,5 +1,5 @@
 -# UI variables
-- conversation_path = new_stencil_conversation_path( @stencil.nil? ? @account.default_stencil : @stencil )
+- conversation_path = new_organization_stencil_conversation_path( @organization, @stencil.nil? ? @organization.default_stencil : @stencil )
 
 / Page header
 .row
@@ -16,8 +16,8 @@
 / Page controls
 .row
   .span12.table-tools
-    = stencil_dropdown_list( @account, @stencil )
-    = status_dropdown_list( @account, @stencil, params[:status] )
+    = stencil_dropdown_list( @organization, @stencil )
+    = status_dropdown_list( @organization, @stencil, params[:status] )
     - if can? :new, Conversation
       .pull-right= link_to 'Start a new conversation', conversation_path, :class=>'btn btn-success btn-small'
 

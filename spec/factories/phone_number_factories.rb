@@ -1,14 +1,9 @@
 FactoryGirl.define do
 
   factory :phone_number, aliases: [ :us_phone_number ] do
-    number                      { random_us_number() }
+    sequence(:number)           { |n| '+19%09d' % n }
     twilio_phone_number_sid     { 'PN' + SecureRandom.hex(16) }
-    account
-    
-    trait :with_costs do
-      provider_cost    { random_cost() }
-      our_cost         { random_cost() }
-    end
+    organization
     
     factory :valid_phone_number do
       number                    { Twilio::VALID_NUMBER }
@@ -19,11 +14,11 @@ FactoryGirl.define do
     end
     
     factory :uk_phone_number do
-      number                    { random_uk_number() }
+      sequence(:number)         { |n| '+4479%08d' % n }
     end
     
     factory :ca_phone_number do
-      number                    { random_ca_number() }
+      sequence(:number)         { |n| '+1416%07d' % n }
     end
     
     trait :with_costs do

@@ -15,16 +15,16 @@ rails destroy scaffold Conversation
 
 rails generate scaffold AccountPlan label:string month:decimal phone_add:decimal phone_mult:decimal call_in_add:decimal call_in_mult:decimal sms_in_add:decimal sms_in_mult:decimal sms_out_add:decimal sms_out_mult:decimal
 
-rails generate scaffold Account sid:string account_token:string auth_token:string label:string balance:decimal default_stencil:reference account_plan:reference encrypted_twilio_account_sid:string encrypted_twilio_auth_token:string
+rails generate scaffold Account sid:string organization_token:string auth_token:string label:string balance:decimal default_stencil:reference account_plan:reference encrypted_twilio_account_sid:string encrypted_twilio_auth_token:string
 
-rails generate scaffold User account:reference first_name:string last_name:string
+rails generate scaffold User organization:reference first_name:string last_name:string
 rails generate devise User
 
-rails generate scaffold PhoneNumber account:reference encrypted_number:string provider_cost:decimal our_cost:decimal
-rails generate scaffold PhoneBook account:reference name:string description:text
+rails generate scaffold PhoneNumber organization:reference encrypted_number:string provider_cost:decimal our_cost:decimal
+rails generate scaffold PhoneBook organization:reference name:string description:text
 rails generate scaffold PhoneBookEntry directory:reference phone_number:reference country:string
 
-rails generate scaffold Stencil account:reference phone_book:reference seconds_to_live:integer encrypted_question:string encrypted_expected_confirmed_answer:string encrypted_expected_denied_answer:string encrypted_confirmed_reply:string encrypted_denied_reply:string encrypted_failed_reply:string encrypted_expired_reply:string 
+rails generate scaffold Stencil organization:reference phone_book:reference seconds_to_live:integer encrypted_question:string encrypted_expected_confirmed_answer:string encrypted_expected_denied_answer:string encrypted_confirmed_reply:string encrypted_denied_reply:string encrypted_failed_reply:string encrypted_expired_reply:string 
 rails generate scaffold Conversation stencil:reference status:integer encrypted_from_number:string encrypted_to_number:string expires_at:datetime encrypted_question:string encrypted_expected_confirmed_answer:string encrypted_expected_denied_answer:string encrypted_actual_answer:string encrypted_confirmed_reply:string encrypted_denied_reply:string encrypted_failed_reply:string encrypted_expired_reply:string challenge_sent:datetime challenge_sms_sid:string response_received:datetime response_sms_sid:string reply_sent:datetime reply_sms_sid:string
 rails generate scaffold Message conversation:reference provider_cost:decimal our_cost:decimal encrypted_payload:text
 
@@ -33,7 +33,7 @@ rails generate scaffold Transaction narrative:string value:decimal item:referenc
 rails generate controller apis/twilio inbound_call inbound_sms
 
 # Account Controller
-before_filter :authenticate_account!
+before_filter :authenticate_organization!
 
 # Account
 
@@ -45,7 +45,7 @@ def twilio_client
 end
 
 def send_sms( to_number, from_number, message )
-	self.twilio_client.account.sms.messages.create(
+	self.twilio_client.organization.sms.messages.create(
 		from: from_number,
 		to: to_number,
 		body: message
@@ -70,7 +70,7 @@ end
 
 # Conversation
 
-belongs_to :account
+belongs_to :organization
 
 def normalise( response )
 	return response.lower.gsub( /[a-z0-9]/i, '' )
@@ -102,7 +102,7 @@ end
 
 def send_challenge()
 	# Send SMS
-	response = self.account.send_sms( self.to, self.from, self.question )
+	response = self.organization.send_sms( self.to, self.from, self.question )
 	
 	# Update internal state
 	self.challenge_sms_sid = response['sms_message']['sid']
@@ -143,13 +143,13 @@ def send_reply()
 	# Select action by current status
 	response = case self.status
 		when ConversationStatus::CONFIRMED
-			self.account.send_sms( self.to_number, self.from_number, self.confirmed_reply )
+			self.organization.send_sms( self.to_number, self.from_number, self.confirmed_reply )
 		when ConversationStatus::DENIED
-			self.account.send_sms( self.to_number, self.from_number, self.denied_reply )
+			self.organization.send_sms( self.to_number, self.from_number, self.denied_reply )
 		when ConversationStatus::FAILED
-			self.account.send_sms( self.to_number, self.from_number, self.failed_reply )
+			self.organization.send_sms( self.to_number, self.from_number, self.failed_reply )
 		when ConversationStatus::EXPIRED
-			self.account.send_sms( self.to_number, self.from_number, self.expired_reply )
+			self.organization.send_sms( self.to_number, self.from_number, self.expired_reply )
 		else
 			# Do nothing at the moment
 	end
@@ -171,8 +171,8 @@ end
 
 # Job: ProcessResponseJob
 def perform
-	account = Account.find_by_twilio_account_sid( self.account_sid )
-	conversations = account.conversations.find_all_by_to_number_and_from_number( self.to_number, self.from_number )
+	organization = Account.find_by_twilio_account_sid( self.account_sid )
+	conversations = organization.conversations.find_all_by_to_number_and_from_number( self.to_number, self.from_number )
 	
 	# Check every conversation to see if it can understand the response
 	conversations.each do |conversation|
@@ -207,7 +207,7 @@ end
 
 # Routes
 resource :twilio, :defaults => { :format => 'xml' }
-resource :account do
+resource :organization do
 	resources :conversations
 end
 

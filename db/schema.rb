@@ -30,54 +30,24 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
     t.datetime "updated_at",                                                                 :null => false
   end
 
-  create_table "accounts", :force => true do |t|
-    t.string   "account_sid",                                                                      :null => false
-    t.string   "auth_token",                                                                       :null => false
-    t.string   "label",                                                                            :null => false
-    t.decimal  "balance",                           :precision => 8, :scale => 4, :default => 0.0, :null => false
-    t.integer  "account_plan_id",                                                                  :null => false
-    t.string   "purchase_order"
-    t.string   "vat_name"
-    t.string   "vat_number"
-    t.text     "encrypted_twilio_account_sid"
-    t.string   "encrypted_twilio_account_sid_iv"
-    t.string   "encrypted_twilio_account_sid_salt"
-    t.text     "encrypted_twilio_auth_token"
-    t.string   "encrypted_twilio_auth_token_iv"
-    t.string   "encrypted_twilio_auth_token_salt"
-    t.string   "twilio_application_sid"
-    t.text     "encrypted_freshbooks_id"
-    t.string   "encrypted_freshbooks_id_iv"
-    t.string   "encrypted_freshbooks_id_salt"
-    t.integer  "primary_address_id"
-    t.integer  "secondary_address_id"
-    t.text     "description"
-    t.datetime "created_at",                                                                       :null => false
-    t.datetime "updated_at",                                                                       :null => false
-  end
-
-  add_index "accounts", ["account_sid"], :name => "index_accounts_on_account_sid", :unique => true
-  add_index "accounts", ["encrypted_twilio_account_sid"], :name => "index_accounts_on_encrypted_twilio_account_sid"
-  add_index "accounts", ["label"], :name => "index_accounts_on_label"
-
   create_table "addresses", :force => true do |t|
-    t.integer  "account_id"
+    t.integer  "organization_id"
     t.string   "first_name"
     t.string   "last_name"
     t.string   "email"
     t.string   "line1"
     t.string   "line2"
-    t.string   "city",       :null => false
+    t.string   "city",            :null => false
     t.string   "region"
     t.string   "postcode"
-    t.string   "country",    :null => false
+    t.string   "country",         :null => false
     t.string   "work_phone"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at",      :null => false
+    t.datetime "updated_at",      :null => false
   end
 
-  add_index "addresses", ["account_id"], :name => "index_addresses_on_account_id"
   add_index "addresses", ["country"], :name => "index_addresses_on_country"
+  add_index "addresses", ["organization_id"], :name => "index_addresses_on_organization_id"
 
   create_table "conversations", :force => true do |t|
     t.integer  "stencil_id",                                                           :null => false
@@ -144,7 +114,7 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
   add_index "delayed_jobs", ["priority", "run_at"], :name => "delayed_jobs_priority"
 
   create_table "invoices", :force => true do |t|
-    t.integer  "account_id"
+    t.integer  "organization_id"
     t.integer  "freshbooks_invoice_id"
     t.string   "purchase_order"
     t.string   "public_link"
@@ -156,20 +126,20 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
     t.datetime "updated_at",            :null => false
   end
 
-  add_index "invoices", ["account_id"], :name => "index_invoices_on_account_id"
   add_index "invoices", ["freshbooks_invoice_id"], :name => "index_invoices_on_freshbooks_invoice_id"
+  add_index "invoices", ["organization_id"], :name => "index_invoices_on_organization_id"
 
   create_table "ledger_entries", :force => true do |t|
-    t.integer  "account_id"
+    t.integer  "organization_id"
     t.integer  "invoice_id"
     t.integer  "item_id"
     t.string   "item_type"
-    t.string   "narrative",                                                 :null => false
-    t.decimal  "value",      :precision => 8, :scale => 4, :default => 0.0
+    t.string   "narrative",                                                      :null => false
+    t.decimal  "value",           :precision => 8, :scale => 4, :default => 0.0
     t.datetime "settled_at"
     t.text     "notes"
-    t.datetime "created_at",                                                :null => false
-    t.datetime "updated_at",                                                :null => false
+    t.datetime "created_at",                                                     :null => false
+    t.datetime "updated_at",                                                     :null => false
   end
 
   create_table "messages", :force => true do |t|
@@ -205,6 +175,40 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
   add_index "messages", ["status"], :name => "index_messages_on_status"
   add_index "messages", ["updated_at"], :name => "index_messages_on_updated_at"
 
+  create_table "organizations", :force => true do |t|
+    t.integer  "account_plan_id",                                                                  :null => false
+    t.string   "sid",                                                                              :null => false
+    t.string   "auth_token",                                                                       :null => false
+    t.string   "label",                                                                            :null => false
+    t.string   "icon"
+    t.decimal  "balance",                           :precision => 8, :scale => 4, :default => 0.0, :null => false
+    t.integer  "primary_address_id"
+    t.integer  "secondary_address_id"
+    t.string   "purchase_order"
+    t.string   "vat_name"
+    t.string   "vat_number"
+    t.text     "encrypted_twilio_account_sid"
+    t.string   "encrypted_twilio_account_sid_iv"
+    t.string   "encrypted_twilio_account_sid_salt"
+    t.text     "encrypted_twilio_auth_token"
+    t.string   "encrypted_twilio_auth_token_iv"
+    t.string   "encrypted_twilio_auth_token_salt"
+    t.string   "twilio_application_sid"
+    t.text     "encrypted_freshbooks_id"
+    t.string   "encrypted_freshbooks_id_iv"
+    t.string   "encrypted_freshbooks_id_salt"
+    t.text     "encrypted_braintree_id"
+    t.string   "encrypted_braintree_id_iv"
+    t.string   "encrypted_braintree_id_salt"
+    t.text     "description"
+    t.datetime "created_at",                                                                       :null => false
+    t.datetime "updated_at",                                                                       :null => false
+  end
+
+  add_index "organizations", ["encrypted_twilio_account_sid"], :name => "index_organizations_on_encrypted_twilio_account_sid"
+  add_index "organizations", ["label"], :name => "index_organizations_on_label"
+  add_index "organizations", ["sid"], :name => "index_organizations_on_sid", :unique => true
+
   create_table "phone_book_entries", :force => true do |t|
     t.integer  "phone_book_id",   :null => false
     t.integer  "phone_number_id", :null => false
@@ -218,17 +222,17 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
   add_index "phone_book_entries", ["phone_number_id"], :name => "index_phone_book_entries_on_phone_number_id"
 
   create_table "phone_books", :force => true do |t|
-    t.integer  "account_id",  :null => false
-    t.string   "label",       :null => false
+    t.integer  "organization_id", :null => false
+    t.string   "label",           :null => false
     t.text     "description"
-    t.datetime "created_at",  :null => false
-    t.datetime "updated_at",  :null => false
+    t.datetime "created_at",      :null => false
+    t.datetime "updated_at",      :null => false
   end
 
-  add_index "phone_books", ["account_id"], :name => "index_phone_books_on_account_id"
+  add_index "phone_books", ["organization_id"], :name => "index_phone_books_on_organization_id"
 
   create_table "phone_numbers", :force => true do |t|
-    t.integer  "account_id",                                                                                :null => false
+    t.integer  "organization_id",                                                                           :null => false
     t.string   "number",                                                                                    :null => false
     t.string   "twilio_phone_number_sid",                                                                   :null => false
     t.integer  "unsolicited_sms_action",    :limit => 2,                               :default => 0,       :null => false
@@ -243,11 +247,11 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
     t.datetime "updated_at",                                                                                :null => false
   end
 
-  add_index "phone_numbers", ["account_id"], :name => "index_phone_numbers_on_account_id"
   add_index "phone_numbers", ["number"], :name => "index_phone_numbers_on_number"
+  add_index "phone_numbers", ["organization_id"], :name => "index_phone_numbers_on_organization_id"
 
   create_table "stencils", :force => true do |t|
-    t.integer  "account_id",                                                  :null => false
+    t.integer  "organization_id",                                             :null => false
     t.integer  "phone_book_id",                                               :null => false
     t.string   "label",                                                       :null => false
     t.integer  "seconds_to_live",                          :default => 180,   :null => false
@@ -280,7 +284,7 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
     t.datetime "updated_at",                                                  :null => false
   end
 
-  add_index "stencils", ["account_id"], :name => "index_stencils_on_account_id"
+  add_index "stencils", ["organization_id"], :name => "index_stencils_on_organization_id"
   add_index "stencils", ["phone_book_id"], :name => "index_stencils_on_phone_book_id"
   add_index "stencils", ["primary"], :name => "index_stencils_on_primary"
 
@@ -318,14 +322,24 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
 
   add_index "unsolicited_messages", ["phone_number_id"], :name => "index_unsolicited_messages_on_phone_number_id"
 
+  create_table "user_roles", :force => true do |t|
+    t.integer  "organization_id"
+    t.integer  "user_id"
+    t.integer  "roles_mask",      :null => false
+    t.datetime "created_at",      :null => false
+    t.datetime "updated_at",      :null => false
+  end
+
+  add_index "user_roles", ["organization_id"], :name => "index_user_roles_on_organization_id"
+  add_index "user_roles", ["user_id"], :name => "index_user_roles_on_user_id"
+
   create_table "users", :force => true do |t|
-    t.integer  "account_id"
     t.string   "first_name"
     t.string   "last_name"
-    t.integer  "roles_mask",                           :default => 0
-    t.datetime "created_at",                                           :null => false
-    t.datetime "updated_at",                                           :null => false
-    t.string   "email",                                :default => "", :null => false
+    t.boolean  "system_admin",                         :default => false, :null => false
+    t.datetime "created_at",                                              :null => false
+    t.datetime "updated_at",                                              :null => false
+    t.string   "email",                                :default => "",    :null => false
     t.string   "encrypted_password",                   :default => ""
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
@@ -342,7 +356,6 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
     t.string   "invited_by_type"
   end
 
-  add_index "users", ["account_id"], :name => "index_users_on_account_id"
   add_index "users", ["authentication_token"], :name => "index_users_on_authentication_token", :unique => true
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true
   add_index "users", ["invitation_token"], :name => "index_users_on_invitation_token", :unique => true

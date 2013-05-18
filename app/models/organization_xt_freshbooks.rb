@@ -1,15 +1,15 @@
-class Account < ActiveRecord::Base
+class Organization < ActiveRecord::Base
 
   ##
-  # Get the current client's FreshBook account, using the FreshBook global module.
+  # Get the current client's FreshBook organization, using the FreshBook global module.
   # In FreshBooks parlance, this is a 'Client' object.
   def freshbooks_client
     raise SignalCloud::MissingFreshBooksClientError.new(self) if self.freshbooks_id.blank?
-    Freshbooks.account.client.get client_id: self.freshbooks_id
+    Freshbooks.organization.client.get client_id: self.freshbooks_id
   end
   
   ##
-  # Create a new FreshBooks client for this account. This method will throw an error if a FreshBooks client already exists.
+  # Create a new FreshBooks client for this organization. This method will throw an error if a FreshBooks client already exists.
   def create_freshbooks_client
     raise SignalCloud::FreshBooksClientAlreadyExistsError.new(self) unless self.freshbooks_id.nil?
     raise SignalCloud::FreshBooksError.new( 'Missing a primary contact.' ) if self.primary_address.nil?
@@ -56,8 +56,8 @@ class Account < ActiveRecord::Base
     client_data[:vat_name] unless self.vat_name.blank?
     client_data[:vat_number] unless self.vat_number.blank?
     
-    # Instruct FreshBooks API to create the account, then save the resulting ID
-    response = Freshbooks.account.client.create(client_data)
+    # Instruct FreshBooks API to create the organization, then save the resulting ID
+    response = Freshbooks.organization.client.create(client_data)
     self.freshbooks_id = response['client_id']
     self.save!
   end

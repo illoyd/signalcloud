@@ -11,19 +11,19 @@ describe PhoneNumber, :vcr do
   
   it_behaves_like 'a costable item', :phone_number
 
-  let(:account) { create :account, :test_twilio, :with_sid_and_token }
+  let(:organization) { create :organization, :test_twilio, :with_sid_and_token }
   
   # Manage all validations
   describe "validations" do
     before(:all) { 3.times { create :phone_number } }
 
     # Allow mass assignment
-    [ :number, :twilio_phone_number_sid, :account_id, :our_cost, :provider_cost, :unsolicited_sms_action, :unsolicited_sms_message, :unsolicited_call_action, :unsolicited_call_message, :unsolicited_call_language, :unsolicited_call_voice ].each do |entry|
+    [ :number, :twilio_phone_number_sid, :organization_id, :our_cost, :provider_cost, :unsolicited_sms_action, :unsolicited_sms_message, :unsolicited_call_action, :unsolicited_call_message, :unsolicited_call_language, :unsolicited_call_voice ].each do |entry|
       it { should allow_mass_assignment_of(entry) }
     end
     
     # Belong-To
-    it { should belong_to(:account) }
+    it { should belong_to(:organization) }
 
     # Have-Many
     [ :phone_books, :phone_book_entries ].each do |entry|
@@ -31,12 +31,12 @@ describe PhoneNumber, :vcr do
     end
     
     # Validate presence
-    [ :account_id, :twilio_phone_number_sid, :number ].each do |entry|
+    [ :organization_id, :twilio_phone_number_sid, :number ].each do |entry|
       it { should validate_presence_of(entry) }
     end
     
     # Validate numericality
-    [ :account_id, :our_cost, :provider_cost ].each do |entry|
+    [ :organization_id, :our_cost, :provider_cost ].each do |entry|
       it { should validate_numericality_of(entry) }
     end
         
@@ -81,36 +81,36 @@ describe PhoneNumber, :vcr do
   # Manage creation
 #   describe ".new" do
 #     it "should save with temporary SID" do
-#       count_of_phone_numbers = account.phone_numbers.count
-#       pn = PhoneNumber.create( { account_id: account.id, number: '+12125551234', twilio_phone_number_sid: 'TEMPORARY1234567890123456789012345' } )
-#       account.phone_numbers.count.should == count_of_phone_numbers + 1
+#       count_of_phone_numbers = organization.phone_numbers.count
+#       pn = PhoneNumber.create( { organization_id: organization.id, number: '+12125551234', twilio_phone_number_sid: 'TEMPORARY1234567890123456789012345' } )
+#       organization.phone_numbers.count.should == count_of_phone_numbers + 1
 #     end
 #   end
   
   # Manage buying
   describe ".buy" do
     it "should buy a valid and available number" do
-      count_of_phone_numbers = account.phone_numbers.count
-      pn = account.phone_numbers.build( { number: AVAILABLE_NUMBER } )
+      count_of_phone_numbers = organization.phone_numbers.count
+      pn = organization.phone_numbers.build( { number: AVAILABLE_NUMBER } )
       expect { pn.buy() }.to_not raise_error(Twilio::REST::RequestError)
       expect { pn.save!() }.to_not raise_error(StandardError)
-      account.phone_numbers.count.should == count_of_phone_numbers + 1
+      organization.phone_numbers.count.should == count_of_phone_numbers + 1
     end
 
     it "should not buy an invalid number" do
-      count_of_phone_numbers = account.phone_numbers.count
-      pn = account.phone_numbers.build( { number: INVALID_NUMBER } )
+      count_of_phone_numbers = organization.phone_numbers.count
+      pn = organization.phone_numbers.build( { number: INVALID_NUMBER } )
       expect { pn.buy() }.to raise_error(Twilio::REST::RequestError)
       expect { pn.save!() }.to raise_error( StandardError )
-      account.phone_numbers.count.should == count_of_phone_numbers
+      organization.phone_numbers.count.should == count_of_phone_numbers
     end
 
     it "should not buy an unavailable number" do
-      count_of_phone_numbers = account.phone_numbers.count
-      pn = account.phone_numbers.build( { number: UNAVAILABLE_NUMBER } )
+      count_of_phone_numbers = organization.phone_numbers.count
+      pn = organization.phone_numbers.build( { number: UNAVAILABLE_NUMBER } )
       expect { pn.buy() }.to raise_error(Twilio::REST::RequestError)
       expect { pn.save!() }.to raise_error( StandardError )
-      account.phone_numbers.count.should == count_of_phone_numbers
+      organization.phone_numbers.count.should == count_of_phone_numbers
     end
   end
   

@@ -1,0 +1,24 @@
+- available_icons = %w( rocket briefcase beaker beer bell anchor bolt briefcase bullhorn bullseye camera camera-retro coffee credit-card desktop envelope fire-extinguisher fire flag flag-alt flag-checkered food folder folder-open gamepad gift glass globe headphones heart inbox keyboard laptop leaf legal lemon lightbulb magic magnet microphone money music pencil picture plane print pushpin puzzle-piece road rocket shield shopping-cart signal sitemap star tablet tag ticket tint trophy truck umbrella wrench ambulance hospital medkit ).sort.uniq
+-# icon_options = options_for_select( available_icons.map{ |x| [ x, x ] }
+
+= twitter_bootstrap_form_for( @organization, :html => { :class => 'form-horizontal' } ) do |f|
+  - if @organization.errors.any?
+    .error
+      %h2
+        = @organization.errors.count
+        = pluralize(@organization.errors.count, "error")
+        prohibited this organization from being saved:
+      %ul
+        - @organization.errors.full_messages.each do |msg|
+          %li= msg
+
+  = f.text_field :label
+  = f.select :icon, 'Icon', available_icons.map{ |x| [ x.humanize, x ] }
+
+  - if can? :index, AccountPlan
+    = f.collection_select :account_plan_id, 'Plan', AccountPlan.all, :id, :label
+
+  .control-group
+    .controls
+      = f.submit :class => 'btn btn-primary'
+      = link_to 'Discard changes', organization_path, :class => 'btn'

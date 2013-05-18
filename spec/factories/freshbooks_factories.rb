@@ -1,14 +1,14 @@
 FactoryGirl.define do
 
-  factory :freshbooks_account, parent: :account do
+  factory :freshbooks_account, parent: :organization do
     freshbooks_id       2
     
-    after(:create) do |account, evaluator|
+    after(:create) do |organization, evaluator|
       # Create basics
-      phone_number    = create(:phone_number, account: account)
-      phone_book = create(:phone_book, account: account)
+      phone_number    = create(:phone_number, organization: organization)
+      phone_book = create(:phone_book, organization: organization)
       create(:phone_book_entry, phone_number: phone_number, phone_book: phone_book)
-      stencil       = create(:stencil, account: account, phone_book: phone_book)
+      stencil       = create(:stencil, organization: organization, phone_book: phone_book)
       
       # December 2012: 5 confirmed, 5 failed, 5 denied, 5 expired, 5 unsettled conversations (25; 55 ledger entries)
       create_conversations_for_month( stencil, '2012-12-01', 5 )

@@ -1,0 +1,22 @@
+- if @organization.new_record?
+  -# New organization
+  = navigation_list([ |
+    { header: 'Related' }, |
+    { label: 'Dashboard', icon: :dashboard, link: '#' }, |
+    { label: 'All Organizations', icon: :organizations, link: organizations_path } |
+    ]) |
+
+- else
+  -# Existing organization
+  = navigation_list([ |
+    { header: 'Manage' }, |
+    { label: 'Details', icon: :show, link: organization_path }, |
+    { label: 'Edit', icon: :edit, link: edit_organization_path(@organization), if: can?(:edit, @organization) }, |
+    { header: 'Related' }, |
+    { label: 'Users', icon: :users, link: organization_users_path(@organization), if: can?(:index, User) }, |
+    { label: 'Conversations', icon: :conversations, link: organization_conversations_path(@organization), if: can?(:index, Conversation) }, |
+    { label: 'Stencils', icon: :stencils, link: organization_stencils_path(@organization), if: can?(:index, Stencil) }, |
+    { label: 'Phone Books', icon: :phone_books, link: organization_phone_books_path(@organization), if: can?(:index, PhoneBook) }, |
+    { label: 'Phone Numbers', icon: :phone_numbers, link: organization_phone_numbers_path(@organization), if: can?(:index, PhoneNumber) }, |
+    { label: 'Ledger', icon: :ledger_entries, link: organization_ledger_entries_path(@organization), if: can?(:index, LedgerEntry) }, |
+    ]) |

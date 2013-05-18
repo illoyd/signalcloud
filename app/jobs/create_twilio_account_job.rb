@@ -1,21 +1,21 @@
 ##
-# Create a new Twilio Account for this account.
+# Create a new Twilio Organization for this organization.
 # Requires the following items
-#   +account_id+: the account ID to process
+#   +organization_id+: the organization ID to process
 #
 # This class is intended for use with Delayed::Job.
 #
-class CreateTwilioAccountJob < Struct.new( :account_id )
+class CreateTwilioAccountJob < Struct.new( :organization_id )
   include Talkable
 
   def perform
-    self.account.create_twilio_account
-    self.account.create_twilio_application
-    self.account.save!
+    self.organization.create_twilio_account
+    self.organization.create_twilio_application
+    self.organization.save!
   end
   
-  def account
-    @account ||= Account.find( account_id )
+  def organization
+    @organization ||= Organization.find( organization_id )
   end
   
   alias :run :perform

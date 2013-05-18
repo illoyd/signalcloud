@@ -1,11 +1,11 @@
 require 'spec_helper'
 
 describe 'routing to flag icons' do
-  #fixtures :accounts, :account_plans, :users
+  #fixtures :organizations, :account_plans, :users
 
-#   it 'routes /accounts/:id to accounts#show for id' do
-#     expect( :get => 'accounts/1' ).to route_to(
-#       controller: 'accounts',
+#   it 'routes /organizations/:id to organizations#show for id' do
+#     expect( :get => 'organizations/1' ).to route_to(
+#       controller: 'organizations',
 #       action: 'show',
 #       id: '1'
 #     )

@@ -2,11 +2,11 @@ require 'spec_helper'
 
 describe InboundMessageJob, :vcr do
   
-  let(:account)          { create(:account, :master_twilio) }
-  let(:phone_book)  { create(:phone_book, account: account) }
-  let(:stencil)        { create(:stencil, account: account, phone_book: phone_book) }
-  let(:phone_number)     { create(:us_phone_number, account: account) }
-  let(:customer_number)  { Twilio::VALID_NUMBER }
+  let(:organization)    { create(:organization, :master_twilio) }
+  let(:phone_book)      { create(:phone_book, organization: organization) }
+  let(:stencil)         { create(:stencil, organization: organization, phone_book: phone_book) }
+  let(:phone_number)    { create(:us_phone_number, organization: organization) }
+  let(:customer_number) { Twilio::VALID_NUMBER }
 
 #   before(:each) { Message.destroy_all(twilio_sid: 'SM5e27df39904bc98686355dd7ec98f8a9') }
   
@@ -43,9 +43,9 @@ describe InboundMessageJob, :vcr do
   end
   
   describe '#internal_phone_number' do
-    let(:conversation)        { create(:conversation, :challenge_sent, stencil: stencil, from_number: phone_number.number, to_number: customer_number) }
-    let(:payload) { construct_inbound_payload( 'To' => conversation.from_number, 'From' => conversation.to_number ) }
-    subject { InboundMessageJob.new(payload) }
+    let(:conversation) { create(:conversation, :challenge_sent, stencil: stencil, from_number: phone_number.number, to_number: customer_number) }
+    let(:payload)      { construct_inbound_payload( 'To' => conversation.from_number, 'From' => conversation.to_number ) }
+    subject            { InboundMessageJob.new(payload) }
     
     its(:internal_phone_number) { should be_a PhoneNumber }
     its('internal_phone_number.id') { should == phone_number.id }
@@ -63,9 +63,6 @@ describe InboundMessageJob, :vcr do
       it 'does not raise error' do
         expect { subject.perform }.to_not raise_error
       end
-#       it 'queues unsolicited message job' do
-#         expect { subject.perform }.to change{Delayed::Job.count}.by(1)
-#       end
     end
     
     context 'when replying to open conversation' do

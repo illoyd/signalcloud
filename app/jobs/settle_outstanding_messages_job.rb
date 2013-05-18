@@ -5,20 +5,20 @@
 #
 # This class is intended for use with Delayed::Job.
 #
-class SettleOutstandingMessagesJob < Struct.new( :account_id, :ignore_account_ids )
+class SettleOutstandingMessagesJob < Struct.new( :organization_id, :ignore_organization_ids )
   include Talkable
   
   TEST_CREDENTIAL_ERROR = 20008
 
   def perform
-    self.ignore_account_ids ||= []
-    @last_account_id = nil
+    self.ignore_organization_ids ||= []
+    @last_organization_id = nil
 
     self.outstanding_messages.find_each( batch_size: 100 ) do |message|
       begin
-        @last_account_id = message.account.id
-        if self.ignore_account_ids.include? message.account.id
-          puts 'Skipping message %i as its account is on the ignore list.' % message.id
+        @last_organization_id = message.organization.id
+        if self.ignore_organization_ids.include? message.organization.id
+          puts 'Skipping message %i as its organization is on the ignore list.' % message.id
         else
           puts 'Attempting to settle message %i (%s)...' % [ message.id, message.twilio_sid ]
           message.refresh_from_twilio!
@@ -27,8 +27,8 @@ class SettleOutstandingMessagesJob < Struct.new( :account_id, :ignore_account_id
       rescue Twilio::REST::RequestError => ex
         case ex.code 
           when TEST_CREDENTIAL_ERROR
-            puts 'Account %i is not accessible (code: %s).' % [ @last_account_id, ex.code ]
-            ignore_account_ids << @last_account_id
+            puts 'Organization %i is not accessible (code: %s).' % [ @last_organization_id, ex.code ]
+            ignore_organization_ids << @last_organization_id
           else
             raise ex
         end
@@ -38,7 +38,7 @@ class SettleOutstandingMessagesJob < Struct.new( :account_id, :ignore_account_id
   end
   
   def outstanding_messages
-    query = self.account_id.blank? ? Message : Account.find(self.account_id).messages
+    query = self.organization_id.blank? ? Message : Organization.find(self.organization_id).messages
     query.where( 'twilio_sid is not null' ).outstanding
   end
   

@@ -1,13 +1,25 @@
-class Account < ActiveRecord::Base
+class Organization < ActiveRecord::Base
 
   ##
   # Send an SMS using the Twilio API.
-  def send_sms( to_number, from_number, body )
-    return self.twilio_account.sms.messages.create(
+  def send_sms( to_number, from_number, body, options={} )
+    payload = {
       to: to_number,
       from: from_number,
       body: body
-    )
+    }
+    
+    payload[:status_callback] = self.twilio_sms_status_url if options.fetch( :default_callback, false )
+
+    response = self.twilio_account.sms.messages.create( payload )
+    return case options.fetch( :response_format, :raw )
+      when :smash
+        response.to_property_smash
+      when :hash
+        response.to_property_hash
+      else
+        response
+    end
   end
   
   ##
@@ -19,7 +31,7 @@ class Account < ActiveRecord::Base
   end
   
   ##
-  # Return a Twilio Account.
+  # Return a Twilio Organization.
   def twilio_account
     return self.twilio_client.account
   end
@@ -41,7 +53,7 @@ class Account < ActiveRecord::Base
   end
   
   ##
-  # Create a Twilio sub-account.
+  # Create a Twilio sub-organization.
   def create_twilio_account!
     raise SignalCloud::TwilioAccountAlreadyExistsError.new(self) unless self.twilio_account_sid.blank? and self.twilio_auth_token.blank?
     response = Twilio.master_client.accounts.create( 'FriendlyName' => self.label )
@@ -52,7 +64,7 @@ class Account < ActiveRecord::Base
   end
   
   ##
-  # Create, or update if it exists, the Twilio application used for this account.
+  # Create, or update if it exists, the Twilio application used for this organization.
   def create_or_update_twilio_application
     return self.twilio_application_sid.blank? ? self.create_twilio_application : self.update_twilio_application
   end
@@ -141,7 +153,7 @@ class Account < ActiveRecord::Base
   
     # Insert digest authentication
     unless self.twilio_account_sid.blank?
-      auth_string = self.account_sid
+      auth_string = self.sid
       auth_string += ':' + self.auth_token unless self.auth_token.blank?
       url = url.gsub( /(https?:\/\/)/, '\1' + auth_string + '@' )
     end

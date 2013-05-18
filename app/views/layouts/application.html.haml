@@ -29,64 +29,94 @@
                   = link_to new_user_registration_path do
                     %i.icon-upload-alt
                     Sign Up
+
           - else
-            %ul.nav
-              %li
-                %a{ :href => "/" }
-                  %i.icon-dashboard  
-                  Dashboard
-              %li.dropdown
-                %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#"}
-                  %i.icon-briefcase
-                  Manage
-                  %b.caret
-                %ul.dropdown-menu
-                  - if can? :index, User
-                    %li
-                      %a{ :href => users_path }
-                        = icon(:users)
-                        Users
-                  - if can? :index, Conversation
-                    %li
-                      %a{ :href => conversations_path }
-                        = icon( :conversations )
-                        Conversations
-                  - if can? :index, Stencil
-                    %li
-                      %a{ :href => stencils_path }
-                        = icon( :stencils )
-                        Stencils
-                  - if can? :index, PhoneBook
-                    %li
-                      %a{ :href => phone_books_path }
-                        = icon( :phone_books )
-                        Phone Books
-                  - if can? :index, PhoneNumber
-                    %li
-                      %a{ :href => phone_numbers_path }
-                        = icon( :phone_numbers )
-                        Phone Numbers
-                  - if can? :index, LedgerEntry
-                    %li
-                      %a{ :href => ledger_entries_path }
-                        = icon( :ledger_entries )
-                        Ledger
+            - if @organization
+              %ul.nav
+                %li{ rel: 'tooltip', :title => 'Dashboard', :'data-placement' => 'bottom' }
+                  %a{ :href => "/" }
+                    %i.icon-dashboard
+                - if can? :index, User
+                  %li{ rel: 'tooltip', :title => 'Users', :'data-placement' => 'bottom' }
+                    %a{ :href => organization_users_path(@organization) }= icon( :users )
+                - if can? :index, Conversation
+                  %li{ rel: 'tooltip', :title => 'Conversations', :'data-placement' => 'bottom' }
+                    %a{ :href => organization_conversations_path(@organization) }= icon( :conversations )
+                - if can? :index, Stencil
+                  %li{ rel: 'tooltip', :title => 'Stencils', :'data-placement' => 'bottom' }
+                    %a{ :href => organization_stencils_path(@organization) }= icon( :stencils )
+                - if can? :index, PhoneBook
+                  %li{ rel: 'tooltip', :title => 'Phone Books', :'data-placement' => 'bottom' }
+                    %a{ :href => organization_phone_books_path(@organization) }= icon( :phone_books )
+                - if can? :index, PhoneNumber
+                  %li{ rel: 'tooltip', :title => 'Phone Numbers', :'data-placement' => 'bottom' }
+                    %a{ :href => organization_phone_numbers_path(@organization) }= icon( :phone_numbers )
+                - if can? :index, LedgerEntry
+                  %li{ rel: 'tooltip', :title => 'Ledger', :'data-placement' => 'bottom' }
+                    %a{ :href => organization_ledger_entries_path(@organization) }= icon( :ledger_entries )
+  
               -#
-                %li
-                  %a{ :href => "#" }
-                    %i.icon-bar-chart  
-                    Reports
+                %li.dropdown
+                  %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#"}
+                    = icon( @organization.icon || 'briefcase' )
+                    Manage
+                    %b.caret
+                  %ul.dropdown-menu
+                    - if can? :index, User
+                      %li
+                        %a{ :href => organization_users_path(@organization) }
+                          = icon(:users)
+                          Users
+                    - if can? :index, Conversation
+                      %li
+                        %a{ :href => organization_conversations_path(@organization) }
+                          = icon( :conversations )
+                          Conversations
+                    - if can? :index, Stencil
+                      %li
+                        %a{ :href => organization_stencils_path(@organization) }
+                          = icon( :stencils )
+                          Stencils
+                    - if can? :index, PhoneBook
+                      %li
+                        %a{ :href => organization_phone_books_path(@organization) }
+                          = icon( :phone_books )
+                          Phone Books
+                    - if can? :index, PhoneNumber
+                      %li
+                        %a{ :href => organization_phone_numbers_path(@organization) }
+                          = icon( :phone_numbers )
+                          Phone Numbers
+                    - if can? :index, LedgerEntry
+                      %li
+                        %a{ :href => organization_ledger_entries_path(@organization) }
+                          = icon( :ledger_entries )
+                          Ledger
+                -#
+                  %li
+                    %a{ :href => "#" }
+                      %i.icon-bar-chart  
+                      Reports
+  
+            %ul.nav.pull-right
+              - if @organization
+                %li.dropdown
+                  %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#"}
+                    = icon( @organization.icon )
+                    = @organization.label
+                    %b.caret
+                  %ul.dropdown-menu
+                    - if can? :shadow, Organization
+                      %li
+                        = link_to organizations_path do
+                          = icon( :exchange )
+                          Switch organizations
               %li.dropdown
                 %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#"}
                   %i.icon-user
                   = current_user.first_name
                   %b.caret
                 %ul.dropdown-menu
-                  - if can? :shadow, Account
-                    %li
-                      = link_to accounts_path do
-                        = icon( :accounts )
-                        Switch accounts
                   - if can? :change_password, current_user
                     %li
                       = link_to edit_user_path( current_user ) do
@@ -100,8 +130,6 @@
                     = link_to destroy_user_session_path, :method => :delete do
                       %i.icon-off
                       Sign out
-            = form_tag conversations_path, :method => 'get', :class => 'navbar-search pull-right' do
-              = text_field_tag :search, params[:search], class: 'search-query', placeholder: 'Search Conversations'
   
       / Body
       = render 'layouts/messages'

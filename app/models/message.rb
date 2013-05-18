@@ -44,8 +44,8 @@ class Message < ActiveRecord::Base
   belongs_to :conversation, inverse_of: :messages
   
   ##
-  # Chain up to parent's account.
-  delegate :account, :to => :conversation, :allow_nil => true
+  # Chain up to parent's organization.
+  delegate :organization, :to => :conversation, :allow_nil => true
   
   ##
   # LedgerEntry for this message.
@@ -139,7 +139,7 @@ class Message < ActiveRecord::Base
   
 #   def update_our_cost
 #     return unless self.has_provider_price?
-#     plan = self.conversation.stencil.account.account_plan
+#     plan = self.conversation.stencil.organization.account_plan
 #     
 #     # Update our costs based upon the direction of the message
 #     self.our_cost = case self.direction
@@ -151,9 +151,9 @@ class Message < ActiveRecord::Base
 #   end
   
   def calculate_our_cost( value=nil )
-    return nil unless self.conversation && self.conversation.stencil && self.conversation.stencil.account && self.conversation.stencil.account.account_plan
+    return nil unless self.conversation && self.conversation.stencil && self.conversation.stencil.organization && self.conversation.stencil.organization.account_plan
     value = self.provider_cost if value.nil?
-    plan = self.conversation.stencil.account.account_plan
+    plan = self.conversation.stencil.organization.account_plan
     return case self.direction
       when DIRECTION_OUT
         plan.calculate_outbound_sms_cost( value )
@@ -164,16 +164,18 @@ class Message < ActiveRecord::Base
   
   def deliver!()
     begin
-      self.provider_response = self.conversation.stencil.account.twilio_account.sms.messages.create({
-        to: self.to_number,
-        from: self.from_number,
-        body: self.body,
-        status_callback: self.conversation.stencil.account.twilio_sms_status_url
-      }).to_property_hash
+      #self.provider_response = self.conversation.stencil.organization.twilio_account.sms.messages.create({
+      #  to: self.to_number,
+      #  from: self.from_number,
+      #  body: self.body,
+      #  status_callback: self.conversation.stencil.organization.twilio_sms_status_url
+      #}).to_property_hash
+      
+      self.provider_response = self.conversation.stencil.organization.send_sms( self.to_number, self.from_number, body, { default_callback: true, response_format: :smash })
 
-      self.twilio_sid = self.provider_response[:sid]
-      self.status = Message.translate_twilio_message_status( self.provider_response[:status] )
-      self.provider_cost = self.provider_response.fetch(:price, nil)
+      self.twilio_sid = self.provider_response.sms_sid
+      self.status = Message.translate_twilio_message_status( self.provider_response.status )
+      self.provider_cost = self.provider_response.price
 
     rescue Twilio::REST::RequestError => ex
       self.status = FAILED
@@ -305,7 +307,7 @@ class Message < ActiveRecord::Base
   ##
   # Query the Twilio status of this message.
   def twilio_status
-    self.conversation.stencil.account.twilio_account.sms.messages.get( self.twilio_sid )
+    self.conversation.stencil.organization.twilio_account.sms.messages.get( self.twilio_sid )
   end
   
   def refresh_from_twilio
@@ -335,7 +337,7 @@ class Message < ActiveRecord::Base
   
   def build_ledger_entry( attributes={} )
     ledger_entry = super(attributes)
-    ledger_entry.account = self.account
+    ledger_entry.organization = self.organization
     return ledger_entry
   end
 

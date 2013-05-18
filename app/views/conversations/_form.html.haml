@@ -1,5 +1,5 @@
 -# Discard changes link
-- discard_link = @stencil.nil? ? conversations_path() : stencil_conversations_path(@stencil)
+- discard_link = @stencil.nil? ? organization_conversations_path(@organization) : organization_stencil_conversations_path(@organization, @stencil)
 
 = render partial: 'layouts/modal', locals: { modal_id: 'change_stencil_modal', header: 'Change Stencil', body_partial: 'stencillist', show_accept_button: false, cancel_text: 'Cancel and go back to conversation' }
 
@@ -17,7 +17,7 @@
     .controls
       = @stencil.label
       %a.btn.btn-mini{"data-toggle" => "modal", :href => '#change_stencil_modal', :role => "button"} Change Stencil
-    -#=f.collection_select :stencil_id, @account.stencils, :id, :label
+    -#=f.collection_select :stencil_id, @organization.stencils, :id, :label
   .control-group
     = f.label :to_number, :class => 'control-label' do
       Customer number

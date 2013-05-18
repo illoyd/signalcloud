@@ -2,17 +2,17 @@
   -# New record
   = navigation_list([ |
     { header: 'Related' }, |
-    { label: 'All Phone Books', icon: :phone_books, link: phone_books_path, if: can?(:index, PhoneBook) } |
+    { label: 'All Phone Books', icon: :phone_books, link: organization_phone_books_path(@organization), if: can?(:index, PhoneBook) } |
     ]) |
 
 - else
   -# Existing record
   = navigation_list([ |
     { header: 'Manage' }, |
-    { label: 'Details', icon: :show, link: @phone_book, if: can?(:show, @phone_book) }, |
-    { label: 'Edit', icon: :edit, link: edit_phone_book_path( @phone_book ), if: can?(:edit, @phone_book) }, |
-    { label: 'Delete', icon: :delete, link: @phone_book, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, @phone_book) }, |
+    { label: 'Details', icon: :show, link: [@organization, @phone_book], if: can?(:show, @phone_book) }, |
+    { label: 'Edit', icon: :edit, link: edit_organization_phone_book_path( @organization, @phone_book ), if: can?(:edit, @phone_book) }, |
+    { label: 'Delete', icon: :delete, link: [@organization, @phone_book], options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, @phone_book) }, |
     { divider: true }, |
-    { label: 'Phone Books', icon: :phone_books, link: phone_books_path, if: can?(:index, PhoneBook) }, |
-    { label: 'Phone Numbers', icon: :phone_numbers, link: phone_numbers_path, if: can?(:index, PhoneNumber) } |
+    { label: 'Phone Books', icon: :phone_books, link: organization_phone_books_path(@organization), if: can?(:index, PhoneBook) }, |
+    { label: 'Phone Numbers', icon: :phone_numbers, link: organization_phone_numbers_path(@organization), if: can?(:index, PhoneNumber) } |
     ]) |

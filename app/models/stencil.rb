@@ -14,7 +14,7 @@ class Stencil < ActiveRecord::Base
   attr_encrypted :expected_denied_answer, key: ATTR_ENCRYPTED_SECRET
   
   # Relationships
-  belongs_to :account, inverse_of: :stencils
+  belongs_to :organization, inverse_of: :stencils
   belongs_to :phone_book, inverse_of: :stencils
   has_many :conversations, inverse_of: :stencil
   
@@ -32,7 +32,7 @@ class Stencil < ActiveRecord::Base
     }.with_indifferent_access.merge( passed_options.with_indifferent_access )
     
     # Add a randomly selected from number if needed
-    options[:from_number] = self.phone_book.select_from_number( options[:to_number] ).number unless options.key? :from_number
+    options[:from_number] = self.phone_book.select_internal_number_for( options[:to_number] ).number unless options.key? :from_number
     return self.conversations.build( options )
   end
 end

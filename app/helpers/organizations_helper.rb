@@ -1,4 +1,4 @@
-module AccountsHelper
+module OrganizationsHelper
 
   def conversation_status_breakdown( counts )
     counts = Conversation.count_by_status_hash(counts) if counts.is_a? ActiveRecord::Relation

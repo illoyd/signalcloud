@@ -1,12 +1,13 @@
 class StencilsController < ApplicationController
   
   respond_to :html, :json, :xml
+  before_filter :assign_organization
   load_and_authorize_resource
 
   # GET /stencils
   # GET /stencils.json
   def index
-    @stencils = current_account.stencils.order('label')
+    @stencils = @organization.stencils.order('label')
     
     # Apply an active/inactive filter if requested
     if ( params.include? :active_filter )
@@ -19,7 +20,7 @@ class StencilsController < ApplicationController
   # GET /stencils/1
   # GET /stencils/1.json
   def show
-    @stencil = current_account.stencils.find( params[:id] )
+    @stencil = @organization.stencils.find( params[:id] )
 
     respond_to do |format|
       format.html # show.html.erb
@@ -30,7 +31,7 @@ class StencilsController < ApplicationController
   # GET /stencils/new
   # GET /stencils/new.json
   def new
-    @stencil = current_account.stencils.build
+    @stencil = @organization.stencils.build
 #    respond_with @stencil
     respond_to do |format|
       format.html # new.html.erb
@@ -40,13 +41,13 @@ class StencilsController < ApplicationController
 
   # GET /stencils/1/edit
   def edit
-    @stencil = current_account.stencils.find( params[:id] )
+    @stencil = @organization.stencils.find( params[:id] )
   end
 
   # POST /stencils
   # POST /stencils.json
   def create
-    @stencil = current_account.stencils.build( params[:stencil] )
+    @stencil = @organization.stencils.build( params[:stencil] )
 
     respond_to do |format|
       if @stencil.save
@@ -62,7 +63,7 @@ class StencilsController < ApplicationController
   # PUT /stencils/1
   # PUT /stencils/1.json
   def update
-    @stencil = current_account.stencils.find( params[:id] )
+    @stencil = @organization.stencils.find( params[:id] )
 
     respond_to do |format|
       if @stencil.update_attributes(params[:stencil])
@@ -78,7 +79,7 @@ class StencilsController < ApplicationController
   # DELETE /stencils/1
   # DELETE /stencils/1.json
   def destroy
-    @stencil = current_account.stencils.find( params[:id] )
+    @stencil = @organization.stencils.find( params[:id] )
     @stencil.destroy
 
     respond_to do |format|
