@@ -77,5 +77,9 @@ module ApplicationHelper
 
     image_tag( gravatar_url, options )
   end
+  
+  def checkmark_for( value, options={} )
+    icon( 'ok', options ) if value
+  end
 
 end

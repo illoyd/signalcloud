@@ -33,3 +33,6 @@ div.table-tools {
 div.navbar {
   margin-top: 10px;
 }
+
+.table tr.middle td { vertical-align: middle; }
+.table .centered { text-align: center; }
