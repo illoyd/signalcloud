@@ -95,7 +95,7 @@ class Ability
   
   def grant_manage_users_privileges(user, organization_id)
     # All for organization users
-    can [:index], User, { organization_id: organization_id }
+    can [:index, :show, :invite], User, { user_roles: { organization_id: organization_id } }
   end
   
   def grant_manage_user_permissions_privileges(user, organization_id)

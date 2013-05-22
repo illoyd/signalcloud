@@ -10,68 +10,76 @@
 / Actual user list
 .row
   .span12
-    %table.table.table-condensed
-      %thead
-        %tr
-          %th.span1
-          %th Name
-          %th Email
-          %th{style:'text-align:center'} Administrator
-          %th{style:'text-align:center'} Developer
-          %th{style:'text-align:center'} Billing
-          %th{style:'text-align:center'} Conversation Manager
-      %tbody
-        - @users.where( 'invitation_sent_at is NULL or (invitation_sent_at is not NULL and invitation_accepted_at is not NULL)' ).each do |user|
-          - user_roles = user.roles_for(@organization)
-          %tr
-            %td= split_dropdown_list([ |
-              { label: 'Details', icon: :show, link: user, if: can?(:show, user) }, |
-              { label: 'Edit', icon: :edit, link: edit_user_path(user), if: can?(:edit, user) }, |
-              { label: 'Delete', icon: :delete, link: user, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, user) } |
-              ], {class: 'btn-mini'} ) |
+    - if can? :invite, User
+      .pull-right= link_to 'Invite a user', '#user_role_modal', class: 'btn btn-success btn-small', 'data-toggle' => 'modal'
 
-            %td= link_to "#{user.first_name} #{user.last_name}", user
-            %td= mail_to user.email
-            %td{style:'text-align:center'}= user_roles.is_organization_administrator? ? icon(:ok) : ''
-            %td{style:'text-align:center'}= user_roles.is_developer? ? icon(:ok) : ''
-            %td{style:'text-align:center'}= user_roles.is_billing_liaison? ? icon(:ok) : ''
-            %td{style:'text-align:center'}= user_roles.is_conversation_manager? ? icon(:ok) : ''            
-
-/ Invited list
-- @invited_users = @users.where( 'invitation_sent_at is not NULL and invitation_accepted_at is NULL' )
 .row
   .span12
-    - if can? :new, User
-      .pull-right= link_to 'Invite a user', new_user_invitation_path, :class=>'btn btn-success btn-small'
-    %h4 Invited Users
     %table.table.table-condensed
       %thead
         %tr
           %th.span1
-          %th Name
-          %th Email
-          %th{style:'text-align:center'} Administrator
-          %th{style:'text-align:center'} Developer
-          %th{style:'text-align:center'} Billing
-          %th{style:'text-align:center'} Conversation Manager
+          %th.span1
+          %th User
+          %th.centered Administrator
+          %th.centered Developer
+          %th.centered Billing<br />Liaison
+          %th.centered Conversation<br />Manager
       %tbody
-        - unless @invited_users.any?
-          %tr
-            %td
-            %td{ colspan: 6 }
-              %em No outstanding invitations.
-        - @invited_users.each do |user|
-          - user_roles = user.roles_for(current_organization)
-          %tr
+        - @users.each do |user|
+          - user_roles = user.roles_for(@organization)
+          %tr.middle
             %td= split_dropdown_list([ |
               { label: 'Details', icon: :show, link: user, if: can?(:show, user) }, |
               { label: 'Edit', icon: :edit, link: edit_user_path(user), if: can?(:edit, user) }, |
-              { label: 'Delete', icon: :delete, link: user, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, user) } |
+              { label: 'Delete', icon: :delete, link: [@organization, user_roles], options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, user_roles) } |
               ], {class: 'btn-mini'} ) |
 
-            %td= link_to "#{user.first_name} #{user.last_name}", user
-            %td= mail_to user.email
-            %td{style:'text-align:center'}= user_roles.is_organization_administrator? ? icon(:ok) : ''
-            %td{style:'text-align:center'}= user_roles.is_developer? ? icon(:ok) : ''
-            %td{style:'text-align:center'}= user_roles.is_billing_liaison? ? icon(:ok) : ''
-            %td{style:'text-align:center'}= user_roles.is_conversation_manager? ? icon(:ok) : ''            
+            %td
+              = gravatar_for user, 40, class: 'img-circle'
+            %td
+              = link_to "#{user.first_name} #{user.last_name}", user
+              %br
+              = mail_to user.email
+              - if user.has_pending_invitation?
+                %br
+                %i Invited to join.
+            %td.centered= checkmark_for user_roles.is_organization_administrator?
+            %td.centered= checkmark_for user_roles.is_developer?
+            %td.centered= checkmark_for user_roles.is_billing_liaison?
+            %td.centered= checkmark_for user_roles.is_conversation_manager?
+
+/ User Role Modal Dialog
+#user_role_modal.modal.hide.fade{ "aria-hidden" => "true", "aria-labelledby" => "myModalLabel", :role => "dialog", :tabindex => "-1"}
+  = twitter_bootstrap_form_for( [@organization, @user_role], :html => { class: "form-horizontal" } ) do |f|
+    .modal-header
+      %button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} &times;
+      %h3 Add User to Organization
+    .modal-body
+      - if @user_role.errors.any?
+        .error
+          %h2
+            = @user_role.errors.count
+            = pluralize(@user_role.errors.count, "error")
+            prohibited this update:
+          %ul
+            - @user_role.errors.full_messages.each do |msg|
+              %li= msg
+    
+      = f.text_field :first_name, 'Given Name'
+    
+      = f.text_field :last_name, 'Family Name'
+    
+      = f.email_field :email, add_on: :prepend do
+        %span.add-on @
+    
+      - if current_user.roles_for(@organization).is_organization_administrator?
+        = f.label "Roles" do
+          - UserRole::ROLES.each do |role|
+            %label.checkbox
+              = check_box_tag 'roles[]', role, @user_role.roles.include?(role), { id: 'user_role_%s' % role }
+              = role.to_s.humanize
+
+    .modal-footer
+      = f.submit ' Add User', class: 'btn btn-primary'
+      %button.btn{"aria-hidden" => "true", "data-dismiss" => "modal"} Discard Changes

@@ -10,36 +10,4 @@
 / Page body
 .row
   .span3= render :partial => 'navlist'
-  .span9
-    = form_for( @user, html: { class: 'form-horizontal' } ) do |f|
-      - if @user.errors.any?
-        #error_explanation
-          %h2
-            = pluralize(@user.errors.count, "error")
-            prohibited this user from being saved:
-          %ul
-            - @user.errors.full_messages.each do |msg|
-              %li= msg
-      .control-group
-        = f.label :first_name, class: 'control-label'
-        .controls= f.text_field :first_name
-      .control-group
-        = f.label :last_name, class: 'control-label'
-        .controls= f.text_field :last_name
-      .control-group
-        = f.label :email, class: 'control-label'
-        .controls= f.email_field :email
-      
-      - if @user.roles_for(@organization).is_organization_administrator?
-        .control-group
-          = f.label :roles, class: 'control-label'
-          .controls
-            - UserRole::ROLES.each do |role|
-              - disabled = ( role == :organization_administrator ) && @user.id == current_user.id
-              - next if role == :super_user && !current_user.is_super_user?
-              %label.checkbox
-                = check_box_tag 'roles[]', role, @user.roles_for(current_organization).roles.include?(role), { id: 'user_%s' % role, disabled: disabled }
-                = role.to_s.humanize
-
-      .control-group
-        .controls= f.submit class: 'btn btn-primary'
+  .span9= render 'form'

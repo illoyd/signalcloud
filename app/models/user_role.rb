@@ -2,7 +2,8 @@ class UserRole < ActiveRecord::Base
 
   ROLES = [ :organization_administrator, :developer, :billing_liaison, :conversation_manager ]
   
-  attr_accessible :roles, :user, :organization
+  attr_accessible :roles, :user, :organization, :user_id, :first_name, :last_name
+  attr_accessor :first_name, :last_name, :email
 
   belongs_to :user, inverse_of: :user_roles
   belongs_to :organization, inverse_of: :user_roles
@@ -10,8 +11,6 @@ class UserRole < ActiveRecord::Base
   validates_presence_of :roles_mask, :user, :organization
 
   def roles=(new_roles)
-    #new_roles.map! { |entry| entry.to_sym }
-    #self.roles_mask = (new_roles & ROLES).map { |r| 2**ROLES.index(r) }.inject(0, :+)
     self.roles_mask = self.class.translate_roles( new_roles )
   end
   
@@ -21,16 +20,16 @@ class UserRole < ActiveRecord::Base
     end
   end
   
-  def self.translate_roles( new_roles=[] )
-    new_roles = [] if new_roles.nil?
-    new_roles.map! { |entry| entry.to_sym }
-    return (new_roles & ROLES).map { |r| 2**ROLES.index(r) }.inject(0, :+)
-  end
-  
   ROLES.each do |role|
     define_method 'is_' + role.to_s + '?' do
       self.roles.include? role
     end
   end
 
+  def self.translate_roles( new_roles=[] )
+    new_roles = [] if new_roles.nil?
+    new_roles.map! { |entry| entry.to_sym }
+    return (new_roles & ROLES).map { |r| 2**ROLES.index(r) }.inject(0, :+)
+  end
+  
 end

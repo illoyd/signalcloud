@@ -11,7 +11,8 @@ SignalCloud::Application.routes.draw do
   
   # Nest all underneath organizations
   resources :organizations, only: [ :index, :show, :new, :create, :update, :edit ] do
-    resources :users
+    resources :users, only: [ :index ]
+    resources :user_roles, only: [ :create, :update, :destroy ]
 
     resources :stencils do
       collection do

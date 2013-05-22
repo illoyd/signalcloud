@@ -20,5 +20,9 @@
     %p
       %b Roles:
       %ul
-      - @user.roles_for(current_organization).roles.each do |role|
-        %li= role.to_s.humanize
+      - @user.user_roles do |role|
+        %li
+          role.organization.label
+          %ul
+          - role.roles.each do |role|
+            %li= role.to_s.humanize

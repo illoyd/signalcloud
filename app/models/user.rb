@@ -30,5 +30,15 @@ class User < ActiveRecord::Base
     org = org.id if org.is_a? Organization
     self.user_roles.where( organization_id: org ).first
   end
+  
+  def has_pending_invitation?
+    !self.invitation_sent_at.nil? and self.invitation_accepted_at.nil?
+  end
+
+  UserRole::ROLES.each do |role|
+    define_method "is_#{role.to_s}_for?" do |org|
+      self.roles_for(org).send("is_#{role.to_s}?", role)
+    end
+  end
 
 end
