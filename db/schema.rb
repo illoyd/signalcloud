@@ -325,9 +325,9 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
   create_table "user_roles", :force => true do |t|
     t.integer  "organization_id"
     t.integer  "user_id"
-    t.integer  "roles_mask",      :null => false
-    t.datetime "created_at",      :null => false
-    t.datetime "updated_at",      :null => false
+    t.integer  "roles_mask",      :default => 0, :null => false
+    t.datetime "created_at",                     :null => false
+    t.datetime "updated_at",                     :null => false
   end
 
   add_index "user_roles", ["organization_id"], :name => "index_user_roles_on_organization_id"

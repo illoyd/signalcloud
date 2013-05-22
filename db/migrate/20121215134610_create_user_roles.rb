@@ -4,7 +4,7 @@ class CreateUserRoles < ActiveRecord::Migration
       t.references :organization
       t.references :user
       
-      t.integer :roles_mask, null: false
+      t.integer :roles_mask, null: false, default: 0
 
       t.timestamps
     end
