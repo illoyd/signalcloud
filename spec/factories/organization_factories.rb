@@ -5,8 +5,8 @@ FactoryGirl.define do
     auth_token          { SecureRandom.hex(16) }
     label               'Test Account'
     balance             9.99
-    association         :primary_address, factory: :white_house_address
-    association         :secondary_address, factory: :address
+    association         :contact_address, factory: :white_house_address
+    association         :billing_address, factory: :address
     account_plan        { create :payg_account_plan }
     #test_twilio
     #test_freshbooks_client

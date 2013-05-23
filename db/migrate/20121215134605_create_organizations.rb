@@ -8,8 +8,8 @@ class CreateOrganizations < ActiveRecord::Migration
       t.string :icon
       t.decimal :balance, default: 0, null: false, precision: 8, scale: 4
 
-      t.integer :primary_address_id
-      t.integer :secondary_address_id
+      t.integer :contact_address_id
+      t.integer :billing_address_id
       
       t.string :purchase_order
       t.string :vat_name

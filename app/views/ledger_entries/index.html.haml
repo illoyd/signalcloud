@@ -27,8 +27,8 @@
           - @ledger_entries.each do |ledger_entry|
             %tr
               %td= split_dropdown_list([ |
-                { label: 'Details', icon: :show, link: ledger_entry, if: can?(:show, ledger_entry) }, |
-                { label: 'View ' + item_label(ledger_entry.item), icon: item_icon(ledger_entry.item), link: item_link(ledger_entry.item), if: can?(:show, ledger_entry.item) } |
+                { label: 'Details', icon: :show, link: [ @organization, ledger_entry ], if: can?(:show, ledger_entry) }, |
+                { label: 'View ' + item_label(ledger_entry.item), icon: item_icon(ledger_entry.item), link: [@organization, item_link(ledger_entry.item)], if: can?(:show, ledger_entry.item) } |
                 ], {class: 'btn-mini'}) |
               %td
                 = ledger_entry.narrative

@@ -46,7 +46,7 @@
             %p.information= @organization.account_plan.label
             %p.information-label Plan
     
-    %h4 conversation breakdown
+    %h4 Conversation breakdown
     %div.tabbable    
       %ul.nav.nav-pills
         %li.active= link_to 'today', '#today', {'data-toggle'=>'pill'}
@@ -57,7 +57,7 @@
         %div#yesterday.tab-pane.fade= conversation_status_breakdown( @organization.conversations.yesterday.count_by_status )
         %div#lastweek.tab-pane.fade= conversation_status_breakdown( @organization.conversations.last_x_days.count_by_status )
     
-    %h4 tokens
+    %h4 Tokens
     %p Tokens are used to authenticate with the SignalCloud API.
     %table.table
       %thead
@@ -66,14 +66,22 @@
           %th SID
           %th Token
       %tbody
-        / production
         %tr
           %td SignalCloud
           %td= @organization.sid
           %td= @organization.auth_token
-        / Twilio
-        -# TODO Remove this section from general view!
-        %tr
-          %td Twilio
-          %td= @organization.twilio_account_sid
-          %td= @organization.twilio_auth_token
+        - if current_user.system_admin?
+          %tr
+            %td Braintree
+            %td= @organization.braintree_id
+            %td
+              %i None
+          %tr
+            %td Freshbooks
+            %td= @organization.freshbooks_id
+            %td
+              %i None
+          %tr
+            %td Twilio
+            %td= @organization.twilio_account_sid
+            %td= @organization.twilio_auth_token

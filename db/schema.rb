@@ -182,8 +182,8 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
     t.string   "label",                                                                            :null => false
     t.string   "icon"
     t.decimal  "balance",                           :precision => 8, :scale => 4, :default => 0.0, :null => false
-    t.integer  "primary_address_id"
-    t.integer  "secondary_address_id"
+    t.integer  "contact_address_id"
+    t.integer  "billing_address_id"
     t.string   "purchase_order"
     t.string   "vat_name"
     t.string   "vat_number"

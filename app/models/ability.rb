@@ -83,7 +83,11 @@ class Ability
     can :read, [ Stencil, PhoneNumber, PhoneBook, PhoneBookEntry ], { organization_id: user.organization_ids }
     can :read, [ Conversation ], { stencil: { organization_id: user.organization_ids } }
     can :read, [ Message ], { conversation: { stencil: { organization_id: user.organization_ids } } }
-    
+
+    # Create organizations if allowed    
+    # can( [:new, :create], Organization, { id: user.organization_ids } ) if ALLOW_ORG_CREATION
+    can( [:new, :create], Organization, { user_roles: { user_id: user.id } } ) if ALLOW_ORG_CREATION
+
     # Show, edit, and update self
     can [ :show, :edit, :update, :change_password ], User, { id: user.id }
   end

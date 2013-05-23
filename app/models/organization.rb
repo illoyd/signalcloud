@@ -1,10 +1,14 @@
 class Organization < ActiveRecord::Base
 
+  READY = 2
+  PENDING = 1
+  TRIAL = 0
+  
   require 'organization_xt_twilio'
   require 'organization_xt_freshbooks'
 
   # General attributes
-  attr_accessible :sid, :account_plan, :auth_token, :balance, :label, :account_plan_id, :description, :vat_name, :vat_number, :icon
+  attr_accessible :sid, :account_plan, :auth_token, :balance, :label, :account_plan_id, :description, :vat_name, :vat_number, :icon, :contact_address_attributes, :billing_address_attributes
   
   attr_accessor :balance_changed
   
@@ -12,6 +16,7 @@ class Organization < ActiveRecord::Base
   attr_encrypted :twilio_account_sid, key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :twilio_auth_token, key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :freshbooks_id, key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :braintree_id, key: ATTR_ENCRYPTED_SECRET
 
   # References
   has_many :user_roles, inverse_of: :organization
@@ -25,16 +30,16 @@ class Organization < ActiveRecord::Base
   has_many :phone_numbers, inverse_of: :organization
   has_many :ledger_entries, inverse_of: :organization
   has_many :invoices, inverse_of: :organization
-  has_one :primary_address, class_name: 'Address', autosave: true, dependent: :destroy
-  has_one :secondary_address, class_name: 'Address', autosave: true, dependent: :destroy
+  has_one :contact_address, class_name: 'Address', autosave: true, dependent: :destroy
+  has_one :billing_address, class_name: 'Address', autosave: true, dependent: :destroy
   
   # Helper reference for all messages
   has_many :conversations, through: :stencils
   has_many :messages, through: :conversations
   
   # Nested resources
-  accepts_nested_attributes_for :primary_address
-  accepts_nested_attributes_for :secondary_address
+  accepts_nested_attributes_for :contact_address
+  accepts_nested_attributes_for :billing_address
   
   # Validations
   before_validation :ensure_sid_and_token
@@ -45,6 +50,18 @@ class Organization < ActiveRecord::Base
   def ensure_sid_and_token
     self.sid ||= SecureRandom.hex(16)
     self.auth_token ||= SecureRandom.hex(16)
+  end
+  
+  def status
+    tests = [ self.twilio_account_sid, self.braintree_account_id, self.freshbooks_client_id ]
+    return case
+      when tests.all? { |x| x }
+        READY
+      when tests.any? { |x| x }
+        PENDING
+      else
+        TRIAL
+    end
   end
   
   ##
