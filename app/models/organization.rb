@@ -53,7 +53,7 @@ class Organization < ActiveRecord::Base
   end
   
   def status
-    tests = [ self.twilio_account_sid, self.braintree_account_id, self.freshbooks_client_id ]
+    tests = [ self.twilio_account_sid, self.braintree_id, self.freshbooks_id ]
     return case
       when tests.all? { |x| x }
         READY

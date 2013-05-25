@@ -44,8 +44,20 @@ FactoryGirl.define do
       twilio_application_sid  { ENV['TWILIO_APPLICATION'] }
     end
     
+    trait :with_twilio do
+      test_twilio
+    end
+    
+    trait :with_freshbooks do
+      test_freshbooks
+    end
+    
+    trait :with_braintree do
+      braintree_id 100
+    end
+    
     trait :test_freshbooks do
-      freshbooks_id       2
+      freshbooks_id 2
     end
     
     trait :with_users do
