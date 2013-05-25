@@ -4,10 +4,10 @@ FactoryGirl.define do
     conversation
     status        Message::PENDING
     
-    after(:create) do |message, evaluator|
-      FactoryGirl.create(:ledger_entry, organization: message.conversation.stencil.organization, item: message, value: message.cost, narrative: LedgerEntry::OUTBOUND_SMS_NARRATIVE )
-    end
-    
+#     after(:create) do |message, evaluator|
+#       FactoryGirl.create(:ledger_entry, organization: message.conversation.stencil.organization, item: message, value: message.cost, narrative: LedgerEntry::OUTBOUND_SMS_NARRATIVE )
+#     end
+#     
     trait :with_costs do
       provider_cost    { random_cost() }
       our_cost         { random_cost() }
@@ -43,16 +43,27 @@ FactoryGirl.define do
       challenge
     end
 
+    factory :response_message do
+      response
+    end
+
     factory :reply_message do
       reply
     end
 
     trait :challenge do
       message_kind  Message::CHALLENGE
+      direction     Message::DIRECTION_OUT
+    end
+
+    trait :response do
+      message_kind  Message::RESPONSE
+      direction     Message::DIRECTION_IN
     end
 
     trait :reply do
       message_kind  Message::REPLY
+      direction     Message::DIRECTION_OUT
     end
     
     trait :sending do

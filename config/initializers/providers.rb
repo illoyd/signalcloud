@@ -1,4 +1,4 @@
-# Incorporate support for Twilio, Braintree, Freshbooks, and other providers
+# Incorporate support for Twilio, Braintree, FreshBooks, and other providers
 
 # Twilio
 # Note: Twilio is handled on a per-organization basis. Use the standard 'Master' and 'Test' organizations.
@@ -8,7 +8,7 @@
 if Rails.env.development?
 end
 
-# Freshbooks
+# FreshBooks
 if Rails.env.development?
 end
 

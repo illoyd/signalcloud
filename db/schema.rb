@@ -182,6 +182,7 @@ ActiveRecord::Schema.define(:version => 20130525142700) do
   add_index "messages", ["conversation_id"], :name => "index_messages_on_conversation_id"
   add_index "messages", ["message_kind"], :name => "index_messages_on_message_kind"
   add_index "messages", ["status"], :name => "index_messages_on_status"
+  add_index "messages", ["twilio_sid"], :name => "index_messages_on_twilio_sid", :unique => true
   add_index "messages", ["updated_at"], :name => "index_messages_on_updated_at"
 
   create_table "organizations", :force => true do |t|

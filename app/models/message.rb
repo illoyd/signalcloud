@@ -11,6 +11,7 @@ class Message < ActiveRecord::Base
   
   CHALLENGE = 'c'
   REPLY = 'r'
+  RESPONSE = nil
   
   PENDING = 0
   QUEUED = 1

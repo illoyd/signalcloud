@@ -92,18 +92,6 @@ class Organization < ActiveRecord::Base
     statuses = Conversation.count_by_status_hash( self.conversations.today )
   end
   
-  def last_invoice_date()
-#     invoice_date = self.invoices.maximum('date_to')
-#     return invoice_date unless invoice_date.nil?
-#     
-#     ledger_date = self.ledger_entries.minimum('created_at')
-#     return ledger_date unless ledger_date.nil? 
-    
-    date = ( self.invoices.maximum('date_to') || self.ledger_entries.minimum('created_at') )
-    raise 'cannot create invoice - no ledger entries' if date.nil?
-    return date.to_time
-  end
-  
   delegate :update_balance!, :balance, :balance=, to: :account_balance
   
 end

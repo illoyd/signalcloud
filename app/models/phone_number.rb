@@ -37,7 +37,6 @@ class PhoneNumber < ActiveRecord::Base
 
   validates_presence_of :organization, :twilio_phone_number_sid, :number
   validates_numericality_of :our_cost, :provider_cost, :organization_id
-  validates_uniqueness_of :number
 
   validates_length_of :twilio_phone_number_sid, is: Twilio::SID_LENGTH
   validates_uniqueness_of :twilio_phone_number_sid, :case_sensitive => false

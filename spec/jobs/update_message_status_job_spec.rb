@@ -102,10 +102,10 @@ describe UpdateMessageStatusJob, :vcr do
           message.reload.ledger_entry.should_not be_nil
         end
         it 'settles ledger entry' do
-          expect { job.perform }.to change{message.reload.ledger_entry(true).settled_at}.from(nil).to(date_sent)
+          expect { job.perform }.to change{message.reload.ledger_entry(true).try(:settled_at)}.from(nil).to(date_sent)
         end
         it 'updates ledger entry costs' do
-          expect { job.perform }.to change{message.reload.ledger_entry(true).value} #.to(message.reload.cost)
+          expect { job.perform }.to change{message.reload.ledger_entry(true).try(:value)} #.to(message.reload.cost)
         end
       end
     end
@@ -172,10 +172,10 @@ describe UpdateMessageStatusJob, :vcr do
           message.reload.ledger_entry.should_not be_nil
         end
         it 'settles ledger entry' do
-          expect { job.perform }.to change{message.reload.ledger_entry(true).settled_at}.from(nil).to(date_sent)
+          expect { job.perform }.to change{message.reload.ledger_entry(true).try(:settled_at)}.from(nil).to(date_sent)
         end
         it 'updates ledger entry costs' do
-          expect { job.perform }.to change{message.reload.ledger_entry(true).value} #.to(message.reload.cost)
+          expect { job.perform }.to change{message.reload.ledger_entry(true).try(:value)} #.to(message.reload.cost)
         end
       end
     end

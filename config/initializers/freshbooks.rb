@@ -1,13 +1,13 @@
 ##
-# Extend the Freshbooks API to include a direct request to the currently configured organization
-module Freshbooks
+# Extend the FreshBooks API to include a direct request to the currently configured organization
+module FreshBooks
 
   DEFAULT_CURRENCY = 'USD'
 
   ##
   # Request the current organization; expects +ENV['FRESHBOOKS_API_ENDPOINT=']+ and +ENV['FRESHBOOKS_API_TOKEN']+
   # to be defined in the environment.
-  def self.organization
+  def self.account
     @@client ||= FreshBooks::Client.new( ENV['FRESHBOOKS_API_ENDPOINT'], ENV['FRESHBOOKS_API_TOKEN'] )
   end
   

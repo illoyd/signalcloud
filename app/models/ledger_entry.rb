@@ -39,6 +39,10 @@ class LedgerEntry < ActiveRecord::Base
   ##
   # Find all ledger_entries which have been invoiced.
   scope :invoiced, where( 'invoice_id is not null' )
+  
+  ##
+  # Find all where settled before a given date
+  scope :settled_before, lambda{ |to_date| where( 'settled_at <= ?', to_date )}
 
   ##
   # Get all entries created yesterday.

@@ -38,5 +38,6 @@ class CreateMessages < ActiveRecord::Migration
     add_index :messages, :updated_at
     add_index :messages, :message_kind
     add_index :messages, :status
+    add_index :messages, :twilio_sid, unique: true
   end
 end
