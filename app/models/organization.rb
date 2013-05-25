@@ -8,9 +8,7 @@ class Organization < ActiveRecord::Base
   require 'organization_xt_freshbooks'
 
   # General attributes
-  attr_accessible :sid, :account_plan, :auth_token, :balance, :label, :account_plan_id, :description, :vat_name, :vat_number, :icon, :contact_address_attributes, :billing_address_attributes
-  
-  attr_accessor :balance_changed
+  attr_accessible :sid, :account_plan, :auth_token, :label, :account_plan_id, :description, :vat_name, :vat_number, :icon, :contact_address_attributes, :billing_address_attributes
   
   # Encrypted attributes
   attr_encrypted :twilio_account_sid, key: ATTR_ENCRYPTED_SECRET
@@ -21,6 +19,8 @@ class Organization < ActiveRecord::Base
   # References
   has_many :user_roles, inverse_of: :organization
   has_many :users, through: :user_roles
+
+  has_one :account_balance, inverse_of: :organization, autosave: true, dependent: :destroy
   
   belongs_to :account_plan, inverse_of: :organizations
   has_many :stencils, inverse_of: :organization
@@ -42,9 +42,12 @@ class Organization < ActiveRecord::Base
   accepts_nested_attributes_for :billing_address
   
   # Validations
-  before_validation :ensure_sid_and_token
-  validates_presence_of :sid, :auth_token, :label
+  validates_presence_of :sid, :auth_token, :label, :account_balance
   validates_uniqueness_of :sid
+  
+  # Callbacks
+  before_validation :ensure_sid_and_token
+  before_validation :ensure_account_balance
   after_create :create_initial_resources
   
   def ensure_sid_and_token
@@ -52,6 +55,10 @@ class Organization < ActiveRecord::Base
     self.auth_token ||= SecureRandom.hex(16)
   end
   
+  def ensure_account_balance
+    self.build_account_balance if self.account_balance.nil?
+  end
+
   def status
     tests = [ self.twilio_account_sid, self.braintree_id, self.freshbooks_id ]
     return case
@@ -97,14 +104,6 @@ class Organization < ActiveRecord::Base
     return date.to_time
   end
   
-  def update_balance!( delta )
-    self.class.update_all( ['balance = balance + ?', delta ], id: self.id )
-    self.balance_changed = true
-  end
+  delegate :update_balance!, :balance, :balance=, to: :account_balance
   
-  def balance()
-    self.reload if self.balance_changed
-    super
-  end
-
 end

@@ -11,7 +11,16 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130223100946) do
+ActiveRecord::Schema.define(:version => 20130525142700) do
+
+  create_table "account_balances", :force => true do |t|
+    t.integer  "organization_id",                                                :null => false
+    t.decimal  "balance",         :precision => 8, :scale => 4, :default => 0.0, :null => false
+    t.datetime "created_at",                                                     :null => false
+    t.datetime "updated_at",                                                     :null => false
+  end
+
+  add_index "account_balances", ["organization_id"], :name => "index_account_balances_on_organization_id", :unique => true
 
   create_table "account_plans", :force => true do |t|
     t.string   "label",                                                                      :null => false
@@ -176,12 +185,11 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
   add_index "messages", ["updated_at"], :name => "index_messages_on_updated_at"
 
   create_table "organizations", :force => true do |t|
-    t.integer  "account_plan_id",                                                                  :null => false
-    t.string   "sid",                                                                              :null => false
-    t.string   "auth_token",                                                                       :null => false
-    t.string   "label",                                                                            :null => false
+    t.integer  "account_plan_id",                   :null => false
+    t.string   "sid",                               :null => false
+    t.string   "auth_token",                        :null => false
+    t.string   "label",                             :null => false
     t.string   "icon"
-    t.decimal  "balance",                           :precision => 8, :scale => 4, :default => 0.0, :null => false
     t.integer  "contact_address_id"
     t.integer  "billing_address_id"
     t.string   "purchase_order"
@@ -201,8 +209,8 @@ ActiveRecord::Schema.define(:version => 20130223100946) do
     t.string   "encrypted_braintree_id_iv"
     t.string   "encrypted_braintree_id_salt"
     t.text     "description"
-    t.datetime "created_at",                                                                       :null => false
-    t.datetime "updated_at",                                                                       :null => false
+    t.datetime "created_at",                        :null => false
+    t.datetime "updated_at",                        :null => false
   end
 
   add_index "organizations", ["encrypted_twilio_account_sid"], :name => "index_organizations_on_encrypted_twilio_account_sid"

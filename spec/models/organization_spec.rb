@@ -6,8 +6,8 @@ describe Organization, :vcr do
   describe '#primary_stencil' do
     
     context 'when primary is set' do
-      let(:organization)   { create :organization }
-      let(:stencil) { create :stencil, organization: organization, primary: true }
+      let(:organization)       { create :organization }
+      let(:stencil)            { create :stencil, organization: organization, primary: true }
       let(:nonprimary_stencil) { organization.stencils.where(primary: false).first }
 
       it 'has at least one primary stencil' do
@@ -41,6 +41,13 @@ describe Organization, :vcr do
       end
     end
 
+  end
+  
+  describe '#ensure_account_balance' do
+    subject { build :organization }
+    it 'creates a new account balance object' do
+      expect{ subject.save! }.to change(subject, :account_balance).from(nil)
+    end
   end
 
   describe '#last_invoice_date' do
