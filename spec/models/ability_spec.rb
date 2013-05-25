@@ -40,12 +40,22 @@ describe User, '.abilities' do
       user.user_roles.should have(2).items
     end
   end
+  
+  context 'as normal user' do
+    subject { build :user, system_admin: false }
+    it{ should_not have_ability(:manage, for: AccountPlan) }
+  end
+  
+  context 'as system admin' do
+    subject { build :user, system_admin: true }
+    it{ should have_ability(:manage, for: AccountPlan) }
+  end
 
   context "with default permissions" do
     subject { create :user, user_roles: [ UserRole.new( organization: test_organization, roles: [] ) ] }
 
     # Test parent organization
-    it{ should have_ability({index: true, new: false, create: false}, for: Organization) }
+    it{ should have_ability({index: true, new: true, create: true}, for: Organization) }
     it{ should have_ability({index: true, show: true, edit: false, update: false, destroy: false}, for: test_organization) }
 
     # Test non-parent organization - should have NO privileges
@@ -117,7 +127,7 @@ describe User, '.abilities' do
     subject { create :user, user_roles: [ UserRole.new( organization: test_organization, roles: [ :billing_liaison ] ) ] }
 
     # Test organization
-    it{ should have_ability({index: true, show: true, new: false, create: false, edit: true, update: true, destroy: false}, for: test_organization) }
+    it{ should have_ability({index: true, show: true, edit: true, update: true, destroy: false}, for: test_organization) }
     it{ should_not have_ability(:manage, for: other_organization) }
 
     # Test viewing ledger entries

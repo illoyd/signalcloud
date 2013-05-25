@@ -31,14 +31,11 @@
                     Sign Up
 
           - else
-            - if @organization
+            - unless @organization.nil? || @organization.new_record?
               %ul.nav
                 %li{ rel: 'tooltip', :title => 'Dashboard', :'data-placement' => 'bottom' }
                   %a{ :href => "/" }
                     %i.icon-dashboard
-                - if can? :index, User
-                  %li{ rel: 'tooltip', :title => 'Users', :'data-placement' => 'bottom' }
-                    %a{ :href => organization_users_path(@organization) }= icon( :users )
                 - if can? :index, Conversation
                   %li{ rel: 'tooltip', :title => 'Conversations', :'data-placement' => 'bottom' }
                     %a{ :href => organization_conversations_path(@organization) }= icon( :conversations )
@@ -51,6 +48,9 @@
                 - if can? :index, PhoneNumber
                   %li{ rel: 'tooltip', :title => 'Phone Numbers', :'data-placement' => 'bottom' }
                     %a{ :href => organization_phone_numbers_path(@organization) }= icon( :phone_numbers )
+                - if can? :index, User
+                  %li{ rel: 'tooltip', :title => 'Users', :'data-placement' => 'bottom' }
+                    %a{ :href => organization_users_path(@organization) }= icon( :users )
                 - if can? :index, LedgerEntry
                   %li{ rel: 'tooltip', :title => 'Ledger', :'data-placement' => 'bottom' }
                     %a{ :href => organization_ledger_entries_path(@organization) }= icon( :ledger_entries )

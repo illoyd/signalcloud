@@ -1,5 +1,11 @@
 module ApplicationHelper
 
+  def titles( title, subtitle, icon )
+    content_for :page_title, title
+    content_for :page_subtitle, subtitle
+    content_for :page_icon, icon
+  end
+
   def navigation_list( entries = [], options = {} )
     render partial: 'layouts/navlist', object: entries, locals: { options: options }
   end
@@ -80,6 +86,11 @@ module ApplicationHelper
   
   def checkmark_for( value, options={} )
     icon( 'ok', options ) if value
+  end
+  
+  def currency_for( value, country='US', symbol='$' )
+    html = '<small>%s%s</small> %0.4f' % [ country, symbol, value ]
+    html.html_safe
   end
 
 end

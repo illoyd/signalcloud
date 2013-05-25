@@ -1,7 +1,7 @@
 SignalCloud::Application.routes.draw do
 
   # Configure authentication for USERS
-  devise_for :users, :controllers => { :invitations => 'users/invitations' }
+  devise_for :users #, :controllers => { :invitations => 'users/invitations' }
 
   # Global resources
   resources :account_plans
@@ -10,7 +10,7 @@ SignalCloud::Application.routes.draw do
   resources :users, only: [ :show, :update, :edit ]
   
   # Nest all underneath organizations
-  resources :organizations, only: [ :index, :show, :new, :create, :update, :edit ] do
+  resources :organizations, only: [ :index, :new, :show, :create, :update, :edit ] do
     resources :users, only: [ :index ]
     resources :user_roles, only: [ :create, :update, :destroy ]
 

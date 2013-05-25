@@ -5,7 +5,7 @@ describe LedgerEntry do
   
   describe "validations" do
     before(:all) { 3.times { create :ledger_entry } }
-    [:organization_id, :item_id, :item_type, :narrative].each do |attribute|
+    [:organization_id, :narrative].each do |attribute|
       it { should validate_presence_of(attribute) }
     end
 

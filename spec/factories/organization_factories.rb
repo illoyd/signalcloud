@@ -5,8 +5,8 @@ FactoryGirl.define do
     auth_token          { SecureRandom.hex(16) }
     label               'Test Account'
     balance             9.99
-    association         :primary_address, factory: :white_house_address
-    association         :secondary_address, factory: :address
+    association         :contact_address, factory: :white_house_address
+    association         :billing_address, factory: :address
     account_plan        { create :payg_account_plan }
     #test_twilio
     #test_freshbooks_client
@@ -44,8 +44,20 @@ FactoryGirl.define do
       twilio_application_sid  { ENV['TWILIO_APPLICATION'] }
     end
     
+    trait :with_twilio do
+      test_twilio
+    end
+    
+    trait :with_freshbooks do
+      test_freshbooks
+    end
+    
+    trait :with_braintree do
+      braintree_id 100
+    end
+    
     trait :test_freshbooks do
-      freshbooks_id       2
+      freshbooks_id 2
     end
     
     trait :with_users do

@@ -19,7 +19,7 @@
           = @ledger_entry.narrative
         %p
           %b Reference:
-          = link_to item_label(@ledger_entry.item), item_link(@ledger_entry.item)
+          = link_to item_label(@ledger_entry.item), [@organization, item_link(@ledger_entry.item)]
         %p
           %b Value:
           - if @ledger_entry.settled?
