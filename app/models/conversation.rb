@@ -56,7 +56,7 @@ class Conversation < ActiveRecord::Base
   delegate :organization, :to => :stencil, :allow_nil => true
   
   # Validation
-  validates_presence_of :stencil_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at
+  validates_presence_of :stencil, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at
   validates :to_number, phone_number: true
   validates :from_number, phone_number: true
   validates_numericality_of :challenge_status, allow_nil: true, integer_only: true, greater_than_or_equal_to: 0

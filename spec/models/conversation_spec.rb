@@ -7,7 +7,7 @@ describe Conversation do
     it { should belong_to :stencil }
     it { should have_many :messages }
 
-    [ :seconds_to_live, :stencil, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at ].each do |attribute| 
+    [ :seconds_to_live, :stencil_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at ].each do |attribute| 
       it { should allow_mass_assignment_of(attribute) }
     end
 
