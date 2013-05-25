@@ -16,20 +16,7 @@ class LedgerEntry < ActiveRecord::Base
   belongs_to :invoice, inverse_of: :ledger_entries
   belongs_to :item, polymorphic: true
   
-  validates_presence_of :organization_id, :item_type, :narrative
-  validates_presence_of :item_id, :unless => Proc.new { |a|
-    #if it's a new record and addressable is nil and addressable_type is set
-    #   then try to find the addressable object in the ObjectSpace
-    #       if the addressable object exists, then we're valid;
-    #       if not, let validates_presence_of do it's thing
-    if (new_record? && !item && item_type)
-      item = nil
-      ObjectSpace.each_object(item_type.constantize) do |o|
-        item = o if o.ledger_entry == a unless item
-      end
-    end
-    item
-  }
+  validates_presence_of :organization_id, :narrative
   validates_numericality_of :value, allow_nil: true
   
   before_validation :ensure_organization
