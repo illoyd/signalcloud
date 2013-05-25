@@ -30,7 +30,8 @@ module ConversationsHelper
     dropdown_list( title, entries, {class: 'btn-mini'} )
   end
   
-  def conversation_class( status )
+  def css_class_for( status )
+    status = status.status if status.is_a? Conversation
     return case status
       #when Conversation::QUEUED
       #  ''
@@ -49,7 +50,8 @@ module ConversationsHelper
     end
   end
   
-  def conversation_status_icon( status )
+  def status_icon_for( status )
+    status = status.status if status.is_a? Conversation
     ii = case status
       when Conversation::PENDING, Conversation::QUEUED, Conversation::CHALLENGE_SENT, Conversation::OPEN_STATUSES
         'plus-sign'
@@ -67,7 +69,8 @@ module ConversationsHelper
     return icon( ii )
   end
 
-  def human_conversation_status( status )
+  def human_status_for( status )
+    status = status.status if status.is_a? Conversation
     return case status
       when Conversation::PENDING, Conversation::QUEUED
         'Queued'
@@ -85,5 +88,9 @@ module ConversationsHelper
         'Other: ' + status.to_s
     end
   end
+  
+  alias_method :human_conversation_status, :human_status_for
+  alias_method :conversation_status_icon, :status_icon_for
+  alias_method :conversation_class, :css_class_for
 
 end
