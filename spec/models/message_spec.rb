@@ -19,7 +19,7 @@ describe Message, :vcr do
     end
     it { should belong_to(:conversation) }
     it { should have_one(:ledger_entry) }
-    it { should validate_presence_of(:conversation_id) }
+    # it { should validate_presence_of(:conversation) }
     it { should ensure_length_of(:twilio_sid).is_equal_to(Twilio::SID_LENGTH) }
     it { should validate_numericality_of(:our_cost) }
     it { should validate_numericality_of(:provider_cost) }

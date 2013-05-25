@@ -32,7 +32,7 @@ class Stencil < ActiveRecord::Base
     }.with_indifferent_access.merge( passed_options.with_indifferent_access )
     
     # Add a randomly selected from number if needed
-    options[:from_number] = self.phone_book.select_internal_number_for( options[:to_number] ).number unless options.key? :from_number
+    options[:from_number] = self.phone_book.select_internal_number_for( options[:to_number] ).number if options.fetch(:from_number, nil).nil?
     return self.conversations.build( options )
   end
 end

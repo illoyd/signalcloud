@@ -11,7 +11,7 @@ describe Invoice, :vcr do
   let(:december) { '2012-12-31'.to_datetime.end_of_month }
   let(:january)  { '2013-01-30'.to_datetime.end_of_month }
 
-  [ :organization_id, :date_to ].each do |attribute|
+  [ :organization, :date_to ].each do |attribute|
     it { should validate_presence_of( attribute ) }
   end
   

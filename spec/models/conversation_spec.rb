@@ -7,11 +7,11 @@ describe Conversation do
     it { should belong_to :stencil }
     it { should have_many :messages }
 
-    [ :seconds_to_live, :stencil_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at ].each do |attribute| 
+    [ :seconds_to_live, :stencil, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at ].each do |attribute| 
       it { should allow_mass_assignment_of(attribute) }
     end
 
-    [:stencil_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at].each do |attribute| 
+    [:stencil, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at].each do |attribute| 
       it { should validate_presence_of(attribute) }
     end
   end
@@ -190,67 +190,5 @@ describe Conversation do
     end
     
   end
-  
-#   describe '#to_webhook_data' do
-# 
-#     context 'when pending' do
-#       subject { create(:conversation).to_webhook_data[:conversation] }
-#       it { should be_a Hash }
-#       it { should include( :id, :stencil_id, :status, :status_text, :created_at, :updated_at ) }
-#       its([:status]) { should == Conversation::PENDING }
-#       its([:open]) { should == 1 }
-#       its([:closed]) { should == 0 }
-#     end
-#     
-#     context 'when challenge is sent' do
-#       subject { create(:conversation, :challenge_sent).to_webhook_data[:conversation] }
-#       it { should be_a Hash }
-#       it { should include( :challenge_sent_at, :challenge_status ) }
-#       its([:status]) { should == Conversation::CHALLENGE_SENT }
-#       its([:open]) { should == 1 }
-#       its([:closed]) { should == 0 }
-#     end
-#     
-#     context 'when response is received' do
-#       subject { create(:conversation, :response_received).to_webhook_data[:conversation] }
-#       it { should be_a Hash }
-#       it { should include( :response_received_at ) }
-#     end
-# 
-#     context 'when reply is sent' do
-#       subject { create(:conversation, :reply_sent).to_webhook_data[:conversation] }
-#       it { should be_a Hash }
-#       it { should include( :reply_sent_at, :reply_status ) }
-#     end
-# 
-#     context 'when confirmed' do
-#       subject { create(:conversation, :confirmed, :reply_sent).to_webhook_data[:conversation] }
-#       its([:status]) { should == Conversation::CONFIRMED }
-#       its([:open]) { should == 0 }
-#       its([:closed]) { should == 1 }
-#     end
-# 
-#     context 'when denied' do
-#       subject { create(:conversation, :denied, :reply_sent).to_webhook_data[:conversation] }
-#       its([:status]) { should == Conversation::DENIED }
-#       its([:open]) { should == 0 }
-#       its([:closed]) { should == 1 }
-#     end
-# 
-#     context 'when failed' do
-#       subject { create(:conversation, :failed, :reply_sent).to_webhook_data[:conversation] }
-#       its([:status]) { should == Conversation::FAILED }
-#       its([:open]) { should == 0 }
-#       its([:closed]) { should == 1 }
-#     end
-# 
-#     context 'when expired' do
-#       subject { create(:conversation, :expired, :reply_sent).to_webhook_data[:conversation] }
-#       its([:status]) { should == Conversation::EXPIRED }
-#       its([:open]) { should == 0 }
-#       its([:closed]) { should == 1 }
-#     end
-# 
-#   end
 
 end

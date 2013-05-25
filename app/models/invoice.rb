@@ -4,7 +4,7 @@ class Invoice < ActiveRecord::Base
   belongs_to :organization, inverse_of: :invoices
   has_many :ledger_entries, inverse_of: :invoice
   
-  validates_presence_of :organization_id, :date_to
+  validates_presence_of :organization, :date_to
   
   before_create :ensure_dates
   

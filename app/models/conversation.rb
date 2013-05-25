@@ -50,7 +50,7 @@ class Conversation < ActiveRecord::Base
 
   # Relationships
   belongs_to :stencil, inverse_of: :conversations
-  has_many :messages, inverse_of: :conversation
+  has_many :messages, inverse_of: :conversation, autosave: true
   #has_many :ledger_entries, as: :item
 
   delegate :organization, :to => :stencil, :allow_nil => true

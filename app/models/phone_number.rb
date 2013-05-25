@@ -35,7 +35,7 @@ class PhoneNumber < ActiveRecord::Base
   # LedgerEntries for this message - usually one per month
   has_many :ledger_entries, as: :item
 
-  validates_presence_of :organization_id, :twilio_phone_number_sid, :number
+  validates_presence_of :organization, :twilio_phone_number_sid, :number
   validates_numericality_of :our_cost, :provider_cost, :organization_id
   validates_uniqueness_of :number
 

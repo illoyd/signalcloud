@@ -31,7 +31,7 @@ describe PhoneNumber, :vcr do
     end
     
     # Validate presence
-    [ :organization_id, :twilio_phone_number_sid, :number ].each do |entry|
+    [ :organization, :twilio_phone_number_sid, :number ].each do |entry|
       it { should validate_presence_of(entry) }
     end
     

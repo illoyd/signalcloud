@@ -16,7 +16,7 @@ class LedgerEntry < ActiveRecord::Base
   belongs_to :invoice, inverse_of: :ledger_entries
   belongs_to :item, polymorphic: true
   
-  validates_presence_of :organization_id, :narrative
+  validates_presence_of :organization, :narrative
   validates_numericality_of :value, allow_nil: true
   
   before_validation :ensure_organization
