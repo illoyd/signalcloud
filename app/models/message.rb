@@ -2,7 +2,7 @@
 class Message < ActiveRecord::Base
   attr_accessible :status, :sent_at, :our_cost, :provider_cost, :conversation_id, :provider_response, :provider_update, :twilio_sid, :message_kind, :to_number, :from_number, :body, :direction
   
-  before_save :update_ledger_entry
+  before_validation :update_ledger_entry
 
   SMS_CHARSET_LIST = " @Δ0¡P¿p£_!1AQaq$Φ\"2BRbr¥Γ#3CScsèΛ¤4DTdtéΩ%5EUeuùΠ&6FVfvìΨ'7GWgwòΣ(8HXhxÇΘ)9IYiy\nΞ*:JZjzØ\e+;KÄkäøÆ,<LÖlö\ræ=MÑmñÅß.>NÜnüåÉ/?O§oà-"
   SMS_CHARSET = /\A[ @Δ0¡P¿p£_!1AQaq$Φ"2BRbr¥Γ#3CScsèΛ¤4DTdtéΩ%5EUeuùΠ&6FVfvìΨ'7GWgwòΣ\(8HXhxÇΘ\)9IYiy\nΞ*:JZjzØ\e+;KÄkäøÆ,<LÖlö\ræ=MÑmñÅß.>NÜnüåÉ\/?O§oà-]+\Z/
@@ -49,10 +49,10 @@ class Message < ActiveRecord::Base
   
   ##
   # LedgerEntry for this message.
-  has_one :ledger_entry, as: :item #, autosave: true
+  has_one :ledger_entry, as: :item, autosave: true
 
   # Validations
-  validates_presence_of :conversation_id #, :twilio_sid
+  validates_presence_of :conversation
   validates_numericality_of :our_cost, allow_nil: true
   validates_numericality_of :provider_cost, allow_nil: true
   validates_length_of :twilio_sid, is: Twilio::SID_LENGTH, allow_nil: true
@@ -61,7 +61,7 @@ class Message < ActiveRecord::Base
   validates_inclusion_of :status, in: STATUSES
   validates_inclusion_of :direction, in: DIRECTIONS
   
-  scope :outstanding, where( 'messages.status not in (?)', CLOSED_STATUSES )
+  scope :outstanding, ->{ where( 'messages.status not in (?)', CLOSED_STATUSES ) }
   
   ##
   # Is the given string composed solely of basic SMS characters?
@@ -115,8 +115,13 @@ class Message < ActiveRecord::Base
       self.ledger_entry.settled_at = nil
     end
     
-    # Finally, try to save the ledger entry if it exists and this is NOT a new record
-    self.ledger_entry.save unless self.ledger_entry.nil? || self.new_record?
+    unless self.ledger_entry.nil?
+      # Force an update of the ledger entry's organization
+      self.ledger_entry.organization = self.organization
+      
+      # Finally, try to save the ledger entry if it exists and this is NOT a new record
+      # self.ledger_entry.save unless self.new_record?
+    end
   end
   
   ##
@@ -151,7 +156,7 @@ class Message < ActiveRecord::Base
 #   end
   
   def calculate_our_cost( value=nil )
-    return nil unless self.conversation && self.conversation.stencil && self.conversation.stencil.organization && self.conversation.stencil.organization.account_plan
+    return 0 unless self.conversation && self.conversation.stencil && self.conversation.stencil.organization && self.conversation.stencil.organization.account_plan
     value = self.provider_cost if value.nil?
     plan = self.conversation.stencil.organization.account_plan
     return case self.direction
@@ -231,6 +236,7 @@ class Message < ActiveRecord::Base
   def provider_cost=(value)
     super(value)
     self.our_cost = value.nil? ? nil : self.calculate_our_cost(value)
+    self.update_ledger_entry
   end
   
   ##
@@ -307,15 +313,15 @@ class Message < ActiveRecord::Base
   ##
   # Query the Twilio status of this message.
   def twilio_status
-    self.conversation.stencil.organization.twilio_account.sms.messages.get( self.twilio_sid )
+    self.organization.twilio_account.sms.messages.get( self.twilio_sid )
   end
   
   def refresh_from_twilio
-    response = self.twilio_status
-    self.status = Message.translate_twilio_message_status response.status
-    self.sent_at = response.date_sent
-    self.provider_cost = ( Float(response.price) rescue nil )
-    self.provider_response = response.to_property_hash
+    response = self.twilio_status.to_property_smash
+    self.status = response.message_status # Message.translate_twilio_message_status response.status
+    self.sent_at = response.sent_at
+    self.provider_cost = response.price # ( Float(response.price) rescue nil )
+    self.provider_response = response
   end
   
   def refresh_from_twilio!

@@ -395,8 +395,8 @@ describe Organization, 'Twilio Integration', :vcr do
       its(:customer_number)  { should == to_number }
       its(:internal_number)  { should == from_number }
       
-      its(:date_created) { should be_a DateTime }
-      its(:created_at)   { should be_a DateTime }
+      its(:date_created) { should be_a Time }
+      its(:created_at)   { should be_a Time }
     end
   end
 

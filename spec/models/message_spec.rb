@@ -210,8 +210,7 @@ describe Message, :vcr do
 
     context 'when price is set' do
       it 'creates a ledger entry' do
-        subject.provider_cost = provider_cost
-        expect{ subject.save! }.to change{subject.ledger_entry}.from(nil)
+        expect{ subject.provider_cost = provider_cost }.to change{subject.ledger_entry}.from(nil)
       end
       it 'sets ledger entry\'s value' do
         subject.provider_cost = provider_cost

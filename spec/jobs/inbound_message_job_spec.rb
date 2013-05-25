@@ -1,22 +1,21 @@
 require 'spec_helper'
 
 describe InboundMessageJob, :vcr do
-  
+  let(:sms_sid )        { 'SM7104b239862b9006bd360a3d5f285f2e' }
   let(:organization)    { create(:organization, :master_twilio) }
   let(:phone_book)      { create(:phone_book, organization: organization) }
   let(:stencil)         { create(:stencil, organization: organization, phone_book: phone_book) }
   let(:phone_number)    { create(:us_phone_number, organization: organization) }
   let(:customer_number) { Twilio::VALID_NUMBER }
 
-#   before(:each) { Message.destroy_all(twilio_sid: 'SM5e27df39904bc98686355dd7ec98f8a9') }
-  
   def construct_inbound_payload( options={} )
     options.reverse_merge({
-      'SmsSid' => 'SMe7a99c10b98ee37aa680ee0617c76d21',
+      'SmsSid' => sms_sid,
       'AccountSid' => ENV['TWILIO_TEST_ACCOUNT_SID'],
       'From' => Twilio::VALID_NUMBER,
       'To' => Twilio::VALID_NUMBER,
-      'Body' => 'Hello!'
+      'Body' => 'Hello!',
+      'Status' => 'received'
     })
   end
   

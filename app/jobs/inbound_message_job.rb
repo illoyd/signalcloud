@@ -19,7 +19,8 @@ class InboundMessageJob < Struct.new( :provider_update )
   include Talkable
 
   def perform
-    self.normalize_provider_update!
+    # self.normalize_provider_update!
+    @sms ||= Twilio::InboundSms.new( self.provider_update )
     
     # Find all open conversations
     open_conversations = self.find_open_conversations()
@@ -31,11 +32,11 @@ class InboundMessageJob < Struct.new( :provider_update )
       
       # Only one conversation, so process immediately
       when 1
-        self.perform_matching_conversation_action( open_conversations.first )
+        self.perform_matching_conversation_action(open_conversations.first )
 
       # More than 1, so scan for possible positive or negative match.
       else
-        self.perform_multiple_matching_conversations_action( open_conversations )
+        self.perform_multiple_matching_conversations_action(open_conversations )
     end
   end
   
@@ -46,7 +47,7 @@ class InboundMessageJob < Struct.new( :provider_update )
     #  payload: self.provider_update
     #})
 
-    unsolicited_message = self.internal_phone_number.unsolicited_messages.build( twilio_sms_sid: self.provider_update[:sms_sid], customer_number: self.provider_update[:from], received_at: DateTime.now, message_content: self.provider_update )
+    unsolicited_message = self.internal_phone_number.unsolicited_messages.build( twilio_sms_sid: @sms.sms_sid, customer_number: @sms.from, received_at: DateTime.now, message_content: self.provider_update )
     
     if self.internal_phone_number().should_reply_to_unsolicited_sms?
       unsolicited_message.action_taken = PhoneNumber::REPLY
@@ -60,11 +61,10 @@ class InboundMessageJob < Struct.new( :provider_update )
   end
   
   def perform_matching_conversation_action( conversation )
-    message = conversation.messages.build( twilio_sid: self.provider_update[:sms_sid], from_number: self.provider_update[:from], to_number: self.provider_update[:to], body: self.provider_update[:body], direction: Message::DIRECTION_IN, provider_response: self.provider_update )
-    message.refresh_from_twilio
-    message.save!
+    message = conversation.messages.build( twilio_sid: @sms.sms_sid, from_number: @sms.from, to_number: @sms.to, body: @sms.body, direction: Message::DIRECTION_IN, provider_response: self.provider_update )
+    message.refresh_from_twilio!
 
-    conversation.accept_answer! self.provider_update[:body]
+    conversation.accept_answer! @sms.body
     JobTools.enqueue SendConversationReplyJob.new(conversation.id)
     JobTools.enqueue SendConversationStatusWebhookJob.new( conversation.id, ConversationSerializer.new(conversation).as_json ) unless conversation.webhook_uri.blank?
   end
@@ -75,7 +75,7 @@ class InboundMessageJob < Struct.new( :provider_update )
     # Scan for possible applicable conversations
     open_conversations.each do |conversation|
       # If one is found, process it immediately and stop
-      if conversation.answer_applies? self.provider_update[:body]
+      if conversation.answer_applies? @sms.body
         matching_conversation = conversation
         break
       end
@@ -97,8 +97,9 @@ class InboundMessageJob < Struct.new( :provider_update )
   # Intuit the appropriate conversation based upon the TO and FROM.
   # In this situation, we SWAP the given TO and FROM, as this is a reply from the user. Conversations are always from: SignalCloud, to: the recepient.
   def find_open_conversations()
-    self.normalize_provider_update!
-    Conversation.find_open_conversations( self.provider_update[:to], self.provider_update[:from] ).order( 'challenge_sent_at' )
+    @sms ||= Twilio::InboundSms.new( self.provider_update )
+    # self.normalize_provider_update!
+    Conversation.find_open_conversations( @sms.to, @sms.from ).order( 'challenge_sent_at' )
 #     normalized_to_number = PhoneNumber.normalize_phone_number self.provider_update[:to]
 #     normalized_from_number = PhoneNumber.normalize_phone_number self.provider_update[:from]
 #     Conversation.where({
@@ -119,11 +120,12 @@ class InboundMessageJob < Struct.new( :provider_update )
 #     self.find_open_conversations.empty?
 #   end
   
-  def internal_phone_number
-    self.normalize_provider_update!
+  def internal_phone_number()
+    @sms ||= Twilio::InboundSms.new( self.provider_update )
+    #self.normalize_provider_update!
     #normalized_to_number = PhoneNumber.normalize_phone_number self.provider_update[:to]
     #@phone_number ||= PhoneNumber.where( encrypted_number: PhoneNumber.encrypt( :number, normalized_to_number ) ).first
-    PhoneNumber.find_by_number( self.provider_update[:to] ).first
+    PhoneNumber.find_by_number( @sms.to ).first
   end
   
 

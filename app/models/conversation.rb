@@ -124,10 +124,6 @@ class Conversation < ActiveRecord::Base
     self.hashed_customer_number = Conversation.hash_phone_number( self.to_number )
   end
   
-  def status_text()
-    Conversation.status_text( self.status )
-  end
-  
   def normalized_expected_confirmed_answer
     Conversation.normalize_message self.expected_confirmed_answer
   end
@@ -389,27 +385,4 @@ class Conversation < ActiveRecord::Base
       end
   end
 
-  def self.status_text( status_code=nil )
-    case status_code
-      when PENDING
-        'Pending'
-      when QUEUED
-        'Queued'
-      when CHALLENGE_SENT
-        'Challenge sent - Waiting for reply'
-      when CONFIRMED
-        'Confirmed'
-      when DENIED
-        'Denied'
-      when FAILED
-        'Failed'
-      when EXPIRED
-        'Expired'
-      when nil
-        nil
-      else
-        "Error: #{status_code}"
-    end
-  end
-  
 end

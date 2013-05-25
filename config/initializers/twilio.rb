@@ -32,6 +32,14 @@ module Twilio
   SMS_OUTBOUND_API = 'outbound-api'
 
   ##
+  # SMS Status flags
+  SMS_STATUS_SENT = 'sent'
+  SMS_STATUS_SENDING = 'sending'
+  SMS_STATUS_QUEUED = 'queued'
+  SMS_STATUS_RECEIVED = 'received'
+  SMS_STATUS_FAILED = 'failed'
+
+  ##
   # Error codes
   ERR_INVALID_TO_PHONE_NUMBER = 21211
   ERR_INVALID_FROM_PHONE_NUMBER = 21212
@@ -73,6 +81,10 @@ module Twilio
     property :to,           :from => :To,          required: true
     property :body,         :from => :Body,        required: true
 
+    # Optional STATUS and PRICE fields
+    property :status,       :from => :SmsStatus
+    property :price,        :from => :Price,       transformer: lambda { |v| BigDecimal.new(v) rescue nil }
+
     # Optional FROM fields
     property :from_city,    :from => :FromCity
     property :from_state,   :from => :FromState
@@ -84,6 +96,35 @@ module Twilio
     property :to_state,     :from => :ToState
     property :to_zip,       :from => :ToZip
     property :to_country,   :from => :ToCountry
+
+    # Optional DATE fields
+    property :date_created, :from => :DateCreated, transformer: lambda { |v| Time.parse(v) rescue nil }
+    alias_method :created_at, :date_created
+
+    property :date_updated, :from => :DateUpdated, transformer: lambda { |v| Time.parse(v) rescue nil }
+    alias_method :updated_at, :date_updated
+
+    property :date_sent,    :from => :DateSent,    transformer: lambda { |v| Time.parse(v) rescue nil }
+    alias_method :sent_at, :date_sent
+    
+    def message_status
+      self.class.translate_status self.status
+    end
+    
+    # Translation helper methods
+    def self.translate_status( v )
+      return case v
+        when SMS_STATUS_SENT; Message::SENT
+        when SMS_STATUS_SENDING; Message::SENDING
+        when SMS_STATUS_QUEUED; Message::QUEUED
+        when SMS_STATUS_RECEIVED; Message::RECEIVED
+        when SMS_STATUS_FAILED; Message::FAILED
+        else
+          puts "SmsStatus: #{v}"
+          nil
+      end
+    end
+
   end
 
   ##
@@ -91,9 +132,17 @@ module Twilio
   module REST
 
     class InstanceResource
+    
+      ##
+      # Test if the object is loaded from Twilio. We test this by querying for the existance of additional methods on the object.
+      def is_loaded?
+        !(self.methods - self.class.instance_methods).empty?
+      end
+
       ##
       # Convert the 'payload' of the message into a hash class, for ease of use later
       def to_property_hash
+        self.refresh unless self.is_loaded?
         (self.methods - self.class.instance_methods).each_with_object(HashWithIndifferentAccess.new) do |property, properties|
           properties[property] = self.send(property) if self.respond_to?(property)
         end
@@ -125,13 +174,13 @@ module Twilio
         
         property :account_sid
 
-        property :date_created, transformer: lambda { |v| DateTime.parse(v) rescue nil }
+        property :date_created, transformer: lambda { |v| Time.parse(v) rescue nil }
         alias_method :created_at, :date_created
 
-        property :date_updated, transformer: lambda { |v| DateTime.parse(v) rescue nil }
+        property :date_updated, transformer: lambda { |v| Time.parse(v) rescue nil }
         alias_method :updated_at, :date_updated
 
-        property :date_sent,    transformer: lambda { |v| DateTime.parse(v) rescue nil }
+        property :date_sent,    transformer: lambda { |v| Time.parse(v) rescue nil }
         alias_method :sent_at, :date_sent
 
         property :to
@@ -148,7 +197,14 @@ module Twilio
         property :price, transformer: lambda { |v| BigDecimal.new v rescue nil }
         property :price_unit
         
+
         property :api_version
+
+        def message_status
+          puts self.to_s if Twilio::InboundSms.translate_status(self.status).nil?
+          Twilio::InboundSms.translate_status self.status
+        end
+
       end
     end
 

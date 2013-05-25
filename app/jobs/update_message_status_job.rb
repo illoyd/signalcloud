@@ -14,41 +14,32 @@ class UpdateMessageStatusJob < Struct.new( :callback_values )
   SMS_STATUS_SENT = 'sent'
   SMS_STATUS_SENDING = 'sending'
   SMS_STATUS_QUEUED = 'queued'
+  
+  def sms
+    @sms ||= Twilio::InboundSms.new( self.callback_values )
+  end
+  
+  def sms=(value)
+    @sms = value
+  end
 
   def perform
-    # First, standardise callback values into 'underscored' formats
-    self.standardise_callback_values!
-    
-    # Get the original message and update
-    message = Message.find_by_twilio_sid!( self.callback_values[:sms_sid] )
+    message = Message.find_by_twilio_sid!( sms.sms_sid )
 
-    # If the status data does not contain all the needed data, query it
-    self.callback_values.merge!( message.twilio_status.to_property_hash ) if self.requires_requerying_sms_status?
-    self.standardise_callback_values!
+    # If we are missing a price, try to requery for it
+    self.sms = message.twilio_status.to_property_smash if ( sms.price.nil? and sms.message_status == Message::SENT )
     
-    # Attach the callback payload
+    # Update the message
     message.provider_update = self.callback_values
-
-    # Update the message's status
-    message.status = self.translate_twilio_sms_status(self.callback_values[:sms_status])
-    message.sent_at = self.callback_values.fetch(:date_sent, nil)
+    message.status = sms.message_status
+    message.sent_at = sms.sent_at if ( sms.message_status == Message::SENT )
     
     # Update price if available
-    if self.callback_values.include? :price and !self.callback_values[:price].nil?
-      message.provider_cost = self.callback_values[:price].to_f
-      message.save!
-      #message.our_cost = message.conversation.stencil.organization.account_plan.calculate_outbound_sms_cost( message.provider_cost )
-
-      # Update the ledger_entry
-      #ledger_entry = message.ledger_entry
-      #ledger_entry.value = message.cost
-      date_sent = self.callback_values.fetch(:date_sent, nil)
-      date_sent = DateTime.now if date_sent.blank?
-      date_sent = DateTime.parse( date_sent ) if date_sent.is_a?( String )
-      # date_sent = date_sent.blank? ? DateTime.now : DateTime.parse( date_sent )
-      message.ledger_entry.settled_at = date_sent
+    unless sms.price.nil?
+      message.provider_cost = sms.price
+      message.ledger_entry.settled_at = sms.sent_at || DateTime.now
     end
-    
+
     # Save as a db transaction
     message.save!
     message.ledger_entry.save! if message.ledger_entry
@@ -58,7 +49,7 @@ class UpdateMessageStatusJob < Struct.new( :callback_values )
     case message.message_kind
       when Message::CHALLENGE
         unless conversation.has_outstanding_challenge_messages?
-          conversation.challenge_sent_at = self.callback_values[:date_sent]
+          conversation.challenge_sent_at = sms.sent_at # self.callback_values[:date_sent]
           conversation.challenge_status = Message::SENT
           conversation.status = Conversation::CHALLENGE_SENT unless conversation.is_closed?
         else
@@ -67,7 +58,7 @@ class UpdateMessageStatusJob < Struct.new( :callback_values )
         end 
       when Message::REPLY
         unless conversation.has_outstanding_reply_messages?
-          conversation.reply_sent_at = self.callback_values[:date_sent]
+          conversation.reply_sent_at = sms.sent_at # self.callback_values[:date_sent]
           conversation.reply_status = Message::SENT
         else
           conversation.reply_status = Message::SENDING
