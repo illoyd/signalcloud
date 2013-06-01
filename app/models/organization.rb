@@ -407,22 +407,7 @@ class Organization < ActiveRecord::Base
   ##
   # Return the date of the last invoice, or the first ledger_entry
   def last_invoice_date
-
-    # Get last invoice date
-    date = self.invoices.maximum('date_to')
-    date = (date + 1.day).beginning_of_day if date
-
-    # Get first ledger entry
-    unless date
-      date = self.ledger_entries.minimum('created_at')
-      date = date.beginning_of_day if date
-    end
-    
-    # Finally, throw an error
-    raise FreshBooksError.new( 'Cannot create a new invoice as there are no transactions to record' ) if date.nil?
-    
-    # Return the happy time
-    return date.to_time
+    self.invoices.maximum('date_to') || nil
   end
   
   def assemble_freshbooks_payment_data( amount )

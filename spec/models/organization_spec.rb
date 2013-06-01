@@ -67,23 +67,8 @@ describe Organization, :vcr do
       end
     end
 
-    context 'has ledger entries' do
-      let(:created_at)   { 1.week.ago }
-      let(:ledger_entry) { create :ledger_entry, organization: subject, created_at: created_at }
-      it 'does not raise an error' do
-        ledger_entry
-        expect { subject.last_invoice_date }.not_to raise_error
-      end
-      it 'returns the date of the first ledger entry' do
-        ledger_entry
-        subject.last_invoice_date.should be_within(1).of(created_at)
-      end
-    end
-
-    context 'has no ledger entries or past invoices' do
-      it 'raises an error' do
-        expect { subject.last_invoice_date }.to raise_error
-      end
+    it 'returns nil when no past invoices available' do
+      expect { subject.last_invoice_date }.to be_nil
     end
   end
   
