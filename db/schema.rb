@@ -41,15 +41,15 @@ ActiveRecord::Schema.define(:version => 20130525142700) do
 
   create_table "addresses", :force => true do |t|
     t.integer  "organization_id"
-    t.string   "first_name"
-    t.string   "last_name"
-    t.string   "email"
+    t.string   "first_name",      :null => false
+    t.string   "last_name",       :null => false
+    t.string   "email",           :null => false
     t.string   "line1"
     t.string   "line2"
-    t.string   "city",            :null => false
+    t.string   "city"
     t.string   "region"
     t.string   "postcode"
-    t.string   "country",         :null => false
+    t.string   "country"
     t.string   "work_phone"
     t.datetime "created_at",      :null => false
     t.datetime "updated_at",      :null => false
@@ -243,7 +243,8 @@ ActiveRecord::Schema.define(:version => 20130525142700) do
   create_table "phone_numbers", :force => true do |t|
     t.integer  "organization_id",                                                                           :null => false
     t.string   "number",                                                                                    :null => false
-    t.string   "twilio_phone_number_sid",                                                                   :null => false
+    t.string   "workflow_state"
+    t.string   "twilio_phone_number_sid"
     t.integer  "unsolicited_sms_action",    :limit => 2,                               :default => 0,       :null => false
     t.string   "unsolicited_sms_message"
     t.integer  "unsolicited_call_action",   :limit => 2,                               :default => 0,       :null => false

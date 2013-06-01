@@ -2,15 +2,15 @@ class CreateAddresses < ActiveRecord::Migration
   def change
     create_table :addresses do |t|
       t.references :organization
-      t.string :first_name
-      t.string :last_name
-      t.string :email
+      t.string :first_name, null: false
+      t.string :last_name, null: false
+      t.string :email, null: false
       t.string :line1
       t.string :line2
-      t.string :city, null: false
+      t.string :city
       t.string :region
       t.string :postcode
-      t.string :country, null: false
+      t.string :country
       t.string :work_phone
 
       t.timestamps

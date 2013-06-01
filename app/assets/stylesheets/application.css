@@ -36,3 +36,20 @@ div.navbar {
 
 .table tr.middle td { vertical-align: middle; }
 .table .centered { text-align: center; }
+
+
+
+div.tiles {}
+div.tiles a.tile {
+  height: 70px;
+  text-align: center;
+  vertical-align: middle;
+  display: block;
+  color: white;
+  text-decoration: none;
+  font-size: 50px;
+  line-height: 70px;
+}
+
+.phone_books { background: -webkit-linear-gradient(#E74C3C 0%, #C0392B 100%) }
+.conversations { background: -webkit-linear-gradient(#3498DB 0%, #2980B9 100%) }

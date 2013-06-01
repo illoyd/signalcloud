@@ -40,7 +40,11 @@ module Twilio
   SMS_STATUS_FAILED = 'failed'
 
   ##
-  # Error codes
+  # Purchasing error codes
+  ERR_PHONE_NUMBER_NOT_AVAILABLE = 21452
+
+  ##
+  # SMS Error codes
   ERR_INVALID_TO_PHONE_NUMBER = 21211
   ERR_INVALID_FROM_PHONE_NUMBER = 21212
   ERR_FROM_PHONE_NUMBER_NOT_SMS_CAPABLE = 21606

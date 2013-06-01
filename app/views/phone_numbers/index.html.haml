@@ -10,7 +10,10 @@
 / Page body
 .row
   .span12.table-tools
-    = link_to 'Search for a new Phone Number', search_organization_phone_numbers_path(@organization), :class => 'btn btn-success btn-small pull-right'
+    - if can? :create, PhoneNumber
+      = link_to 'Search for a new Phone Number', search_organization_phone_numbers_path(@organization), :class => 'btn btn-success btn-small pull-right'
+    - else
+      = link_to 'Search for a new Phone Number', '#', :class => 'btn btn-disabled btn-small pull-right'
 
 .row
   .span12
@@ -32,6 +35,6 @@
                 { label: 'Details', icon: :show, link: [@organization, phone_number], if: can?(:show, phone_number) }, |
                 { label: 'Delete', icon: :delete, link: [@organization, phone_number], options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, phone_number) } |
               ], { class: 'btn-mini' }) |
-            %td= humanize_phone_number phone_number.number
+            %td= link_to humanize_phone_number(phone_number.number), [@organization, phone_number]
             %td= phone_number.phone_books.count
-            %td= phone_number.cost.round(2)
+            %td= currency_for phone_number.cost

@@ -132,6 +132,15 @@
                       Sign out
   
       / Body
+      -#
+        - if @organization
+          .row.tiles
+            .span1
+              = link_to organization_conversations_path( @organization ), class: 'tile conversations' do
+                = icon( :conversations )
+              = link_to organization_phone_books_path( @organization ), class: 'tile phone_books' do
+                = icon( :phone_books )
+          
       = render 'layouts/messages'
       = render 'layouts/header'
       = yield

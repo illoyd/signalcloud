@@ -1,4 +1,11 @@
 GIT
+  remote: git://github.com/danpal/attr_encryptor.git
+  revision: 57f25b325f1ce6fdae0926c1f332fcaf04736000
+  specs:
+    attr_encryptor (1.0.1)
+      encryptor2 (>= 1.0.0)
+
+GIT
   remote: git://github.com/illoyd/phony.git
   revision: 188e2c54f75aa39580dd521c2b915bc6a43b945b
   specs:
@@ -52,8 +59,6 @@ GEM
       httparty
       net-http-persistent
     arel (3.0.2)
-    attr_encryptor (1.0.2)
-      encryptor2 (>= 1.0.0)
     autotest-rails (4.1.0)
       ZenTest
     bcrypt-ruby (3.0.1)
@@ -217,6 +222,7 @@ GEM
     webmock (1.11.0)
       addressable (>= 2.2.7)
       crack (>= 0.3.2)
+    workflow (1.0.0)
 
 PLATFORMS
   ruby
@@ -225,7 +231,7 @@ DEPENDENCIES
   ZenTest (~> 4.4.2)
   active_model_serializers
   api_smith
-  attr_encryptor
+  attr_encryptor!
   autotest-rails (~> 4.1.0)
   cancan
   coffee-rails (~> 3.2.1)
@@ -258,3 +264,4 @@ DEPENDENCIES
   unicorn
   vcr
   webmock (~> 1.11.0)
+  workflow

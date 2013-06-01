@@ -47,7 +47,7 @@ gem 'devise'
 gem 'devise-async'
 gem 'devise_invitable'
 gem 'cancan'
-gem 'attr_encryptor'
+gem 'attr_encryptor', :git => 'git://github.com/danpal/attr_encryptor.git'
 gem 'kaminari'
 gem 'phony', :git => 'git://github.com/illoyd/phony.git'
 gem 'stringex'
@@ -57,6 +57,7 @@ gem 'api_smith'
 gem 'twitter_bootstrap_form_for', :git => 'git://github.com/stouset/twitter_bootstrap_form_for.git', :branch => 'bootstrap-2.0'
 gem 'country_select'
 gem 'countries'
+gem 'workflow'
 
 group :test, :development do
   gem "rspec-rails", "~> 2.0"

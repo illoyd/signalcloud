@@ -4,7 +4,7 @@ describe Address do
 
   it { should belong_to :organization }
 
-  [ :first_name, :last_name, :email, :city, :region, :postcode, :country ].each do |attribute|
+  [ :first_name, :last_name, :email ].each do |attribute|
     it { should validate_presence_of attribute }
   end
   

@@ -44,8 +44,12 @@ class OrganizationsController < ApplicationController
   # POST /organizations
   # POST /organizations.json
   def create
-    # @organization = Organization.new( params[:organization] )
-
+    
+    # Delete sensitive settings unless system admin
+    unless current_user.system_admin
+      params[:organization].delete( :account_plan_id ) 
+      params[:organization].delete( :account_plan ) 
+    end
 
     flash[:success] = 'Your organization has been created.' if @organization.update_attributes(params[:organization])
     respond_with @organization
@@ -55,16 +59,14 @@ class OrganizationsController < ApplicationController
   # PUT /organizations/1.json
   def update
     
-    # Delete the sensitive settings unless system admin
+    # Delete sensitive settings unless system admin
     unless current_user.system_admin
       params[:organization].delete( :account_plan_id ) 
       params[:organization].delete( :account_plan ) 
     end
 
     # Save
-    if @organization.update_attributes(params[:organization])
-      flash[:success] = 'Your organization has been updated.'
-    end
+    flash[:success] = 'Your organization has been updated.' if @organization.update_attributes(params[:organization])
     respond_with @organization
   end
 

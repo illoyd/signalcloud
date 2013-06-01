@@ -76,11 +76,11 @@ describe Organization, :vcr do
       end
       it 'returns the date of the first ledger entry' do
         ledger_entry
-        subject.last_invoice_date.should eq( created_at )
+        subject.last_invoice_date.should be_within(1).of(created_at)
       end
     end
 
-    context 'has no ledger entries' do
+    context 'has no ledger entries or past invoices' do
       it 'raises an error' do
         expect { subject.last_invoice_date }.to raise_error
       end

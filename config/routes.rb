@@ -68,10 +68,10 @@ SignalCloud::Application.routes.draw do
       get 'page/:page', action: :index
     end
   
-    resources :phone_numbers, only: [ :index, :show, :edit, :update ] do
+    resources :phone_numbers, only: [ :index, :show, :create, :edit, :update ] do
       collection do
         get 'search/:country', action: 'search', defaults: { country: 'US' }, constraint: { country: /(US|CA|GB)/ }, as: 'search'
-        post 'buy', action: 'buy', as: 'buy'
+        # post 'buy', action: 'buy', as: 'buy'
       end
     end
   

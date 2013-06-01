@@ -8,6 +8,8 @@ describe Invoice, :vcr do
   let(:november) { '2012-11-30'.to_datetime.end_of_month }
   let(:december) { '2012-12-31'.to_datetime.end_of_month }
   let(:january)  { '2013-01-30'.to_datetime.end_of_month }
+  
+  let(:freshbooks_invoice_id) { 431652 }
 
   [ :organization, :date_to ].each do |attribute|
     it { should validate_presence_of( attribute ) }
@@ -62,6 +64,28 @@ describe Invoice, :vcr do
     end
   end
   
+  describe '#freshbooks_invoice' do
+    context 'when invoice has not been created' do
+      subject { build(:invoice, organization: organization) }
+      it 'raises error if requested' do
+        expect { subject.freshbooks_invoice }.to raise_error(SignalCloud::ClientInvoiceNotCreatedError)
+      end
+    end
+    
+    context 'when invoice has been created' do
+      subject { build(:invoice, freshbooks_invoice_id: freshbooks_invoice_id, organization: organization) }
+      it 'returns a hash' do
+        subject.freshbooks_invoice.should be_a Hash
+      end
+      it 'includes certain keys' do
+        subject.freshbooks_invoice.should include( 'invoice_id', 'client_id', 'amount' )
+      end
+      it 'includes the invoice_id' do
+        subject.freshbooks_invoice['invoice_id'].should == freshbooks_invoice_id.to_s
+      end
+    end
+  end
+  
   describe '#create_invoice! and #send_invoice!' do
     context 'when invoice has not been created' do
       subject { build(:invoice, organization: organization) }
@@ -78,7 +102,7 @@ describe Invoice, :vcr do
     end
     
     context 'when invoice has been created' do
-      subject { build(:invoice, freshbooks_invoice_id: 431193, organization: organization) }
+      subject { build(:invoice, freshbooks_invoice_id: freshbooks_invoice_id, organization: organization) }
   
       it { should have_invoice }
   
@@ -98,7 +122,7 @@ describe Invoice, :vcr do
     before(:each) { subject.capture_uninvoiced_ledger_entries }
     
     it 'includes necessary data' do
-      subject.construct_freshbooks_invoice_data.should include(:client_id, :lines)
+      subject.construct_freshbooks_invoice_data.should include( 'client_id', 'lines' )
     end
     
     it 'includes the freshbooks id' do

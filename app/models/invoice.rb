@@ -17,7 +17,7 @@ class Invoice < ActiveRecord::Base
   # Prepare the contents of the invoice and save as a draft.
   def prepare!
     self.capture_uninvoiced_ledger_entries
-    self.create_freshbooks_invoice!
+    self.create_freshbooks_invoice! unless self.has_invoice?
     self.apply_freshbooks_credit!
   end
   
@@ -42,10 +42,16 @@ class Invoice < ActiveRecord::Base
   end
   
   ##
+  # Ask FreshBooks for the current balance of the invoice
+  def invoice_balance
+    BigDecimal.new(self.freshbooks_invoice['amount']) rescue nil
+  end
+
+  ##
   # Capture all uninvoiced, settled transactions and assign to this invoice.
   def capture_uninvoiced_ledger_entries
     raise SignalCloud::SignalCloudError.new( 'Invoice must be saved before capturing ledger entries.' ) if self.new_record?
-    self.organization.ledger_entries.uninvoiced.settled_before( self.date_to ).update_all( invoice_id: self.id )
+    self.organization.ledger_entries.uninvoiced.debits.settled_before( self.date_to ).update_all( invoice_id: self.id )
     self.ledger_entries(true) # Force a reload of ledger_entries
   end
   
@@ -108,7 +114,7 @@ class Invoice < ActiveRecord::Base
   ##
   # Apply a single credit to this invoice.
   def apply_freshbooks_credit!
-    credit = [ self.organization.freshbooks_credits[:USD], self.balance ].min
+    credit = [ self.organization.freshbooks_credits[:USD], self.invoice_balance, 0 ].min
     response = FreshBooks.account.payment.create({ payment: {
       invoice_id: self.freshbooks_invoice_id,
       client_id: self.organization.freshbooks_id,
@@ -120,15 +126,19 @@ class Invoice < ActiveRecord::Base
   ##
   # Update self from FreshBooks data.
   def refresh_from_freshbooks
+    fb_invoice = self.freshbooks_invoice
+    self.public_link = fb_invoice['links']['client_view']
+    self.internal_link = fb_invoice['links']['view']
+  end
+  
+  def freshbooks_invoice
     raise SignalCloud::OrganizationNotAssociatedError.new if self.organization.nil?
     raise SignalCloud::FreshBooksAccountNotConfiguredError.new if self.organization.freshbooks_id.nil?
-    raise SignalCloud::MissingClientInvoiceError.new unless self.has_invoice?
+    raise SignalCloud::ClientInvoiceNotCreatedError.new unless self.has_invoice?
 
     response = FreshBooks.account.invoice.get({ invoice_id: self.freshbooks_invoice_id })
     raise SignalCloud::FreshBooksError.new( 'Could not find invoice %i for client %i: %s (%i)' % [ self.freshbooks_invoice_id, self.organization.freshbooks_id, response['error'], response['code'] ], response['code'] ) unless response.success?
-
-    self.public_link = response['invoice']['links']['client_view']
-    self.internal_link = response['invoice']['links']['view']
+    return response['invoice']
   end
 
   #alias :create_invoice :create_freshbooks_invoice
