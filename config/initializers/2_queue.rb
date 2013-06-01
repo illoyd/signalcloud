@@ -1,4 +1,3 @@
-
 module JobTools
 
   ##
@@ -38,5 +37,34 @@ module JobTools
     options[:priority] ||= priority_for_job(job)
     Delayed::Job.enqueue job, options
   end
+
+end
+
+module MyQueue
+
+  EMERGENCY = 0
+  VERY_HIGH = 10
+  HIGH = 50
+  NORMAL = 100
+  LOW = 150
+  VERY_LOW = 200
+
+  def self.push( *params )
+    # Extract options
+    default_options = params.extract_options!
+    
+    # For every passed job, queue it up
+    params.each do |job|
+
+      # Configure queue and priority from options
+      options = default_options.dup
+      options[:priority] ||= job.priority if job.respond_to? :priority
+      options[:queue]    ||= job.queue    if job.respond_to? :queue
+    
+      Delayed::Job.enqueue job, options
+    end
+  end
+  
+  # alias :enqueue :push
 
 end
