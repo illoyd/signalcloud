@@ -2,8 +2,7 @@ require 'spec_helper'
 
 describe Invoice, :vcr do
   
-  # let(:organization) { create_freshbooks_account() }
-  let(:organization) { create :freshbooks_account }
+  let(:organization)     { create :freshbooks_account, :with_january_data }
 
   let(:november) { '2012-11-30'.to_datetime.end_of_month }
   let(:december) { '2012-12-31'.to_datetime.end_of_month }
@@ -16,6 +15,7 @@ describe Invoice, :vcr do
   end
 
   describe '#capture_uninvoiced_ledger_entries' do
+    let(:organization)     { create :freshbooks_account, :with_data }
     let(:november_invoice) { create(:invoice, organization: organization, date_to: november) }
     let(:december_invoice) { create(:invoice, organization: organization, date_to: december) }
     let(:january_invoice)  { create(:invoice, organization: organization, date_to: january) }
@@ -24,32 +24,32 @@ describe Invoice, :vcr do
     let(:january_count)    { 11 }
     
     it 'captures November 2012 (and earlier) entries' do
-      expect{ november_invoice.capture_uninvoiced_ledger_entries }.to change{ november_invoice.ledger_entries(true).count }.from(0).to(november_count)
+      expect{ november_invoice.capture_uninvoiced_ledger_entries! }.to change{ november_invoice.ledger_entries(true).count }.from(0).to(november_count)
     end
 
     it 'captures December 2012 (and earlier) entries' do
-      expect{ december_invoice.capture_uninvoiced_ledger_entries }.to change{ december_invoice.ledger_entries(true).count }.from(0).to(november_count+december_count)
+      expect{ december_invoice.capture_uninvoiced_ledger_entries! }.to change{ december_invoice.ledger_entries(true).count }.from(0).to(november_count+december_count)
     end
 
     it 'captures January 2013 (and earlier) entries' do
-      expect{ january_invoice.capture_uninvoiced_ledger_entries }.to change{ january_invoice.ledger_entries(true).count }.from(0).to(november_count+december_count+january_count)
+      expect{ january_invoice.capture_uninvoiced_ledger_entries! }.to change{ january_invoice.ledger_entries(true).count }.from(0).to(november_count+december_count+january_count)
     end
 
     it 'captures December 2012 (only) entries' do
-      november_invoice.capture_uninvoiced_ledger_entries
-      expect{ december_invoice.capture_uninvoiced_ledger_entries }.to change{ december_invoice.ledger_entries(true).count }.from(0).to(december_count)
+      november_invoice.capture_uninvoiced_ledger_entries!
+      expect{ december_invoice.capture_uninvoiced_ledger_entries! }.to change{ december_invoice.ledger_entries(true).count }.from(0).to(december_count)
     end
 
     it 'captures January 2013 (only) entries' do
-      november_invoice.capture_uninvoiced_ledger_entries
-      december_invoice.capture_uninvoiced_ledger_entries
-      expect{ january_invoice.capture_uninvoiced_ledger_entries }.to change{ january_invoice.ledger_entries(true).count }.from(0).to(january_count)
+      november_invoice.capture_uninvoiced_ledger_entries!
+      december_invoice.capture_uninvoiced_ledger_entries!
+      expect{ january_invoice.capture_uninvoiced_ledger_entries! }.to change{ january_invoice.ledger_entries(true).count }.from(0).to(january_count)
     end
 
   end
   
   describe '#prepare!' do
-    subject { organization.create_next_invoice }
+    subject { create :invoice, organization: organization }
 
     it 'raises an invoice' do
       expect{ subject.prepare! }.not_to raise_error
@@ -57,7 +57,8 @@ describe Invoice, :vcr do
   end
   
   describe '#settle!' do
-    subject { organization.create_next_invoice }
+    subject { create :invoice, organization: organization }
+    before(:each) { subject.prepare! }
 
     it 'raises an invoice' do
       expect{ subject.settle! }.not_to raise_error
@@ -81,7 +82,7 @@ describe Invoice, :vcr do
         subject.freshbooks_invoice.should include( 'invoice_id', 'client_id', 'amount' )
       end
       it 'includes the invoice_id' do
-        subject.freshbooks_invoice['invoice_id'].should == freshbooks_invoice_id.to_s
+        subject.freshbooks_invoice['invoice_id'].sub(/\A0+/, '').should == freshbooks_invoice_id.to_s
       end
     end
   end
@@ -119,10 +120,10 @@ describe Invoice, :vcr do
 
   describe '#construct_freshbooks_invoice_data' do
     subject { create(:invoice, organization: organization, date_from: november ) }
-    before(:each) { subject.capture_uninvoiced_ledger_entries }
+    before(:each) { subject.capture_uninvoiced_ledger_entries! }
     
     it 'includes necessary data' do
-      subject.construct_freshbooks_invoice_data.should include( 'client_id', 'lines' )
+      subject.construct_freshbooks_invoice_data.should include( :client_id, :lines )
     end
     
     it 'includes the freshbooks id' do

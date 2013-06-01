@@ -83,6 +83,12 @@ end
 # FreshBooks Error!
 class FreshBooksError < SignalCloudError; end
 
+class FreshBooksApiError < FreshBooksError
+  def initialize( response, original = nil, code = nil )
+    super( 'FreshBooks API: %s (%s).' % [response['error'], response['code']], original, code )
+  end
+end
+
 ##
 # Thrown whenever the given item does not have a FreshBooks organization yet.
 class MissingFreshBooksClientError < FreshBooksError

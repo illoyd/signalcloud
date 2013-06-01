@@ -10,17 +10,33 @@ FactoryGirl.define do
       phone_book      = create(:phone_book, organization: organization)
       create(:phone_book_entry, phone_number: phone_number, phone_book: phone_book)
       stencil         = create(:stencil, organization: organization, phone_book: phone_book)
-      
-      # December 2012: 3 confirmed, 3 failed, 3 denied, 3 expired, 3 unsettled conversations (15; 33 ledger entries)
-      create_conversations_for_month( stencil, '2012-12-01', 3 )
-
-      # November 2012: 2 of each (10; 22 ledger entries)
-      create_conversations_for_month( stencil, '2012-11-01', 2 )
-      
-      # January 2013: 1 of each (5; 11 ledger_entries)
-      create_conversations_for_month( stencil, '2013-01-01', 1 )
-      
-      # organization.ledger_entries.create( narrative: 'Auto Top-Up', value: 10 )
+    end
+    
+    trait :with_data do
+      with_november_data
+      with_december_data
+      with_january_data
+    end
+    
+    trait :with_november_data do
+      after(:create) do |organization, evaluator|
+        # November 2012: 2 confirmed, 2 failed, 2 denied, 2 expired, 2 unsettled conversations (10; 22 ledger entries)
+        create_conversations_for_month( organization.stencils.last, '2012-11-01', 2 )
+      end
+    end
+    
+    trait :with_december_data do
+      after(:create) do |organization, evaluator|
+        # December 2012: 3 confirmed, 3 failed, 3 denied, 3 expired, 3 unsettled conversations (15; 33 ledger entries)
+        create_conversations_for_month( organization.stencils.last, '2012-12-01', 3 )
+      end
+    end
+    
+    trait :with_january_data do
+      after(:create) do |organization, evaluator|
+        # December 2012: 1 confirmed, 1 failed, 1 denied, 1 expired, 1 unsettled conversations (5; 11 ledger entries)
+        create_conversations_for_month( organization.stencils.last, '2013-01-01', 1 )
+      end
     end
   end
   

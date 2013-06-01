@@ -1,4 +1,5 @@
 class Invoice < ActiveRecord::Base
+  include Workflow
   attr_accessible :date_from, :date_to, :sent_at
   
   belongs_to :organization, inverse_of: :invoices
@@ -8,24 +9,23 @@ class Invoice < ActiveRecord::Base
   
   before_create :ensure_dates
   
+  workflow do
+    state :new do
+      event :prepare, transitions_to: :prepared
+    end
+    state :prepared do
+      event :settle, transitions_to: :settled
+    end
+    state :settled
+  end
+
   def ensure_dates
     self.date_from ||= self.ledger_entries.minimum( 'created_at' )
-    self.date_to   ||= DateTime.yesterday.end_of_day
+    self.date_to   ||= self.ledger_entries.maximum( 'created_at' )
   end
   
-  ##
-  # Prepare the contents of the invoice and save as a draft.
-  def prepare!
-    self.capture_uninvoiced_ledger_entries
-    self.create_freshbooks_invoice! unless self.has_invoice?
-    self.apply_freshbooks_credit!
-  end
-  
-  ##
-  # Automaticaly create, save, and send the freshbook invoice.
-  def settle!
-    self.prepare!
-    self.send_freshbooks_invoice!
+  def default_date_to
+    DateTime.yesterday.end_of_day
   end
   
   ##
@@ -43,14 +43,21 @@ class Invoice < ActiveRecord::Base
   
   ##
   # Ask FreshBooks for the current balance of the invoice
-  def invoice_balance
+  def invoice_amount
     BigDecimal.new(self.freshbooks_invoice['amount']) rescue nil
   end
 
   ##
+  # Ask FreshBooks for the current balance of the invoice
+  def invoice_balance
+    BigDecimal.new(self.freshbooks_invoice['amount_outstanding']) rescue nil
+  end
+
+  ##
   # Capture all uninvoiced, settled transactions and assign to this invoice.
-  def capture_uninvoiced_ledger_entries
+  def capture_uninvoiced_ledger_entries!
     raise SignalCloud::SignalCloudError.new( 'Invoice must be saved before capturing ledger entries.' ) if self.new_record?
+    self.date_to ||= self.default_date_to
     self.organization.ledger_entries.uninvoiced.debits.settled_before( self.date_to ).update_all( invoice_id: self.id )
     self.ledger_entries(true) # Force a reload of ledger_entries
   end
@@ -114,7 +121,7 @@ class Invoice < ActiveRecord::Base
   ##
   # Apply a single credit to this invoice.
   def apply_freshbooks_credit!
-    credit = [ self.organization.freshbooks_credits[:USD], self.invoice_balance, 0 ].min
+    credit = [ self.organization.freshbooks_credits[:USD], self.invoice_balance ].min
     response = FreshBooks.account.payment.create({ payment: {
       invoice_id: self.freshbooks_invoice_id,
       client_id: self.organization.freshbooks_id,
@@ -145,4 +152,20 @@ class Invoice < ActiveRecord::Base
   alias :create_invoice! :create_freshbooks_invoice!
   alias :send_invoice! :send_freshbooks_invoice!
   
+private
+
+  ##
+  # Prepare the contents of the invoice and save as a draft.
+  def prepare
+    self.capture_uninvoiced_ledger_entries!
+    self.create_freshbooks_invoice!
+    self.apply_freshbooks_credit!
+  end
+
+  ##
+  # Automaticaly create, save, and send the freshbook invoice.
+  def settle
+    self.send_freshbooks_invoice!
+  end
+
 end

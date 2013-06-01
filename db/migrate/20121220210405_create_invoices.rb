@@ -3,6 +3,7 @@ class CreateInvoices < ActiveRecord::Migration
     create_table :invoices do |t|
       t.references :organization
       t.integer :freshbooks_invoice_id
+      t.string :workflow_state
       t.string :purchase_order
       t.string :public_link
       t.string :internal_link
