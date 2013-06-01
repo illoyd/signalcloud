@@ -22,21 +22,6 @@ SignalCloud::Application.routes.draw do
       resources :conversations, only: [ :index, :new, :create ] do
         collection do
           get 'page/:page', action: :index
-          get 'confirmed', action: :index, defaults: { status: Conversation::CONFIRMED } do
-            get 'page/:page', action: :index
-          end
-          get 'denied', action: :index, defaults: { status: Conversation::DENIED } do
-            get 'page/:page', action: :index, on: :collection
-          end
-          get 'failed', action: :index, defaults: { status: Conversation::FAILED } do
-            get 'page/:page', action: :index, on: :collection
-          end
-          get 'expired', action: :index, defaults: { status: Conversation::EXPIRED } do
-            get 'page/:page', action: :index, on: :collection
-          end
-          get 'open', action: :index, defaults: { status: Conversation::OPEN_STATUSES } do
-            get 'page/:page', action: :index, on: :collection
-          end
         end
       end
     end
@@ -46,21 +31,7 @@ SignalCloud::Application.routes.draw do
         post 'force', action: 'force_status', as: 'force_status'
       end
       collection do
-        get 'confirmed', action: :index, defaults: { status: Conversation::CONFIRMED } do
-          get 'page/:page', action: :index
-        end
-        get 'denied', action: :index, defaults: { status: Conversation::DENIED } do
-          get 'page/:page', action: :index, on: :collection
-        end
-        get 'failed', action: :index, defaults: { status: Conversation::FAILED } do
-          get 'page/:page', action: :index, on: :collection
-        end
-        get 'expired', action: :index, defaults: { status: Conversation::EXPIRED } do
-          get 'page/:page', action: :index, on: :collection
-        end
-        get 'open', action: :index, defaults: { status: Conversation::OPEN_STATUSES } do
-          get 'page/:page', action: :index, on: :collection
-        end
+        get 'page/:page', action: :index
       end
     end
 
@@ -68,10 +39,9 @@ SignalCloud::Application.routes.draw do
       get 'page/:page', action: :index
     end
   
-    resources :phone_numbers, only: [ :index, :show, :create, :edit, :update ] do
+    resources :phone_numbers, only: [ :index, :show, :create, :edit, :update, :destroy ] do
       collection do
         get 'search/:country', action: 'search', defaults: { country: 'US' }, constraint: { country: /(US|CA|GB)/ }, as: 'search'
-        # post 'buy', action: 'buy', as: 'buy'
       end
     end
   
