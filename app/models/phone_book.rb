@@ -1,10 +1,12 @@
 class PhoneBook < ActiveRecord::Base
-  attr_accessible :description, :label
+  attr_accessible :description, :label, :organization, :organization_id
   
   belongs_to :organization, inverse_of: :phone_books
   has_many :stencils, inverse_of: :phone_book
   has_many :phone_book_entries, inverse_of: :phone_book, order: 'country', dependent: :destroy
   has_many :phone_numbers, through: :phone_book_entries #, select: 'phone_numbers.*, phone_book_entries.country AS country'
+  
+  validates_presence_of :organization
   
   def phone_number_ids_by_country( country )
     self.phone_book_entries.where( country: country ).pluck(:phone_number_id)

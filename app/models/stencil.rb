@@ -1,7 +1,7 @@
 class Stencil < ActiveRecord::Base
   # Attributes
   #attr_accessible :encrypted_confirmed_reply, :encrypted_denied_reply, :encrypted_expected_confirmed_answer, :encrypted_expected_denied_answer, :encrypted_expired_reply, :encrypted_failed_reply, :encrypted_question, :phone_book, :seconds_to_live
-  attr_accessible :label, :primary, :phone_book_id, :seconds_to_live, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :question, :description, :webhook_uri
+  attr_accessible :label, :primary, :phone_book, :phone_book_id, :organization, :organization_id, :seconds_to_live, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :question, :description, :webhook_uri
   
   # Encrypted attributes
   attr_encrypted :confirmed_reply, key: ATTR_ENCRYPTED_SECRET
@@ -17,6 +17,8 @@ class Stencil < ActiveRecord::Base
   belongs_to :organization, inverse_of: :stencils
   belongs_to :phone_book, inverse_of: :stencils
   has_many :conversations, inverse_of: :stencil
+  
+  validates_presence_of :organization
   
   def open_conversation( passed_options )
     # Build a hash of options using self as a default, merging passed options
