@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130525142700) do
+ActiveRecord::Schema.define(:version => 20130601180546) do
 
   create_table "account_balances", :force => true do |t|
     t.integer  "organization_id",                                                :null => false
@@ -39,6 +39,18 @@ ActiveRecord::Schema.define(:version => 20130525142700) do
     t.datetime "updated_at",                                                                 :null => false
   end
 
+  create_table "accounting_gateways", :force => true do |t|
+    t.string   "workflow_state"
+    t.string   "type"
+    t.integer  "organization_id"
+    t.string   "encrypted_remote_sid_iv"
+    t.string   "encrypted_remote_sid_salt"
+    t.text     "encrypted_remote_sid"
+    t.datetime "updated_remote_at"
+    t.datetime "created_at",                :null => false
+    t.datetime "updated_at",                :null => false
+  end
+
   create_table "addresses", :force => true do |t|
     t.integer  "organization_id"
     t.string   "first_name",      :null => false
@@ -57,6 +69,22 @@ ActiveRecord::Schema.define(:version => 20130525142700) do
 
   add_index "addresses", ["country"], :name => "index_addresses_on_country"
   add_index "addresses", ["organization_id"], :name => "index_addresses_on_organization_id"
+
+  create_table "communication_gateways", :force => true do |t|
+    t.string   "workflow_state"
+    t.string   "type"
+    t.integer  "organization_id"
+    t.string   "encrypted_remote_sid_iv"
+    t.string   "encrypted_remote_sid_salt"
+    t.text     "encrypted_remote_sid"
+    t.string   "encrypted_remote_token_iv"
+    t.string   "encrypted_remote_token_salt"
+    t.text     "encrypted_remote_token"
+    t.string   "remote_application"
+    t.datetime "updated_remote_at"
+    t.datetime "created_at",                  :null => false
+    t.datetime "updated_at",                  :null => false
+  end
 
   create_table "conversations", :force => true do |t|
     t.integer  "stencil_id",                                                           :null => false
@@ -125,6 +153,7 @@ ActiveRecord::Schema.define(:version => 20130525142700) do
   create_table "invoices", :force => true do |t|
     t.integer  "organization_id"
     t.integer  "freshbooks_invoice_id"
+    t.string   "workflow_state"
     t.string   "purchase_order"
     t.string   "public_link"
     t.string   "internal_link"
@@ -186,37 +215,36 @@ ActiveRecord::Schema.define(:version => 20130525142700) do
   add_index "messages", ["updated_at"], :name => "index_messages_on_updated_at"
 
   create_table "organizations", :force => true do |t|
-    t.integer  "account_plan_id",                   :null => false
-    t.string   "sid",                               :null => false
-    t.string   "auth_token",                        :null => false
-    t.string   "label",                             :null => false
+    t.integer  "account_plan_id",    :null => false
+    t.string   "workflow_state"
+    t.string   "sid",                :null => false
+    t.string   "auth_token",         :null => false
+    t.string   "label",              :null => false
     t.string   "icon"
     t.integer  "contact_address_id"
     t.integer  "billing_address_id"
     t.string   "purchase_order"
     t.string   "vat_name"
     t.string   "vat_number"
-    t.text     "encrypted_twilio_account_sid"
-    t.string   "encrypted_twilio_account_sid_iv"
-    t.string   "encrypted_twilio_account_sid_salt"
-    t.text     "encrypted_twilio_auth_token"
-    t.string   "encrypted_twilio_auth_token_iv"
-    t.string   "encrypted_twilio_auth_token_salt"
-    t.string   "twilio_application_sid"
-    t.text     "encrypted_freshbooks_id"
-    t.string   "encrypted_freshbooks_id_iv"
-    t.string   "encrypted_freshbooks_id_salt"
-    t.text     "encrypted_braintree_id"
-    t.string   "encrypted_braintree_id_iv"
-    t.string   "encrypted_braintree_id_salt"
     t.text     "description"
-    t.datetime "created_at",                        :null => false
-    t.datetime "updated_at",                        :null => false
+    t.datetime "created_at",         :null => false
+    t.datetime "updated_at",         :null => false
   end
 
-  add_index "organizations", ["encrypted_twilio_account_sid"], :name => "index_organizations_on_encrypted_twilio_account_sid"
   add_index "organizations", ["label"], :name => "index_organizations_on_label"
   add_index "organizations", ["sid"], :name => "index_organizations_on_sid", :unique => true
+
+  create_table "payment_gateways", :force => true do |t|
+    t.string   "workflow_state"
+    t.string   "type"
+    t.integer  "organization_id"
+    t.string   "encrypted_remote_sid_iv"
+    t.string   "encrypted_remote_sid_salt"
+    t.text     "encrypted_remote_sid"
+    t.datetime "updated_remote_at"
+    t.datetime "created_at",                :null => false
+    t.datetime "updated_at",                :null => false
+  end
 
   create_table "phone_book_entries", :force => true do |t|
     t.integer  "phone_book_id",   :null => false

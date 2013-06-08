@@ -138,7 +138,7 @@ class PhoneNumber < ActiveRecord::Base
   end
   
   def send_reply_to_unsolicited_sms( customer_number )
-    sms = self.organization.send_sms( customer_number, self.number, self.unsolicited_sms_message )
+    sms = self.organization.send_sms!( customer_number, self.number, self.unsolicited_sms_message )
     #sms.stac
   end
 
@@ -186,7 +186,7 @@ class PhoneNumber < ActiveRecord::Base
 private
 
   def persist_workflow_state(new_value)
-    super
+    write_attribute self.class.workflow_column, new_value
     save
   end
 
@@ -204,9 +204,10 @@ private
   # Attempt to buy the phone number from the Twilio API. If it receives an error, halt the operation.
   def purchase
     raise OrganizationNotAssociatedError.new if self.organization.nil?
-    results = self.organization.twilio_account.incoming_phone_numbers.create( { phone_number: self.number, application_sid: self.organization.twilio_application_sid } )
-    self.twilio_phone_number_sid = results.sid
-    results
+    self.organization.communication_gateway.purchase_number!( self )
+    #results = self.organization.twilio_account.incoming_phone_numbers.create( { phone_number: self.number, application_sid: self.organization.twilio_application_sid } )
+    #self.twilio_phone_number_sid = results.sid
+    #results
   end
   
   ##

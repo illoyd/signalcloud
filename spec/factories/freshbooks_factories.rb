@@ -1,8 +1,8 @@
 FactoryGirl.define do
 
   factory :freshbooks_account, parent: :organization do
-    freshbooks_id       2
-    account_plan        { create :payg_account_plan }
+    association :account_plan,       factory: :payg_account_plan
+    association :accounting_gateway, factory: [ :fresh_books_accounting_gateway, :ready ]
     
     after(:create) do |organization, evaluator|
       # Create basics

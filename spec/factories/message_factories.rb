@@ -22,12 +22,15 @@ FactoryGirl.define do
     end
     
     trait :with_provider_response do
+      ignore do
+        remote_sid { conversation.stencil.organization.communication_gateway.twilio_account_sid rescue 'TEST' }
+      end
       provider_response { {
                           "sid" => twilio_sid,
                           "date_created" => DateTime.now,
                           "date_updated" => DateTime.now,
                           "date_sent" => nil,
-                          "account_sid" => conversation.stencil.organization.twilio_account_sid,
+                          "account_sid" => remote_sid,
                           "to" => conversation.to_number,
                           "from" => conversation.from_number,
                           "body" => conversation.question,
@@ -35,7 +38,7 @@ FactoryGirl.define do
                           "direction" => "outbound-api",
                           "api_version" => "2010-04-01",
                           "price" => nil,
-                          "uri" => "\/2010-04-01\/Accounts\/#{conversation.stencil.organization.twilio_account_sid}\/SMS\/Messages\/#{twilio_sid}.json"
+                          "uri" => "\/2010-04-01\/Accounts\/#{remote_sid}\/SMS\/Messages\/#{twilio_sid}.json"
                         } }
     end
 

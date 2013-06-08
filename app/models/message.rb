@@ -177,7 +177,7 @@ class Message < ActiveRecord::Base
       #  status_callback: self.conversation.stencil.organization.twilio_sms_status_url
       #}).to_property_hash
       
-      self.provider_response = self.conversation.stencil.organization.send_sms( self.to_number, self.from_number, body, { default_callback: true, response_format: :smash })
+      self.provider_response = self.conversation.stencil.organization.send_sms!( self.to_number, self.from_number, body, { default_callback: true, response_format: :smash })
 
       self.twilio_sid = self.provider_response.sms_sid
       self.status = Message.translate_twilio_message_status( self.provider_response.status )

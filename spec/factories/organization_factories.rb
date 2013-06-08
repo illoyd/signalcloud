@@ -6,12 +6,13 @@ FactoryGirl.define do
     label               'Test Account'
     association         :contact_address, factory: :white_house_address
     association         :billing_address, factory: :address
-    account_plan        { create :payg_account_plan }
+    association         :account_plan, factory: :payg_account_plan
     #test_twilio
     #test_freshbooks_client
 
     factory :test_organization do
       label               'White House'
+      test_twilio
       test_freshbooks
     end
     
@@ -26,21 +27,12 @@ FactoryGirl.define do
       auth_token        '247e210af4ee43c1509e5c8508184bf5'
     end
     
-    #trait :missing_twilio do
-    #  twilio_account_sid  nil
-    #  twilio_auth_token   nil
-    #end
-    
     trait :test_twilio do
-      twilio_account_sid      { ENV['TWILIO_TEST_ACCOUNT_SID'] }
-      twilio_auth_token       { ENV['TWILIO_TEST_AUTH_TOKEN'] }
-      twilio_application_sid  { ENV['TWILIO_APPLICATION'] }
+      association :communication_gateway, factory: [ :twilio_communication_gateway, :test ]
     end
     
     trait :master_twilio do
-      twilio_account_sid      { ENV['TWILIO_MASTER_ACCOUNT_SID'] }
-      twilio_auth_token       { ENV['TWILIO_MASTER_AUTH_TOKEN'] }
-      twilio_application_sid  { ENV['TWILIO_APPLICATION'] }
+      association :communication_gateway, factory: [ :twilio_communication_gateway, :master ]
     end
     
     trait :with_twilio do
@@ -52,11 +44,12 @@ FactoryGirl.define do
     end
     
     trait :with_braintree do
-      braintree_id 100
+      # TODO braintree_id 100
     end
     
     trait :test_freshbooks do
-      freshbooks_id 2
+      # freshbooks_id 2
+      association :accounting_gateway, factory: [ :fresh_books_accounting_gateway ]
     end
     
     trait :with_users do

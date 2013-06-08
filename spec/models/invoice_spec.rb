@@ -51,8 +51,14 @@ describe Invoice, :vcr do
   describe '#prepare!' do
     subject { create :invoice, organization: organization }
 
-    it 'raises an invoice' do
+    it 'prepares an invoice' do
       expect{ subject.prepare! }.not_to raise_error
+    end
+    it 'sets public_link' do
+      expect{ subject.prepare! }.to change(subject, :public_link).from(nil)
+    end
+    it 'sets internal_link' do
+      expect{ subject.prepare! }.to change(subject, :internal_link).from(nil)
     end
   end
   
@@ -60,7 +66,7 @@ describe Invoice, :vcr do
     subject { create :invoice, organization: organization }
     before(:each) { subject.prepare! }
 
-    it 'raises an invoice' do
+    it 'sends the invoice' do
       expect{ subject.settle! }.not_to raise_error
     end
   end
@@ -87,37 +93,6 @@ describe Invoice, :vcr do
     end
   end
   
-  describe '#create_invoice! and #send_invoice!' do
-    context 'when invoice has not been created' do
-      subject { build(:invoice, organization: organization) }
-  
-      it { should_not have_invoice }
-  
-      it 'creates invoice' do
-        expect { subject.create_invoice! }.to_not raise_error()
-      end
-  
-      it 'raises error if sent' do
-        expect { subject.send_invoice! }.to raise_error(SignalCloud::ClientInvoiceNotCreatedError)
-      end
-    end
-    
-    context 'when invoice has been created' do
-      subject { build(:invoice, freshbooks_invoice_id: freshbooks_invoice_id, organization: organization) }
-  
-      it { should have_invoice }
-  
-      it 'raises error if created' do
-        expect { subject.create_invoice! }.to raise_error(SignalCloud::ClientInvoiceAlreadyCreatedError)
-      end
-  
-      it 'sends invoice' do
-        expect { subject.send_invoice! }.to_not raise_error()
-        subject.sent_at.should_not be_nil
-      end
-    end
-  end
-
   describe '#construct_freshbooks_invoice_data' do
     subject { create(:invoice, organization: organization, date_from: november ) }
     before(:each) { subject.capture_uninvoiced_ledger_entries! }

@@ -80,7 +80,7 @@ class Invoice < ActiveRecord::Base
   # Internally, we keep charges as negative (-); FreshBooks expects them to be positive (+), so we must invert the sign when passing to FB.
   def create_freshbooks_invoice!
     raise SignalCloud::OrganizationNotAssociatedError.new if self.organization.nil?
-    raise SignalCloud::FreshBooksAccountNotConfiguredError.new if self.organization.freshbooks_id.nil?
+    raise SignalCloud::MissingFreshBooksClientError.new(self.organization) if self.organization.accounting_gateway.freshbooks_id.nil?
     raise SignalCloud::ClientInvoiceAlreadyCreatedError.new if self.has_invoice?
 
     # Update this invoice with the FB invoice id
@@ -110,7 +110,7 @@ class Invoice < ActiveRecord::Base
     end
   
     # Create a new invoice data structure
-    invoice_data = { client_id: self.organization.freshbooks_id, return_uri: 'http://www.signalcloudapp.com' }
+    invoice_data = { client_id: self.organization.accounting_gateway.freshbooks_id, return_uri: 'http://www.signalcloudapp.com' }
     invoice_data[:lines] = invoice_lines unless invoice_lines.empty?
     invoice_data[:po_number] = self.purchase_order unless self.purchase_order.blank?
     invoice_data[:notes] = 'This invoice is provided for information purposes only. No payment is due.' if self.balance >= 0
@@ -121,10 +121,10 @@ class Invoice < ActiveRecord::Base
   ##
   # Apply a single credit to this invoice.
   def apply_freshbooks_credit!
-    credit = [ self.organization.freshbooks_credits[:USD], self.invoice_balance ].min
+    credit = [ self.organization.accounting_gateway.available_credits[:USD], self.invoice_balance ].min
     response = FreshBooks.account.payment.create({ payment: {
       invoice_id: self.freshbooks_invoice_id,
-      client_id: self.organization.freshbooks_id,
+      client_id: self.organization.accounting_gateway.freshbooks_id,
       amount: credit,
       type: 'Credit'
     }})
@@ -140,19 +140,19 @@ class Invoice < ActiveRecord::Base
   
   def freshbooks_invoice
     raise SignalCloud::OrganizationNotAssociatedError.new if self.organization.nil?
-    raise SignalCloud::FreshBooksAccountNotConfiguredError.new if self.organization.freshbooks_id.nil?
+    raise SignalCloud::MissingFreshBooksClientError.new(self.organization) if self.organization.accounting_gateway.freshbooks_id.nil?
     raise SignalCloud::ClientInvoiceNotCreatedError.new unless self.has_invoice?
 
     response = FreshBooks.account.invoice.get({ invoice_id: self.freshbooks_invoice_id })
-    raise SignalCloud::FreshBooksError.new( 'Could not find invoice %i for client %i: %s (%i)' % [ self.freshbooks_invoice_id, self.organization.freshbooks_id, response['error'], response['code'] ], response['code'] ) unless response.success?
+    raise SignalCloud::FreshBooksError.new( 'Could not find invoice %i for client %i: %s (%i)' % [ self.freshbooks_invoice_id, self.organization.accounting_gateway.freshbooks_id, response['error'], response['code'] ], response['code'] ) unless response.success?
     return response['invoice']
   end
 
   #alias :create_invoice :create_freshbooks_invoice
   alias :create_invoice! :create_freshbooks_invoice!
   alias :send_invoice! :send_freshbooks_invoice!
-  
-private
+
+protected
 
   ##
   # Prepare the contents of the invoice and save as a draft.
