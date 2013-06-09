@@ -16,9 +16,7 @@
 //= require_tree .
 
 // Add tooltips and popovers
-/*
 $(document).ready(function() {
     $('[rel=tooltip]').tooltip()
     $('[rel=popover]').popover()
 });
-*/

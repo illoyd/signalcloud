@@ -2,6 +2,8 @@
   .span2
     - queued_count = counts[Conversation::PENDING] + counts[Conversation::QUEUED]
     - queued_statistics = statistics[Conversation::PENDING] + statistics[Conversation::QUEUED]
+    - statistics.keys.each{ |key| statistics[key] = 1 if statistics[key] == 0 }
+    
     = conversation_status_icon Conversation::QUEUED
     Queued
   .span1{ style: 'text-align: right' }
