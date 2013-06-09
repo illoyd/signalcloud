@@ -1,0 +1,122 @@
+@import "twitter/bootstrap/bootstrap";
+@import "twitter/bootstrap/responsive";
+
+// Set the correct sprite paths
+@iconSpritePath: asset-path("twitter/bootstrap/glyphicons-halflings");
+@iconWhiteSpritePath: asset-path("twitter/bootstrap/glyphicons-halflings-white");
+
+// Set the Font Awesome (Font Awesome is default. You can disable by commenting below lines)
+@fontAwesomeEotPath: asset-url("fontawesome-webfont.eot");
+@fontAwesomeEotPath_iefix: asset-url("fontawesome-webfont.eot#iefix");
+@fontAwesomeWoffPath: asset-url("fontawesome-webfont.woff");
+@fontAwesomeTtfPath: asset-url("fontawesome-webfont.ttf");
+@fontAwesomeSvgPath: asset-url("fontawesome-webfont.svg#fontawesomeregular");
+
+// Font Awesome
+@import "fontawesome/font-awesome";
+
+// Glyphicons
+//@import "twitter/bootstrap/sprites.less";
+
+// Your custom LESS stylesheets goes here
+//
+// Since bootstrap was imported above you have access to its mixins which
+// you may use and inherit here
+//
+// If you'd like to override bootstrap's own variables, you can do so here as well
+// See http://twitter.github.com/bootstrap/customize.html#variables for their names and documentation
+//
+
+// My colours!
+@dashboardsColor: #FFCCCC;
+@conversationsColor: #FFE9CC;
+@stencilsColor: #FFFFCC;
+@phoneBooksColor: #DAF2C2;
+@phoneNumbersColor: #C2E5F2;
+@ledgerEntriesColor: #C4BEED;
+@usersColor: #F7C6DB;
+
+// Variable overrides
+@import "bootstrap_variables.css.less";
+
+// CSS overrides
+@import "bootstrap_flat.css.less";
+
+.page-header(@color, @text: 50%, @subtext: 33%) {
+  .page-header {
+    background-color: @color;
+    color: darken(@color, @text);
+    
+    h1 i,
+    small {
+      color: darken(@color, @subtext);
+    }
+  }
+}
+
+// My overrides!
+body.dashboards {
+  .page-header(@dashboardsColor);
+}
+
+body.conversations {
+  .page-header(@conversationsColor);
+}
+
+body.stencils {
+  .page-header(@stencilsColor, 66%, 50%);
+}
+
+body.phone_books {
+  .page-header(@phoneBooksColor);
+}
+
+body.phone_numbers {
+  .page-header(@phoneNumbersColor);
+}
+
+body.ledger_entries {
+  .page-header(@ledgerEntriesColor);
+}
+
+body.users {
+  .page-header(@usersColor);
+}
+
+.navbar .nav a.dashboards:hover,
+.navbar .nav > .active > a.dashboards,
+.navbar .nav > .active > a.dashboards:hover,
+.navbar .nav > .active > a.dashboards:focus { color: white; background-color: @dashboardsColor; }
+
+.navbar .nav a.conversations:hover,
+.navbar .nav > .active > a.conversations,
+.navbar .nav > .active > a.conversations:hover,
+.navbar .nav > .active > a.conversations:focus { background-color: @conversationsColor; }
+
+.navbar .nav a.stencils:hover,
+.navbar .nav > .active > a.stencils,
+.navbar .nav > .active > a.stencils:hover,
+.navbar .nav > .active > a.stencils:focus { background-color: @stencilsColor; }
+
+.navbar .nav a.phone_books:hover,
+.navbar .nav > .active > a.phone_books,
+.navbar .nav > .active > a.phone_books:hover,
+.navbar .nav > .active > a.phone_books:focus { background-color: @phoneBooksColor; }
+
+.navbar .nav a.phone_numbers:hover,
+.navbar .nav > .active > a.phone_numbers,
+.navbar .nav > .active > a.phone_numbers:hover,
+.navbar .nav > .active > a.phone_numbers:focus { background-color: @phoneNumbersColor; }
+
+.navbar .nav a.ledger_entries:hover,
+.navbar .nav > .active > a.ledger_entries,
+.navbar .nav > .active > a.ledger_entries:hover,
+.navbar .nav > .active > a.ledger_entries:focus { background-color: @ledgerEntriesColor; }
+
+.navbar .nav a.users:hover,
+.navbar .nav > .active > a.users,
+.navbar .nav > .active > a.users:hover,
+.navbar .nav > .active > a.users:focus { background-color: @usersColor; }
+
+.navbar { margin-bottom: 0px; }
+.page-header { margin-top: 0px; padding-top: 20px; padding-left: 10px; padding-right: 10px; }

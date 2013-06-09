@@ -9,7 +9,10 @@
  * compiled file, but it's generally better to create a new file per style scope.
  *
  *= require_self
- *= require_tree .
+ *= require bootstrap_and_overrides
+ *= require organizations
+ *= require phone_book_entries
+ * //require_tree .
  */
 
 div.inline-modal {
@@ -50,6 +53,3 @@ div.tiles a.tile {
   font-size: 50px;
   line-height: 70px;
 }
-
-.phone_books { background: -webkit-linear-gradient(#E74C3C 0%, #C0392B 100%) }
-.conversations { background: -webkit-linear-gradient(#3498DB 0%, #2980B9 100%) }
