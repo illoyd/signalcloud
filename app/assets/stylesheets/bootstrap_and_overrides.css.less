@@ -44,14 +44,21 @@
 
 .page-header(@color, @text: 50%, @subtext: 33%) {
   .page-header {
-    background-color: @color;
+    //background-color: @color;
+    #gradient > .vertical( @color, darken(@color, 6%));
     color: darken(@color, @text);
+    .border-radius( 5px );
     
     h1 i,
     small {
       color: darken(@color, @subtext);
     }
   }
+}
+
+.nav-link(@color) {
+  background-color: @color; 
+  .border-radius( 3px 3px 0px 0px );
 }
 
 // My overrides!
@@ -86,37 +93,37 @@ body.users {
 .navbar .nav a.dashboards:hover,
 .navbar .nav > .active > a.dashboards,
 .navbar .nav > .active > a.dashboards:hover,
-.navbar .nav > .active > a.dashboards:focus { color: white; background-color: @dashboardsColor; }
+.navbar .nav > .active > a.dashboards:focus { .nav-link(@dashboardsColor); }
 
 .navbar .nav a.conversations:hover,
 .navbar .nav > .active > a.conversations,
 .navbar .nav > .active > a.conversations:hover,
-.navbar .nav > .active > a.conversations:focus { background-color: @conversationsColor; }
+.navbar .nav > .active > a.conversations:focus { .nav-link(@conversationsColor); }
 
 .navbar .nav a.stencils:hover,
 .navbar .nav > .active > a.stencils,
 .navbar .nav > .active > a.stencils:hover,
-.navbar .nav > .active > a.stencils:focus { background-color: @stencilsColor; }
+.navbar .nav > .active > a.stencils:focus { .nav-link(@stencilsColor); }
 
 .navbar .nav a.phone_books:hover,
 .navbar .nav > .active > a.phone_books,
 .navbar .nav > .active > a.phone_books:hover,
-.navbar .nav > .active > a.phone_books:focus { background-color: @phoneBooksColor; }
+.navbar .nav > .active > a.phone_books:focus { .nav-link(@phoneBooksColor); }
 
 .navbar .nav a.phone_numbers:hover,
 .navbar .nav > .active > a.phone_numbers,
 .navbar .nav > .active > a.phone_numbers:hover,
-.navbar .nav > .active > a.phone_numbers:focus { background-color: @phoneNumbersColor; }
+.navbar .nav > .active > a.phone_numbers:focus { .nav-link(@phoneNumbersColor); }
 
 .navbar .nav a.ledger_entries:hover,
 .navbar .nav > .active > a.ledger_entries,
 .navbar .nav > .active > a.ledger_entries:hover,
-.navbar .nav > .active > a.ledger_entries:focus { background-color: @ledgerEntriesColor; }
+.navbar .nav > .active > a.ledger_entries:focus { .nav-link(@ledgerEntriesColor); }
 
 .navbar .nav a.users:hover,
 .navbar .nav > .active > a.users,
 .navbar .nav > .active > a.users:hover,
-.navbar .nav > .active > a.users:focus { background-color: @usersColor; }
+.navbar .nav > .active > a.users:focus { .nav-link(@usersColor); }
 
 .navbar { margin-bottom: 0px; }
 .page-header { margin-top: 0px; padding-top: 20px; padding-left: 10px; padding-right: 10px; }
