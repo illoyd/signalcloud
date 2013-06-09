@@ -6,6 +6,10 @@
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
+def rand_in_range(from, to)
+  rand * (to - from) + from
+end
+
 def rand_f( min, max )
   rand * (max-min) + min
 end
@@ -30,6 +34,10 @@ end
 
 def random_answer()
   '%0.2f' % rand_f(0.01, 100.99)
+end
+
+def rand_datetime(from, to=Time.now)
+  Time.at(rand_in_range(from.to_f, to.to_f))
 end
 
 # Add plan data
@@ -167,29 +175,51 @@ unless Rails.env.production? || Organization.exists?( sid: '00000000000000000000
   15.times { customer_numbers << random_us_number() }
   10.times { customer_numbers << random_ca_number() }
   10.times { customer_numbers << random_uk_number() }
+  date_from = 2.weeks.ago
+  date_to   = DateTime.now
+  outbound_cost = -0.03
+  inbound_code  = -0.02
   
   customer_numbers.shuffle.each do |customer_number|
     conversation = example_stencil.open_conversation( to_number: customer_number, expected_confirmed_answer: random_answer() )
     conversation.status = Conversation::STATUSES.sample
+    conversation.created_at = rand_datetime( date_from, date_to );
     conversation.save!
     if [ Conversation::CHALLENGE_SENT, Conversation::CONFIRMED, Conversation::DENIED, Conversation::FAILED, Conversation::EXPIRED ].include? conversation.status
-      conversation.messages.build( to_number: conversation.to_number, from_number: conversation.from_number, body: conversation.question, message_kind: Message::CHALLENGE, direction: Message::DIRECTION_OUT, provider_cost: 0.01, sent_at: 5.seconds.ago, status: Message::SENT )
+      conversation.challenge_sent_at = conversation.created_at
+      conversation.messages.build( to_number: conversation.to_number, from_number: conversation.from_number, body: conversation.question, message_kind: Message::CHALLENGE, direction: Message::DIRECTION_OUT, provider_cost: outbound_cost, sent_at: conversation.challenge_sent_at, status: Message::SENT )
     end
+
     case conversation.status
       when Conversation::CONFIRMED
-        conversation.messages.build( to_number: conversation.from_number, from_number: conversation.to_number, body: conversation.expected_confirmed_answer, direction: Message::DIRECTION_IN, provider_cost: 0.01, sent_at: 4.seconds.ago )
-        conversation.messages.build( to_number: conversation.to_number, from_number: conversation.from_number, body: conversation.confirmed_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT, provider_cost: 0.01, sent_at: 3.seconds.ago, status: Message::SENT )
+        conversation.response_received_at = conversation.challenge_sent_at + rand_in_range( 1, conversation.stencil.seconds_to_live )
+        conversation.reply_sent_at        = conversation.response_received_at + rand_in_range( 1, 5 )
+        conversation.messages.build( to_number: conversation.from_number, from_number: conversation.to_number, body: conversation.expected_confirmed_answer, direction: Message::DIRECTION_IN, provider_cost: inbound_code, sent_at: conversation.response_received_at )
+        conversation.messages.build( to_number: conversation.to_number, from_number: conversation.from_number, body: conversation.confirmed_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT, provider_cost: outbound_cost, sent_at: conversation.reply_sent_at, status: Message::SENT )
+
       when Conversation::DENIED
-        conversation.messages.build( to_number: conversation.from_number, from_number: conversation.to_number, body: conversation.expected_denied_answer, direction: Message::DIRECTION_IN, provider_cost: 0.01, sent_at: 4.seconds.ago )
-        conversation.messages.build( to_number: conversation.to_number, from_number: conversation.from_number, body: conversation.denied_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT, provider_cost: 0.01, sent_at: 3.seconds.ago, status: Message::SENT )
+        conversation.response_received_at = conversation.challenge_sent_at + rand_in_range( 1, conversation.stencil.seconds_to_live )
+        conversation.reply_sent_at        = conversation.response_received_at + rand_in_range( 1, 5 )
+        conversation.messages.build( to_number: conversation.from_number, from_number: conversation.to_number, body: conversation.expected_denied_answer, direction: Message::DIRECTION_IN, provider_cost: inbound_code, sent_at: conversation.response_received_at )
+        conversation.messages.build( to_number: conversation.to_number, from_number: conversation.from_number, body: conversation.denied_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT, provider_cost: outbound_cost, sent_at: conversation.reply_sent_at, status: Message::SENT )
+
       when Conversation::FAILED
-        conversation.messages.build( to_number: conversation.from_number, from_number: conversation.to_number, body: random_answer(), direction: Message::DIRECTION_IN, provider_cost: 0.01, sent_at: 4.seconds.ago )
-        conversation.messages.build( to_number: conversation.to_number, from_number: conversation.from_number, body: conversation.failed_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT, provider_cost: 0.01, sent_at: 3.seconds.ago, status: Message::SENT )
+        conversation.response_received_at = conversation.challenge_sent_at + rand_in_range( 1, conversation.stencil.seconds_to_live )
+        conversation.reply_sent_at        = conversation.response_received_at + rand_in_range( 1, 5 )
+        conversation.messages.build( to_number: conversation.from_number, from_number: conversation.to_number, body: random_answer(), direction: Message::DIRECTION_IN, provider_cost: inbound_code, sent_at: conversation.response_received_at )
+        conversation.messages.build( to_number: conversation.to_number, from_number: conversation.from_number, body: conversation.failed_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT, provider_cost: outbound_cost, sent_at: conversation.reply_sent_at, status: Message::SENT )
+
       when Conversation::EXPIRED
-        conversation.messages.build( to_number: conversation.to_number, from_number: conversation.from_number, body: conversation.expired_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT, provider_cost: 0.01, sent_at: 3.seconds.ago, status: Message::SENT )
+        conversation.reply_sent_at        = conversation.challenge_sent_at + conversation.stencil.seconds_to_live + rand_in_range( 1, 5 )
+        conversation.messages.build( to_number: conversation.to_number, from_number: conversation.from_number, body: conversation.expired_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT, provider_cost: outbound_cost, sent_at: conversation.reply_sent_at, status: Message::SENT )
     end
+    #conversation.updated_at = [ conversation.created_at, conversation.challenge_sent_at, conversation.response_received_at, conversation.reply_sent_at ].reject_imax
     conversation.save!
   end
+  
+  invoice = org.invoices.create( workflow_state: 'settled', date_to: 1.week.ago, freshbooks_invoice_id: 431652, public_link: 'https://signalcloud.freshbooks.com/view/yBkg7e8B9CChqJk', internal_link: 'https://signalcloud.freshbooks.com/invoices/431652' )
+    invoice.capture_uninvoiced_ledger_entries!
+    invoice.save!
 end
 
 

@@ -11,4 +11,10 @@ FactoryGirl.define do
   trait :settled do
     workflow_state 'settled'
   end
+  
+  trait :with_remote_invoice do
+    freshbooks_invoice_id  431652
+    public_link            'https://signalcloud.freshbooks.com/view/yBkg7e8B9CChqJk'
+    internal_link          'https://signalcloud.freshbooks.com/invoices/431652'
+  end
 end

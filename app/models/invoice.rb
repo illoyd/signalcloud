@@ -1,6 +1,6 @@
 class Invoice < ActiveRecord::Base
   include Workflow
-  attr_accessible :date_from, :date_to, :sent_at
+  attr_accessible :date_from, :date_to, :sent_at, :freshbooks_invoice_id, :workflow_state, :public_link, :internal_link
   
   belongs_to :organization, inverse_of: :invoices
   has_many :ledger_entries, inverse_of: :invoice, autosave: true

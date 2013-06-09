@@ -126,6 +126,7 @@ class Ability
   def grant_manage_ledger_entries_privileges(user, organization_id)
     # Read (no editing!) for ledger entries
     can :read, LedgerEntry, { organization_id: user.organization_ids }
+    can :read, Invoice,     { organization_id: user.organization_ids }
   end
   
   def grant_force_conversation_privileges(user, organization_id)

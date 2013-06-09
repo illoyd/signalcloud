@@ -1,9 +1,8 @@
 / Page Header
-- titles 'Phone Number', humanize_phone_number @phone_number.number, :phone_numbers
+- titles 'Phone Number', humanize_phone_number(@phone_number.number), :phone_numbers
 
 .row
-  .span3
-    = render 'navlist'
+  .span3= render 'navlist'
   .span9
     %p
       %b Number:

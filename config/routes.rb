@@ -38,6 +38,8 @@ SignalCloud::Application.routes.draw do
     resources :ledger_entries, only: [ :index, :show ] do
       get 'page/:page', action: :index
     end
+    
+    get '/invoices/:invoice_id' => 'ledger_entries#index', as: :invoice
   
     resources :phone_numbers, only: [ :index, :show, :create, :edit, :update, :destroy ] do
       collection do
