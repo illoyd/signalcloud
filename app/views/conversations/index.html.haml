@@ -2,7 +2,7 @@
 - conversation_path = new_organization_stencil_conversation_path( @organization, @stencil.nil? ? @organization.default_stencil : @stencil )
 
 / Page header
-- titles 'Conversations', 'all conversations' + (@stencil.nil? ? '' : "for #{@stencil.label}"), :conversations
+- titles 'Conversations', 'all conversations' + (@stencil.nil? ? '' : " for #{@stencil.label}"), :conversations
 
 / Page controls
 .row

@@ -1,9 +1,10 @@
 -# Discard changes link
-- discard_link = @stencil.nil? ? organization_conversations_path(@organization) : organization_stencil_conversations_path(@organization, @stencil)
+- discard_link = @stencil ? organization_stencil_conversations_path(@organization, @stencil) : organization_conversations_path(@organization)
 
-= render partial: 'layouts/modal', locals: { modal_id: 'change_stencil_modal', header: 'Change Stencil', body_partial: 'stencillist', show_accept_button: false, cancel_text: 'Cancel and go back to conversation' }
+= render( layout: 'layouts/modal', locals: { modal_id: 'change_stencil_modal', header_text: 'Change Stencil', show_accept_button: false, cancel_text: 'Cancel and go back to conversation' }) do
+  - render 'stencillist'
 
-= form_for( [@stencil, @conversation], :html => { :class => 'form-horizontal' } ) do |f|
+= form_for( [@organization, @stencil, @conversation], :html => { :class => 'form-horizontal' } ) do |f|
   - if @conversation.errors.any?
     #error_explanation
       %h2

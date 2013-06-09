@@ -1,7 +1,5 @@
 - content_for :title, "#{@organization.label} Organization"
-- content_for :page_title, 'Organization'
-- content_for :page_subtitle, @organization.label
-- content_for :page_icon, :organizations
+- titles 'Organization', @organization.label, @organization.icon || :organizations, :dashboards
 
 / Page body
 .row

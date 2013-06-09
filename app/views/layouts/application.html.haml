@@ -16,7 +16,7 @@
       .navbar>
         .navbar-inner
           %a.brand{:href => "/"}
-            %i.icon-cloud
+            / %i.icon-cloud
             SignalCloud
           - unless user_signed_in?
             %ul.nav
@@ -29,32 +29,31 @@
                   = link_to new_user_registration_path do
                     %i.icon-upload-alt
                     Sign Up
-
           - else
             - unless @organization.nil? || @organization.new_record?
               %ul.nav
-                %li{ rel: 'tooltip', :title => 'Dashboard', :'data-placement' => 'bottom' }
-                  %a.dashboards{ :href => "/" }
+                %li{ rel: 'tooltip', :title => 'Dashboard', :'data-placement' => 'bottom', class: (yield(:page_section) == 'dashboards' ? 'active' : '') }
+                  %a.dashboards{ :href => organization_path(@organization) }
                     %i.icon-dashboard
                 - if can? :index, Conversation
-                  %li{ rel: 'tooltip', :title => 'Conversations', :'data-placement' => 'bottom' }
+                  %li{ rel: 'tooltip', :title => 'Conversations', :'data-placement' => 'bottom', class: (yield(:page_section) == 'conversations' ? 'active' : '') }
                     %a.conversations{ :href => organization_conversations_path(@organization) }= icon( :conversations )
                 - if can? :index, Stencil
-                  %li{ rel: 'tooltip', :title => 'Stencils', :'data-placement' => 'bottom' }
+                  %li{ rel: 'tooltip', :title => 'Stencils', :'data-placement' => 'bottom', class: (yield(:page_section) == 'stencils' ? 'active' : '') }
                     %a.stencils{ :href => organization_stencils_path(@organization) }= icon( :stencils )
                 - if can? :index, PhoneBook
-                  %li{ rel: 'tooltip', :title => 'Phone Books', :'data-placement' => 'bottom' }
+                  %li{ rel: 'tooltip', :title => 'Phone Books', :'data-placement' => 'bottom', class: (yield(:page_section) == 'phone_books' ? 'active' : '') }
                     %a.phone_books{ :href => organization_phone_books_path(@organization) }= icon( :phone_books )
                 - if can? :index, PhoneNumber
-                  %li{ rel: 'tooltip', :title => 'Phone Numbers', :'data-placement' => 'bottom' }
+                  %li{ rel: 'tooltip', :title => 'Phone Numbers', :'data-placement' => 'bottom', class: (yield(:page_section) == 'phone_numbers' ? 'active' : '') }
                     %a.phone_numbers{ :href => organization_phone_numbers_path(@organization) }= icon( :phone_numbers )
                 - if can? :index, LedgerEntry
-                  %li{ rel: 'tooltip', :title => 'Ledger', :'data-placement' => 'bottom' }
+                  %li{ rel: 'tooltip', :title => 'Ledger', :'data-placement' => 'bottom', class: (yield(:page_section) == 'ledger_entries' ? 'active' : '') }
                     %a.ledger_entries{ :href => organization_ledger_entries_path(@organization) }= icon( :ledger_entries )
                 - if can? :index, User
-                  %li{ rel: 'tooltip', :title => 'Users', :'data-placement' => 'bottom' }
+                  %li{ rel: 'tooltip', :title => 'Users', :'data-placement' => 'bottom', class: (yield(:page_section) == 'users' ? 'active' : '') }
                     %a.users{ :href => organization_users_path(@organization) }= icon( :users )
-  
+
             %ul.nav.pull-right
               - if @organization
                 %li.dropdown
@@ -70,7 +69,7 @@
                           Switch organizations
               %li.dropdown
                 %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#", style: 'padding-left: 40px' }
-                  = gravatar_for current_user, 30, { style: 'position: absolute; top: 10px; left: 5px; background-color: yellow;' }
+                  = gravatar_for current_user, 30, { style: 'position: absolute; top: 5px; left: 5px; background-color: yellow;' }
                   = current_user.first_name
                   %b.caret
                 %ul.dropdown-menu
@@ -98,8 +97,8 @@
               = link_to organization_phone_books_path( @organization ), class: 'tile phone_books' do
                 = icon( :phone_books )
           
-      = render 'layouts/messages'
       = render 'layouts/header'
+      = render 'layouts/messages'
       = yield
   
       / Footer

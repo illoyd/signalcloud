@@ -1,10 +1,10 @@
 module ApplicationHelper
 
-  def titles( title, subtitle, icon )
+  def titles( title, subtitle, icon, page_section=nil )
     content_for :page_title, title
     content_for :page_subtitle, subtitle
     content_for :page_icon, icon
-    content_for :page_section, icon.to_s
+    content_for :page_section, page_section || icon.to_s
   end
 
   def navigation_list( entries = [], options = {} )

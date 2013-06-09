@@ -3,7 +3,7 @@
   = navigation_list([ |
     { header: 'Related' }, |
     { label: 'All Conversations', icon: :conversations, link: organization_conversations_path(@organization), if: can?(:index, Conversation) }, |
-    { label: 'All Conversations for ' + @stencil.label, icon: :stencils, link: organization_stencil_conversations_path(@stencil), if: can?(:index, Conversation) } |
+    { label: 'All Conversations for ' + @stencil.label, icon: :stencils, link: organization_stencil_conversations_path(@organization, @stencil), if: can?(:index, Conversation) } |
     ]) |
 - else
   -# Existing conversation navigation

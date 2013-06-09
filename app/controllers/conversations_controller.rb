@@ -8,7 +8,10 @@ class ConversationsController < ApplicationController
   skip_authorize_resource only: [:new, :create]
   
   def assign_stencil
-    @stencil = current_stencil(false)
+    if params[:stencil_id]
+      @stencil = Stencil.find(params[:stencil_id])
+      authorize! :show, @stencil
+    end
   end
   
   # GET /conversations
@@ -39,8 +42,13 @@ class ConversationsController < ApplicationController
   # GET /conversations/new
   # GET /conversations/new.json
   def new
-    @conversation = @stencil.open_conversation({})
+    @conversation = if @stencil
+        @stencil.open_conversation({})
+      else
+        @organization.conversations.build
+      end
     authorize!( :new, @conversation )
+    @conversation.from_number = nil
   end
 
   # GET /conversations/1/edit
