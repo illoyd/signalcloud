@@ -4,6 +4,7 @@ module ApplicationHelper
     content_for :page_title, title
     content_for :page_subtitle, subtitle
     content_for :page_icon, icon
+    content_for :page_section, icon.to_s
   end
 
   def navigation_list( entries = [], options = {} )

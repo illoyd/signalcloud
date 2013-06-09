@@ -1,11 +1,5 @@
 / Page header
-.row
-  .span12
-    .page-header
-      %h1
-        = icon( :ledger_entries )
-        Ledger
-        %small record #{@ledger_entry.id}
+- titles 'Ledger', "record #{@ledger_entry.id}", :ledger_entries
 
 / Page body
 .row

@@ -10,7 +10,7 @@
       %style{:type => 'text/css'}= yield :stylesheets
     = javascript_include_tag "application"
     = csrf_meta_tags
-  %body
+  %body{ class: yield(:page_section) }
     .container
       / Navigation header
       .navbar>
@@ -34,69 +34,26 @@
             - unless @organization.nil? || @organization.new_record?
               %ul.nav
                 %li{ rel: 'tooltip', :title => 'Dashboard', :'data-placement' => 'bottom' }
-                  %a{ :href => "/" }
+                  %a.dashboards{ :href => "/" }
                     %i.icon-dashboard
                 - if can? :index, Conversation
                   %li{ rel: 'tooltip', :title => 'Conversations', :'data-placement' => 'bottom' }
-                    %a{ :href => organization_conversations_path(@organization) }= icon( :conversations )
+                    %a.conversations{ :href => organization_conversations_path(@organization) }= icon( :conversations )
                 - if can? :index, Stencil
                   %li{ rel: 'tooltip', :title => 'Stencils', :'data-placement' => 'bottom' }
-                    %a{ :href => organization_stencils_path(@organization) }= icon( :stencils )
+                    %a.stencils{ :href => organization_stencils_path(@organization) }= icon( :stencils )
                 - if can? :index, PhoneBook
                   %li{ rel: 'tooltip', :title => 'Phone Books', :'data-placement' => 'bottom' }
-                    %a{ :href => organization_phone_books_path(@organization) }= icon( :phone_books )
+                    %a.phone_books{ :href => organization_phone_books_path(@organization) }= icon( :phone_books )
                 - if can? :index, PhoneNumber
                   %li{ rel: 'tooltip', :title => 'Phone Numbers', :'data-placement' => 'bottom' }
-                    %a{ :href => organization_phone_numbers_path(@organization) }= icon( :phone_numbers )
-                - if can? :index, User
-                  %li{ rel: 'tooltip', :title => 'Users', :'data-placement' => 'bottom' }
-                    %a{ :href => organization_users_path(@organization) }= icon( :users )
+                    %a.phone_numbers{ :href => organization_phone_numbers_path(@organization) }= icon( :phone_numbers )
                 - if can? :index, LedgerEntry
                   %li{ rel: 'tooltip', :title => 'Ledger', :'data-placement' => 'bottom' }
-                    %a{ :href => organization_ledger_entries_path(@organization) }= icon( :ledger_entries )
-  
-              -#
-                %li.dropdown
-                  %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#"}
-                    = icon( @organization.icon || 'briefcase' )
-                    Manage
-                    %b.caret
-                  %ul.dropdown-menu
-                    - if can? :index, User
-                      %li
-                        %a{ :href => organization_users_path(@organization) }
-                          = icon(:users)
-                          Users
-                    - if can? :index, Conversation
-                      %li
-                        %a{ :href => organization_conversations_path(@organization) }
-                          = icon( :conversations )
-                          Conversations
-                    - if can? :index, Stencil
-                      %li
-                        %a{ :href => organization_stencils_path(@organization) }
-                          = icon( :stencils )
-                          Stencils
-                    - if can? :index, PhoneBook
-                      %li
-                        %a{ :href => organization_phone_books_path(@organization) }
-                          = icon( :phone_books )
-                          Phone Books
-                    - if can? :index, PhoneNumber
-                      %li
-                        %a{ :href => organization_phone_numbers_path(@organization) }
-                          = icon( :phone_numbers )
-                          Phone Numbers
-                    - if can? :index, LedgerEntry
-                      %li
-                        %a{ :href => organization_ledger_entries_path(@organization) }
-                          = icon( :ledger_entries )
-                          Ledger
-                -#
-                  %li
-                    %a{ :href => "#" }
-                      %i.icon-bar-chart  
-                      Reports
+                    %a.ledger_entries{ :href => organization_ledger_entries_path(@organization) }= icon( :ledger_entries )
+                - if can? :index, User
+                  %li{ rel: 'tooltip', :title => 'Users', :'data-placement' => 'bottom' }
+                    %a.users{ :href => organization_users_path(@organization) }= icon( :users )
   
             %ul.nav.pull-right
               - if @organization

@@ -1,11 +1,5 @@
 / Page header
-.row
-  .span12
-    .page-header
-      %h1
-        = icon( :conversations )
-        Conversations
-        %small= "conversation #{@conversation.id}"
+- titles 'Conversations', "conversation #{@conversation.id}", :conversations
 
 / Page body
 .row
