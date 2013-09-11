@@ -51,7 +51,7 @@ class StencilsController < ApplicationController
 
     respond_to do |format|
       if @stencil.save
-        format.html { redirect_to @stencil, notice: 'Stencil was successfully created.' }
+        format.html { redirect_to [ @stencil.organization, @stencil ], notice: 'Stencil was successfully created.' }
         format.json { render json: @stencil, status: :created, location: @stencil }
       else
         format.html { render action: "new" }
@@ -83,7 +83,7 @@ class StencilsController < ApplicationController
     @stencil.destroy
 
     respond_to do |format|
-      format.html { redirect_to stencils_url }
+      format.html { redirect_to organization_stencils_url(@organization) }
       format.json { head :no_content }
     end
   end

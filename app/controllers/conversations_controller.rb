@@ -25,9 +25,9 @@ class ConversationsController < ApplicationController
     unless params[:status].nil?
       @conversations = @conversations.where( status: params[:status] )
     end
-    
+
     # Add pagination
-    @conversations = @conversations.page(params[:page])
+    @conversations = @conversations.order( 'updated_at desc' ).page( params[:page] )
 
     respond_with @conversations
   end
@@ -35,15 +35,14 @@ class ConversationsController < ApplicationController
   # GET /conversations/1
   # GET /conversations/1.json
   def show
-    # @conversation = ( @stencil.nil? ? @organization : @stencil ).conversations.find(params[:id])
-    respond_with @conversation
+    respond_with @organization, @conversation
   end
 
   # GET /conversations/new
   # GET /conversations/new.json
   def new
     @conversation = if @stencil
-        @stencil.open_conversation({})
+        @stencil.open_conversation( conversation_params )
       else
         @organization.conversations.build
       end
@@ -60,14 +59,14 @@ class ConversationsController < ApplicationController
   # POST /conversations.json
   def create
     # @conversation = ( @stencil.nil? ? @organization : @stencil ).conversations.create( params[:conversation] )
-    @conversation = @stencil.open_conversation( params[:conversation] )
+    @conversation = @stencil.open_conversation( conversation_params )
     authorize!( :create, @conversation )
 
     if @conversation.save
-      JobTools.enqueue SendConversationChallengeJob.new( @conversation.id )
+      #JobTools.enqueue SendConversationChallengeJob.new( @conversation.id )
       flash[:success] = 'The conversation has been successfully started.'
     end
-    respond_with @conversation
+    respond_with @organization, @conversation
   end
 
   # PUT /conversations/1
@@ -103,5 +102,5 @@ class ConversationsController < ApplicationController
   def force
     
   end
-
+  
 end
