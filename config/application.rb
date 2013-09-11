@@ -76,4 +76,6 @@ module SignalCloud
   end
 end
 
+# ActiveRecord::Base.send(:include, ActiveModel::ForbiddenAttributesProtection)
+
 require './app/classes/exceptions.rb'

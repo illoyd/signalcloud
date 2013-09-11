@@ -64,4 +64,23 @@ class ApplicationController < ActionController::Base
     return nil
   end
 
+  protected
+  
+  def organization_params
+    address_attributes = [ :first_name, :last_name, :email, :work_phone, :line1, :line2, :city, :region, :postcode, :country, :organization_id ]
+    params.require(:organization).permit(
+      :sid, :auth_token, :account_plan, :account_plan_id, :label, :icon, :description, :vat_name, :vat_number, :purchase_order, :workflow_state,
+      contact_address_attributes: address_attributes,
+      billing_address_attributes: address_attributes
+    )
+  end
+
+  def stencil_params
+    params.require(:stencil).permit( :label, :primary, :phone_book, :phone_book_id, :organization, :organization_id, :seconds_to_live, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :question, :description, :webhook_uri )
+  end
+
+  def conversation_params
+    params.require(:conversation).permit( :seconds_to_live, :stencil_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at, :webhook_uri )
+  end
+
 end

@@ -62,6 +62,7 @@ gem 'twitter_bootstrap_form_for', :git => 'git://github.com/stouset/twitter_boot
 gem 'country_select'
 gem 'countries'
 gem 'workflow'
+gem 'strong_parameters'
 
 group :test, :development do
   gem "rspec-rails", "~> 2.0"
