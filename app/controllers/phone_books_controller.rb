@@ -1,87 +1,61 @@
 class PhoneBooksController < ApplicationController
 
-  load_and_authorize_resource
-  before_filter :assign_organization
+  respond_to :html, :json, :xml
+  load_and_authorize_resource :organization
+  before_filter :load_new_phone_book, only: [ :new, :create ]
+  load_and_authorize_resource through: :organization
 
+  def load_new_phone_book
+    @phone_book = PhoneBook.new( organization_id: @organization.id )
+    @phone_book
+  end
+  
   # GET /phone_books
   # GET /phone_books.json
   def index
-    @phone_books = @organization.phone_books.order('label desc')
+    # Apply an active/inactive filter if requested
+    #     if ( params.include? :active_filter )
+    #       @phone_books = @phone_books.where( active: params[:active_filter] )
+    #     end
 
-    respond_to do |format|
-      format.html # index.html.erb
-      format.json { render json: @phone_books }
-    end
+    respond_with @organization, @phone_books
   end
 
   # GET /phone_books/1
   # GET /phone_books/1.json
   def show
-    @phone_book = @organization.phone_books.find(params[:id])
-
-    respond_to do |format|
-      format.html # show.html.erb
-      format.json { render json: @phone_book }
-    end
+    respond_with @organization, @phone_book
   end
 
   # GET /phone_books/new
   # GET /phone_books/new.json
   def new
-    @phone_book = @organization.phone_books.build
-
-    respond_to do |format|
-      format.html # new.html.erb
-      format.json { render json: @phone_book }
-    end
+    respond_with @organization, @phone_book
   end
 
   # GET /phone_books/1/edit
   def edit
-    @phone_book = @organization.phone_books.find(params[:id])
+    respond_with @organization, @phone_book
   end
 
   # POST /phone_books
   # POST /phone_books.json
   def create
-    @phone_book = @organization.phone_books.build(params[:phone_book])
-
-    respond_to do |format|
-      if @phone_book.save
-        format.html { redirect_to @phone_book, notice: 'Phone book was successfully created.' }
-        format.json { render json: @phone_book, status: :created, location: @phone_book }
-      else
-        format.html { render action: "new" }
-        format.json { render json: @phone_book.errors, status: :unprocessable_entity }
-      end
-    end
+    flash[:success] = 'Your new phone book has been saved.' if @phone_book.update_attributes(phone_book_params)
+    respond_with @organization, @phone_book
   end
 
   # PUT /phone_books/1
   # PUT /phone_books/1.json
   def update
-    @phone_book = @organization.phone_books.find(params[:id])
-
-    respond_to do |format|
-      if @phone_book.update_attributes(params[:phone_book])
-        format.html { redirect_to @phone_book, notice: 'Phone book was successfully updated.' }
-        format.json { head :no_content }
-      else
-        format.html { render action: "edit" }
-        format.json { render json: @phone_book.errors, status: :unprocessable_entity }
-      end
-    end
+    flash[:success] = 'Your phone book has been updated.' if @phone_book.update_attributes(phone_book_params)
+    respond_with @organization, @phone_book
   end
 
   # DELETE /phone_books/1
   # DELETE /phone_books/1.json
   def destroy
-    @phone_book = @organization.phone_books.find(params[:id])
-    @phone_book.destroy
-
-    respond_to do |format|
-      format.html { redirect_to phone_books_url }
-      format.json { head :no_content }
-    end
+    flash[:success] = 'Your phone book has been deleted.' if @phone_book.destroy
+    respond_with @organization, @phone_book
   end
 end

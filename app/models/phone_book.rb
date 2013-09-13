@@ -1,5 +1,4 @@
 class PhoneBook < ActiveRecord::Base
-  attr_accessible :description, :label, :organization, :organization_id
   
   belongs_to :organization, inverse_of: :phone_books
   has_many :stencils, inverse_of: :phone_book
