@@ -7,6 +7,7 @@ class StencilsController < ApplicationController
 
   def load_new_stencil
     @stencil = Stencil.new( organization_id: @organization.id, phone_book_id: @organization.phone_books.first.id )
+    @stencil.assign_attributes( stencil_params ) if params.include? :stencil
     @stencil
   end
   

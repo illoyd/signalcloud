@@ -15,27 +15,27 @@ class Stencil < ActiveRecord::Base
   belongs_to :phone_book, inverse_of: :stencils
   has_many :conversations, inverse_of: :stencil
   
-  validates_presence_of :organization
+  validates_presence_of :organization, :label
   
   # Scopes
   scope :active,   where( :active => true )
   scope :inactive, where( :active => false )
+  
+  ##
+  # Parameters passed to newly built conversations
+  CONVERSATION_PARAMETERS = [ :seconds_to_live, :question, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :confirmed_reply, :denied_reply ]
 
-  def open_conversation( passed_options )
+  def build_conversation( passed_options={} )
     # Build a hash of options using self as a default, merging passed options
-    options = {
-      seconds_to_live: self.seconds_to_live,
-      question: self.question,
-      expected_confirmed_answer: self.expected_confirmed_answer,
-      expected_denied_answer: self.expected_denied_answer,
-      expired_reply: self.expired_reply,
-      failed_reply: self.failed_reply,
-      confirmed_reply: self.confirmed_reply,
-      denied_reply: self.denied_reply
-    }.with_indifferent_access.merge( passed_options.with_indifferent_access )
+    options = CONVERSATION_PARAMETERS.each_with_object({}) { |key,h| h[key] = send(key) }
+    options = options.with_indifferent_access.merge( passed_options.with_indifferent_access )
     
     # Add a randomly selected from number if needed
-    options[:from_number] = self.phone_book.select_internal_number_for( options[:to_number] ).number if options.fetch(:from_number, nil).nil?
+    if options.fetch(:from_number, nil).blank? and !options.fetch(:to_number, nil).blank?
+      options[:from_number] = self.phone_book.select_internal_number_for( options[:to_number] ).number
+    end
     return self.conversations.build( options )
   end
+  alias_method :open_conversation, :build_conversation
+  
 end
