@@ -51,7 +51,7 @@ gem 'devise'
 gem 'devise-async'
 gem 'devise_invitable'
 gem 'cancan'
-gem 'attr_encryptor', :git => 'git://github.com/danpal/attr_encryptor.git'
+gem 'attr_encryptor', "~> 2.0.0"
 gem 'kaminari'
 gem 'phony', :git => 'git://github.com/illoyd/phony.git'
 gem 'stringex'
