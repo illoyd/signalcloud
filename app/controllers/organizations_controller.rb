@@ -3,11 +3,11 @@ class OrganizationsController < ApplicationController
   respond_to :html, :json, :xml
   before_filter :load_new_organization, only: [ :new, :create ]
   load_and_authorize_resource
-  #skip_load_and_authorize_resource only: [ :new, :create ]
   
   def load_new_organization
     @organization = Organization.new
     @organization.user_roles.build(user_id: current_user.id, roles: UserRole::ROLES) if current_user
+    @organization
   end
   
   # GET /organizations
@@ -44,29 +44,15 @@ class OrganizationsController < ApplicationController
   # POST /organizations
   # POST /organizations.json
   def create
-    
-    # Delete sensitive settings unless system admin
-    unless current_user.system_admin
-      params[:organization].delete( :account_plan_id ) 
-      params[:organization].delete( :account_plan ) 
-    end
-
-    flash[:success] = 'Your organization has been created.' if @organization.update_attributes(params[:organization])
+    @organization.account_plan = AccountPlan.default
+    flash[:success] = 'Your organization has been created.' if @organization.update_attributes(organization_params)
     respond_with @organization
   end
 
   # PUT /organizations/1
   # PUT /organizations/1.json
   def update
-    
-    # Delete sensitive settings unless system admin
-    unless current_user.system_admin
-      params[:organization].delete( :account_plan_id ) 
-      params[:organization].delete( :account_plan ) 
-    end
-
-    # Save
-    flash[:success] = 'Your organization has been updated.' if @organization.update_attributes(params[:organization])
+    flash[:success] = 'Your organization has been updated.' if @organization.update_attributes(organization_params)
     respond_with @organization
   end
 

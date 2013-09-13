@@ -22,16 +22,6 @@ class Organization < ActiveRecord::Base
     state :cancelled
   end
   
-#   READY = 2
-#   PENDING = 1
-#   TRIAL = 0
-  
-  # General attributes
-  attr_accessible :sid, :auth_token, :account_plan, :account_plan_id, :label, :icon, :description, :vat_name, :vat_number, :purchase_order, :workflow_state
-  
-  # Nested attributes
-  attr_accessible :contact_address_attributes, :billing_address_attributes
-  
   # Encrypted attributes
   # attr_encrypted :braintree_id, key: ATTR_ENCRYPTED_SECRET
 
