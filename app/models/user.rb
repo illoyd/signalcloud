@@ -34,10 +34,17 @@ class User < ActiveRecord::Base
   def has_pending_invitation?
     !self.invitation_sent_at.nil? and self.invitation_accepted_at.nil?
   end
-
+  
+  def set_roles_for( organization, roles )
+    rr = roles_for organization
+    rr = UserRole.new( user: self, organization: organization ) if rr.nil?
+    rr.roles = roles
+    rr.save
+  end
+  
   UserRole::ROLES.each do |role|
     define_method "is_#{role.to_s}_for?" do |org|
-      self.roles_for(org).send("is_#{role.to_s}?", role)
+      self.roles_for(org).send("is_#{role.to_s}?")
     end
   end
 

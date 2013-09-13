@@ -1,6 +1,7 @@
 class UserRole < ActiveRecord::Base
 
   ROLES = [ :organization_administrator, :developer, :billing_liaison, :conversation_manager ]
+  READ  = []
   
   attr_accessible :roles, :user, :organization, :user_id, :first_name, :last_name
   attr_accessor :first_name, :last_name, :email
@@ -21,7 +22,7 @@ class UserRole < ActiveRecord::Base
   end
   
   ROLES.each do |role|
-    define_method 'is_' + role.to_s + '?' do
+    define_method "is_#{role.to_s}?" do
       self.roles.include? role
     end
   end
