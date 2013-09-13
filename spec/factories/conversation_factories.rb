@@ -4,7 +4,7 @@ FactoryGirl.define do
     stencil
     from_number               Twilio::VALID_NUMBER
     to_number                 Twilio::VALID_NUMBER
-    expires_at                    180.seconds.from_now
+    expires_at                180.seconds.from_now
     question                  'Hello, I am a question.'
     expected_confirmed_answer 'yes'
     expected_denied_answer    'no'
@@ -52,7 +52,7 @@ FactoryGirl.define do
     end
     
     trait :with_webhook_uri do
-      webhook_uri             'https://app.signalcloudapp.com/bucket'
+      webhook_uri             'https://us.signalcloudapp.com/bucket'
     end
 
   end

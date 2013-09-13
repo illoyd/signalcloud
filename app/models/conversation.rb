@@ -55,13 +55,16 @@ class Conversation < ActiveRecord::Base
 
   delegate :organization, :to => :stencil, :allow_nil => true
   
+  # Before validation  
+  before_validation :assign_from_number #, on: :create
+  
   # Validation
   validates_presence_of :stencil, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at
   validates :to_number, phone_number: true
   validates :from_number, phone_number: true
   validates_numericality_of :challenge_status, allow_nil: true, integer_only: true, greater_than_or_equal_to: 0
   validates_numericality_of :reply_status, allow_nil: true, integer_only: true, greater_than_or_equal_to: 0
-  
+
   # Scopes
   scope :opened, where( :status => OPEN_STATUSES )
   scope :closed, where( 'status not in (?)', OPEN_STATUSES )
@@ -383,6 +386,15 @@ class Conversation < ActiveRecord::Base
       else
         ERROR_UNKNOWN
       end
+  end
+
+  protected
+  
+  def assign_from_number
+    # Add a randomly selected from number if needed
+    if self.from_number.blank? and !self.to_number.blank?
+      self.from_number = self.stencil.phone_book.select_internal_number_for( self.to_number ).number
+    end
   end
 
 end

@@ -1,24 +1,28 @@
 class ConversationsController < ApplicationController
 
   respond_to :html, :json, :xml
-  before_filter :assign_organization
-  before_filter :assign_stencil
+  load_and_authorize_resource :organization
+  before_filter :load_stencil
+  authorize_resource :stencil
+  before_filter :load_new_conversation, only: [ :new, :create ]
+  load_and_authorize_resource through: :organization
 
-  load_and_authorize_resource
-  skip_authorize_resource only: [:new, :create]
-  
-  def assign_stencil
-    if params[:stencil_id]
-      @stencil = Stencil.find(params[:stencil_id])
-      authorize! :show, @stencil
-    end
+  def load_stencil
+    @stencil = params[:stencil_id] ? @organization.stencils.find(params[:stencil_id]) : nil
+  end
+
+  def load_new_conversation
+    @conversation = @stencil.build_conversation()
+    # @conversation.from_number = nil
+    @conversation
   end
   
   # GET /conversations
   # GET /conversations.json
   def index
+    
     @multistencil = @stencil.nil?
-    if !@multistencil
+    unless @multistencil
       @conversations = @conversations.where( stencil_id: @stencil.id )
     end
     
@@ -29,7 +33,7 @@ class ConversationsController < ApplicationController
     # Add pagination
     @conversations = @conversations.order( 'updated_at desc' ).page( params[:page] )
 
-    respond_with @conversations
+    respond_with @organization, @conversations
   end
 
   # GET /conversations/1
@@ -41,13 +45,7 @@ class ConversationsController < ApplicationController
   # GET /conversations/new
   # GET /conversations/new.json
   def new
-    @conversation = if @stencil
-        @stencil.open_conversation( conversation_params )
-      else
-        @organization.conversations.build
-      end
-    authorize!( :new, @conversation )
-    @conversation.from_number = nil
+    respond_with @organization, @conversation
   end
 
   # GET /conversations/1/edit
@@ -59,10 +57,10 @@ class ConversationsController < ApplicationController
   # POST /conversations.json
   def create
     # @conversation = ( @stencil.nil? ? @organization : @stencil ).conversations.create( params[:conversation] )
-    @conversation = @stencil.open_conversation( conversation_params )
-    authorize!( :create, @conversation )
+    #@conversation = @stencil.open_conversation( conversation_params )
+    #authorize!( :create, @conversation )
 
-    if @conversation.save
+    if @conversation.update_attributes( conversation_params )
       #JobTools.enqueue SendConversationChallengeJob.new( @conversation.id )
       flash[:success] = 'The conversation has been successfully started.'
     end
