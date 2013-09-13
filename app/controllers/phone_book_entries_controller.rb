@@ -1,34 +1,31 @@
 class PhoneBookEntriesController < ApplicationController
 
-  before_filter :assign_organization
-
-  respond_to :html, :json
+  respond_to :html, :json, :xml
+  load_and_authorize_resource :organization
+  before_filter :load_new_phone_book_entry, only: [ :new, :create ]
+  load_and_authorize_resource through: :organization
+  
+  def load_new_phone_book_entry
+    @phone_book_entry = PhoneBookEntry.new
+    @phone_book_entry.assign_attributes( phone_book_entry_params ) if params.include? :phone_book_entry
+  end
 
   # POST /phone_book_entries
   # POST /phone_book_entries.json
   def create
-    @phone_book_entry = @organization.phone_book_entries.build( params[:phone_book_entry] )
-    authorize! :create, @phone_book_entry
-
     if @phone_book_entry.save
-      flash[:success] = 'Phone number was successfully added to phone book.'
-    else
-      flash[:error] = 'Oops! We errored.'
-      flash[:validation_errors] = @phone_book_entry.errors.to_yaml
+      flash[:success] = 'Phone number was successfully added to this phone book.'
     end
-    respond_with @phone_book_entry.phone_book
+    respond_with @organization, @phone_book_entry.phone_book
   end
 
   # DELETE /phone_book_entries/1
   # DELETE /phone_book_entries/1.json
   def destroy
-    @phone_book_entry = @organization.phone_book_entries.find(params[:id])
-    authorize! :create, @phone_book_entry
-
-    @phone_book = @phone_book_entry.phone_book
-    @phone_book_entry.destroy
-   
-    respond_with @phone_book
+    if @phone_book_entry.destroy
+      flash[:success] = 'Phone number was removed from this phone book.'
+    end
+    respond_with @organization, @phone_book_entry.phone_book
   end
 
 end

@@ -96,5 +96,9 @@ class ApplicationController < ActionController::Base
   def conversation_params
     params.require(:conversation).permit( :seconds_to_live, :stencil_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at, :webhook_uri )
   end
+  
+  def phone_book_entry_params
+    params.require(:phone_book_entry).permit( :country, :phone_number_id, :phone_book_id )
+  end
 
 end

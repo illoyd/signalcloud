@@ -7,8 +7,6 @@ class PhoneBookEntry < ActiveRecord::Base
 
   COUNTRIES = ISO3166::Country::Names.map{ |(name,alpha2)| alpha2.to_s } # [ US, CA, GB ]
 
-  attr_accessible :country, :phone_number_id, :phone_book_id
-
   belongs_to :phone_book, inverse_of: :phone_book_entries
   belongs_to :phone_number, inverse_of: :phone_book_entries
   
