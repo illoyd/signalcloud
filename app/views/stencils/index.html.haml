@@ -15,7 +15,7 @@
           %th.span1
           %th Stencil
           %th Book
-          %th Active
+          %th.centered Active
           %th Description
           %th Open conversations
       %tbody
@@ -24,7 +24,7 @@
             %td{ colspan: 6 }
               %em No stencils match your selected filters. Please change your filters to view other items.
         
-        - @stencils.each do |stencil|
+        - @stencils.order('label').each do |stencil|
           %tr
             %td= split_dropdown_list([ |
               { label: 'Details', icon: :show, link: [ @organization, stencil ], if: can?(:show, stencil) }, |
@@ -38,11 +38,14 @@
                 %em No book assigned
               - else
                 = link_to_if can?(:show, stencil.phone_book), stencil.phone_book.label, [ @organization, stencil.phone_book ]
-            %td= icon( stencil.active ? :ok : :remove )
+            %td.centered= checkmark_for stencil.active
             %td
               %small
                 - if stencil.description.blank?
                   %em No description defined.
                 - else
                   = stencil.description
-            %td= stencil.conversations.count
+            %td
+              = link_to organization_stencil_conversations_url( @organization, stencil ) do
+                = icon :conversations             
+                = stencil.conversations.count
