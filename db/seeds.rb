@@ -42,7 +42,7 @@ end
 
 # Add plan data
 master_plan = AccountPlan.find_or_create_by_label( label: 'Unmetered' )
-payg_plan = AccountPlan.find_or_create_by_label( label:'PAYG', month: 0, phone_add: -1, call_in_add: -0.02, sms_in_add: -0.02, sms_out_add: -0.02 )
+payg_plan = AccountPlan.find_or_create_by_label( label:'PAYG', month: 0, phone_add: -1, call_in_add: -0.02, sms_in_add: -0.02, sms_out_add: -0.02, default: true )
 dedicated_plan = AccountPlan.find_or_create_by_label( label:'Dedicated', month: -250, phone_add: 0, call_in_add: -0.01, sms_in_add: -0.01, sms_out_add: -0.01 )
 
 # Master organization tools
