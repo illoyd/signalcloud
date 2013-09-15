@@ -5,7 +5,7 @@ development:
   pool: 5
   timeout: 5000
   host: localhost
-  user: <%= ENV['DATABASE_USERNAME'] %>
+  username: <%= ENV['DATABASE_USERNAME'] %>
   password: <%= ENV['DATABASE_PASSWORD'] %>
 
 # Warning: The database defined as "test" will be erased and
@@ -18,7 +18,7 @@ test:
   pool: 5
   timeout: 5000
   host: localhost
-  user: <%= ENV['DATABASE_USERNAME'] %>
+  username: <%= ENV['DATABASE_USERNAME'] %>
   password: <%= ENV['DATABASE_PASSWORD'] %>
 
 production:
@@ -28,5 +28,5 @@ production:
   pool: 5
   timeout: 5000
   host: localhost
-  user: <%= ENV['DATABASE_USERNAME'] %>
+  username: <%= ENV['DATABASE_USERNAME'] %>
   password: <%= ENV['DATABASE_PASSWORD'] %>
