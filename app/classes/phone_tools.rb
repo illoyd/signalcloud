@@ -53,9 +53,7 @@ class PhoneTools < Struct
     649, # Turks & Caicos Islands
     340 # US Virgin Islands
   ]
-  
-  #class << self
-  
+
     def self.normalize(number)
       Phony.normalize number
     end
@@ -70,6 +68,11 @@ class PhoneTools < Struct
 
     def self.humanize(number)
       Phony.formatted(Phony.normalize(number))
+    end
+    
+    def self.country(number)
+      return nil unless Phony.plausible? number
+      Phony.country(Phony.normalize(number))
     end
   
     def self.united_states?( number )
@@ -107,9 +110,5 @@ class PhoneTools < Struct
       components = componentize(number)
       return components.first.to_i == GB_CODE
     end
-    
-    #alias other_nanp_country? not_canadian_or_united_states?
-
-  #end
 
 end

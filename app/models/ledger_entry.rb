@@ -10,30 +10,17 @@ class LedgerEntry < ActiveRecord::Base
   UNSOLICITED_SMS_REPLY_NARRATIVE = 'Reply to Unsolicited Inbound SMS'
   INBOUND_CALL_NARRATIVE = 'Inbound Phone Call'
 
-  attr_accessible :narrative, :value, :settled_at, :account_id, :item_id, :item_type, :account, :item, :notes, :invoiced_at
+  attr_accessible :narrative, :value, :settled_at, :organization_id, :item_id, :item_type, :organization, :item, :notes, :invoiced_at
   
-  belongs_to :account, inverse_of: :ledger_entries
+  belongs_to :organization, inverse_of: :ledger_entries
   belongs_to :invoice, inverse_of: :ledger_entries
   belongs_to :item, polymorphic: true
   
-  validates_presence_of :account_id, :item_type, :narrative
-  validates_presence_of :item_id, :unless => Proc.new { |a|
-    #if it's a new record and addressable is nil and addressable_type is set
-    #   then try to find the addressable object in the ObjectSpace
-    #       if the addressable object exists, then we're valid;
-    #       if not, let validates_presence_of do it's thing
-    if (new_record? && !item && item_type)
-      item = nil
-      ObjectSpace.each_object(item_type.constantize) do |o|
-        item = o if o.ledger_entry == a unless item
-      end
-    end
-    item
-  }
+  validates_presence_of :organization, :narrative
   validates_numericality_of :value, allow_nil: true
   
-  before_validation :ensure_account
-  before_save :update_account_balance
+  before_validation :ensure_organization
+  before_save :update_organization_balance
   
   ##
   # Find all ledger_entries which have not been confirmed.
@@ -52,6 +39,10 @@ class LedgerEntry < ActiveRecord::Base
   ##
   # Find all ledger_entries which have been invoiced.
   scope :invoiced, where( 'invoice_id is not null' )
+  
+  ##
+  # Find all where settled before a given date
+  scope :settled_before, lambda{ |to_date| where( 'settled_at <= ?', to_date )}
 
   ##
   # Get all entries created yesterday.
@@ -91,20 +82,20 @@ class LedgerEntry < ActiveRecord::Base
   alias is_settled? settled?
   
   ##
-  # Ensure that the parent account is the same as the item's account
-  def ensure_account
-    if self.item.is_a?(Account)
-      self.account = self.item
+  # Ensure that the parent organization is the same as the item's organization
+  def ensure_organization
+    if self.item.is_a?(Organization)
+      self.organization = self.item
     else
-      self.account = self.item.account unless self.item.try(:account).nil?
+      self.organization = self.item.organization unless self.item.try(:organization).nil?
     end
-    #self.account_id = self.account.id unless self.account.try(:id).nil?
+    #self.organization_id = self.organization.id unless self.organization.try(:id).nil?
   end
   
-  def update_account_balance
+  def update_organization_balance
     difference = ( self.value || 0 ) - ( self.value_was || 0 )
     return if difference == 0
-    self.account.update_balance! difference
+    self.organization.update_balance! difference
   end
 
 end

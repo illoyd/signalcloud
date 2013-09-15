@@ -1,0 +1,63 @@
+.row
+  .span2
+    - queued_count = counts[Conversation::PENDING] + counts[Conversation::QUEUED]
+    - queued_statistics = statistics[Conversation::PENDING] + statistics[Conversation::QUEUED]
+    - statistics.keys.each{ |key| statistics[key] = 1 if statistics[key] == 0 }
+    
+    = conversation_status_icon Conversation::QUEUED
+    Queued
+  .span1{ style: 'text-align: right' }
+    = queued_count
+  .span6
+    .progress
+      .bar.bar-info{ :style => "width: #{queued_statistics}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Queued: %0.0f%%' % queued_statistics }
+
+.row
+  .span2
+    = conversation_status_icon Conversation::CHALLENGE_SENT
+    Sent
+  .span1{ style: 'text-align: right' }
+    = counts[Conversation::CHALLENGE_SENT]
+  .span6
+    .progress
+      .bar{ :style => "width: #{statistics[Conversation::CHALLENGE_SENT]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Sent: %0.0f%%' % statistics[Conversation::CHALLENGE_SENT] }
+
+.row
+  .span2
+    = conversation_status_icon Conversation::CONFIRMED
+    Confirmed
+  .span1{ style: 'text-align: right' }
+    = counts[Conversation::CONFIRMED]
+  .span6
+    .progress
+      .bar.bar-success{ :style => "width: #{statistics[Conversation::CONFIRMED]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Confirmed: %0.0f%%' % statistics[Conversation::CONFIRMED] }
+
+.row
+  .span2
+    = conversation_status_icon Conversation::DENIED
+    Denied
+  .span1{ style: 'text-align: right' }
+    = counts[Conversation::DENIED]
+  .span6
+    .progress
+      .bar.bar-danger{ :style => "width: #{statistics[Conversation::DENIED]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Denied: %0.0f%%' % statistics[Conversation::DENIED] }
+
+.row
+  .span2
+    = conversation_status_icon Conversation::FAILED
+    Failed
+  .span1{ style: 'text-align: right' }
+    = counts[Conversation::FAILED]
+  .span6
+    .progress
+      .bar.bar-lightdanger{ :style => "width: #{statistics[Conversation::FAILED]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Failed: %0.0f%%' % statistics[Conversation::FAILED] }
+
+.row
+  .span2
+    = conversation_status_icon Conversation::EXPIRED
+    Expired
+  .span1{ style: 'text-align: right' }
+    = counts[Conversation::EXPIRED]
+  .span6
+    .progress
+      .bar.bar-warning{ :style => "width: #{statistics[Conversation::EXPIRED]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Expired: %0.0f%%' % statistics[Conversation::EXPIRED] }

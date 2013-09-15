@@ -1,9 +1,9 @@
 FactoryGirl.define do
 
   factory :stencil do
-    account
-    #association :phone_directory, account: { account }
-    phone_directory { create :phone_directory, account: account }
+    organization
+    #association :phone_book, organization: { organization }
+    phone_book { create :phone_book, organization: organization }
     label                     'Babys First Stencil'
     description               'A simple toaster'
     seconds_to_live           180

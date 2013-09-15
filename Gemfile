@@ -16,7 +16,11 @@ group :assets do
   gem 'coffee-rails', '~> 3.2.1'
 
   # See https://github.com/sstephenson/execjs#readme for more supported runtimes
-  # gem 'therubyracer', :platforms => :ruby
+  gem 'therubyracer', :platforms => :ruby
+  
+  # Adding twitter bootstrap tools
+  gem 'less-rails'
+  gem 'twitter-bootstrap-rails'
 
   gem 'uglifier', '>= 1.0.3'
 end
@@ -45,14 +49,20 @@ gem 'haml'
 gem 'twilio-ruby'
 gem 'devise'
 gem 'devise-async'
+gem 'devise_invitable'
 gem 'cancan'
-gem 'attr_encryptor'
+gem 'attr_encryptor', "~> 2.0.0"
 gem 'kaminari'
-gem 'phony'
+gem 'phony', :git => 'git://github.com/illoyd/phony.git'
 gem 'stringex'
 gem 'ruby-freshbooks'
 gem 'httparty'
 gem 'api_smith'
+gem 'twitter_bootstrap_form_for', :git => 'git://github.com/stouset/twitter_bootstrap_form_for.git', :branch => 'bootstrap-2.0'
+gem 'country_select'
+gem 'countries'
+gem 'workflow'
+gem 'strong_parameters'
 
 group :test, :development do
   gem "rspec-rails", "~> 2.0"
@@ -61,7 +71,7 @@ end
 group :test do
 	gem 'shoulda-matchers'
 	gem 'vcr'
-	gem 'webmock', "~> 1.9.0"
+	gem 'webmock', "~> 1.11.0"
 	gem 'factory_girl'
 	gem 'fuubar'
   gem "ZenTest", "~> 4.4.2"

@@ -2,47 +2,50 @@ class User < ActiveRecord::Base
   # Include default devise modules. Others available are:
   # :token_authenticatable, :confirmable, :trackable,
   # :lockable, :timeoutable and :omniauthable
-  devise :database_authenticatable, :recoverable, :rememberable, :validatable, :lockable, :timeoutable, :async
+  devise :database_authenticatable, :recoverable, :rememberable, :validatable, :lockable, :timeoutable, :async, :invitable
   devise :registerable if ALLOW_USER_REGISTRATION
 
   # Setup accessible (or protected) attributes for your model
   attr_accessible :email, :password, :password_confirmation, :remember_me
-  attr_accessible :account, :account_id, :first_name, :last_name, :roles
+  attr_accessible :first_name, :last_name
   
-  belongs_to :account, inverse_of: :users
+  has_many :user_roles, inverse_of: :user
+  has_many :organizations, through: :user_roles
   
-  validates_presence_of :first_name, :last_name, :roles_mask, :account_id
+  validates_presence_of :first_name, :last_name
+  
+#   def method_missing(sym, *args, &block)
+#     if /^can_(.+)\?$/.match(sym) and UserRole::ROLES.include?($1.to_sym)
+#       return self.roles.include? $1.to_sym
+#     else
+#       super( sym, *args, &block )
+#     end
+#   end
+#   
+#   def respond_to?(sym, include_private=false)
+#     return (/^can_(.+)\?$/.match(sym) and UserRole::ROLES.include?($1.to_sym)) || super( sym, include_private )
+#   end
 
-  ROLES = [ :shadow_account, :manage_account, :manage_users, :manage_user_permissions, :manage_stencils, :manage_phone_numbers, :manage_phone_directories, :start_ticket, :force_ticket, :manage_ledger_entries ]
-
-  def method_missing(sym, *args, &block)
-    if /^can_(.+)\?$/.match(sym) and User::ROLES.include?($1.to_sym)
-      return self.roles.include? $1.to_sym
-    else
-      super( sym, *args, &block )
+  def roles_for(org)
+    org = org.id if org.is_a? Organization
+    self.user_roles.where( organization_id: org ).first
+  end
+  
+  def has_pending_invitation?
+    !self.invitation_sent_at.nil? and self.invitation_accepted_at.nil?
+  end
+  
+  def set_roles_for( organization, roles )
+    rr = roles_for organization
+    rr = UserRole.new( user: self, organization: organization ) if rr.nil?
+    rr.roles = roles
+    rr.save
+  end
+  
+  UserRole::ROLES.each do |role|
+    define_method "is_#{role.to_s}_for?" do |org|
+      self.roles_for(org).send("is_#{role.to_s}?")
     end
-  end
-  
-  def respond_to?(sym, include_private=false)
-    return (/^can_(.+)\?$/.match(sym) and User::ROLES.include?($1.to_sym)) || super( sym, include_private )
-  end
-  
-  def roles=(new_roles)
-    #new_roles.map! { |entry| entry.to_sym }
-    #self.roles_mask = (new_roles & ROLES).map { |r| 2**ROLES.index(r) }.inject(0, :+)
-    self.roles_mask = User.translate_roles( new_roles )
-  end
-  
-  def roles
-    ROLES.reject do |r|
-      ((roles_mask || 0) & 2**ROLES.index(r)).zero?
-    end
-  end
-  
-  def self.translate_roles( new_roles=[] )
-    new_roles = [] if new_roles.nil?
-    new_roles.map! { |entry| entry.to_sym }
-    return (new_roles & ROLES).map { |r| 2**ROLES.index(r) }.inject(0, :+)
   end
 
 end

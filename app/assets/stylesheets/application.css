@@ -9,10 +9,10 @@
  * compiled file, but it's generally better to create a new file per style scope.
  *
  *= require_self
- *= require twitter/bootstrap.min.css
- *= require twitter/font-awesome.min.css
- *= require twitter/font-awesome-ie7.min.css
- *= require_tree .
+ *= require bootstrap_and_overrides
+ *= require organizations
+ *= require phone_book_entries
+ * //require_tree .
  */
 
 div.inline-modal {
@@ -35,4 +35,21 @@ div.table-tools {
 
 div.navbar {
   margin-top: 10px;
+}
+
+.table tr.middle td { vertical-align: middle; }
+.table .centered { text-align: center; }
+
+
+
+div.tiles {}
+div.tiles a.tile {
+  height: 70px;
+  text-align: center;
+  vertical-align: middle;
+  display: block;
+  color: white;
+  text-decoration: none;
+  font-size: 50px;
+  line-height: 70px;
 }

@@ -1,16 +1,13 @@
 / Page header
-.row
-  .span12
-    .page-header
-      %h1
-        = icon( :phone_numbers )
-        Phone Numbers
-        %small all phone numbers
+- titles 'Phone Numbers', 'all phone numbers', :phone_numbers
 
 / Page body
 .row
   .span12.table-tools
-    = link_to 'Search for a new Phone Number', search_phone_numbers_path, :class => 'btn btn-success btn-small pull-right'
+    - if can? :create, PhoneNumber
+      = link_to 'Search for a new Phone Number', search_organization_phone_numbers_path(@organization), :class => 'btn btn-success btn-small pull-right'
+    - else
+      = link_to 'Search for a new Phone Number', '#', :class => 'btn btn-disabled btn-small pull-right'
 
 .row
   .span12
@@ -19,7 +16,7 @@
         %tr
           %th.span1
           %th Phone Number
-          %th Directories
+          %th Phone Books
           %th Monthly fee
       %tbody
         - if @phone_numbers.empty?
@@ -29,12 +26,9 @@
         - @phone_numbers.each do |phone_number|
           %tr
             %td= split_dropdown_list([ |
-                { label: 'Details', icon: :show, link: phone_number, if: can?(:show, phone_number) }, |
-                { label: 'Delete', icon: :delete, link: phone_number, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, phone_number) } |
+                { label: 'Details', icon: :show, link: [@organization, phone_number], if: can?(:show, phone_number) }, |
+                { label: 'Delete', icon: :delete, link: [@organization, phone_number], options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, phone_number) } |
               ], { class: 'btn-mini' }) |
-            %td= humanize_phone_number phone_number.number
-            %td= phone_number.phone_directories.count
-            %td= phone_number.cost.round(2)
-            -# %td= link_to 'Show', phone_number
-            -# %td= link_to 'Edit', edit_phone_number_path(phone_number)
-            -# %td= link_to 'Destroy', phone_number, method: :delete, data: { confirm: 'Are you sure?' }
+            %td= link_to humanize_phone_number(phone_number.number), [@organization, phone_number]
+            %td= phone_number.phone_books.count
+            %td= currency_for phone_number.cost

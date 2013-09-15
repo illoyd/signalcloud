@@ -1,5 +1,12 @@
 module ApplicationHelper
 
+  def titles( title, subtitle, icon, page_section=nil )
+    content_for :page_title, title
+    content_for :page_subtitle, subtitle
+    content_for :page_icon, icon
+    content_for :page_section, page_section || icon.to_s
+  end
+
   def navigation_list( entries = [], options = {} )
     render partial: 'layouts/navlist', object: entries, locals: { options: options }
   end
@@ -36,8 +43,70 @@ module ApplicationHelper
     PhoneTools.humanize( number )
   end
   
-  def flag_icon( country='global', size='medium' )
-    image_tag 'flag-%s-%s.png' % [country.downcase, size.downcase], { style: 'vertical-align: bottom' }
+  def flag_icon( country='_global', size='medium' )
+    country ||= '_global'
+    size    ||= 'medium'
+    country_name = Country[country].name rescue nil
+    image_tag 'flags/%s/%s.png' % [size.downcase, country.downcase], alt: country_name, title: country_name, style: 'vertical-align: bottom'
+  end
+  
+  def flag_icon_for_phone_number( number, size='medium' )
+    number = number.number if number.is_a? PhoneNumber
+    country = PhoneTools.country( number )
+    flag_icon country, size
+  end
+  
+  def country_name_for_phone_number( number )
+    number = number.number if number.is_a? PhoneNumber
+    country = PhoneTools.country( number )
+    return 'Global' if country.nil?
+    Country[country].name
+  end
+
+  # A simple way to show error messages for the current devise resource. If you need
+  # to customize this method, you can either overwrite it in your application helpers or
+  # copy the views to your application.
+  #
+  # This method is intended to stay simple and it is unlikely that we are going to change
+  # it to add more behavior or options.
+  def devise_error_messages!
+    return "" if resource.errors.empty?
+
+    messages = resource.errors.full_messages.map { |msg| content_tag(:li, msg) }.join
+    sentence = I18n.t("errors.messages.not_saved",
+                      :count => resource.errors.count,
+                      :resource => resource.class.model_name.human.downcase)
+
+    html = <<-HTML
+    <div id="error">
+      <strong>#{sentence}</strong>
+      <ul>#{messages}</ul>
+    </div>
+    HTML
+
+    html.html_safe
+  end
+
+  # Returns the Gravatar (http://gravatar.com/) for the given user.
+  def gravatar_for(user, size = nil, options={} )
+    gravatar_id = Digest::MD5::hexdigest(user.email.chomp.downcase)
+    gravatar_url = "https://secure.gravatar.com/avatar/#{gravatar_id}"
+    gravatar_url += "?size=#{size}" unless size.nil?
+
+    options = { alt: user.first_name, class: "gravatar" }.merge options
+    options[:height] = size unless size.nil?
+    options[:width] = size unless size.nil?
+
+    image_tag( gravatar_url, options )
+  end
+  
+  def checkmark_for( value, options={} )
+    icon( 'ok', options ) if value
+  end
+  
+  def currency_for( value, country='US', symbol='$' )
+    html = '<small>%s%s</small> %0.4f' % [ country, symbol, value ]
+    html.html_safe
   end
 
 end

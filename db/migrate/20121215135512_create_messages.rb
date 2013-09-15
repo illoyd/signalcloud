@@ -1,7 +1,7 @@
 class CreateMessages < ActiveRecord::Migration
   def change
     create_table :messages do |t|
-      t.references :ticket, null: false
+      t.references :conversation, null: false
       t.string :twilio_sid, limit: Twilio::SID_LENGTH
       t.string :message_kind, limit: 1
       t.integer :status, limit: 2, default: 0, null: false
@@ -34,9 +34,10 @@ class CreateMessages < ActiveRecord::Migration
     end
     
     # Indices
-    add_index :messages, :ticket_id
+    add_index :messages, :conversation_id
     add_index :messages, :updated_at
     add_index :messages, :message_kind
     add_index :messages, :status
+    add_index :messages, :twilio_sid, unique: true
   end
 end

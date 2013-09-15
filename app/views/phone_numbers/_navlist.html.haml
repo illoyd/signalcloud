@@ -2,16 +2,16 @@
   -# New record
   = navigation_list([ |
     { header: 'Related' }, |
-    { label: 'All Phone Numbers', icon: :phone_numbers, link: phone_numbers_path, if: can?(:index, PhoneNumber) } |
+    { label: 'All Phone Numbers', icon: :phone_numbers, link: organization_phone_numbers_path(@organization), if: can?(:index, PhoneNumber) } |
     ]) |
 
 - else
   -# Existing record
   = navigation_list([ |
     { header: 'Manage' }, |
-    { label: 'Details', icon: :show, link: @phone_number, if: can?(:show, @phone_number) }, |
-    { label: 'Edit', icon: :edit, link: edit_phone_number_path( @phone_number ), if: can?(:edit, @phone_number) }, |
-    { label: 'Delete', icon: :delete, link: @phone_number, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, @phone_number) }, |
+    { label: 'Details', icon: :show, link: [@organization, @phone_number], if: can?(:show, @phone_number) }, |
+    { label: 'Edit', icon: :edit, link: edit_organization_phone_number_path( @organization, @phone_number ), if: can?(:edit, @phone_number) }, |
+    { label: 'Delete', icon: :delete, link: [@organization, @phone_number], options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, @phone_number) }, |
     { divider: true }, |
-    { label: 'All Phone Numbers', icon: :phone_numbers, link: phone_numbers_path, if: can?(:index, PhoneNumber) } |
+    { label: 'All Phone Numbers', icon: :phone_numbers, link: organization_phone_numbers_path(@organization), if: can?(:index, PhoneNumber) } |
     ]) |

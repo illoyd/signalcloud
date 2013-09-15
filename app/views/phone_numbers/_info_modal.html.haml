@@ -23,7 +23,7 @@
       %dt Monthly fee
       %dd= number_to_currency Twilio.assumed_phone_number_price( phone_number.iso_country ), unit: 'US$', precision: 2
   .modal-footer
-    = form_tag( buy_phone_numbers_path, method: :post, style:'margin:0px; padding:0px' ) do
+    = form_tag( organization_phone_numbers_path(@organization), method: :post, style:'margin:0px; padding:0px' ) do
       = hidden_field_tag :phone_number, phone_number.phone_number
       = submit_tag 'Buy', class: 'btn btn-primary'
       %a.btn{:href => "#", "data-dismiss" => "modal"} Close

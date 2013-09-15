@@ -1,14 +1,14 @@
 require 'spec_helper'
 describe Twilio::InboundSmsController do
   #render_views
-  let(:account) { create(:test_account, :test_twilio, :with_sid_and_token) }
+  let(:organization) { create(:test_organization, :test_twilio, :with_sid_and_token) }
   let(:to_phone_number) { build( :phone_number ) }
   let(:from_phone_number) { build( :phone_number ) }
   let(:inbound_post_params) { {
       To: to_phone_number.number,
       From: from_phone_number.number,
       SmsSid: 'SM'+SecureRandom.hex(16),
-      AccountSid: account.twilio_account_sid,
+      AccountSid: organization.communication_gateway.twilio_account_sid,
       Body: 'Hello!'
     } }
 
@@ -23,7 +23,7 @@ describe Twilio::InboundSmsController do
     context 'when passing HTTP DIGEST' do
       context 'when not passing message auth header' do
         it 'responds with forbidden' do
-          authenticate_with_http_digest account.account_sid, account.auth_token, DIGEST_REALM
+          authenticate_with_http_digest organization.sid, organization.auth_token, DIGEST_REALM
           post :create, inbound_post_params
           response.status.should eq( 403 )
         end
@@ -31,8 +31,8 @@ describe Twilio::InboundSmsController do
 
       context 'when passing message auth header' do
         it 'responds with success' do
-          authenticate_with_http_digest account.account_sid, account.auth_token, DIGEST_REALM
-          inject_twilio_signature( twilio_inbound_sms_url, account, inbound_post_params )
+          authenticate_with_http_digest organization.sid, organization.auth_token, DIGEST_REALM
+          inject_twilio_signature( twilio_inbound_sms_url, organization, inbound_post_params )
           post :create, inbound_post_params
           response.status.should eq( 200 )
         end
@@ -41,8 +41,8 @@ describe Twilio::InboundSmsController do
     
     context 'when responding to inbound sms' do
       before {
-        authenticate_with_http_digest account.account_sid, account.auth_token, DIGEST_REALM
-        inject_twilio_signature( twilio_inbound_sms_url, account, inbound_post_params )
+        authenticate_with_http_digest organization.sid, organization.auth_token, DIGEST_REALM
+        inject_twilio_signature( twilio_inbound_sms_url, organization, inbound_post_params )
       }
       it 'responds with blank TwiML' do
         post :create, inbound_post_params

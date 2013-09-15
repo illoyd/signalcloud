@@ -1,11 +1,19 @@
 class LedgerEntriesController < ApplicationController
 
   load_and_authorize_resource
+  before_filter :assign_organization, :assign_invoice
   
   # GET /ledger_entries
   # GET /ledger_entries.json
   def index
-    @ledger_entries = current_account.ledger_entries
+  
+    @ledger_entries = if @invoice
+        @invoice.ledger_entries
+      else
+        @organization.ledger_entries.uninvoiced
+      end
+      
+    # Apply pagination
     @ledger_entries = @ledger_entries.page(params[:page])
 
     respond_to do |format|
@@ -17,7 +25,7 @@ class LedgerEntriesController < ApplicationController
   # GET /ledger_entries/1
   # GET /ledger_entries/1.json
   def show
-    @ledger_entry = current_account.ledger_entries.find(params[:id])
+    @ledger_entry = @organization.ledger_entries.find(params[:id])
 
     respond_to do |format|
       format.html # show.html.erb
@@ -85,4 +93,13 @@ class LedgerEntriesController < ApplicationController
 #     end
 #   end
 
+protected
+
+  def assign_invoice
+    if params[:invoice_id]
+      @invoice = Invoice.find(params[:invoice_id])
+      authorize! :show, @invoice
+    end
+  end
+  
 end

@@ -1,24 +1,25 @@
 require 'spec_helper'
 
 describe UpdateMessageStatusJob, :vcr do
+  let(:sms_sid) { 'SMf7b41f7c4091865e1ba41b9d9a27833d' }
   
   def create_message_update_payload( message, body=nil, reply=false, others={} )
-    body = message.ticket.question if body.nil?
-    {
-      'AccountSid' => message.ticket.account.twilio_account_sid,
+    body = message.conversation.question if body.nil?
+    return {
+      'AccountSid' => message.conversation.organization.twilio_account_sid,
       'SmsSid' =>     message.twilio_sid,
       'ApiVersion' => '2010-04-01',
-      'From' =>       reply ? message.ticket.to_number : message.ticket.from_number,
-      'To' =>	        reply ? message.ticket.from_number : message.ticket.to_number,
+      'From' =>       reply ? message.conversation.to_number : message.conversation.from_number,
+      'To' =>	        reply ? message.conversation.from_number : message.conversation.to_number,
       'Body' =>       body,
       'SmsStatus' =>	'sent'
     }.merge(others)
   end
   
   def create_extended_message_update_payload( message, body=nil, reply=false )
-    return create_message_update_payload( message, body, reply ).merge!({
-      'Price' =>  -0.04,
-      'DateSent' => DateTime.now
+    return create_message_update_payload( message, body, reply, {
+      'Price' =>  '-0.04',
+      'DateSent' => 30.minutes.ago.rfc2822
     })
   end
 
@@ -29,16 +30,19 @@ describe UpdateMessageStatusJob, :vcr do
       job.callback_values.should eq( expected_payload )
     end
   end
-  
+
   describe '#perform' do
-    let(:date_sent) { 15.seconds.ago }
-    let(:payload) { create_message_update_payload message, nil, false, { 'Price' => -0.04, 'DateSent' => date_sent } }
-    let(:queued_payload) { create_message_update_payload message, nil, false, { 'SmsStatus' => 'queued', 'Price' => nil, 'DateSent' => nil } }
+    let(:organization)    { create :organization, :master_twilio }
+    let(:stencil)         { create :stencil, organization: organization }
+    let(:date_sent)       { 15.minutes.ago.to_time.round }
+    let(:payload)         { create_message_update_payload message, nil, false, { 'Price' => -0.04, 'DateSent' => date_sent.rfc2822 } }
+    let(:queued_payload)  { create_message_update_payload message, nil, false, { 'SmsStatus' => 'queued', 'Price' => nil, 'DateSent' => nil } }
     let(:sending_payload) { create_message_update_payload message, nil, false, { 'SmsStatus' => 'sending', 'Price' => nil, 'DateSent' => nil } }
-    let(:sent_payload) { create_message_update_payload message, nil, false, { 'SmsStatus' => 'sent', 'Price' => -0.04, 'DateSent' => date_sent } }
+    let(:sent_payload)    { create_message_update_payload message, nil, false, { 'SmsStatus' => 'sent', 'Price' => '-0.04', 'DateSent' => date_sent.rfc2822 } }
     
     context 'when challenge has been sent' do
-      let(:message) { create(:challenge_message, twilio_sid: 'SM1f3eb5e1e6e7e00ad9d0b415a08efb58') }
+      let(:conversation) { create :conversation, stencil: stencil }
+      let(:message)      { create(:challenge_message, conversation: conversation, twilio_sid: sms_sid) }
 
       context 'and message is queued' do
         let(:job) { UpdateMessageStatusJob.new queued_payload }
@@ -51,8 +55,8 @@ describe UpdateMessageStatusJob, :vcr do
         it 'does not update message sent_at' do
           expect { job.perform }.to_not change{message.reload.sent_at}.from(nil)
         end
-        it 'updates ticket status' do
-          expect { job.perform }.to change{message.reload.ticket(true).status}.to(Ticket::QUEUED)
+        it 'updates conversation status' do
+          expect { job.perform }.to change{message.reload.conversation(true).status}.to(Conversation::QUEUED)
         end
         it 'does not create a ledger entry' do
           expect { job.perform }.to_not change{message.reload.ledger_entry}.from(nil)
@@ -70,8 +74,8 @@ describe UpdateMessageStatusJob, :vcr do
         it 'does not update message sent_at' do
           expect { job.perform }.to_not change{message.reload.sent_at}.from(nil)
         end
-        it 'updates ticket status' do
-          expect { job.perform }.to change{message.reload.ticket(true).status}.to(Ticket::QUEUED)
+        it 'updates conversation status' do
+          expect { job.perform }.to change{message.reload.conversation(true).status}.to(Conversation::QUEUED)
         end
         it 'does not create a ledger entry' do
           expect { job.perform }.to_not change{message.reload.ledger_entry}.from(nil)
@@ -87,27 +91,28 @@ describe UpdateMessageStatusJob, :vcr do
           expect { job.perform }.to change{message.reload.status}.to(Message::SENT)
         end
         it 'updates message sent_at' do
-          expect { job.perform }.to change{message.reload.sent_at}.from(nil).to(date_sent)
+          job.perform
+          message.reload.sent_at.to_time.round.should == date_sent.round
         end
-        it 'updates ticket status' do
-          expect { job.perform }.to change{message.reload.ticket(true).status}.to(Ticket::CHALLENGE_SENT)
+        it 'updates conversation status' do
+          expect { job.perform }.to change{message.reload.conversation(true).status}.to(Conversation::CHALLENGE_SENT)
         end
         it 'creates a ledger entry' do
           job.perform
           message.reload.ledger_entry.should_not be_nil
         end
         it 'settles ledger entry' do
-          expect { job.perform }.to change{message.reload.ledger_entry(true).settled_at}.from(nil).to(date_sent)
+          expect { job.perform }.to change{message.reload.ledger_entry(true).try(:settled_at)}.from(nil).to(date_sent)
         end
         it 'updates ledger entry costs' do
-          expect { job.perform }.to change{message.reload.ledger_entry(true).value} #.to(message.reload.cost)
+          expect { job.perform }.to change{message.reload.ledger_entry(true).try(:value)} #.to(message.reload.cost)
         end
       end
     end
     
     context 'when reply has been sent' do
-      let(:ticket)  { create :ticket, :confirmed }
-      let(:message) { create(:reply_message, ticket: ticket, twilio_sid: 'SM1f3eb5e1e6e7e00ad9d0b415a08efb58') }
+      let(:conversation)  { create :conversation, :confirmed, stencil: stencil }
+      let(:message) { create(:reply_message, conversation: conversation, twilio_sid: sms_sid) }
 
       context 'and message is queued' do
         let(:job) { UpdateMessageStatusJob.new queued_payload }
@@ -120,8 +125,8 @@ describe UpdateMessageStatusJob, :vcr do
         it 'does not update message sent_at' do
           expect { job.perform }.to_not change{message.reload.sent_at}.from(nil)
         end
-        it 'does not change ticket status' do
-          expect { job.perform }.not_to change{message.reload.ticket(true).status}.from(Ticket::CONFIRMED)
+        it 'does not change conversation status' do
+          expect { job.perform }.not_to change{message.reload.conversation(true).status}.from(Conversation::CONFIRMED)
         end
         it 'does not create a ledger entry' do
           expect { job.perform }.to_not change{message.reload.ledger_entry}.from(nil)
@@ -139,8 +144,8 @@ describe UpdateMessageStatusJob, :vcr do
         it 'does not update message sent_at' do
           expect { job.perform }.to_not change{message.reload.sent_at}.from(nil)
         end
-        it 'does not change ticket status' do
-          expect { job.perform }.not_to change{message.reload.ticket(true).status}.from(Ticket::CONFIRMED)
+        it 'does not change conversation status' do
+          expect { job.perform }.not_to change{message.reload.conversation(true).status}.from(Conversation::CONFIRMED)
         end
         it 'does not create a ledger entry' do
           expect { job.perform }.to_not change{message.reload.ledger_entry}.from(nil)
@@ -156,20 +161,21 @@ describe UpdateMessageStatusJob, :vcr do
           expect { job.perform }.to change{message.reload.status}.to(Message::SENT)
         end
         it 'updates message sent_at' do
-          expect { job.perform }.to change{message.reload.sent_at}.from(nil).to(date_sent)
+          job.perform
+          message.reload.sent_at.to_time.round.should == date_sent.round
         end
-        it 'does not change ticket status' do
-          expect { job.perform }.not_to change{message.reload.ticket(true).status}.from(Ticket::CONFIRMED)
+        it 'does not change conversation status' do
+          expect { job.perform }.not_to change{message.reload.conversation(true).status}.from(Conversation::CONFIRMED)
         end
         it 'creates a ledger entry' do
           job.perform
           message.reload.ledger_entry.should_not be_nil
         end
         it 'settles ledger entry' do
-          expect { job.perform }.to change{message.reload.ledger_entry(true).settled_at}.from(nil).to(date_sent)
+          expect { job.perform }.to change{message.reload.ledger_entry(true).try(:settled_at)}.from(nil).to(date_sent)
         end
         it 'updates ledger entry costs' do
-          expect { job.perform }.to change{message.reload.ledger_entry(true).value} #.to(message.reload.cost)
+          expect { job.perform }.to change{message.reload.ledger_entry(true).try(:value)} #.to(message.reload.cost)
         end
       end
     end
@@ -201,8 +207,8 @@ describe UpdateMessageStatusJob, :vcr do
 #         # Check that the message's ledger_entry has been properly massaged
 #         message.ledger_entry(true).settled_at.should be_nil
 #         
-#         # Check that the message's ticket is still queued
-#         message.ticket(true).status.should == Ticket::QUEUED
+#         # Check that the message's conversation is still queued
+#         message.conversation(true).status.should == Conversation::QUEUED
 #       end
 #     end
 # 
@@ -231,8 +237,8 @@ describe UpdateMessageStatusJob, :vcr do
 #         # Check that the message's ledger_entry has been properly massaged
 #         message.ledger_entry(true).settled_at.should be_nil
 #         
-#         # Check that the message's ticket is queued
-#         message.ticket(true).status.should == Ticket::QUEUED
+#         # Check that the message's conversation is queued
+#         message.conversation(true).status.should == Conversation::QUEUED
 #       end
 #     end
 # 
@@ -248,7 +254,7 @@ describe UpdateMessageStatusJob, :vcr do
 #         }.to change{Delayed::Job.count}.from(0).to(1)
 #         
 #         # Now, work that job!
-#         expect { # Do not change message's ticket's status
+#         expect { # Do not change message's conversation's status
 #           expect {
 #             expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
 #             @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
@@ -261,10 +267,10 @@ describe UpdateMessageStatusJob, :vcr do
 #           
 #           # Check that the message's ledger_entry has been properly massaged
 #           message.ledger_entry(true).settled_at.should be_nil
-#         }.to_not change{message.ticket(true).status}
+#         }.to_not change{message.conversation(true).status}
 #         
-#         # Check that the message's ticket is still queued
-#         #message.ticket(true).status.should == Ticket::QUEUED
+#         # Check that the message's conversation is still queued
+#         #message.conversation(true).status.should == Conversation::QUEUED
 #       end
 #     end
 # 
@@ -280,7 +286,7 @@ describe UpdateMessageStatusJob, :vcr do
 #         }.to change{Delayed::Job.count}.from(0).to(1)
 #         
 #         # Now, work that job!
-#         expect { # Do not change message's ticket's status
+#         expect { # Do not change message's conversation's status
 #           expect {
 #             expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
 #             @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
@@ -294,8 +300,8 @@ describe UpdateMessageStatusJob, :vcr do
 #           # Check that the message's ledger_entry has been properly massaged
 #           message.ledger_entry(true).settled_at.should be_nil
 #           
-#           # Check that the message's ticket is queued
-#         }.to_not change{message.ticket(true).status}
+#           # Check that the message's conversation is queued
+#         }.to_not change{message.conversation(true).status}
 #       end
 #     end
 # 
@@ -324,9 +330,9 @@ describe UpdateMessageStatusJob, :vcr do
 #         # Check that the message's ledger_entry has been properly massaged
 #         message.ledger_entry(true).settled_at.should == date_sent
 #         
-#         # Check that the message's ticket has been refreshed
-#         message.ticket(true).challenge_status.should == Message::SENT
-#         message.ticket.challenge_sent_at.should == date_sent
+#         # Check that the message's conversation has been refreshed
+#         message.conversation(true).challenge_status.should == Message::SENT
+#         message.conversation.challenge_sent_at.should == date_sent
 #       end
 #     end
 #     context 'with sent reply message' do
@@ -354,9 +360,9 @@ describe UpdateMessageStatusJob, :vcr do
 #         # Check that the message's ledger_entry has been properly massaged
 #         message.ledger_entry(true).settled_at.should == date_sent
 #         
-#         # Check that the message's ticket has been refreshed
-#         message.ticket(true).reply_status.should == Message::SENT
-#         message.ticket.reply_sent_at.should == date_sent
+#         # Check that the message's conversation has been refreshed
+#         message.conversation(true).reply_status.should == Message::SENT
+#         message.conversation.reply_sent_at.should == date_sent
 #       end
 #     end
   end

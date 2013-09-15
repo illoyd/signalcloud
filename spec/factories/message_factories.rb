@@ -1,13 +1,13 @@
 FactoryGirl.define do
 
   factory :message do
-    ticket
+    conversation
     status        Message::PENDING
     
-    after(:create) do |message, evaluator|
-      FactoryGirl.create(:ledger_entry, account: message.ticket.stencil.account, item: message, value: message.cost, narrative: LedgerEntry::OUTBOUND_SMS_NARRATIVE )
-    end
-    
+#     after(:create) do |message, evaluator|
+#       FactoryGirl.create(:ledger_entry, organization: message.conversation.stencil.organization, item: message, value: message.cost, narrative: LedgerEntry::OUTBOUND_SMS_NARRATIVE )
+#     end
+#     
     trait :with_costs do
       provider_cost    { random_cost() }
       our_cost         { random_cost() }
@@ -22,25 +22,32 @@ FactoryGirl.define do
     end
     
     trait :with_provider_response do
+      ignore do
+        remote_sid { conversation.stencil.organization.communication_gateway.twilio_account_sid rescue 'TEST' }
+      end
       provider_response { {
                           "sid" => twilio_sid,
                           "date_created" => DateTime.now,
                           "date_updated" => DateTime.now,
                           "date_sent" => nil,
-                          "account_sid" => ticket.stencil.account.twilio_account_sid,
-                          "to" => ticket.to_number,
-                          "from" => ticket.from_number,
-                          "body" => ticket.question,
+                          "account_sid" => remote_sid,
+                          "to" => conversation.to_number,
+                          "from" => conversation.from_number,
+                          "body" => conversation.question,
                           "status" => "queued",
                           "direction" => "outbound-api",
                           "api_version" => "2010-04-01",
                           "price" => nil,
-                          "uri" => "\/2010-04-01\/Accounts\/#{ticket.stencil.account.twilio_account_sid}\/SMS\/Messages\/#{twilio_sid}.json"
+                          "uri" => "\/2010-04-01\/Accounts\/#{remote_sid}\/SMS\/Messages\/#{twilio_sid}.json"
                         } }
     end
 
     factory :challenge_message do
       challenge
+    end
+
+    factory :response_message do
+      response
     end
 
     factory :reply_message do
@@ -49,10 +56,17 @@ FactoryGirl.define do
 
     trait :challenge do
       message_kind  Message::CHALLENGE
+      direction     Message::DIRECTION_OUT
+    end
+
+    trait :response do
+      message_kind  Message::RESPONSE
+      direction     Message::DIRECTION_IN
     end
 
     trait :reply do
       message_kind  Message::REPLY
+      direction     Message::DIRECTION_OUT
     end
     
     trait :sending do

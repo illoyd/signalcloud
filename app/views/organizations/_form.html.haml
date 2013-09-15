@@ -1,0 +1,54 @@
+- available_icons = %w( rocket briefcase beaker beer bell anchor bolt briefcase bullhorn bullseye camera camera-retro coffee credit-card desktop envelope fire-extinguisher fire flag flag-alt flag-checkered food folder folder-open gamepad gift glass globe headphones heart inbox keyboard laptop leaf legal lemon lightbulb magic magnet microphone money music pencil picture plane print pushpin puzzle-piece road rocket shield shopping-cart signal sitemap star tablet tag ticket tint trophy truck umbrella wrench ambulance hospital medkit ).sort.uniq
+
+= twitter_bootstrap_form_for( @organization, :html => { :class => 'form-horizontal' } ) do |f|
+  - if @organization.errors.any?
+    .alert.alert-warning.alert-block.fade.in
+      %h4
+        Oops!
+        = pluralize(@organization.errors.count, "error")
+        stopped us from saving this organization
+      %ul
+        - @organization.errors.full_messages.each do |msg|
+          %li= msg
+
+  = f.fieldset 'Details' do
+    = f.text_field :label
+    = f.select :icon, 'Icon', available_icons.map{ |x| [ x.humanize, x ] }
+    = f.text_area :description, rows: 3
+
+    - if can? :index, AccountPlan
+      = f.collection_select :account_plan_id, 'Plan', AccountPlan.all, :id, :label
+
+  - if @organization.billing_address or @organization.contact_address
+    = f.fieldset 'VAT Details <small>(optional)</small>'.html_safe do
+      = f.text_field :vat_name, 'VAT Registered Name'
+      = f.text_field :vat_number, 'VAT Number'
+  
+    = f.fieldset 'Contact Address <small>(optional)</small>'.html_safe do
+      = f.twitter_bootstrap_fields_for :contact_address do |address|
+        = address.text_field :first_name
+        = address.text_field :last_name
+        = address.text_field :email
+        = address.text_field :line1, 'Line 1'
+        = address.text_field :line2, 'Line 2'
+        = address.text_field :city, 'City'
+        = address.text_field :region, 'State/Provinece'
+        = address.text_field :postcode, 'Postal Code'
+        = address.country_select :country
+        
+  
+    = f.fieldset 'Billing Address <small>(optional)</small>'.html_safe do
+      = f.twitter_bootstrap_fields_for :billing_address do |address|
+        = address.text_field :first_name
+        = address.text_field :last_name
+        = address.text_field :email
+        = address.text_field :line1, 'Line 1'
+        = address.text_field :line2, 'Line 2'
+        = address.text_field :city, 'City'
+        = address.text_field :region, 'State/Provinece'
+        = address.text_field :postcode, 'Postal Code'
+        = address.country_select :country
+
+  = f.actions do
+    = f.submit :class => 'btn btn-primary'
+    = link_to 'Discard changes', ( @organization.new_record? ? organizations_path : @organization ), :class => 'btn'

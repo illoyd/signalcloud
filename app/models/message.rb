@@ -1,8 +1,8 @@
 # encoding: UTF-8
 class Message < ActiveRecord::Base
-  attr_accessible :status, :sent_at, :our_cost, :provider_cost, :ticket_id, :provider_response, :provider_update, :twilio_sid, :message_kind, :to_number, :from_number, :body, :direction
+  attr_accessible :status, :sent_at, :our_cost, :provider_cost, :conversation_id, :provider_response, :provider_update, :twilio_sid, :message_kind, :to_number, :from_number, :body, :direction
   
-  before_save :update_ledger_entry
+  before_validation :update_ledger_entry
 
   SMS_CHARSET_LIST = " @Δ0¡P¿p£_!1AQaq$Φ\"2BRbr¥Γ#3CScsèΛ¤4DTdtéΩ%5EUeuùΠ&6FVfvìΨ'7GWgwòΣ(8HXhxÇΘ)9IYiy\nΞ*:JZjzØ\e+;KÄkäøÆ,<LÖlö\ræ=MÑmñÅß.>NÜnüåÉ/?O§oà-"
   SMS_CHARSET = /\A[ @Δ0¡P¿p£_!1AQaq$Φ"2BRbr¥Γ#3CScsèΛ¤4DTdtéΩ%5EUeuùΠ&6FVfvìΨ'7GWgwòΣ\(8HXhxÇΘ\)9IYiy\nΞ*:JZjzØ\e+;KÄkäøÆ,<LÖlö\ræ=MÑmñÅß.>NÜnüåÉ\/?O§oà-]+\Z/
@@ -11,6 +11,7 @@ class Message < ActiveRecord::Base
   
   CHALLENGE = 'c'
   REPLY = 'r'
+  RESPONSE = nil
   
   PENDING = 0
   QUEUED = 1
@@ -40,19 +41,19 @@ class Message < ActiveRecord::Base
   attr_encrypted :body, key: ATTR_ENCRYPTED_SECRET
 
   ##
-  # Parent ticket, of which this message is part of the conversation.
-  belongs_to :ticket, inverse_of: :messages
+  # Parent conversation, of which this message is part of the conversation.
+  belongs_to :conversation, inverse_of: :messages
   
   ##
-  # Chain up to parent's account.
-  delegate :account, :to => :ticket, :allow_nil => true
+  # Chain up to parent's organization.
+  delegate :organization, :to => :conversation, :allow_nil => true
   
   ##
   # LedgerEntry for this message.
-  has_one :ledger_entry, as: :item #, autosave: true
+  has_one :ledger_entry, as: :item, autosave: true
 
   # Validations
-  validates_presence_of :ticket_id #, :twilio_sid
+  validates_presence_of :conversation
   validates_numericality_of :our_cost, allow_nil: true
   validates_numericality_of :provider_cost, allow_nil: true
   validates_length_of :twilio_sid, is: Twilio::SID_LENGTH, allow_nil: true
@@ -61,7 +62,7 @@ class Message < ActiveRecord::Base
   validates_inclusion_of :status, in: STATUSES
   validates_inclusion_of :direction, in: DIRECTIONS
   
-  scope :outstanding, where( 'messages.status not in (?)', CLOSED_STATUSES )
+  scope :outstanding, ->{ where( 'messages.status not in (?)', CLOSED_STATUSES ) }
   
   ##
   # Is the given string composed solely of basic SMS characters?
@@ -115,8 +116,13 @@ class Message < ActiveRecord::Base
       self.ledger_entry.settled_at = nil
     end
     
-    # Finally, try to save the ledger entry if it exists and this is NOT a new record
-    self.ledger_entry.save unless self.ledger_entry.nil? || self.new_record?
+    unless self.ledger_entry.nil?
+      # Force an update of the ledger entry's organization
+      self.ledger_entry.organization = self.organization
+      
+      # Finally, try to save the ledger entry if it exists and this is NOT a new record
+      # self.ledger_entry.save unless self.new_record?
+    end
   end
   
   ##
@@ -139,7 +145,7 @@ class Message < ActiveRecord::Base
   
 #   def update_our_cost
 #     return unless self.has_provider_price?
-#     plan = self.ticket.stencil.account.account_plan
+#     plan = self.conversation.stencil.organization.account_plan
 #     
 #     # Update our costs based upon the direction of the message
 #     self.our_cost = case self.direction
@@ -151,9 +157,9 @@ class Message < ActiveRecord::Base
 #   end
   
   def calculate_our_cost( value=nil )
-    return nil unless self.ticket && self.ticket.stencil && self.ticket.stencil.account && self.ticket.stencil.account.account_plan
+    return 0 unless self.conversation && self.conversation.stencil && self.conversation.stencil.organization && self.conversation.stencil.organization.account_plan
     value = self.provider_cost if value.nil?
-    plan = self.ticket.stencil.account.account_plan
+    plan = self.conversation.stencil.organization.account_plan
     return case self.direction
       when DIRECTION_OUT
         plan.calculate_outbound_sms_cost( value )
@@ -164,22 +170,24 @@ class Message < ActiveRecord::Base
   
   def deliver!()
     begin
-      self.provider_response = self.ticket.stencil.account.twilio_account.sms.messages.create({
-        to: self.to_number,
-        from: self.from_number,
-        body: self.body,
-        status_callback: self.ticket.stencil.account.twilio_sms_status_url
-      }).to_property_hash
+      #self.provider_response = self.conversation.stencil.organization.twilio_account.sms.messages.create({
+      #  to: self.to_number,
+      #  from: self.from_number,
+      #  body: self.body,
+      #  status_callback: self.conversation.stencil.organization.twilio_sms_status_url
+      #}).to_property_hash
+      
+      self.provider_response = self.conversation.stencil.organization.send_sms!( self.to_number, self.from_number, body, { default_callback: true, response_format: :smash })
 
-      self.twilio_sid = self.provider_response[:sid]
-      self.status = Message.translate_twilio_message_status( self.provider_response[:status] )
-      self.provider_cost = self.provider_response.fetch(:price, nil)
+      self.twilio_sid = self.provider_response.sms_sid
+      self.status = Message.translate_twilio_message_status( self.provider_response.status )
+      self.provider_cost = self.provider_response.price
 
     rescue Twilio::REST::RequestError => ex
       self.status = FAILED
 
-      error_code = Ticket.translate_twilio_error_to_ticket_status ex.code
-      if Ticket::CRITICAL_ERRORS.include? error_code
+      error_code = Conversation.translate_twilio_error_to_conversation_status ex.code
+      if Conversation::CRITICAL_ERRORS.include? error_code
         raise SignalCloud::CriticalMessageSendingError.new( self.body, ex, error_code ) # Rethrow as a critical error
       else
         raise SignalCloud::MessageSendingError.new( self.body, ex, error_code ) # Rethrow in nice wrapper error
@@ -229,6 +237,7 @@ class Message < ActiveRecord::Base
   def provider_cost=(value)
     super(value)
     self.our_cost = value.nil? ? nil : self.calculate_our_cost(value)
+    self.update_ledger_entry
   end
   
   ##
@@ -305,15 +314,15 @@ class Message < ActiveRecord::Base
   ##
   # Query the Twilio status of this message.
   def twilio_status
-    self.ticket.stencil.account.twilio_account.sms.messages.get( self.twilio_sid )
+    self.organization.twilio_account.sms.messages.get( self.twilio_sid )
   end
   
   def refresh_from_twilio
-    response = self.twilio_status
-    self.status = Message.translate_twilio_message_status response.status
-    self.sent_at = response.date_sent
-    self.provider_cost = ( Float(response.price) rescue nil )
-    self.provider_response = response.to_property_hash
+    response = self.twilio_status.to_property_smash
+    self.status = response.message_status # Message.translate_twilio_message_status response.status
+    self.sent_at = response.sent_at
+    self.provider_cost = response.price # ( Float(response.price) rescue nil )
+    self.provider_response = response
   end
   
   def refresh_from_twilio!
@@ -335,7 +344,7 @@ class Message < ActiveRecord::Base
   
   def build_ledger_entry( attributes={} )
     ledger_entry = super(attributes)
-    ledger_entry.account = self.account
+    ledger_entry.organization = self.organization
     return ledger_entry
   end
 

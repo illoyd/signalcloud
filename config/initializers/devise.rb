@@ -84,21 +84,46 @@ Devise.setup do |config|
   # Setup a pepper to generate the encrypted password.
   # config.pepper = "0c28a23839019888bd78ad26ba06a3e35a0c0da88bd49355f5d2b1a1bfdeec8072001eacf56d020bb55876ddecfbe005ac982c35896bcaea5de224ef053c3aaf"
 
+  # ==> Configuration for :invitable
+  # The period the generated invitation token is valid, after
+  # this period, the invited resource won't be able to accept the invitation.
+  # When invite_for is 0 (the default), the invitation won't expire.
+  config.invite_for = 1.week
+
+  # Number of invitations users can send.
+  # - If invitation_limit is nil, there is no limit for invitations, users can
+  # send unlimited invitations, invitation_limit column is not used.
+  # - If invitation_limit is 0, users can't send invitations by default.
+  # - If invitation_limit n > 0, users can send n invitations.
+  # You can change invitation_limit column for some users so they can send more
+  # or less invitations, even with global invitation_limit = 0
+  # Default: nil
+  # config.invitation_limit = 5
+
+  # The key to be used to check existing users when sending an invitation
+  # and the regexp used to test it when validate_on_invite is not set.
+  # config.invite_key = {:email => /\A[^@]+@[^@]+\z/}
+  # config.invite_key = {:email => /\A[^@]+@[^@]+\z/, :username => nil}
+
+  # Flag that force a record to be valid before being actually invited
+  # Default: false
+  config.validate_on_invite = true
+
   # ==> Configuration for :confirmable
   # A period that the user is allowed to access the website even without
-  # confirming his account. For instance, if set to 2.days, the user will be
-  # able to access the website for two days without confirming his account,
+  # confirming his organization. For instance, if set to 2.days, the user will be
+  # able to access the website for two days without confirming his organization,
   # access will be blocked just in the third day. Default is 0.days, meaning
-  # the user cannot access the website without confirming his account.
+  # the user cannot access the website without confirming his organization.
   # config.allow_unconfirmed_access_for = 2.days
 
   # If true, requires any email changes to be confirmed (exactly the same way as
-  # initial account confirmation) to be applied. Requires additional unconfirmed_email
+  # initial organization confirmation) to be applied. Requires additional unconfirmed_email
   # db field (see migrations). Until confirmed new email is stored in
   # unconfirmed email column, and copied to email column on successful confirmation.
   config.reconfirmable = true
 
-  # Defines which key will be used when confirming an account
+  # Defines which key will be used when confirming an organization
   # config.confirmation_keys = [ :email ]
 
   # ==> Configuration for :rememberable
@@ -130,31 +155,31 @@ Devise.setup do |config|
   # config.expire_auth_token_on_timeout = false
 
   # ==> Configuration for :lockable
-  # Defines which strategy will be used to lock an account.
-  # :failed_attempts = Locks an account after a number of failed attempts to sign in.
+  # Defines which strategy will be used to lock an organization.
+  # :failed_attempts = Locks an organization after a number of failed attempts to sign in.
   # :none            = No lock strategy. You should handle locking by yourself.
   config.lock_strategy = :failed_attempts
 
-  # Defines which key will be used when locking and unlocking an account
+  # Defines which key will be used when locking and unlocking an organization
   config.unlock_keys = [ :email ]
 
-  # Defines which strategy will be used to unlock an account.
+  # Defines which strategy will be used to unlock an organization.
   # :email = Sends an unlock link to the user email
   # :time  = Re-enables login after a certain amount of time (see :unlock_in below)
   # :both  = Enables both strategies
   # :none  = No unlock strategy. You should handle unlocking by yourself.
   config.unlock_strategy = :both
 
-  # Number of authentication tries before locking an account if lock_strategy
+  # Number of authentication tries before locking an organization if lock_strategy
   # is failed attempts.
   config.maximum_attempts = 4
 
-  # Time interval to unlock the account if :time is enabled as unlock_strategy.
+  # Time interval to unlock the organization if :time is enabled as unlock_strategy.
   config.unlock_in = 1.hour
 
   # ==> Configuration for :recoverable
   #
-  # Defines which key will be used when recovering the password for an account
+  # Defines which key will be used when recovering the password for an organization
   # config.reset_password_keys = [ :email ]
 
   # Time interval you can reset your password with a reset password key.
@@ -218,7 +243,7 @@ Devise.setup do |config|
 
   # ==> Mountable engine configurations
   # When using Devise inside an engine, let's call it `MyEngine`, and this engine
-  # is mountable, there are some extra configurations to be taken into account.
+  # is mountable, there are some extra configurations to be taken into organization.
   # The following options are available, assuming the engine is mounted as:
   #
   #     mount MyEngine, at: "/my_engine"
@@ -229,6 +254,8 @@ Devise.setup do |config|
   # When using omniauth, Devise cannot automatically set Omniauth path,
   # so you need to do it manually. For the users scope, it would be:
   # config.omniauth_path_prefix = "/my_engine/users/auth"
+  
+  config.secret_key = '4987358d3fdef39b2695a0cbcae9a461792c471103eea6477f7216ca2c3ca81ee0e40944ddc2571ed547ccf2a9dec11af5572d60e6c6a9631b4654d010900b9f'
 end
 
 # Configure delayed emails

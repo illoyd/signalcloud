@@ -1,7 +1,7 @@
 class Twilio::CallUpdatesController < ApplicationController
 
   respond_to :xml
-  before_filter :authenticate_account!, :authenticate_twilio!
+  before_filter :authenticate_organization!, :authenticate_twilio!
   skip_before_filter :authenticate_user!
   skip_before_filter :verify_authenticity_token
   

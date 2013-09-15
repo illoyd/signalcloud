@@ -11,7 +11,7 @@ class UnsolicitedMessage < ActiveRecord::Base
   validates_presence_of :customer_number, :message_content, :received_at
   validates_inclusion_of :action_taken, in: PhoneNumber::MESSAGE_ACTIONS
 
-  delegate :account, to: :phone_number
+  delegate :organization, to: :phone_number
 
   ##
   # Is a price defined for this message?
@@ -46,9 +46,9 @@ class UnsolicitedMessage < ActiveRecord::Base
   end
   
   def calculate_our_price( value=nil )
-    return nil unless self.phone_number && self.account
+    return nil unless self.phone_number && self.organization
     value = self.provider_price if value.nil?
-    self.account.account_plan.calculate_inbound_call_price( value )
+    self.organization.account_plan.calculate_inbound_call_price( value )
   end
 
 end

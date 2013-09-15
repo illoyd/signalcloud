@@ -1,23 +1,23 @@
-.row
-  .span12
-    .page-header
-      %h1
-        = icon( :phone_numbers )
-        Phone Numbers
-        %small= humanize_phone_number @phone_number.number
+/ Page Header
+- titles 'Phone Number', humanize_phone_number(@phone_number.number), :phone_numbers
 
 .row
-  .span3
-    = render 'navlist'
+  .span3= render 'navlist'
   .span9
     %p
       %b Number:
       = humanize_phone_number @phone_number.number
+
+    %p
+      %b Country:
+      = flag_icon_for_phone_number @phone_number
+      = country_name_for_phone_number @phone_number
+      
     %p
       %b Monthly fee:
-      = number_to_currency @phone_number.cost, units: 'US$', precision: 2
+      = currency_for @phone_number.cost
 
-    %h3 actions
+    %h3 Actions
     .row
       .span4 When receiving an unsolicited SMS...
       .span5
@@ -25,12 +25,12 @@
           - when PhoneNumber::IGNORE
             %p Ignore the message.
             %p
-              %small (Note: This does not incur a fee.)
+              %small (Note: This does not incur a fee. However, your account will still be charged for the inbound message.)
           - when PhoneNumber::REPLY
             %p Reply with the following message:
             %p.well= @phone_number.unsolicited_sms_message
             %p
-              %small (Note: This will incur a fee for each message replied.)
+              %small (Note: This will incur a fee for each inbound message as well as each reply message sent.)
     .row
       .span4 When receiving an unsolicited call...
       .span5

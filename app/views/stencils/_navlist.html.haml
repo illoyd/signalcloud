@@ -2,20 +2,20 @@
   -# New object navigation list
   = navigation_list([ |
     { header: 'Related' }, |
-    { label: 'All Stencils', icon: :stencils, link: stencils_path, if: can?(:index, Stencil) } |
+    { label: 'All Stencils', icon: :stencils, link: organization_stencils_path(@organization), if: can?(:index, Stencil) } |
     ]) |
 
 - else
   -# Existing object navigation list
   = navigation_list([ |
     { header: 'Manage' }, |
-    { label: 'Start a new ticket', icon: :tickets, link: new_stencil_ticket_path( @stencil ), if: can?(:new, Ticket) }, |
-    { label: 'Details', icon: :show, link: @stencil, if: can?(:show, @stencil) }, |
-    { label: 'Edit', icon: :edit, link: edit_stencil_path(@stencil), if: can?(:edit, @stencil) }, |
-    { label: 'Delete', icon: :delete, link: @stencil, if: can?(:destroy, @stencil), options: { method: :delete, data: { confirm: 'Are you sure?' } } }, |
+    { label: 'Start a new conversation', icon: :conversations, link: new_organization_stencil_conversation_path( @organization, @stencil ), if: can?(:new, Conversation) }, |
+    { label: 'Details', icon: :show, link: [ @organization, @stencil ], if: can?(:show, @stencil) }, |
+    { label: 'Edit', icon: :edit, link: edit_organization_stencil_path(@organization, @stencil), if: can?(:edit, @stencil) }, |
+    { label: 'Delete', icon: :delete, link: [ @organization, @stencil ], if: can?(:destroy, @stencil), options: { method: :delete, data: { confirm: 'Are you sure?' } } }, |
     { header: 'Related' }, |
-    { label: 'Tickets', icon: :tickets, link: stencil_tickets_path( @stencil ), if: can?(:index, Ticket) }, |
-    { label: 'Phone Directory', icon: :phone_directories, link: @stencil.phone_directory, if: can?(:show, @stencil.phone_directory) }, |
+    { label: 'Conversations', icon: :conversations, link: organization_stencil_conversations_path( @organization, @stencil ), if: can?(:index, Conversation) }, |
+    { label: 'Phone Book', icon: :phone_books, link: [ @organization, @stencil.phone_book ], if: can?(:show, @stencil.phone_book) }, |
     { divider: true }, |
-    { label: 'All Stencils', icon: :stencils, link: stencils_path, if: can?(:index, Stencil) } |
+    { label: 'All Stencils', icon: :stencils, link: organization_stencils_path(@organization), if: can?(:index, Stencil) } |
     ]) |

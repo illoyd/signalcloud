@@ -1,6 +1,6 @@
 require 'spec_helper'
 describe Twilio::InboundCallsController do
-  let(:account) { create(:test_account, :test_twilio, :with_sid_and_token) }
+  let(:organization) { create(:test_organization, :test_twilio, :with_sid_and_token) }
 
   def build_post_params( params={} )
     { 'CallSid' => 'CA' + SecureRandom.hex(16),
@@ -16,7 +16,7 @@ describe Twilio::InboundCallsController do
   end
 
   describe 'POST create' do
-    let(:phone_number) { create( :phone_number, account: account ) }
+    let(:phone_number) { create( :phone_number, organization: organization ) }
     let(:inbound_post_params) { build_post_params( 'To' => phone_number.number ) }
 
     context 'when not passing HTTP DIGEST' do
@@ -29,7 +29,7 @@ describe Twilio::InboundCallsController do
     context 'when passing HTTP DIGEST' do
       context 'when not passing message auth header' do
         it 'responds with forbidden' do
-          authenticate_with_http_digest account.account_sid, account.auth_token, DIGEST_REALM
+          authenticate_with_http_digest organization.sid, organization.auth_token, DIGEST_REALM
           post :create, inbound_post_params
           response.status.should eq( 403 ) # Forbidden (bad user/pass)
         end
@@ -37,8 +37,8 @@ describe Twilio::InboundCallsController do
 
       context 'when passing message auth header' do
         it 'responds with success' do
-          authenticate_with_http_digest account.account_sid, account.auth_token, DIGEST_REALM
-          inject_twilio_signature( twilio_inbound_call_url, account, inbound_post_params )
+          authenticate_with_http_digest organization.sid, organization.auth_token, DIGEST_REALM
+          inject_twilio_signature( twilio_inbound_call_url, organization, inbound_post_params )
           post :create, inbound_post_params
           response.status.should eq( 200 ) # OK
         end
@@ -47,13 +47,13 @@ describe Twilio::InboundCallsController do
     
     context 'when responding to inbound call' do
       before {
-        authenticate_with_http_digest account.account_sid, account.auth_token, DIGEST_REALM
+        authenticate_with_http_digest organization.sid, organization.auth_token, DIGEST_REALM
       }
 
       context 'when configured to reject' do
-        let(:phone_number) { create( :phone_number, :reject_unsolicited_call, account: account ) }
+        let(:phone_number) { create( :phone_number, :reject_unsolicited_call, organization: organization ) }
         let(:params) { build_post_params( 'To' => phone_number.number ) }
-        before(:each) { inject_twilio_signature( twilio_inbound_call_url, account, params ) }
+        before(:each) { inject_twilio_signature( twilio_inbound_call_url, organization, params ) }
 
         it 'responds with REJECT verb' do
           post :create, params
@@ -97,9 +97,9 @@ describe Twilio::InboundCallsController do
       end
 
       context 'when configured to play busy tone' do
-        let(:phone_number) { create( :phone_number, :busy_for_unsolicited_call, account: account ) }
+        let(:phone_number) { create( :phone_number, :busy_for_unsolicited_call, organization: organization ) }
         let(:params) { build_post_params( 'To' => phone_number.number ) }
-        before(:each) { inject_twilio_signature( twilio_inbound_call_url, account, params ) }
+        before(:each) { inject_twilio_signature( twilio_inbound_call_url, organization, params ) }
 
         it 'responds with REJECT verb' do
           post :create, params
@@ -143,9 +143,9 @@ describe Twilio::InboundCallsController do
       end
 
       context 'when configured to respond with message' do
-        let(:phone_number) { create( :phone_number, :reply_to_unsolicited_call, account: account ) }
+        let(:phone_number) { create( :phone_number, :reply_to_unsolicited_call, organization: organization ) }
         let(:params) { build_post_params( 'To' => phone_number.number ) }
-        before(:each) { inject_twilio_signature( twilio_inbound_call_url, account, params ) }
+        before(:each) { inject_twilio_signature( twilio_inbound_call_url, organization, params ) }
 
         it 'responds with SAY verb' do
           post :create, params

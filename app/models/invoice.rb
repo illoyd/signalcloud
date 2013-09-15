@@ -1,15 +1,31 @@
 class Invoice < ActiveRecord::Base
-  attr_accessible :freshbooks_invoice_id, :date_from, :date_to, :sent_at
+  include Workflow
+  attr_accessible :date_from, :date_to, :sent_at, :freshbooks_invoice_id, :workflow_state, :public_link, :internal_link
   
-  belongs_to :account, inverse_of: :invoices
-  has_many :ledger_entries, inverse_of: :invoice
+  belongs_to :organization, inverse_of: :invoices
+  has_many :ledger_entries, inverse_of: :invoice, autosave: true
   
-  validates_presence_of :account_id, :date_to
+  validates_presence_of :organization, :date_to
   
   before_create :ensure_dates
   
+  workflow do
+    state :new do
+      event :prepare, transitions_to: :prepared
+    end
+    state :prepared do
+      event :settle, transitions_to: :settled
+    end
+    state :settled
+  end
+
   def ensure_dates
     self.date_from ||= self.ledger_entries.minimum( 'created_at' )
+    self.date_to   ||= self.ledger_entries.maximum( 'created_at' )
+  end
+  
+  def default_date_to
+    DateTime.yesterday.end_of_day
   end
   
   ##
@@ -26,79 +42,50 @@ class Invoice < ActiveRecord::Base
   end
   
   ##
+  # Ask FreshBooks for the current balance of the invoice
+  def invoice_amount
+    BigDecimal.new(self.freshbooks_invoice['amount']) rescue nil
+  end
+
+  ##
+  # Ask FreshBooks for the current balance of the invoice
+  def invoice_balance
+    BigDecimal.new(self.freshbooks_invoice['amount_outstanding']) rescue nil
+  end
+
+  ##
   # Capture all uninvoiced, settled transactions and assign to this invoice.
-  def capture_uninvoiced_ledger_entries
-    raise SignalCloudError.new( 'Invoice must be saved before capturing ledger entries.' ) if self.new_record?
-    self.account.ledger_entries.uninvoiced.settled.where( 'settled_at <= ?', self.date_to ).update_all( invoice_id: self.id )
+  def capture_uninvoiced_ledger_entries!
+    raise SignalCloud::SignalCloudError.new( 'Invoice must be saved before capturing ledger entries.' ) if self.new_record?
+    self.date_to ||= self.default_date_to
+    self.organization.ledger_entries.uninvoiced.debits.settled_before( self.date_to ).update_all( invoice_id: self.id )
     self.ledger_entries(true) # Force a reload of ledger_entries
   end
   
   ##
-  # Automaticaly create, save, and send the freshbook invoice.
-  def settle
-    self.capture_uninvoiced_ledger_entries
-    self.create_freshbooks_invoice
-    self.send_freshbooks_invoice!
-  end
-  
-  ##
-  # Send this invoice from the FreshBooks accounting system.
+  # Send this invoice from the FreshBooks organizationing system.
   def send_freshbooks_invoice!
     raise SignalCloud::ClientInvoiceNotCreatedError.new unless self.has_invoice?
     
-    response = Freshbooks.account.invoice.send_by_email( invoice_id: self.freshbooks_invoice_id )
+    response = FreshBooks.account.invoice.sendByEmail( invoice_id: self.freshbooks_invoice_id )
+    raise SignalCloud::FreshBooksError.new( 'Could not send invoice: %s (%i)' % [ response['error'], response['code'] ], response['code'] ) unless response.success?
+
     self.freshbooks_invoice_id = response['invoice_id']
     self.sent_at = DateTime.now
     self.save!
   end
   
   ##
-  # Apply all credits for this period to the account.
-  def apply_freshbooks_credits()
-    self.ledger_entries.credits.settled.uninvoiced.each do |entry|
-      self.apply_freshbooks_credit( entry )
-    end
-  end
-  
-  ##
-  # Apply a single credit to this invoice.
-  def apply_freshbooks_credit( ledger_entry )
-    response = Freshbooks.account.payment.create({
-      invoice_id: self.freshbooks_invoice_id,
-      client_id: self.account.freshbooks_id,
-      amount: ledger_entry.value,
-      date: ledger_entry.created_at,
-      type: 'Credit',
-      notes: ledger_entry.narrative
-    })
-    
-    ledger_entry.invoiced_at = DateTime.now
-    ledger_entry.save!
-  end
-  
-  ##
-  # Update self from FreshBooks data.
-  def refresh_from_freshbooks
-    raise SignalCloud::AccountNotAssociatedError.new if self.account.nil?
-    raise SignalCloud::FreshBooksAccountNotConfiguredError.new if self.account.freshbooks_id.nil?
-    raise SignalCloud::MissingClientInvoiceError.new unless self.has_invoice?
-
-    response = Freshbooks.account.invoice.get({ invoice_id: self.freshbooks_invoice_id })
-    self.public_link = response['invoice']['links']['client_view']
-    self.internal_link = response['invoice']['links']['view']
-  end
-  
-  ##
   # Create a new invoice in the financial system without saving.
   # Internally, we keep charges as negative (-); FreshBooks expects them to be positive (+), so we must invert the sign when passing to FB.
   def create_freshbooks_invoice!
-    raise SignalCloud::AccountNotAssociatedError.new if self.account.nil?
-    raise SignalCloud::FreshBooksAccountNotConfiguredError.new if self.account.freshbooks_id.nil?
+    raise SignalCloud::OrganizationNotAssociatedError.new if self.organization.nil?
+    raise SignalCloud::MissingFreshBooksClientError.new(self.organization) if self.organization.accounting_gateway.freshbooks_id.nil?
     raise SignalCloud::ClientInvoiceAlreadyCreatedError.new if self.has_invoice?
 
     # Update this invoice with the FB invoice id
-    response = Freshbooks.account.invoice.create({ invoice: self.construct_freshbooks_invoice_data() })
-    raise FreshBooksError.new ( 'Create invoice failed' ) unless response.include?('invoice_id')
+    response = FreshBooks.account.invoice.create({ invoice: self.construct_freshbooks_invoice_data() })
+    raise SignalCloud::FreshBooksError.new( 'Could not create invoice: %s (%i)' % [ response['error'], response['code'] ], response['code'] ) unless response.success?
     self.freshbooks_invoice_id = response['invoice_id']
     
     # Refresh from FB, since they do not provide all the information we require
@@ -113,26 +100,72 @@ class Invoice < ActiveRecord::Base
   def construct_freshbooks_invoice_data
     # Capture appropriate data from ledger and activities
     invoice_lines = []
-    self.ledger_entries.debits.settled.uninvoiced.select( 'narrative, value, count(*) as quantity' ).group(:narrative, :value).each do |entry|
+    self.ledger_entries.debits.select( 'narrative, value, count(*) as quantity' ).group(:narrative, :value).each do |entry|
       invoice_lines << { line: { 
-        name: '%s at %0.4f' % [entry.narrative, -entry.value],
-        # description: entry.narrative,
+        name: entry.narrative,
+        description: '%s at %0.4f' % [entry.narrative, -entry.value.to_f],
         unit_cost: -entry.value,
         quantity: entry.quantity
       }}
     end
   
     # Create a new invoice data structure
-    invoice_data = { client_id: self.account.freshbooks_id, return_uri: 'http://app.signalcloudapp.com' }
+    invoice_data = { client_id: self.organization.accounting_gateway.freshbooks_id, return_uri: 'http://www.signalcloudapp.com' }
     invoice_data[:lines] = invoice_lines unless invoice_lines.empty?
     invoice_data[:po_number] = self.purchase_order unless self.purchase_order.blank?
     invoice_data[:notes] = 'This invoice is provided for information purposes only. No payment is due.' if self.balance >= 0
     
     return invoice_data
   end
+
+  ##
+  # Apply a single credit to this invoice.
+  def apply_freshbooks_credit!
+    credit = [ self.organization.accounting_gateway.available_credits[:USD], self.invoice_balance ].min
+    response = FreshBooks.account.payment.create({ payment: {
+      invoice_id: self.freshbooks_invoice_id,
+      client_id: self.organization.accounting_gateway.freshbooks_id,
+      amount: credit,
+      type: 'Credit'
+    }})
+  end
   
+  ##
+  # Update self from FreshBooks data.
+  def refresh_from_freshbooks
+    fb_invoice = self.freshbooks_invoice
+    self.public_link = fb_invoice['links']['client_view']
+    self.internal_link = fb_invoice['links']['view']
+  end
+  
+  def freshbooks_invoice
+    raise SignalCloud::OrganizationNotAssociatedError.new if self.organization.nil?
+    raise SignalCloud::MissingFreshBooksClientError.new(self.organization) if self.organization.accounting_gateway.freshbooks_id.nil?
+    raise SignalCloud::ClientInvoiceNotCreatedError.new unless self.has_invoice?
+
+    response = FreshBooks.account.invoice.get({ invoice_id: self.freshbooks_invoice_id })
+    raise SignalCloud::FreshBooksError.new( 'Could not find invoice %i for client %i: %s (%i)' % [ self.freshbooks_invoice_id, self.organization.accounting_gateway.freshbooks_id, response['error'], response['code'] ], response['code'] ) unless response.success?
+    return response['invoice']
+  end
+
   #alias :create_invoice :create_freshbooks_invoice
   alias :create_invoice! :create_freshbooks_invoice!
   alias :send_invoice! :send_freshbooks_invoice!
-  
+
+protected
+
+  ##
+  # Prepare the contents of the invoice and save as a draft.
+  def prepare
+    self.capture_uninvoiced_ledger_entries!
+    self.create_freshbooks_invoice!
+    self.apply_freshbooks_credit!
+  end
+
+  ##
+  # Automaticaly create, save, and send the freshbook invoice.
+  def settle
+    self.send_freshbooks_invoice!
+  end
+
 end

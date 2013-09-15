@@ -1,4 +1,4 @@
-= form_for(@ledger_entry) do |f|
+= form_for( [@organization, @ledger_entry] ) do |f|
   - if @ledger_entry.errors.any?
     #error_explanation
       %h2

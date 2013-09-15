@@ -3,7 +3,7 @@ common: &default_settings
   # ============================== LICENSE KEY ===============================
 
   # You must specify the license key associated with your New Relic
-  # account.  This key binds your Agent's data to your account in the
+  # organization.  This key binds your Agent's data to your organization in the
   # New Relic service.
   license_key: '<%= ENV["NEW_RELIC_LICENSE_KEY"] %>'
   
