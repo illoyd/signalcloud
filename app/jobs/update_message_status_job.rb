@@ -4,10 +4,12 @@
 #   +callback_values+: all values as passed by the callback
 #   +quiet+: a flag to indicate if this job should report itself on STDOUT
 #
-# This class is intended for use with Delayed::Job.
+# This class is intended for use with Sidekiq.
 #
 class UpdateMessageStatusJob < Struct.new( :callback_values )
   include Talkable
+  include Sidekiq::Worker
+  sidekiq_options :queue => :default
   
   REQUIRED_KEYS = [ :sms_sid, :price, :sms_status, :date_sent ]
   

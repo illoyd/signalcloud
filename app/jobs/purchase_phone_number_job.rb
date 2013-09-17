@@ -3,10 +3,12 @@
 # Requires the following items
 #   +phone_number_id+: the ID of the phone number object
 #
-# This class is intended for use with Delayed::Job.
+# This class is intended for use with Sidekiq.
 #
 class PurchasePhoneNumberJob < Struct.new( :phone_number_id )
   include Talkable
+  include Sidekiq::Worker
+  sidekiq_options :queue => :default
 
   def perform
     # Silently skip if already purchased and is active

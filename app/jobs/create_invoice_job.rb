@@ -4,10 +4,12 @@
 #   +organization_id+: the organization ID to process
 #   +next_invoice_at+: process all invoices from this date
 #
-# This class is intended for use with Delayed::Job.
+# This class is intended for use with Sidekiq.
 #
 class CreateInvoiceJob < Struct.new( :organization_id, :next_invoice_at )
   include Talkable
+  include Sidekiq::Worker
+  sidekiq_options :queue => :background
 
   def perform
     organization = Organizations.find( organization_id )

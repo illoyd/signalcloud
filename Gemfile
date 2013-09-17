@@ -44,7 +44,7 @@ gem 'unicorn'
 
 # Additional gems
 gem 'active_model_serializers'
-gem 'delayed_job_active_record'
+gem 'sidekiq'
 gem 'haml'
 gem 'twilio-ruby'
 gem 'devise'

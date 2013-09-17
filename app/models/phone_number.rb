@@ -192,12 +192,12 @@ private
 
   def enqueue_purchase
     raise ObjectNotSavedError.new if self.new_record?
-    Delayed::Job.enqueue( PurchasePhoneNumberJob.new( self.id ) )
+    PurchasePhoneNumberJob.perform_async( self.id )
   end
 
   def enqueue_unpurchase
     raise ObjectNotSavedError.new if self.new_record?
-    Delayed::Job.enqueue( UnpurchasePhoneNumberJob.new( self.id ) )
+    UnpurchasePhoneNumberJob.perform_async( self.id )
   end
 
   ##

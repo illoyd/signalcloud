@@ -75,7 +75,7 @@ describe InboundMessageJob, :vcr do
         expect { subject.perform }.to_not raise_error
       end
       it 'queues response message and webhook jobs' do
-        expect { subject.perform }.to change{Delayed::Job.count}.by(2)
+        expect { subject.perform }.to change{Sidekiq::Stats.new.enqueued}.by(2)
       end
     end
     
@@ -96,7 +96,7 @@ describe InboundMessageJob, :vcr do
         expect { subject.perform }.to change{subject.find_open_conversations.count}.by(-1)
       end
       it 'queues response message and webhook jobs' do
-        expect { subject.perform }.to change{Delayed::Job.count}.by(2)
+        expect { subject.perform }.to change{Sidekiq::Stats.new.enqueued}.by(2)
       end
     end
     
@@ -111,7 +111,7 @@ describe InboundMessageJob, :vcr do
         expect { subject.perform }.to_not raise_error
       end
 #       it 'queues unsolicited message job' do
-#         expect { subject.perform }.to change{Delayed::Job.count}.by(1)
+#         expect { subject.perform }.to change{Sidekiq::Stats.new.enqueued}.by(1)
 #       end
     end
     
@@ -127,7 +127,7 @@ describe InboundMessageJob, :vcr do
           expect { subject.perform }.to_not raise_error
         end
 #         it 'queues unsolicited message job' do
-#           expect { subject.perform }.to change{Delayed::Job.count}.by(1)
+#           expect { subject.perform }.to change{Sidekiq::Stats.new.enqueued}.by(1)
 #         end
       end
       context "when replying to #{status.to_s} and sent conversation" do
@@ -141,7 +141,7 @@ describe InboundMessageJob, :vcr do
           expect { subject.perform }.to_not raise_error
         end
 #         it 'queues unsolicited message job' do
-#           expect { subject.perform }.to change{Delayed::Job.count}.by(1)
+#           expect { subject.perform }.to change{Sidekiq::Stats.new.enqueued}.by(1)
 #         end
       end
     end

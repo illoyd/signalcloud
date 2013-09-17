@@ -49,7 +49,7 @@ describe Twilio::InboundSmsController do
         response.body.should include('<Response/>')
       end
       it 'adds a job to process request' do
-        expect { post :create, inbound_post_params }.to change{Delayed::Job.count}.by(1)
+        expect { post :create, inbound_post_params }.to change{Sidekiq::Stats.new.enqueued}.by(1)
       end
       it 'responds with xml' do
         post :create, inbound_post_params

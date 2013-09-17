@@ -3,10 +3,12 @@
 # This tool will find all messages which do not have a 'sent' or 'received' status and attempt to settle them with
 # Twilio. This will also attempt to force pricing information.
 #
-# This class is intended for use with Delayed::Job.
+# This class is intended for use with Sidekiq.
 #
 class SettleOutstandingMessagesJob < Struct.new( :organization_id, :ignore_organization_ids )
   include Talkable
+  include Sidekiq::Worker
+  sidekiq_options :queue => :background
   
   TEST_CREDENTIAL_ERROR = 20008
 

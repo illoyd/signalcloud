@@ -190,14 +190,14 @@ describe UpdateMessageStatusJob, :vcr do
 #         enqueue_jobs UpdateMessageStatusJob.new( extended_payload )
 # #         expect {
 # #           Delayed::Job.enqueue UpdateMessageStatusJob.new( extended_payload )
-# #         }.to change{Delayed::Job.count}.from(0).to(1)
+# #         }.to change{Sidekiq::Stats.new.enqueued}.from(0).to(1)
 #         
 #         # Now, work that job!
 #         work_jobs 1 #, 1, 0
 # #         expect {
 # #           expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
 # #           @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-# #         }.to change{Delayed::Job.count}.from(1).to(0)
+# #         }.to change{Sidekiq::Stats.new.enqueued}.from(1).to(0)
 #         
 #         # Check that the message has been properly massaged
 #         message.reload
@@ -221,13 +221,13 @@ describe UpdateMessageStatusJob, :vcr do
 #         # Capture job count, enqueue job, and check that it has been added
 #         expect {
 #           Delayed::Job.enqueue UpdateMessageStatusJob.new( extended_payload )
-#         }.to change{Delayed::Job.count}.from(0).to(1)
+#         }.to change{Sidekiq::Stats.new.enqueued}.from(0).to(1)
 #         
 #         # Now, work that job!
 #         expect {
 #           expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
 #           @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-#         }.to change{Delayed::Job.count}.from(1).to(0)
+#         }.to change{Sidekiq::Stats.new.enqueued}.from(1).to(0)
 #         
 #         # Check that the message has been properly massaged
 #         message.reload
@@ -251,14 +251,14 @@ describe UpdateMessageStatusJob, :vcr do
 #         # Capture job count, enqueue job, and check that it has been added
 #         expect {
 #           Delayed::Job.enqueue UpdateMessageStatusJob.new( extended_payload )
-#         }.to change{Delayed::Job.count}.from(0).to(1)
+#         }.to change{Sidekiq::Stats.new.enqueued}.from(0).to(1)
 #         
 #         # Now, work that job!
 #         expect { # Do not change message's conversation's status
 #           expect {
 #             expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
 #             @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-#           }.to change{Delayed::Job.count}.from(1).to(0)
+#           }.to change{Sidekiq::Stats.new.enqueued}.from(1).to(0)
 #           
 #           # Check that the message has been properly massaged
 #           message.reload
@@ -283,14 +283,14 @@ describe UpdateMessageStatusJob, :vcr do
 #         # Capture job count, enqueue job, and check that it has been added
 #         expect {
 #           Delayed::Job.enqueue UpdateMessageStatusJob.new( extended_payload )
-#         }.to change{Delayed::Job.count}.from(0).to(1)
+#         }.to change{Sidekiq::Stats.new.enqueued}.from(0).to(1)
 #         
 #         # Now, work that job!
 #         expect { # Do not change message's conversation's status
 #           expect {
 #             expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
 #             @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-#           }.to change{Delayed::Job.count}.from(1).to(0)
+#           }.to change{Sidekiq::Stats.new.enqueued}.from(1).to(0)
 #           
 #           # Check that the message has been properly massaged
 #           message.reload
@@ -314,13 +314,13 @@ describe UpdateMessageStatusJob, :vcr do
 #         expect {
 #           job = UpdateMessageStatusJob.new( payload )
 #           Delayed::Job.enqueue job
-#         }.to change{Delayed::Job.count}.from(0).to(1)
+#         }.to change{Sidekiq::Stats.new.enqueued}.from(0).to(1)
 #         
 #         # Now, work that job!
 #         expect {
 #           expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
 #           @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-#         }.to change{Delayed::Job.count}.from(1).to(0)
+#         }.to change{Sidekiq::Stats.new.enqueued}.from(1).to(0)
 #         
 #         # Check that the message has been properly massaged
 #         message.reload
@@ -344,13 +344,13 @@ describe UpdateMessageStatusJob, :vcr do
 #         expect {
 #           job = UpdateMessageStatusJob.new( payload )
 #           Delayed::Job.enqueue job
-#         }.to change{Delayed::Job.count}.from(0).to(1)
+#         }.to change{Sidekiq::Stats.new.enqueued}.from(0).to(1)
 #         
 #         # Now, work that job!
 #         expect {
 #           expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
 #           @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-#         }.to change{Delayed::Job.count}.from(1).to(0)
+#         }.to change{Sidekiq::Stats.new.enqueued}.from(1).to(0)
 #         
 #         # Check that the message has been properly massaged
 #         message.reload

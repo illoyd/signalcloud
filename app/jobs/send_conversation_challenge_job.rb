@@ -4,10 +4,12 @@
 #   +conversation_id+: the unique identifier for the conversation
 #   +force_resend+: a flag to indicate if this is a forced resend; defaults to +false+
 #
-# This class is intended for use with Delayed::Job.
+# This class is intended for use with Sidekiq.
 #
 class SendConversationChallengeJob < Struct.new( :conversation_id, :force_resend )
   include Talkable
+  include Sidekiq::Worker
+  sidekiq_options :queue => :default
 
   def perform
     say( 'Sending challenge message.', Logger::DEBUG )

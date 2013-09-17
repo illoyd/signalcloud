@@ -4,10 +4,12 @@
 #   +phone_number_id+: the unique identifier for the phone number
 #   +customer_number+: the customer's mobile number
 #
-# This class is intended for use with Delayed::Job.
+# This class is intended for use with Sidekiq.
 #
 class SendConversationStatusWebhookJob < Struct.new( :conversation_id, :webhook_data )
   include Talkable
+  include Sidekiq::Worker
+  sidekiq_options :queue => :default
 
   def perform
     raise SignalCloudError.new 'Missing webhook data' if self.webhook_data.blank?

@@ -35,7 +35,7 @@ describe ExpireConversationJob, :vcr do
         end
 
         it 'enqueues a follow-up expire job' do
-          expect { subject.perform }.to change{Delayed::Job.count}.by(1)
+          expect { subject.perform }.to change{Sidekiq::Stats.new.enqueued}.by(1)
         end
 
         it 'does not create a new ledger entry' do
@@ -53,13 +53,13 @@ describe ExpireConversationJob, :vcr do
 #               # Enqueue job
 #               expect { # Job count during enqueue
 #                 Delayed::Job.enqueue ExpireConversationJob.new( conversation.id )
-#               }.to change{Delayed::Job.count}.from(0).to(1)
+#               }.to change{Sidekiq::Stats.new.enqueued}.from(0).to(1)
 #               
 #               # Now, work that job!
 #               expect{ # Job count after run
 #                 expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
 #                 @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-#               }.to_not change{Delayed::Job.count}.from(1).to(0)
+#               }.to_not change{Sidekiq::Stats.new.enqueued}.from(1).to(0)
 # 
 #               conversation.reload
 #     
@@ -78,14 +78,14 @@ describe ExpireConversationJob, :vcr do
     
               # Enqueue job
               expect { # Job count during enqueue
-                Delayed::Job.enqueue ExpireConversationJob.new( ready_to_expire_conversation.id )
-              }.to change{Delayed::Job.count}.from(0).to(1)
+                ExpireConversationJob.perform_async( ready_to_expire_conversation.id )
+              }.to change{Sidekiq::Stats.new.enqueued}.from(0).to(1)
               
               # Now, work that job!
               expect{ # Job count after run
-                expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
+                expect { @work_results = ExpireConversationJob.drain }.to_not raise_error
                 @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-              }.to change{Delayed::Job.count}.from(1).to(0)
+              }.to change{Sidekiq::Stats.new.enqueued}.from(1).to(0)
               
               ready_to_expire_conversation.reload
     
@@ -105,14 +105,14 @@ describe ExpireConversationJob, :vcr do
   
             # Enqueue job
             expect { # Job count during enqueue
-              Delayed::Job.enqueue ExpireConversationJob.new( confirmed_conversation.id )
-            }.to change{Delayed::Job.count}.from(0).to(1)
+              ExpireConversationJob.perform_async( confirmed_conversation.id )
+            }.to change{Sidekiq::Stats.new.enqueued}.from(0).to(1)
             
             # Now, work that job!
             expect{ # Job count after run
-              expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
+              expect { @work_results = ExpireConversationJob.drain }.to_not raise_error
               @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-            }.to change{Delayed::Job.count}.from(1).to(0)
+            }.to change{Sidekiq::Stats.new.enqueued}.from(1).to(0)
   
             confirmed_conversation.reload
   
@@ -129,14 +129,14 @@ describe ExpireConversationJob, :vcr do
   
             # Enqueue job
             expect { # Job count during enqueue
-              Delayed::Job.enqueue ExpireConversationJob.new( denied_conversation.id )
-            }.to change{Delayed::Job.count}.from(0).to(1)
+              ExpireConversationJob.perform_async( denied_conversation.id )
+            }.to change{Sidekiq::Stats.new.enqueued}.from(0).to(1)
             
             # Now, work that job!
             expect{ # Job count after run
-              expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
+              expect { @work_results = ExpireConversationJob.drain }.to_not raise_error
               @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-            }.to change{Delayed::Job.count}.from(1).to(0)
+            }.to change{Sidekiq::Stats.new.enqueued}.from(1).to(0)
   
             denied_conversation.reload
   
@@ -153,14 +153,14 @@ describe ExpireConversationJob, :vcr do
   
             # Enqueue job
             expect { # Job count during enqueue
-              Delayed::Job.enqueue ExpireConversationJob.new( failed_conversation.id )
-            }.to change{Delayed::Job.count}.from(0).to(1)
+              ExpireConversationJob.perform_async( failed_conversation.id )
+            }.to change{Sidekiq::Stats.new.enqueued}.from(0).to(1)
             
             # Now, work that job!
             expect{ # Job count after run
-              expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
+              expect { @work_results = ExpireConversationJob.drain }.to_not raise_error
               @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-            }.to change{Delayed::Job.count}.from(1).to(0)
+            }.to change{Sidekiq::Stats.new.enqueued}.from(1).to(0)
   
             failed_conversation.reload
   
@@ -177,14 +177,14 @@ describe ExpireConversationJob, :vcr do
   
             # Enqueue job
             expect { # Job count during enqueue
-              Delayed::Job.enqueue ExpireConversationJob.new( expired_conversation.id )
-            }.to change{Delayed::Job.count}.from(0).to(1)
+              ExpireConversationJob.perform_async( expired_conversation.id )
+            }.to change{Sidekiq::Stats.new.enqueued}.from(0).to(1)
             
             # Now, work that job!
             expect{ # Job count after run
               expect { @work_results = Delayed::Worker.new.work_off(1) }.to_not raise_error
               @work_results.should eq( [ 1, 0 ] ) # One success, zero failures
-            }.to change{Delayed::Job.count}.from(1).to(0)
+            }.to change{Sidekiq::Stats.new.enqueued}.from(1).to(0)
   
             expired_conversation.reload
   

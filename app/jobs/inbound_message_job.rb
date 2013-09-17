@@ -13,10 +13,12 @@
 #
 # The #normalize_provider_update command will normalise the values to 'underscored' names. For example, +SmsSid+ will become +sms_sid+.
 #
-# This class is intended for use with Delayed::Job.
+# This class is intended for use with Sidekiq.
 #
 class InboundMessageJob < Struct.new( :provider_update )
   include Talkable
+  include Sidekiq::Worker
+  sidekiq_options :queue => :default
 
   def perform
     # self.normalize_provider_update!

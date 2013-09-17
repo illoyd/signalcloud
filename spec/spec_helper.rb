@@ -102,30 +102,3 @@ end
 def inject_twilio_signature( url, organization=nil, post_params={} )
   request.env['HTTP_X_TWILIO_SIGNATURE'] = build_twilio_signature( url, organization, post_params )
 end
-  
-def enqueue_and_work_jobs( jobs, options={} )
-  jobs = [ jobs ] unless jobs.is_a?(Array)
-  #options.reverse_merge! existing_jobs: 0, queued_jobs: jobs.size, remaining_jobs: 0, successes: jobs.size, failures: 0, expected_error: nil
-  enqueue_jobs( jobs, options )
-  work_jobs( jobs.size, options )
-end
-
-def enqueue_jobs( jobs, options={} )
-  jobs = [ jobs ] unless jobs.is_a?(Array)
-  options.reverse_merge! existing_jobs: 0, queued_jobs: jobs.size
-  expect {
-    jobs.each { |job| Delayed::Job.enqueue job }
-  }.to change{Delayed::Job.count}.from(options[:existing_jobs]).to(options[:queued_jobs])
-end
-
-def work_jobs( job_count, options={} )
-  options.reverse_merge! successes: job_count, failures: 0, queued_jobs: job_count, remaining_jobs: 0, expected_error: nil
-  expect {
-    if options[:expected_error].nil?
-      expect { @work_results = Delayed::Worker.new.work_off(job_count) }.to_not raise_error
-    else
-      expect { @work_results = Delayed::Worker.new.work_off(job_count) }.to raise_error(options[:expected_error])
-    end
-    @work_results.should eq( [ options[:successes], options[:failures] ] ) # One success, zero failures
-  }.to change{Delayed::Job.count}.from(options[:queued_jobs]).to(options[:remaining_jobs])
-end

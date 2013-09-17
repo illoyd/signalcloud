@@ -4,10 +4,12 @@
 #   +conversation_id+: the unique identifier for the conversation
 #   +force_resend+: a flag to indicate if this is a forced resend; defaults to +false+
 #
-# This class is intended for use with Delayed::Job.
+# This class is intended for use with Sidekiq.
 #
 class ExpireConversationJob < Struct.new( :conversation_id, :force_resend )
   include Talkable
+  include Sidekiq::Worker
+  sidekiq_options :queue => :default
 
   def perform
     # Get the conversation
@@ -20,7 +22,7 @@ class ExpireConversationJob < Struct.new( :conversation_id, :force_resend )
     # say( 'Conversation is open? %s and is expired? %s' % [ conversation.is_open?, conversation.expires_at <= DateTime.now ] )
     if conversation.is_open? and !conversation.is_expired?
       say( 'Conversation not expired; enqueueing new expire job.', Logger::DEBUG )
-      Delayed::Job.enqueue ExpireConversationJob.new( conversation.id ), run_at: conversation.expires_at
+      ExpireConversationJob.perform_at( conversation.expires_at, conversation.id ) 
       return true
     end
 

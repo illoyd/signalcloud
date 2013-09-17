@@ -3,10 +3,12 @@
 # Requires the following items
 #   +organization_id+: the organization ID to process
 #
-# This class is intended for use with Delayed::Job.
+# This class is intended for use with Sidekiq.
 #
 class CreateOrUpdateTwilioAccountJob < Struct.new( :organization_id )
   include Talkable
+  include Sidekiq::Worker
+  sidekiq_options :queue => :default
 
   def perform
 

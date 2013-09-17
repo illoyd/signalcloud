@@ -9,7 +9,7 @@ module Talkable
   def say( text, level = Logger::DEBUG )
     text = "[#{self.class.name}] #{text}"
     puts text unless self.quiet
-    Delayed::Worker.logger.add( level, "#{Time.now.strftime('%FT%T%z')}: #{text}" ) if Delayed::Worker.logger
+    logger.add( level, "#{Time.now.strftime('%FT%T%z')}: #{text}" ) if logger
   end
 
 end

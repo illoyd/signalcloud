@@ -9,7 +9,7 @@ class Twilio::SmsUpdatesController < ApplicationController
   # POST /twilio/sms_updates.xml
   def create
     # Build a new update message job using the passed parameters
-    Delayed::Job.enqueue UpdateMessageStatusJob.new( params )
+    UpdateMessageStatusJob.perform_async params
     
     # Return a blank response
     render :xml => Twilio::TwiML::Response.new

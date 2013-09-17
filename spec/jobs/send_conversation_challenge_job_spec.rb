@@ -44,7 +44,7 @@ describe SendConversationChallengeJob, :vcr do
         expect { job.perform }.to change{conversation.reload.challenge_status}.to(Message::QUEUED)
       end
       it 'enqueues another expiration job' do
-        expect { job.perform }.to change{Delayed::Job.count}.by(1)
+        expect { job.perform }.to change{Sidekiq::Stats.new.enqueued}.by(1)
       end
     end
 
@@ -64,7 +64,7 @@ describe SendConversationChallengeJob, :vcr do
         expect { job.perform }.to_not change{conversation.reload.challenge_status}
       end
       it 'does not enqueue another expiration job' do
-        expect { job.perform }.to_not change{Delayed::Job.count}
+        expect { job.perform }.to_not change{Sidekiq::Stats.new.enqueued}
       end
     end
     
@@ -88,7 +88,7 @@ describe SendConversationChallengeJob, :vcr do
         expect { job.perform }.to change{conversation.reload.challenge_status}.to(Conversation::ERROR_INVALID_TO)
       end
       it 'does not enqueue an expiration job' do
-        expect { job.perform }.to_not change{Delayed::Job.count}
+        expect { job.perform }.to_not change{Sidekiq::Stats.new.enqueued}
       end
     end
 
@@ -112,7 +112,7 @@ describe SendConversationChallengeJob, :vcr do
         expect { job.perform }.to change{conversation.reload.challenge_status}.to(Conversation::ERROR_INVALID_FROM)
       end
       it 'does not enqueue an expiration job' do
-        expect { job.perform }.to_not change{Delayed::Job.count}
+        expect { job.perform }.to_not change{Sidekiq::Stats.new.enqueued}
       end
     end
 
