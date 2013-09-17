@@ -16,7 +16,7 @@ class UpgradeOrganizationJob < Struct.new( :organization_id )
   end
   
   def priority
-    MyQueue::LOW
+    Jobs::LOW
   end
-
+  
 end

@@ -4,7 +4,7 @@ class BasicJob; def perform; end;  end
 class PriorityJob < Struct.new( :priority ); def perform; end; end
 class QueueJob < Struct.new( :queue ); def perform; end;  end
 
-describe MyQueue do
+describe Jobs do
   let(:priority)      { 10 }
   let(:queue)         { 'test' }
   let(:high_priority) { 5 }
@@ -14,26 +14,26 @@ describe MyQueue do
   describe '.push' do
 
     it 'adds a job to the Delayed::Job queue' do
-      expect{ MyQueue.push BasicJob.new }.to change{Delayed::Job.count}.by(1)
+      expect{ Jobs.push BasicJob.new }.to change{Delayed::Job.count}.by(1)
     end
   
     context 'when pushing multiple jobs' do
 
       it 'adds several jobs to the Delayed::Job queue' do
-        expect{ MyQueue.push BasicJob.new, BasicJob.new, BasicJob.new }.to change{Delayed::Job.count}.by(3)
+        expect{ Jobs.push BasicJob.new, BasicJob.new, BasicJob.new }.to change{Delayed::Job.count}.by(3)
       end
   
       it 'adds several jobs to the Delayed::Job queue with default options' do
-        expect{ MyQueue.push BasicJob.new, BasicJob.new, BasicJob.new, priority: priority, queue: queue }.to change{Delayed::Job.count}.by(3)
+        expect{ Jobs.push BasicJob.new, BasicJob.new, BasicJob.new, priority: priority, queue: queue }.to change{Delayed::Job.count}.by(3)
       end
   
       it 'applies default priority to all jobs' do
-        MyQueue.push BasicJob.new, BasicJob.new, BasicJob.new, priority: priority
+        Jobs.push BasicJob.new, BasicJob.new, BasicJob.new, priority: priority
         Delayed::Job.all { |job| job.priority.should == priority }
       end
   
       it 'applies default queue to all jobs' do
-        MyQueue.push BasicJob.new, BasicJob.new, BasicJob.new, queue: queue
+        Jobs.push BasicJob.new, BasicJob.new, BasicJob.new, queue: queue
         Delayed::Job.all { |job| job.queue.should == queue }
       end
   
@@ -42,16 +42,16 @@ describe MyQueue do
     context 'when job has queue' do
       
       it 'adds a queue job to the Delayed::Job queue' do
-        expect{ MyQueue.push QueueJob.new(queue) }.to change{Delayed::Job.count}.by(1)
+        expect{ Jobs.push QueueJob.new(queue) }.to change{Delayed::Job.count}.by(1)
       end
 
       it 'enqueues with job\'s queue' do
-        MyQueue.push QueueJob.new(queue)
+        Jobs.push QueueJob.new(queue)
         Delayed::Job.first.queue.should == queue
       end
 
       it 'overrides job\'s queue' do
-        MyQueue.push QueueJob.new(queue), queue: high_queue
+        Jobs.push QueueJob.new(queue), queue: high_queue
         Delayed::Job.first.queue.should == high_queue
       end
 
@@ -60,16 +60,16 @@ describe MyQueue do
     context 'when job has priority' do
 
       it 'adds a priority job to the Delayed::Job queue' do
-        expect{ MyQueue.push PriorityJob.new(priority) }.to change{Delayed::Job.count}.by(1)
+        expect{ Jobs.push PriorityJob.new(priority) }.to change{Delayed::Job.count}.by(1)
       end
       
       it 'enqueues with job\'s priority' do
-        MyQueue.push PriorityJob.new(priority)
+        Jobs.push PriorityJob.new(priority)
         Delayed::Job.first.priority.should == priority
       end
 
       it 'overrides job\'s priority' do
-        MyQueue.push PriorityJob.new(priority), priority: high_priority
+        Jobs.push PriorityJob.new(priority), priority: high_priority
         Delayed::Job.first.priority.should == high_priority
       end
 

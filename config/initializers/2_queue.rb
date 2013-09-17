@@ -40,7 +40,7 @@ module JobTools
 
 end
 
-module MyQueue
+module Jobs
 
   EMERGENCY = 0
   VERY_HIGH = 10

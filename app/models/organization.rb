@@ -467,7 +467,7 @@ class Organization < ActiveRecord::Base
 private
 
   def enqueue_upgrade
-    MyQueue.push UpgradeOrganizationJob.new( self.id )
+    Jobs.push UpgradeOrganizationJob.new( self.id )
   end
   
   def upgrade

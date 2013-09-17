@@ -1,6 +1,6 @@
 # config/initializers/delayed_job_config.rb
 Delayed::Worker.destroy_failed_jobs = false
-Delayed::Worker.default_priority = MyQueue::NORMAL
+Delayed::Worker.default_priority = Jobs::NORMAL
 
 Delayed::Worker.sleep_delay = 15
 Delayed::Worker.max_attempts = 3
