@@ -6,12 +6,11 @@
 #
 # This class is intended for use with Sidekiq.
 #
-class CreateInvoiceJob < Struct.new( :organization_id, :next_invoice_at )
-  include Talkable
+class CreateInvoiceJob
   include Sidekiq::Worker
   sidekiq_options :queue => :background
 
-  def perform
+  def perform( organization_id, next_invoice_at )
     organization = Organizations.find( organization_id )
     organization.create_invoice( next_invoice_at.end_of_day )
     organization.save!

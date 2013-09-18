@@ -15,12 +15,11 @@
 #
 # This class is intended for use with Sidekiq.
 #
-class InboundMessageJob < Struct.new( :provider_update )
-  include Talkable
+class InboundMessageJob
   include Sidekiq::Worker
   sidekiq_options :queue => :default
 
-  def perform
+  def perform( provider_update )
     # self.normalize_provider_update!
     @sms ||= Twilio::InboundSms.new( self.provider_update )
     

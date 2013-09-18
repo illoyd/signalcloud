@@ -6,12 +6,11 @@
 #
 # This class is intended for use with Sidekiq.
 #
-class SendConversationChallengeJob < Struct.new( :conversation_id, :force_resend )
-  include Talkable
+class SendConversationChallengeJob
   include Sidekiq::Worker
   sidekiq_options :queue => :default
 
-  def perform
+  def perform( conversation_id, force_resend )
     say( 'Sending challenge message.', Logger::DEBUG )
     begin
       messages = self.conversation.send_challenge_message!()

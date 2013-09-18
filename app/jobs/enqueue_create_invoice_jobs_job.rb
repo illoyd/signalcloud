@@ -5,12 +5,11 @@
 #
 # This class is intended for use with Sidekiq.
 #
-class EnqueueCreateInvoiceJobsJob < Struct.new( :next_invoice_at )
-  include Talkable
+class EnqueueCreateInvoiceJobsJob
   include Sidekiq::Worker
   sidekiq_options :queue => :background
 
-  def perform
+  def perform( next_invoice_at )
     next_invoice_at = next_invoice_at.end_of_day
     Organizations.where( 'next_invoice_at <= ?', next_invoice_at ).pluck( :id ) do |organization_id|
       CreateInvoiceJob.perform_async organization_id, next_invoice_at
