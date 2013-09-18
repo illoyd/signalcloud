@@ -129,7 +129,7 @@ end
 
 class MessageSendingError < MessageError
   def initialize(message, original = nil, code = nil)
-    super( 'Conversation encountered an error while sending (code %i).' % [code], message, original, code )
+    super( 'Conversation encountered an error while sending (code %i). Original is "%s".' % [code, original], message, original, code )
   end
 end
 

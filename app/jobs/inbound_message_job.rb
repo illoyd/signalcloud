@@ -67,8 +67,8 @@ class InboundMessageJob < Struct.new( :provider_update )
     message.refresh_from_twilio!
 
     conversation.accept_answer! @sms.body
-    JobTools.enqueue SendConversationReplyJob.new(conversation.id)
-    JobTools.enqueue SendConversationStatusWebhookJob.new( conversation.id, ConversationSerializer.new(conversation).as_json ) unless conversation.webhook_uri.blank?
+    SendConversationReplyJob.perform_async(conversation.id)
+    SendConversationStatusWebhookJob.perform_async( conversation.id, ConversationSerializer.new(conversation).as_json ) unless conversation.webhook_uri.blank?
   end
   
   def perform_multiple_matching_conversations_action( open_conversations )

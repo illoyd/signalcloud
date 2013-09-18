@@ -70,6 +70,7 @@ end
 
 group :test do
 	gem 'shoulda-matchers'
+	gem 'rspec-sidekiq'
 	gem 'vcr'
 	gem 'webmock', "~> 1.11.0"
 	gem 'factory_girl'

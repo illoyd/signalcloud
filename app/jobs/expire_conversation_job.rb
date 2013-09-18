@@ -2,62 +2,57 @@
 # Send an SMS Challenge
 # Requires the following items
 #   +conversation_id+: the unique identifier for the conversation
-#   +force_resend+: a flag to indicate if this is a forced resend; defaults to +false+
 #
 # This class is intended for use with Sidekiq.
 #
-class ExpireConversationJob < Struct.new( :conversation_id, :force_resend )
-  include Talkable
+class ExpireConversationJob
   include Sidekiq::Worker
   sidekiq_options :queue => :default
 
-  def perform
+  def perform( conversation_id, force_send=false )
     # Get the conversation
-    conversation = self.find_conversation()
+    conversation = self.find_conversation(conversation_id)
     
-    # If the conversation is closed, short-circuit and stop
-    return true if conversation.is_closed?
+    # If the conversation is not found or is closed, short-circuit and stop
+    return true if conversation.nil? or conversation.is_closed?
     
     # Retry expiration later if conversation has not expired
-    # say( 'Conversation is open? %s and is expired? %s' % [ conversation.is_open?, conversation.expires_at <= DateTime.now ] )
     if conversation.is_open? and !conversation.is_expired?
-      say( 'Conversation not expired; enqueueing new expire job.', Logger::DEBUG )
+      logger.info{ 'Conversation not expired; enqueueing new expire job.' }
       ExpireConversationJob.perform_at( conversation.expires_at, conversation.id ) 
       return true
     end
 
     # Set conversation to expired
     conversation.status = Conversation::EXPIRED
-    conversation.save
+    conversation.save!
     
     # Send the expiration SMS if not already sent.
     # This will automatically create the associated message
-    say( 'Attempting to send expiration message.', Logger::DEBUG )
+    logger.debug{ 'Attempting to send expiration message.' }
     begin
       messages = conversation.send_reply_message!()
-      say( 'Sent expiration message (Twilio: %s).' % [messages.first.twilio_sid] )
+      logger.info{ 'Sent expiration message (Twilio: %s).' % [messages.first.twilio_sid] }
 
     rescue SignalCloud::ReplyAlreadySentError => ex
-      say( 'Skipping as message has already been sent.', Logger::DEBUG )
+      logger.info{ 'Skipping as message has already been sent.' }
     
     rescue SignalCloud::MessageSendingError => ex
-      say( ex.message, Logger::WARN )
+      logger.warn{ ex.message }
     
     rescue => ex
-      say( 'FAILED to send message: %s.' % [ex.message], Logger::ERROR )
+      logger.error{ 'FAILED to send message: %s.' % [ex.message] }
       raise ex
 
     end
   end
   
-  def find_conversation()
-    return Conversation.find( self.conversation_id )
-  end
-  
-  def force_resend?
-    self.force_resend || false
-  end
-  
   alias :run :perform
 
+  protected
+
+  def find_conversation(conversation_id)
+    return Conversation.where( id: conversation_id, status: Conversation::OPEN_STATUSES ).first
+  end
+  
 end
