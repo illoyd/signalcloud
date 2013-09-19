@@ -6,12 +6,11 @@
 #
 # This class is intended for use with Sidekiq.
 #
-class SendUnsolicitedMessageReplyJob < Struct.new( :phone_number_id, :customer_number )
-  include Talkable
+class SendUnsolicitedMessageReplyJob
   include Sidekiq::Worker
   sidekiq_options :queue => :default
 
-  def perform
+  def perform( phone_number_id, customer_number )
     # TODO
   end
   
