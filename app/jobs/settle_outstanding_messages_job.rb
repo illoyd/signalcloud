@@ -5,24 +5,23 @@
 #
 # This class is intended for use with Sidekiq.
 #
-class SettleOutstandingMessagesJob < Struct.new( :organization_id, :ignore_organization_ids )
-  include Talkable
+class SettleOutstandingMessagesJob
   include Sidekiq::Worker
   sidekiq_options :queue => :background
   
   TEST_CREDENTIAL_ERROR = 20008
 
-  def perform
-    self.ignore_organization_ids ||= []
+  def perform( organization_id=nil, ignore_organization_ids=[] )
+    ignore_organization_ids ||= []
     @last_organization_id = nil
 
-    self.outstanding_messages.find_each( batch_size: 100 ) do |message|
+    outstanding_messages.find_each( batch_size: 100 ) do |message|
       begin
         @last_organization_id = message.organization.id
-        if self.ignore_organization_ids.include? message.organization.id
-          puts 'Skipping message %i as its organization is on the ignore list.' % message.id
+        if ignore_organization_ids.include? message.organization.id
+          logger.debug{ 'Skipping message %i as its organization is on the ignore list.' % message.id }
         else
-          puts 'Attempting to settle message %i (%s)...' % [ message.id, message.twilio_sid ]
+          logger.debug{ 'Attempting to settle message %i (%s)...' % [ message.id, message.twilio_sid ] }
           message.refresh_from_twilio!
         end
   
@@ -39,8 +38,8 @@ class SettleOutstandingMessagesJob < Struct.new( :organization_id, :ignore_organ
     end
   end
   
-  def outstanding_messages
-    query = self.organization_id.blank? ? Message : Organization.find(self.organization_id).messages
+  def outstanding_messages(organization_id=nil)
+    query = organization_id.blank? ? Message : Organization.find(organization_id).messages
     query.where( 'twilio_sid is not null' ).outstanding
   end
   

@@ -5,16 +5,12 @@
 #
 # This class is intended for use with Sidekiq.
 #
-class UpgradeOrganizationJob < Struct.new( :organization_id )
-  include Talkable
+class UpgradeOrganizationJob
   include Sidekiq::Worker
   sidekiq_options :queue => :background
 
-  def perform
-  end
-  
-  def organization
-    @organization ||= Organization.find(self.organization_id)
+  def perform( organization_id )
+    organization = Organization.find(organization_id)
   end
   
 end
