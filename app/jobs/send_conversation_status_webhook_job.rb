@@ -6,16 +6,15 @@
 #
 # This class is intended for use with Sidekiq.
 #
-class SendConversationStatusWebhookJob < Struct.new( :conversation_id, :webhook_data )
-  include Talkable
+class SendConversationStatusWebhookJob
   include Sidekiq::Worker
   sidekiq_options :queue => :default
 
-  def perform
-    raise SignalCloudError.new 'Missing webhook data' if self.webhook_data.blank?
-    conversation = Conversation.find self.conversation_id
+  def perform( conversation_id, webhook_data )
+    raise SignalCloudError.new 'Missing webhook data' if webhook_data.blank?
+    conversation = Conversation.find conversation_id
     raise SignalCloudError.new('Conversation (%s) does not have a Webhook URI.' % [ conversation.id ]) if conversation.webhook_uri.blank?
-    HTTParty.post conversation.webhook_uri, query: self.webhook_data
+    HTTParty.post conversation.webhook_uri, body: webhook_data
   end
   
   alias :run :perform
