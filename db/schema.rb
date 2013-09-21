@@ -205,6 +205,7 @@ ActiveRecord::Schema.define(:version => 20130917210618) do
     t.string   "auth_token",         :null => false
     t.string   "label",              :null => false
     t.string   "icon"
+    t.integer  "owner_id",           :null => false
     t.integer  "contact_address_id"
     t.integer  "billing_address_id"
     t.string   "purchase_order"
@@ -356,8 +357,8 @@ ActiveRecord::Schema.define(:version => 20130917210618) do
   add_index "user_roles", ["user_id"], :name => "index_user_roles_on_user_id"
 
   create_table "users", :force => true do |t|
-    t.string   "first_name"
-    t.string   "last_name"
+    t.string   "name"
+    t.string   "nickname"
     t.boolean  "system_admin",                         :default => false, :null => false
     t.datetime "created_at",                                              :null => false
     t.datetime "updated_at",                                              :null => false

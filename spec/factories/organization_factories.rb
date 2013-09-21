@@ -4,6 +4,7 @@ FactoryGirl.define do
     sid                 { SecureRandom.hex(16) }
     auth_token          { SecureRandom.hex(16) }
     label               'Test Account'
+    association         :owner, factory: :user
     association         :contact_address, factory: :white_house_address
     association         :billing_address, factory: :address
     association         :account_plan, factory: :payg_account_plan

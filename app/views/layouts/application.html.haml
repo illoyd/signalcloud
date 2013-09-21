@@ -47,10 +47,10 @@
                 - if can? :index, PhoneNumber
                   %li{ rel: 'tooltip', :title => 'Phone Numbers', :'data-placement' => 'bottom', class: (yield(:page_section) == 'phone_numbers' ? 'active' : '') }
                     %a.phone_numbers{ :href => organization_phone_numbers_path(@organization) }= icon( :phone_numbers )
-                - if can? :index, LedgerEntry
+                - if can?(:index, LedgerEntry) and current_user.is_billing_liaison_for?(@organization)
                   %li{ rel: 'tooltip', :title => 'Ledger', :'data-placement' => 'bottom', class: (yield(:page_section) == 'ledger_entries' ? 'active' : '') }
                     %a.ledger_entries{ :href => organization_ledger_entries_path(@organization) }= icon( :ledger_entries )
-                - if can? :index, User
+                - if can?(:index, User) and current_user.is_organization_administrator_for?(@organization)
                   %li{ rel: 'tooltip', :title => 'Users', :'data-placement' => 'bottom', class: (yield(:page_section) == 'users' ? 'active' : '') }
                     %a.users{ :href => organization_users_path(@organization) }= icon( :users )
 
@@ -70,18 +70,18 @@
               %li.dropdown
                 %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#", style: 'padding-left: 40px' }
                   = gravatar_for current_user, 30, { style: 'position: absolute; top: 5px; left: 5px; background-color: yellow;' }
-                  = current_user.first_name
+                  = current_user.nickname
                   %b.caret
                 %ul.dropdown-menu
-                  - if can? :change_password, current_user
-                    %li
-                      = link_to edit_user_path( current_user ) do
-                        %i.icon-key
-                        Change password
                   %li
                     = link_to current_user do
                       %i.icon-cogs
-                      Preferences
+                      Change profile
+                  - if can? :change_password, current_user
+                    %li
+                      = link_to edit_user_registration_path do
+                        %i.icon-key
+                        Change password
                   %li
                     = link_to destroy_user_session_path, :method => :delete do
                       %i.icon-off

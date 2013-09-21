@@ -3,13 +3,12 @@ class UserRole < ActiveRecord::Base
   ROLES = [ :organization_administrator, :developer, :billing_liaison, :conversation_manager ]
   READ  = []
   
-  attr_accessible :roles, :user, :organization, :user_id, :first_name, :last_name
-  attr_accessor :first_name, :last_name, :email
-
-  belongs_to :user, inverse_of: :user_roles
+  belongs_to :user, inverse_of: :user_roles, autosave: true
   belongs_to :organization, inverse_of: :user_roles
   
   validates_presence_of :roles_mask, :user, :organization
+  
+  attr_accessor :email
 
   def roles=(new_roles)
     self.roles_mask = self.class.translate_roles( new_roles )

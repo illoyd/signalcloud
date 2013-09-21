@@ -1,25 +1,24 @@
 class LedgerEntriesController < ApplicationController
 
-  load_and_authorize_resource
-  before_filter :assign_organization, :assign_invoice
+  respond_to :html, :json, :xml
+
+  load_and_authorize_resource :organization
+  load_and_authorize_resource through: :organization
+  before_filter :assign_invoice
   
   # GET /ledger_entries
   # GET /ledger_entries.json
   def index
-  
     @ledger_entries = if @invoice
-        @invoice.ledger_entries
+        @ledger_entries.where( invoice_id: @invoice )
       else
-        @organization.ledger_entries.uninvoiced
+        @ledger_entries.uninvoiced
       end
       
     # Apply pagination
     @ledger_entries = @ledger_entries.page(params[:page])
 
-    respond_to do |format|
-      format.html # index.html.erb
-      format.json { render json: @ledger_entries }
-    end
+    respond_with @organization, @ledger_entries
   end
 
   # GET /ledger_entries/1

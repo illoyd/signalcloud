@@ -1,8 +1,8 @@
 FactoryGirl.define do
 
   factory :user do
-    first_name         'John'
-    last_name          'Doe'
+    nickname           'John'
+    name               'Johnathan Doe'
     sequence(:email)   { |n| "user#{n}@signalcloudapp.com" }
     password           { SecureRandom.hex(4) }
     

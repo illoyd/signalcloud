@@ -47,7 +47,7 @@ gem 'active_model_serializers'
 gem 'sidekiq'
 gem 'haml'
 gem 'twilio-ruby'
-gem 'devise'
+gem 'devise', '~> 3.0.0'
 gem 'devise-async'
 gem 'devise_invitable'
 gem 'cancan'
@@ -63,6 +63,7 @@ gem 'country_select'
 gem 'countries'
 gem 'workflow'
 gem 'strong_parameters'
+gem 'lograge'
 
 group :test, :development do
   gem "rspec-rails", "~> 2.0"
@@ -81,6 +82,5 @@ group :test do
 end
 
 group :production do
-  gem 'lograge'
   gem 'newrelic_rpm'
 end

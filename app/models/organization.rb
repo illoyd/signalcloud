@@ -28,6 +28,7 @@ class Organization < ActiveRecord::Base
   # References
   has_many :user_roles, inverse_of: :organization
   has_many :users, through: :user_roles
+  belongs_to :owner, class_name: 'User', inverse_of: :owned_organizations
 
   has_one :account_balance, inverse_of: :organization, autosave: true, dependent: :destroy
   
@@ -75,6 +76,10 @@ class Organization < ActiveRecord::Base
   
   def ensure_account_balance
     self.build_account_balance if self.account_balance.nil?
+  end
+  
+  def icon
+    @icon || :briefcase
   end
 
 #   def status
