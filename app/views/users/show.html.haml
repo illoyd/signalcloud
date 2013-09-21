@@ -6,17 +6,24 @@
   .span3= render :partial => 'navlist'
   .span9
     %p
-      %b Name:
+      %b Name
       = "#{@user.first_name} #{@user.last_name}"
     %p
-      %b E-mail:
+      %b E-mail
       = mail_to @user.email
     %p
-      %b Roles:
+      %b Shared Organizations
       %ul
-      - @user.user_roles do |role|
-        %li
-          role.organization.label
-          %ul
-          - role.roles.each do |role|
-            %li= role.to_s.humanize
+        - @shared_organizations.each do |org|
+          %li
+            = link_to org do
+              = icon org.icon
+              = org.label
+            (
+            = link_to organization_users_path(org), prepend: '(' do
+              = icon :users
+              Users
+            )
+              
+            
+            

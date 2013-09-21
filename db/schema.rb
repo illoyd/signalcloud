@@ -221,6 +221,7 @@ ActiveRecord::Schema.define(:version => 20130601180546) do
     t.string   "auth_token",         :null => false
     t.string   "label",              :null => false
     t.string   "icon"
+    t.integer  "owner_id",           :null => false
     t.integer  "contact_address_id"
     t.integer  "billing_address_id"
     t.string   "purchase_order"

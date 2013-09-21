@@ -1,0 +1,26 @@
+/ Edit User Role Modal Dialog
+.modal.hide.fade{ id: "user_role_modal_#{user_role.user.id}", "aria-hidden" => "true", "aria-labelledby" => "myModalLabel", :role => "dialog", :tabindex => "-1"}
+  = twitter_bootstrap_form_for( [organization, user_role], :html => { class: "form-horizontal" } ) do |f|
+    .modal-header
+      %button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} &times;
+      %h3 Change roles
+    .modal-body
+      - if user_role.errors.any?
+        .error
+          %h2
+            = user_role.errors.count
+            = pluralize(user_role.errors.count, "error")
+            stopped us from saving:
+          %ul
+            - user_role.errors.full_messages.each do |msg|
+              %li= msg
+    
+      = f.label "Roles" do
+        - UserRole::ROLES.each do |role|
+          %label.checkbox
+            = check_box_tag 'user_role[roles][]', role, user_role.roles.include?(role), { id: 'user_role_%s' % role }
+            = role.to_s.humanize
+
+    .modal-footer
+      = f.submit 'Change roles', class: 'btn btn-primary'
+      %button.btn{"aria-hidden" => "true", "data-dismiss" => "modal"} Discard changes

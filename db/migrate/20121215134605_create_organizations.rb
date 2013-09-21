@@ -9,6 +9,8 @@ class CreateOrganizations < ActiveRecord::Migration
       t.string :auth_token, null: false, length: 32
       t.string :label, null: false
       t.string :icon
+      
+      t.references :owner, null: false
 
       t.integer :contact_address_id
       t.integer :billing_address_id

@@ -5,57 +5,58 @@
 class UserRolesController < ApplicationController
 
   respond_to :html, :json, :xml
-  before_filter :assign_organization
+  load_and_authorize_resource :organization
+  before_filter :cannot_manage_organization_owner_roles
+  before_filter :load_new_user_role, only: [ :new, :create ]
+  load_and_authorize_resource through: :organization
 
+  def load_new_user_role
+    @user_role = @organization.user_roles.build()
+    @user_role.assign_attributes( user_role_params ) if params.include? :user_role
+    @user_role
+  end
+  
   # POST /user_roles
   # POST /user_roles.json
   def create
   
-    # Handle inviting a user if necessary
-    if params[:user_role].include? :email
-      email = params[:user_role][:email].chomp.downcase
-      
-      # Try to find the user in the database; if not found, invite
-      user = User.find_by_email( email )
-      if user.nil?
-        first_name = params[:user_role].fetch(:first_name, 'Anonymous')
-        last_name = params[:user_role].fetch(:last_name, 'Anonymous')
-        user = User.invite!( {email: email, first_name: first_name, last_name: last_name}, current_user )
-        user.save
-      end
-      
-      # Update the passed parameters for this role
-      params[:user_role][:user_id] = user.id
-      params[:user_role].delete :email
+    # Try to find the user in the database; if not found, invite
+    user = User.find_by_email( user_role_user_params[:email] )
+    if user.nil?
+      user = User.invite!( user_role_user_params, current_user )
     end
-  
-    params[:roles] ||= []
-    @role = @organization.user_roles.build(params[:user_role])
-    authorize! :create, @role
     
-    flash[:notice] = "Role was added successfully." if @role.save
+    # If the user is already in the current organization, stop
+    if @organization.users.include? user
+      flash[:notice] = "%s (%s) is already a member of this organization." % [ user.first_name, user.email ]
+      redirect_to organization_users_path( @organization ) and return
+    end
+    
+    # Abort if errors given
+    unless user.save
+      @user_role.errors.add( :email, 'cannot be blank.' )
+      flash[:error] = "There were some issues with inviting the user."
+
+    # Update the passed parameters for this role
+    else
+      @user_role.user = user
+      flash[:success] = "%s (%s) was invited successfully." % [ @user_role.user.first_name, @user_role.user.email ] if @user_role.update_attributes(user_role_params)
+    end
+
     redirect_to organization_users_path( @organization )
   end
   
   # POST /user_roles/1
   # POST /user_roles/1.json
   def update
-    @role = UserRole.find(params[:id])
-    authorize! :update, @role
-    
-    params[:roles] ||= []
-
-    flash[:notice] = "Role was updated successfully." if @role.update_attributes(params[:user_role])
+    flash[:success] = "%s (%s) was updated successfully." % [ @user_role.user.first_name, @user_role.user.email ] if @user_role.update_attributes(user_role_params)
     redirect_to organization_users_path( @organization )
   end
 
   # DELETE /user_roles/1
   # DELETE /user_roles/1.json
   def destroy
-    @role = @organization.user_roles.find(params[:id])
-    authorize! :destroy, @role
-
-    flash[:notice] = "Role was removed successfully." if @role.destroy
+    flash[:success] = "%s (%s) was uninvited." % [ @user_role.user.first_name, @user_role.user.email ] if @user_role.destroy
     redirect_to organization_users_path( @organization )
   end
 

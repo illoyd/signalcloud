@@ -287,7 +287,7 @@ input[type="color"],
 .uneditable-input {
 	padding: 7px 6px;
 	text-indent: 1px;
-	.border-radius(@inputBorderRadius);
+	//.border-radius(@inputBorderRadius);
 	.box-shadow(none);
 
 	&:focus {
@@ -302,6 +302,7 @@ input[type="color"],
     .border-radius(@inputBorderRadius 0 0 @inputBorderRadius);
   }
 }
+
 
 .input-append {
 
@@ -349,7 +350,7 @@ input[type="color"],
 .input-prepend {
 
 	.add-on {
-		padding: 9px 5px;
+		padding: 7px 5px;
 		text-shadow: none;
 	}
 }
@@ -390,11 +391,13 @@ input[type="file"]{
 	line-height: 16px;
 }
 
+/*
 .input-append .add-on,
 .input-prepend .add-on {
 	border: none;
 	background: none;
 }
+*/
 
 legend {
 	border-bottom: none;

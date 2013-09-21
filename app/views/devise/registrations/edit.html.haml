@@ -16,6 +16,6 @@
     .modal-footer
       %div
         = f.submit "Change Password", class: 'btn btn-primary'
-        %a.btn{:href => "/"} Cancel
+        = link_to 'Cancel', @user, { class: 'btn' }
 
 = render "devise/shared/links"
