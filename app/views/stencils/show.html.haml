@@ -4,46 +4,95 @@
 .row
   .span3
     = render 'navlist'
+
   .span9
-    %p
-      %b Description:
-      = @stencil.description || 'No description configured.'
-    %p
-      %b
-        = icon( :phone_books )
-        Phone book:
-      = link_to @stencil.phone_book.label, [@organization, @stencil.phone_book]
+    %p.well= @stencil.description || '<em>No description.</em>'.html_safe
+
+    %h4{ style: 'margin-top: 2em; margin-bottom: 1em;' } Ask...
+    .row-fluid
+      .span1= icon('question-sign', class: 'icon-3x')
+      .span11
+        Ask this question...
+        .well.well-small= @stencil.question || '<em>No default question.</em>'.html_safe
+
+    .row-fluid
+      .span1= icon('phone_books', class: 'icon-3x')
+      .span11
+        \...using this Phone Book...
+        .well.well-small= link_to @stencil.phone_book.label, [@organization, @stencil.phone_book]
+
+    .row-fluid
+      .span1= icon('globe', class: 'icon-3x')
+      .span11
+        - unless @stencil.webhook_uri.blank?      
+          \...and send conversation updates to this URI
+          .well.well-small= link_to @stencil.webhook_uri
+        - else
+          \...and do not send updates to a URI
+
+    %h4{ style: 'margin-top: 2em; margin-bottom: 1em;'} ...Answer
     
-    %p
-      %b
-        = icon( :time )
-        Time to live:
-      = @stencil.seconds_to_live.seconds_to_words
-    
-    %p
-      %b Question:
-    .well= @stencil.question || 'No default question configured.'
-    
-    %p
-      %b Expected confirmed answer:
-    .well= @stencil.expected_confirmed_answer || 'No default expected confirmed answer configured.'
-    
-    %p
-      %b Expected denied answer:
-    .well= @stencil.expected_denied_answer || 'No default expected denied answer configured.'
-    
-    %p
-      %b Confirmed reply:
-    .well= @stencil.confirmed_reply || 'No default reply to confirmation responses configured.'
-    
-    %p
-      %b Denied reply:
-    .well= @stencil.denied_reply || 'No default reply to denial responses configured.'
-    
-    %p
-      %b Failed reply:
-    .well= @stencil.failed_reply || 'No default reply for failed responses configured.'
-    
-    %p
-      %b Expired reply:
-    .well= @stencil.expired_reply || 'No default message for expired questions configured.'
+    / Confirmed
+    .row-fluid
+      .span1= icon(:confirmed, class: 'icon-3x')
+      .span5
+        When receiving this answer...
+        .well.well-small= @stencil.expected_confirmed_answer || '<em>No default expected confirmed answer.</em>'.html_safe
+      .span1{style: 'text-align: center' }= icon('arrow-right', class: 'icon-2x', style: 'margin-left: .5em' )
+      .span5
+        \...reply with this message
+        .well.well-small= @stencil.confirmed_reply || '<em>No default confirmed reply.</em>'.html_safe
+        %p
+          \...and mark the conversation as
+          %span.label.label-success
+            = icon(:confirmed)
+            confirmed
+    %hr
+
+    / Denied
+    .row-fluid
+      .span1= icon(:denied, class: 'icon-3x')
+      .span5
+        When receiving this answer...
+        .well.well-small= @stencil.expected_denied_answer || '<em>No default expected denied answer.</em>'.html_safe
+      .span1{style: 'text-align: center' }= icon('arrow-right', class: 'icon-2x', style: 'margin-left: .5em' )
+      .span5
+        \...reply with this message
+        .well.well-small= @stencil.denied_reply || '<em>No default denied reply.</em>'.html_safe
+        %p
+          \...and mark the conversation as
+          %span.label.label-important
+            = icon(:denied)
+            denied
+    %hr
+
+    / Failed Reply
+    .row-fluid
+      .span1= icon(:failed, class: 'icon-3x')
+      .span5 When receiving any other answer...
+      .span1{style: 'text-align: center' }= icon('arrow-right', class: 'icon-2x', style: 'margin-left: .5em' )
+      .span5
+        \...reply with this message
+        .well.well-small= @stencil.failed_reply || '<em>No default failed reply.</em>'.html_safe
+        %p
+          \...and mark the conversation as
+          %span.label.label-warning
+            = icon(:failed)
+            failed
+    %hr
+  
+    / Expired Reply
+    .row-fluid
+      .span1= icon(:expired, class: 'icon-3x')
+      .span5
+        If no answer is received in...
+        .well.well-small= @stencil.seconds_to_live.seconds_to_words
+      .span1{style: 'text-align: center' }= icon('arrow-right', class: 'icon-2x', style: 'margin-left: .5em' )
+      .span5
+        \...send this message
+        .well.well-small= @stencil.expired_reply || '<em>No default expired reply.</em>'.html_safe
+        %p
+          \...and mark the conversation as
+          %span.label.label
+            = icon(:expired)
+            expired

@@ -13,48 +13,119 @@
       %ul
         - @conversation.errors.full_messages.each do |msg|
           %li= msg
-  .control-group
-    = f.label :stencil, :class => 'control-label'
-    .controls
-      = @stencil.label
-      %a.btn.btn-mini{"data-toggle" => "modal", :href => '#change_stencil_modal', :role => "button"} Change Stencil
-    -#=f.collection_select :stencil_id, @organization.stencils, :id, :label
-  .control-group
-    = f.label :to_number, :class => 'control-label' do
-      Customer number
-    .controls
-      .input-prepend
-        %span.add-on= icon( :user )
-        = f.text_field :to_number
-  .control-group
-    = f.label :from_number, :class => 'control-label' do
-      Service number
-    .controls
-      = f.collection_select :from_number, @stencil.phone_book.phone_numbers, :number, :human_number, include_blank: 'Auto-select'
-  .control-group
-    = f.label :seconds_to_live, :class => 'control-label'
-    .controls= f.number_field :seconds_to_live, :value=>@stencil.seconds_to_live
-  .control-group
-    = f.label :question, :class => 'control-label'
-    .controls= f.text_area :question, :rows=>3, :value=>@stencil.question
-  .control-group
-    = f.label :expected_confirmed_answer, :class => 'control-label'
-    .controls= f.text_area :expected_confirmed_answer, :rows=>3, :value=>@stencil.expected_confirmed_answer
-  .control-group
-    = f.label :expected_denied_answer, :class => 'control-label'
-    .controls= f.text_area :expected_denied_answer, :rows=>3, :value=>@stencil.expected_denied_answer
-  .control-group
-    = f.label :confirmed_reply, :class => 'control-label'
-    .controls= f.text_area :confirmed_reply, :rows=>3, :value=>@stencil.confirmed_reply
-  .control-group
-    = f.label :denied_reply, :class => 'control-label'
-    .controls= f.text_area :denied_reply, :rows=>3, :value=>@stencil.denied_reply
-  .control-group
-    = f.label :failed_reply, :class => 'control-label'
-    .controls= f.text_area :failed_reply, :rows=>3, :value=>@stencil.failed_reply
-  .control-group
-    = f.label :expired_reply, :class => 'control-label'
-    .controls= f.text_area :expired_reply, :rows=>3, :value=>@stencil.expired_reply
+
+  %h4 Stencil
+  %p
+    = @stencil.label
+    %a.btn.btn-mini{"data-toggle" => "modal", :href => '#change_stencil_modal', :role => "button"} Change Stencil
+  %hr
+  
+  %h4 Ask...
+  .row-fluid{style: 'margin-top: 1.0em;'}
+    .span1= icon('user', class: 'icon-3x')
+    .span11
+      = f.label :to_number do
+        Ask this person...
+      = f.text_field :to_number
+    
+  .row-fluid{style: 'margin-top: 3.0em;'}
+    .span1= icon('question-sign', class: 'icon-3x')
+    .span11
+      = f.label :question do
+        \...this question...
+      = f.text_area :question, rows: 3, style: 'width: 100%'
+    
+  .row-fluid{style: 'margin-top: 3.0em;'}
+    .span1= icon(:phone_numbers, class: 'icon-3x')
+    .span11
+      = f.label :from_number do
+        \...from this phone number...
+      = f.collection_select :from_number, @stencil.phone_book.phone_numbers.uniq, :number, :human_number, include_blank: 'Auto-select'
+    
+  .row-fluid{style: 'margin-top: 3.0em;'}
+    .span1= icon(:globe, class: 'icon-3x')
+    .span11
+      = f.label :webhook_uri do
+        \...and send conversation updates to this URI
+      = f.text_field :webhook_uri, style: 'width: 100%;'
+      %p.tip{ style: 'margin-top: .5em' }
+        %span.label.label-info Tip
+        Leave blank to not send updates
+
+  %h4{ style: 'margin-top: 2em;'} ...Answer
+
+  / Confirmed Reply
+  .row-fluid
+    .span1= icon(:confirmed, class: 'icon-3x')
+    .span5
+      = f.label :expected_confirmed_answer do
+        When receiving this answer...
+      = f.text_area :expected_confirmed_answer, rows: 3, style: 'width: 100%'
+    .span1{style: 'text-align: center' }= icon('arrow-right', class: 'icon-2x', style: 'margin-left: .5em' )
+    .span5
+      = f.label :confirmed_reply do
+        \...reply with this message
+      =f.text_area :confirmed_reply, :rows=>3, style: 'width: 100%'
+      %p{ style: 'margin-top: 8px' }
+        \...and mark the conversation as
+        %span.label.label-confirmed
+          = icon(:confirmed)
+          confirmed
+  %hr
+
+  / Denied Reply
+  .row-fluid
+    .span1= icon(:denied, class: 'icon-3x')
+    .span5
+      = f.label :expected_denied_answer do
+        When receiving this answer...
+      = f.text_area :expected_denied_answer, rows: 3, style: 'width: 100%'
+    .span1{style: 'text-align: center' }= icon('arrow-right', class: 'icon-2x', style: 'margin-left: .5em' )
+    .span5
+      = f.label :denied_reply do
+        \...reply with this message
+      =f.text_area :denied_reply, :rows=>3, style: 'width: 100%'
+      %p{ style: 'margin-top: 8px' }
+        \...and mark the conversation as
+        %span.label.label-denied
+          = icon(:denied)
+          denied
+  %hr
+    
+  / Failed Reply
+  .row-fluid
+    .span1= icon(:failed, class: 'icon-3x')
+    .span5 When receiving any other answer...
+    .span1{style: 'text-align: center' }= icon('arrow-right', class: 'icon-2x', style: 'margin-left: .5em' )
+    .span5
+      = f.label :failed_reply do
+        \...reply with this message
+      =f.text_area :failed_reply, :rows=>3, style: 'width: 100%'
+      %p{ style: 'margin-top: 8px' }
+        \...and mark the conversation as
+        %span.label.label-failed
+          = icon(:failed)
+          failed
+  %hr
+
+  / Expired Reply
+  .row-fluid
+    .span1= icon(:expired, class: 'icon-3x')
+    .span5
+      = f.label :seconds_to_live do
+        If no answer is received in...
+      = f.number_field :seconds_to_live
+      seconds
+    .span1{style: 'text-align: center' }= icon('arrow-right', class: 'icon-2x', style: 'margin-left: .5em' )
+    .span5
+      = f.label :expired_reply do
+        \...send this message
+      =f.text_area :expired_reply, :rows=>3, style: 'width: 100%'
+      %p{ style: 'margin-top: 8px' }
+        \...and mark the conversation as
+        %span.label.label-expired
+          = icon(:expired)
+          expired
 
   .control-group.actions
     .controls
