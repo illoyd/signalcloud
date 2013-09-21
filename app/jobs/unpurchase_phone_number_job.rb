@@ -3,21 +3,20 @@
 # Requires the following items
 #   +phone_number_id+: the ID of the phone number object
 #
-# This class is intended for use with Delayed::Job.
+# This class is intended for use with Sidekiq.
 #
-class UnpurchasePhoneNumberJob < Struct.new( :phone_number_id )
-  include Talkable
+class UnpurchasePhoneNumberJob
+  include Sidekiq::Worker
+  sidekiq_options :queue => :background
 
-  def perform
+  def perform( phone_number_id )
+    phone_number = PhoneNumber.find(phone_number_id)
+
     # Silently skip if already inactive
-    return true if self.phone_number.inactive?
+    return true if phone_number.inactive?
     
     # Perform actual release command. This will reach out to the provider and release the number.
-    self.phone_number.unpurchase!
-  end
-  
-  def phone_number
-    @phone_number ||= PhoneNumber.find(self.phone_number_id)
+    phone_number.unpurchase!
   end
   
 end
