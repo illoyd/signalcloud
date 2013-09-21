@@ -10,7 +10,7 @@
     = queued_count
   .span6
     .progress
-      .bar.bar-info{ :style => "width: #{queued_statistics}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Queued: %0.0f%%' % queued_statistics }
+      .bar.bar-queued{ :style => "width: #{queued_statistics}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Queued: %0.0f%%' % queued_statistics }
 
 .row
   .span2
@@ -20,7 +20,7 @@
     = counts[Conversation::CHALLENGE_SENT]
   .span6
     .progress
-      .bar{ :style => "width: #{statistics[Conversation::CHALLENGE_SENT]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Sent: %0.0f%%' % statistics[Conversation::CHALLENGE_SENT] }
+      .bar.bar-challenge-sent{ :style => "width: #{statistics[Conversation::CHALLENGE_SENT]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Sent: %0.0f%%' % statistics[Conversation::CHALLENGE_SENT] }
 
 .row
   .span2
@@ -30,7 +30,7 @@
     = counts[Conversation::CONFIRMED]
   .span6
     .progress
-      .bar.bar-success{ :style => "width: #{statistics[Conversation::CONFIRMED]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Confirmed: %0.0f%%' % statistics[Conversation::CONFIRMED] }
+      .bar.bar-confirmed{ :style => "width: #{statistics[Conversation::CONFIRMED]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Confirmed: %0.0f%%' % statistics[Conversation::CONFIRMED] }
 
 .row
   .span2
@@ -40,7 +40,7 @@
     = counts[Conversation::DENIED]
   .span6
     .progress
-      .bar.bar-danger{ :style => "width: #{statistics[Conversation::DENIED]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Denied: %0.0f%%' % statistics[Conversation::DENIED] }
+      .bar.bar-denied{ :style => "width: #{statistics[Conversation::DENIED]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Denied: %0.0f%%' % statistics[Conversation::DENIED] }
 
 .row
   .span2
@@ -50,7 +50,7 @@
     = counts[Conversation::FAILED]
   .span6
     .progress
-      .bar.bar-lightdanger{ :style => "width: #{statistics[Conversation::FAILED]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Failed: %0.0f%%' % statistics[Conversation::FAILED] }
+      .bar.bar-failed{ :style => "width: #{statistics[Conversation::FAILED]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Failed: %0.0f%%' % statistics[Conversation::FAILED] }
 
 .row
   .span2
@@ -60,4 +60,4 @@
     = counts[Conversation::EXPIRED]
   .span6
     .progress
-      .bar.bar-warning{ :style => "width: #{statistics[Conversation::EXPIRED]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Expired: %0.0f%%' % statistics[Conversation::EXPIRED] }
+      .bar.bar-expired{ :style => "width: #{statistics[Conversation::EXPIRED]}%", rel: 'tooltip', 'data-placement'=>'right', title: 'Expired: %0.0f%%' % statistics[Conversation::EXPIRED] }
