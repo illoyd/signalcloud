@@ -16,6 +16,14 @@ class User < ActiveRecord::Base
     where( email: email.chomp.downcase ).first
   end
   
+  def nickname
+    @nickname || name
+  end
+  
+  def name
+    @name || 'Anonymous'
+  end
+  
   def owner_of?(org)
     self.owned_organizations.include? org
   end
