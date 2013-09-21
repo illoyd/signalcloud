@@ -7,6 +7,8 @@ class UserRole < ActiveRecord::Base
   belongs_to :organization, inverse_of: :user_roles
   
   validates_presence_of :roles_mask, :user, :organization
+  
+  attr_accessor :email
 
   def roles=(new_roles)
     self.roles_mask = self.class.translate_roles( new_roles )

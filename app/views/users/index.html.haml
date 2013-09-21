@@ -33,7 +33,7 @@
             %td
               = gravatar_for user, 40, class: 'img-circle'
             %td
-              = link_to_if can?(:show, user), "#{user.first_name} #{user.last_name}", user
+              = link_to_if can?(:show, user), "#{user.name} (#{user.nickname})", user
               %br
               = mail_to user.email
               - if user.has_pending_invitation?

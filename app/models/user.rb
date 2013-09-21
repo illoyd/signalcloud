@@ -17,11 +17,11 @@ class User < ActiveRecord::Base
   end
   
   def nickname
-    @nickname || name
+    read_attribute(:nickname) || name
   end
   
   def name
-    @name || 'Anonymous'
+    read_attribute(:name) || 'Anonymous'
   end
   
   def owner_of?(org)
