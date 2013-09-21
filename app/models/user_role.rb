@@ -3,8 +3,6 @@ class UserRole < ActiveRecord::Base
   ROLES = [ :organization_administrator, :developer, :billing_liaison, :conversation_manager ]
   READ  = []
   
-  attr_accessor :first_name, :last_name, :email
-
   belongs_to :user, inverse_of: :user_roles, autosave: true
   belongs_to :organization, inverse_of: :user_roles
   

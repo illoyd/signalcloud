@@ -70,7 +70,7 @@
               %li.dropdown
                 %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#", style: 'padding-left: 40px' }
                   = gravatar_for current_user, 30, { style: 'position: absolute; top: 5px; left: 5px; background-color: yellow;' }
-                  = current_user.first_name
+                  = current_user.nickname
                   %b.caret
                 %ul.dropdown-menu
                   %li

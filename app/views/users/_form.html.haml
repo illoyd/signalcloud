@@ -9,9 +9,9 @@
         - @user.errors.full_messages.each do |msg|
           %li= msg
 
-  = f.text_field :first_name, 'Given Name'
+  = f.text_field :name, 'Name'
 
-  = f.text_field :last_name, 'Family Name'
+  = f.text_field :nickname, 'Nickname'
 
   = f.email_field :email, add_on: :prepend do
     %span.add-on @

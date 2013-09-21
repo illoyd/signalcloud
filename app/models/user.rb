@@ -7,14 +7,11 @@ class User < ActiveRecord::Base
 
   # Setup accessible (or protected) attributes for your model
 #   attr_accessible :email, :password, :password_confirmation, :remember_me
-#   attr_accessible :first_name, :last_name
   
   has_many :user_roles, inverse_of: :user
   has_many :organizations, through: :user_roles
   has_many :owned_organizations, foreign_key: 'owner_id', class_name: "Organization", inverse_of: :owner
-  
-#   validates_presence_of :first_name, :last_name
-  
+
   def self.find_by_email( email )
     where( email: email.chomp.downcase ).first
   end

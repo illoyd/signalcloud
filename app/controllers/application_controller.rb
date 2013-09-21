@@ -110,7 +110,7 @@ class ApplicationController < ActionController::Base
   end
   
   def user_role_user_params
-    params.require(:user_role).permit( :email, :first_name, :last_name )
+    params.require(:user_role).permit( :email, :nickname, :name )
   end
   
   def cannot_manage_organization_owner_roles

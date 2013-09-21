@@ -41,10 +41,10 @@ def rand_datetime(from, to=Time.now)
 end
 
 # Create users
-master_user = User.create first_name: 'Ian', last_name: 'Lloyd', email: 'ian@signalcloudapp.com', password: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID']
-test_user = User.create! first_name: 'Jane', last_name: 'Doe', email: 'jane.doe@signalcloudapp.com', password: 'password', password_confirmation: 'password'
-simple_user = User.create! first_name: 'Joe', last_name: 'Bloggs', email: 'joe.bloggs@signalcloudapp.com', password: 'password', password_confirmation: 'password'
-perf_user = User.create! first_name: 'Performance', last_name: 'User', email: 'hello@signalcloudapp.com', password: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID']
+master_user = User.create! nickname: 'Ian', name: 'Ian Lloyd', email: 'ian@signalcloudapp.com', password: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID']
+test_user = User.create! nickname: 'Jane', name: 'Jane Doe', email: 'jane.doe@signalcloudapp.com', password: 'password', password_confirmation: 'password'
+simple_user = User.create! nickname: 'Joe', name: 'Joseph Bloggs', email: 'joe.bloggs@signalcloudapp.com', password: 'password', password_confirmation: 'password'
+perf_user = User.create! nickname: 'Perf', name: 'Performance User', email: 'hello@signalcloudapp.com', password: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID']
 
 # Add plan data
 master_plan = AccountPlan.find_or_create_by_label( label: 'Unmetered' )

@@ -373,8 +373,8 @@ ActiveRecord::Schema.define(:version => 20130601180546) do
   add_index "user_roles", ["user_id"], :name => "index_user_roles_on_user_id"
 
   create_table "users", :force => true do |t|
-    t.string   "first_name"
-    t.string   "last_name"
+    t.string   "name"
+    t.string   "nickname"
     t.boolean  "system_admin",                         :default => false, :null => false
     t.datetime "created_at",                                              :null => false
     t.datetime "updated_at",                                              :null => false

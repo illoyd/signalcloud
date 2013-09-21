@@ -28,7 +28,7 @@ class UserRolesController < ApplicationController
     
     # If the user is already in the current organization, stop
     if @organization.users.include? user
-      flash[:notice] = "%s (%s) is already a member of this organization." % [ user.first_name, user.email ]
+      flash[:notice] = "%s (%s) is already a member of this organization." % [ user.nickname, user.email ]
       redirect_to organization_users_path( @organization ) and return
     end
     
@@ -40,7 +40,7 @@ class UserRolesController < ApplicationController
     # Update the passed parameters for this role
     else
       @user_role.user = user
-      flash[:success] = "%s (%s) was invited successfully." % [ @user_role.user.first_name, @user_role.user.email ] if @user_role.update_attributes(user_role_params)
+      flash[:success] = "%s (%s) was invited successfully." % [ @user_role.user.nickname, @user_role.user.email ] if @user_role.update_attributes(user_role_params)
     end
 
     redirect_to organization_users_path( @organization )
@@ -49,14 +49,14 @@ class UserRolesController < ApplicationController
   # POST /user_roles/1
   # POST /user_roles/1.json
   def update
-    flash[:success] = "%s (%s) was updated successfully." % [ @user_role.user.first_name, @user_role.user.email ] if @user_role.update_attributes(user_role_params)
+    flash[:success] = "%s (%s) was updated successfully." % [ @user_role.user.nickname, @user_role.user.email ] if @user_role.update_attributes(user_role_params)
     redirect_to organization_users_path( @organization )
   end
 
   # DELETE /user_roles/1
   # DELETE /user_roles/1.json
   def destroy
-    flash[:success] = "%s (%s) was uninvited." % [ @user_role.user.first_name, @user_role.user.email ] if @user_role.destroy
+    flash[:success] = "%s (%s) was uninvited." % [ @user_role.user.nickname, @user_role.user.email ] if @user_role.destroy
     redirect_to organization_users_path( @organization )
   end
 
