@@ -6,7 +6,7 @@
     { label: 'Ledger', icon: :ledger_entries, link: organization_ledger_entries_path(@organization), if: can?(:index, LedgerEntry) } |
     ]) |
 - else
-  - invoice_list = @organization.invoices.map do |invoice|
+  - invoice_list = @organization.invoices.accessible_by(current_ability).map do |invoice|
     - { label: invoice.date_to.to_date.to_formatted_s(), icon: 'file', link: organization_invoice_path(@organization, invoice) }
   - invoice_list = [{ header: 'Invoices' }] + invoice_list unless invoice_list.empty?
     

@@ -4,12 +4,13 @@
 #   +phone_number_id+: the unique identifier for the phone number
 #   +customer_number+: the customer's mobile number
 #
-# This class is intended for use with Delayed::Job.
+# This class is intended for use with Sidekiq.
 #
-class SendUnsolicitedMessageReplyJob < Struct.new( :phone_number_id, :customer_number )
-  include Talkable
+class SendUnsolicitedMessageReplyJob
+  include Sidekiq::Worker
+  sidekiq_options :queue => :default
 
-  def perform
+  def perform( phone_number_id, customer_number )
     # TODO
   end
   

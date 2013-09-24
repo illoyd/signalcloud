@@ -93,7 +93,7 @@ module ApplicationHelper
     gravatar_url = "https://secure.gravatar.com/avatar/#{gravatar_id}"
     gravatar_url += "?size=#{size}" unless size.nil?
 
-    options = { alt: user.first_name, class: "gravatar" }.merge options
+    options = { alt: user.nickname, class: "gravatar" }.merge options
     options[:height] = size unless size.nil?
     options[:width] = size unless size.nil?
 

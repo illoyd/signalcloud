@@ -30,7 +30,7 @@ class Ability
     # Grant all default privileges
     grant_default_privileges(user)
     
-    # Iterate over every organisation, then grant all roles a for that organisation
+    # Iterate over every assigned role(s) to each organization
     user.user_roles.each do |user_role|
       UserRole::ROLES.each do |role|
         if user_role.send("is_#{role.to_s}?")
@@ -39,16 +39,26 @@ class Ability
       end
     end
     
+    # Find all owned organizations and grant everything!
+    user.owned_organizations.pluck(:id).each do |organization_id|
+     UserRole::ROLES.each do |role|
+       send("grant_#{role.to_s}_privileges", user, organization_id)
+     end
+    end
+    
     # Grant system admin
     grant_system_admin_privileges(user) if user.system_admin
     
     # Specifically do not allow deleting self
+    can :read, user
+    can :read, UserRole, { user_id: user.id }
+    cannot [:edit, :destroy], UserRole, { user_id: user.id }
     cannot :destroy, user
 
   end
   
   # Roles, from User, for ease of reference
-  # [ :super_user, :organization_administrator, :developer, :billing_liaison, :conversation_manager ]
+  # [ :organization_administrator, :developer, :billing_liaison, :conversation_manager ]
   
   def grant_system_admin_privileges(user)
     can :manage, AccountPlan
@@ -99,12 +109,12 @@ class Ability
   
   def grant_manage_users_privileges(user, organization_id)
     # All for organization users
-    can [:index, :show, :invite], User, { user_roles: { organization_id: organization_id } }
+    can [:index, :show], User, organizations: { id: organization_id }
   end
   
   def grant_manage_user_permissions_privileges(user, organization_id)
     # All for organization users
-    can :manage, UserRole, { organization_id: organization_id }
+    can :manage, UserRole, organization_id: organization_id
   end
   
   def grant_manage_stencils_privileges(user, organization_id)
@@ -125,8 +135,8 @@ class Ability
   
   def grant_manage_ledger_entries_privileges(user, organization_id)
     # Read (no editing!) for ledger entries
-    can :read, LedgerEntry, { organization_id: user.organization_ids }
-    can :read, Invoice,     { organization_id: user.organization_ids }
+    can :read, LedgerEntry, { organization_id: organization_id }
+    can :read, Invoice,     { organization_id: organization_id }
   end
   
   def grant_force_conversation_privileges(user, organization_id)

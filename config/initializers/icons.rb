@@ -13,5 +13,14 @@ ICONS = {
   # Common actions
   show: 'search',
   edit: 'pencil',
-  delete: 'trash'
+  delete: 'trash',
+  
+  # Conversation statuses
+  confirmed: 'ok-sign',
+  denied: 'minus-sign',
+  failed: 'remove-sign',
+  expired: 'time',
+  pending: 'plus-sign',
+  queued: 'plus-sign',
+  challenge_sent: 'plus-sign'
 }.with_indifferent_access.freeze

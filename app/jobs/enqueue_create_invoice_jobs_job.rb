@@ -3,15 +3,16 @@
 # Requires the following items
 #   +next_invoice_at+: process all invoices from this date
 #
-# This class is intended for use with Delayed::Job.
+# This class is intended for use with Sidekiq.
 #
-class EnqueueCreateInvoiceJobsJob < Struct.new( :next_invoice_at )
-  include Talkable
+class EnqueueCreateInvoiceJobsJob
+  include Sidekiq::Worker
+  sidekiq_options :queue => :background
 
-  def perform
+  def perform( next_invoice_at )
     next_invoice_at = next_invoice_at.end_of_day
     Organizations.where( 'next_invoice_at <= ?', next_invoice_at ).pluck( :id ) do |organization_id|
-      Delayed::Job::enqueue CreateInvoiceJob.new( organization_id, next_invoice_at )
+      CreateInvoiceJob.perform_async organization_id, next_invoice_at
     end
   end
 

@@ -100,5 +100,23 @@ class ApplicationController < ActionController::Base
   def phone_book_entry_params
     params.require(:phone_book_entry).permit( :country, :phone_number_id, :phone_book_id )
   end
+  
+  def user_role_params
+    params.require(:user_role).permit( roles: [] )
+  end
+  
+  def new_user_role_params
+    params.require(:user_role).permit( :user_id, roles: [] )
+  end
+  
+  def user_role_user_params
+    params.require(:user_role).permit( :email, :nickname, :name )
+  end
+  
+  def cannot_manage_organization_owner_roles
+    if @organization
+      current_ability.cannot [:edit, :destroy], UserRole, { organization_id: @organization.id, user_id: @organization.owner_id }
+    end
+  end
 
 end

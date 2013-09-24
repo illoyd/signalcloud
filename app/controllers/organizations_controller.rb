@@ -45,6 +45,7 @@ class OrganizationsController < ApplicationController
   # POST /organizations.json
   def create
     @organization.account_plan = AccountPlan.default
+    @organization.owner = current_user
     flash[:success] = 'Your organization has been created.' if @organization.update_attributes(organization_params)
     respond_with @organization
   end

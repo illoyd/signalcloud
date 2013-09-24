@@ -8,8 +8,8 @@
     = twitter_bootstrap_form_for resource, :as => resource_name, :url => invitation_path(resource_name), :html => {:method => :post, class: 'form-horizontal'} do |f|
       = devise_error_messages!
 
-      = f.text_field :first_name, 'Given Name'
-      = f.text_field :last_name, 'Family Name'
+      = f.text_field :name, 'Name'
+      = f.text_field :nickname, 'Nickname (What we\'ll call you)'
       = f.email_field :email, add_on: :prepend do
         %span.add-on @
 

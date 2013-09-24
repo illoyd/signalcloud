@@ -44,10 +44,10 @@ gem 'unicorn'
 
 # Additional gems
 gem 'active_model_serializers'
-gem 'delayed_job_active_record'
+gem 'sidekiq'
 gem 'haml'
 gem 'twilio-ruby'
-gem 'devise'
+gem 'devise', '~> 3.0.0'
 gem 'devise-async'
 gem 'devise_invitable'
 gem 'cancan'
@@ -63,6 +63,7 @@ gem 'country_select'
 gem 'countries'
 gem 'workflow'
 gem 'strong_parameters'
+gem 'lograge'
 
 group :test, :development do
   gem "rspec-rails", "~> 2.0"
@@ -70,6 +71,7 @@ end
 
 group :test do
 	gem 'shoulda-matchers'
+	gem 'rspec-sidekiq'
 	gem 'vcr'
 	gem 'webmock', "~> 1.11.0"
 	gem 'factory_girl'
@@ -80,6 +82,5 @@ group :test do
 end
 
 group :production do
-  gem 'lograge'
   gem 'newrelic_rpm'
 end

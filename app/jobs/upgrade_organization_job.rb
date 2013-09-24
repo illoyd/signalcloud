@@ -3,20 +3,14 @@
 # Requires the following items
 #   +phone_number_id+: the ID of the phone number object
 #
-# This class is intended for use with Delayed::Job.
+# This class is intended for use with Sidekiq.
 #
-class UpgradeOrganizationJob < Struct.new( :organization_id )
-  include Talkable
+class UpgradeOrganizationJob
+  include Sidekiq::Worker
+  sidekiq_options :queue => :background
 
-  def perform
+  def perform( organization_id )
+    organization = Organization.find(organization_id)
   end
   
-  def organization
-    @organization ||= Organization.find(self.organization_id)
-  end
-  
-  def priority
-    MyQueue::LOW
-  end
-
 end

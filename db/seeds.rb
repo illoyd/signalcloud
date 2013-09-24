@@ -40,6 +40,12 @@ def rand_datetime(from, to=Time.now)
   Time.at(rand_in_range(from.to_f, to.to_f))
 end
 
+# Create users
+master_user = User.create! nickname: 'Ian', name: 'Ian Lloyd', email: 'ian@signalcloudapp.com', password: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID']
+test_user = User.create! nickname: 'Jane', name: 'Jane Doe', email: 'jane.doe@signalcloudapp.com', password: 'password', password_confirmation: 'password'
+simple_user = User.create! nickname: 'Joe', name: 'Joseph Bloggs', email: 'joe.bloggs@signalcloudapp.com', password: 'password', password_confirmation: 'password'
+perf_user = User.create! nickname: 'Perf', name: 'Performance User', email: 'hello@signalcloudapp.com', password: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID']
+
 # Add plan data
 master_plan = AccountPlan.find_or_create_by_label( label: 'Unmetered' )
 payg_plan = AccountPlan.find_or_create_by_label( label:'PAYG', month: 0, phone_add: -1, call_in_add: -0.02, sms_in_add: -0.02, sms_out_add: -0.02, default: true )
@@ -53,16 +59,12 @@ unless Organization.exists?( sid: '76f78f836d4563bf4824da02b506346d' )
     description:    'Primary organization',
     sid:            '76f78f836d4563bf4824da02b506346d',
     auth_token:     '0ee1ed9c635074d1a5fc452aa2aec6d1',
-    workflow_state: 'ready'
+    workflow_state: 'ready',
+    owner:          master_user
   })
   
-  # Build client
-  # client = Client.find_or_create( remote_sid: 2 )
-  #   client.organizations << org
-  #   client.save!
-  
-  # Build payment gateway
-  # payment_gateway = organization.build_payment_gateway
+  # Attach users
+  org.user_roles.create user: master_user, roles: UserRole::ROLES
   
   # Build communication gateway
   comm_gateway = TwilioCommunicationGateway.create!({
@@ -72,9 +74,6 @@ unless Organization.exists?( sid: '76f78f836d4563bf4824da02b506346d' )
     remote_application: ENV['TWILIO_APPLICATION'],
     workflow_state:     'ready'
   })
-  
-  master_user = User.create first_name: 'Ian', last_name: 'Lloyd', email: 'ian@signalcloudapp.com', password: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID']
-    org.user_roles.create user: master_user, roles: UserRole::ROLES
   
   master_phone_number = org.phone_numbers.create!( number: '+1 202-601-3854', twilio_phone_number_sid: 'PNf7abf4d06e5faecb7d6878fa37b8cdc3' )
   master_phone_number_gb = org.phone_numbers.create!( number: '+44 1753 254372', twilio_phone_number_sid: 'PNa11b228979b0759de22e39a8e6f8585c' )
@@ -132,9 +131,14 @@ unless Rails.env.production? || Organization.exists?( sid: '00000000000000000000
     auth_token:     '0ee1ed9c635074d1a5fc452aa2aec6d1',
     account_plan:   payg_plan,
     description:    'My test organization',
-    workflow_state: 'ready'
+    workflow_state: 'ready',
+    owner:          test_user
   })
 
+  # Attach users
+  org.user_roles.create! user: test_user, roles: UserRole::ROLES
+  org.user_roles.create! user: simple_user, roles: nil
+  
   # Build communication gateway
   comm_gateway = TwilioCommunicationGateway.create!({
     organization:       org,
@@ -143,12 +147,6 @@ unless Rails.env.production? || Organization.exists?( sid: '00000000000000000000
     remote_application: ENV['TWILIO_APPLICATION'],
     workflow_state:     'ready'
   })
-  
-  # Add users
-  test_user = User.create! first_name: 'Jane', last_name: 'Doe', email: 'jane.doe@signalcloudapp.com', password: 'password', password_confirmation: 'password'
-    org.user_roles.create! user: test_user, roles: UserRole::ROLES
-  simple_user = User.create! first_name: 'Joe', last_name: 'Bloggs', email: 'joe.bloggs@signalcloudapp.com', password: 'password', password_confirmation: 'password'
-    org.user_roles.create! user: simple_user, roles: nil
   
   # Add example data for the test organization
   test_numbers = {
@@ -232,9 +230,13 @@ unless Organization.exists?( sid: '00000000000000000000000000000000' )
     auth_token:     '0ee1ed9c635074d1a5fc452aa2aec6d1',
     account_plan:   payg_plan,
     description:    'Performance testing',
-    workflow_state: 'ready'
+    workflow_state: 'ready',
+    owner:          perf_user
   })
 
+  # Attach users
+  org.user_roles.create! user: perf_user, roles: UserRole::ROLES  
+  
   # Build communication gateway
   comm_gateway = TwilioCommunicationGateway.create!({
     organization:       org,
@@ -243,9 +245,6 @@ unless Organization.exists?( sid: '00000000000000000000000000000000' )
     remote_application: ENV['TWILIO_APPLICATION'],
     workflow_state:     'ready'
   })
-  
-  perf_user = User.create! first_name: 'Performance', last_name: 'User', email: 'hello@signalcloudapp.com', password: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID']
-    org.user_roles.create! user: perf_user, roles: UserRole::ROLES
   
   perf_phone_number = org.phone_numbers.create!( number: Twilio::VALID_NUMBER, twilio_phone_number_sid: 'PX'+SecureRandom.hex(16) )
   org.phone_books.first.phone_book_entries.create!( phone_number_id: perf_phone_number.id, country: nil )

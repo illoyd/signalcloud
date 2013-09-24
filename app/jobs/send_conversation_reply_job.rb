@@ -4,38 +4,34 @@
 #   +conversation_id+: the unique identifier for the conversation
 #   +force_resend+: a flag to indicate if this is a forced resend; defaults to +false+
 #
-# This class is intended for use with Delayed::Job.
+# This class is intended for use with Sidekiq.
 #
-class SendConversationReplyJob < Struct.new( :conversation_id, :force_resend )
-  include Talkable
+class SendConversationReplyJob
+  include Sidekiq::Worker
+  sidekiq_options :queue => :default
 
-  def perform
-    say( 'Sending reply message.', Logger::DEBUG )
+  def perform( conversation_id, force_resend=false )
+    conversation ||= Conversation.find( conversation_id )
+
+    logger.debug{ 'Sending reply message.' }
     begin
       messages = conversation.send_reply_message!()
-      say( 'Sent reply message (Twilio: %s).' % [messages.first.twilio_sid] )
-
-
-
+      logger.info{ 'Sent reply message (Twilio: %s).' % [messages.first.twilio_sid] }
 
     rescue SignalCloud::ReplyAlreadySentError => ex
-     say( 'Skipping as reply message has already been sent.', Logger::DEBUG )
+     logger.debug{ 'Skipping as reply message has already been sent.' }
     
     rescue SignalCloud::MessageSendingError => ex
-     say( ex.message, Logger::WARN )
+     logger.warn{ ex.message }
     
     rescue => ex
-      say( 'FAILED to send reply message: %s.' % [ex.message], Logger::ERROR )
+      logger.error{ 'FAILED to send reply message: %s.' % [ex.message] }
       raise ex
 
     end
 
   end
   
-  def conversation
-    @conversation ||= Conversation.find( self.conversation_id )
-  end
-
   alias :run :perform
 
 end

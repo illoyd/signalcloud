@@ -4,38 +4,37 @@
 #   +conversation_id+: the unique identifier for the conversation
 #   +force_resend+: a flag to indicate if this is a forced resend; defaults to +false+
 #
-# This class is intended for use with Delayed::Job.
+# This class is intended for use with Sidekiq.
 #
-class SendConversationChallengeJob < Struct.new( :conversation_id, :force_resend )
-  include Talkable
+class SendConversationChallengeJob
+  include Sidekiq::Worker
+  sidekiq_options :queue => :default
 
-  def perform
-    say( 'Sending challenge message.', Logger::DEBUG )
+  def perform( conversation_id, force_resend=false )
+    conversation ||= Conversation.find( conversation_id )
+
+    logger.debug{ 'Sending challenge message.' }
     begin
-      messages = self.conversation.send_challenge_message!()
-      say( 'Sent challenge message (Twilio: %s).' % [messages.first.twilio_sid] )
+      messages = conversation.send_challenge_message!()
+      logger.info{ 'Sent challenge message (Twilio: %s).' % [messages.first.twilio_sid] }
       
       # Create and enqueue a new expiration job
-      JobTools.enqueue ExpireConversationJob.new( self.conversation.id, self.force_resend ), run_at: self.conversation.expires_at
+      ExpireConversationJob.perform_at( conversation.expires_at, conversation.id, force_resend )
 
     rescue SignalCloud::ChallengeAlreadySentError => ex
-     say( 'Skipping as challenge message has already been sent.', Logger::DEBUG )
+     logger.debug{ 'Skipping as challenge message has already been sent.' }
     
     rescue SignalCloud::MessageSendingError => ex
-     say( ex.message, Logger::WARN )
+     logger.warn{ ex.message }
     
     rescue => ex
-      say( 'FAILED to send challenge message: %s.' % [ex.message], Logger::ERROR )
+      logger.error{ 'FAILED to send challenge message: %s.' % [ex.message] }
       raise ex
 
     end
 
   end
-  
-  def conversation
-    @conversation ||= Conversation.find( self.conversation_id )
-  end
-  
+
   alias :run :perform
 
 end
