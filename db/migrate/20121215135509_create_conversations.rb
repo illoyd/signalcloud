@@ -3,7 +3,6 @@ class CreateConversations < ActiveRecord::Migration
     #create_table :conversations, primary_key: :id do |t|
     #  t.column :id, :bigint, null: false
     create_table :conversations do |t|
-      #t.column :id, :bigint, null: false
       t.references :stencil, null: false
 
       t.integer :status, null: false, default: 0, limit: 2
@@ -18,7 +17,6 @@ class CreateConversations < ActiveRecord::Migration
       t.datetime :response_received_at, null: true
       t.datetime :reply_sent_at, null: true
       
-      t.string :webhook_uri
 
       t.text :encrypted_from_number, null: false
       t.string :encrypted_from_number_iv
@@ -55,6 +53,10 @@ class CreateConversations < ActiveRecord::Migration
       t.text :encrypted_expired_reply, null: false
       t.string :encrypted_expired_reply_iv
       t.string :encrypted_expired_reply_salt
+      
+      t.text :encrypted_webhook_uri
+      t.string :encrypted_webhook_uri_iv
+      t.string :encrypted_webhook_uri_salt
 
       t.timestamps
     end

@@ -41,6 +41,7 @@ class Conversation < ActiveRecord::Base
   attr_encrypted :denied_reply,     key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :failed_reply,     key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :expired_reply,    key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :webhook_uri,      key: ATTR_ENCRYPTED_SECRET
 
   attr_encrypted :expected_confirmed_answer,  key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :expected_denied_answer,     key: ATTR_ENCRYPTED_SECRET

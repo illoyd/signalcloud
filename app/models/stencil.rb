@@ -9,6 +9,8 @@ class Stencil < ActiveRecord::Base
 
   attr_encrypted :expected_confirmed_answer, key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :expected_denied_answer, key: ATTR_ENCRYPTED_SECRET
+
+  attr_encrypted :webhook_uri, key: ATTR_ENCRYPTED_SECRET
   
   # Relationships
   belongs_to :organization, inverse_of: :stencils
