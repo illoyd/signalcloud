@@ -126,7 +126,7 @@ describe StencilsController do
     end
 
     describe 'POST create' do
-      it 'redirects to organization page', :focus do
+      it 'redirects to organization page' do
         post :create, create_payload
         expect( response ).to redirect_to( [ organization, Stencil.last ] )
       end
