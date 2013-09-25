@@ -19,7 +19,7 @@ class CommunicationGateway < ActiveRecord::Base
       event :update_remote, transitions_to: :ready
     end
   end
-  
+
 private
 
   def persist_workflow_state(new_value)

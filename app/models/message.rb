@@ -1,6 +1,23 @@
 # encoding: UTF-8
 class Message < ActiveRecord::Base
-  attr_accessible :status, :sent_at, :our_cost, :provider_cost, :conversation_id, :provider_response, :provider_update, :twilio_sid, :message_kind, :to_number, :from_number, :body, :direction
+  include Workflow
+  
+  workflow do
+    state :pending do
+      event :deliver, transitions_to: :sending
+      event :receive, transitions_to: :received
+      event :error, transitions_to: :errored
+    end
+    state :sending do
+      event :confirm, transitions_to: :sent
+      event :fail, transitions_to: :failed
+      event :error, transitions_to: :errored
+    end
+    state :sent
+    state :failed
+    state :received
+    state :errored
+  end
   
   before_validation :update_ledger_entry
 
@@ -9,9 +26,9 @@ class Message < ActiveRecord::Base
   SMS_CBS_MAX_LENGTH = 160
   SMS_UTF_MAX_LENGTH = 70
   
-  CHALLENGE = 'c'
-  REPLY = 'r'
-  RESPONSE = nil
+  CHALLENGE = 'challenge'
+  REPLY = 'reply'
+  RESPONSE = 'response'
   
   PENDING = 0
   QUEUED = 1
@@ -19,25 +36,44 @@ class Message < ActiveRecord::Base
   SENT = 3
   FAILED = 4
   RECEIVED = 5
+  ERRORED = 6
   
-  OPEN_STATUSES = [ PENDING, QUEUED, SENDING ]
-  CLOSED_STATUSES = [ SENT, FAILED, RECEIVED ]
-  STATUSES = OPEN_STATUSES + CLOSED_STATUSES
+  def self.status_to_code( status )
+    case status
+      when 'pending'; PENDING
+      when 'sending'; SENDING
+      when 'sent'; SENT
+      when 'failed'; FAILED
+      when 'received'; RECEIVED
+      when 'errored'; ERRORED
+    end
+  end
   
-  DIRECTION_OUT = 0
-  DIRECTION_IN = 1
-  DIRECTIONS = [ DIRECTION_OUT, DIRECTION_IN ]
+  OPEN_STATUSES = [ 'pending', 'sending' ]
+  # CLOSED_STATUSES = [ SENT, FAILED, RECEIVED ]
+  # STATUSES = OPEN_STATUSES + CLOSED_STATUSES
+  
+  IN = 'in'
+  OUT = 'out'
 
   ##
   # Encrypted payload. Serialised using JSON.
   attr_encrypted :provider_response, key: ATTR_ENCRYPTED_SECRET, marshal: true, marshaler: JSON
 
   ##
-  # Encrypted callback. payload. Serialised using JSON.
+  # Encrypted callback payload. Serialised using JSON.
   attr_encrypted :provider_update, key: ATTR_ENCRYPTED_SECRET, marshal: true, marshaler: JSON
 
+  ##
+  # Encrypted customer phone number.
   attr_encrypted :to_number, key: ATTR_ENCRYPTED_SECRET
+  
+  ##
+  # Encrypted internal phone number.
   attr_encrypted :from_number, key: ATTR_ENCRYPTED_SECRET
+  
+  ##
+  # Encrypted body of message.
   attr_encrypted :body, key: ATTR_ENCRYPTED_SECRET
 
   ##
@@ -56,13 +92,13 @@ class Message < ActiveRecord::Base
   validates_presence_of :conversation
   validates_numericality_of :our_cost, allow_nil: true
   validates_numericality_of :provider_cost, allow_nil: true
-  validates_length_of :twilio_sid, is: Twilio::SID_LENGTH, allow_nil: true
-  validates_uniqueness_of :twilio_sid, allow_nil: true
-  validates_inclusion_of :message_kind, in: [ CHALLENGE, REPLY ], allow_nil: true
-  validates_inclusion_of :status, in: STATUSES
-  validates_inclusion_of :direction, in: DIRECTIONS
+  validates_length_of :provider_sid, is: Twilio::SID_LENGTH, allow_nil: true
+  validates_uniqueness_of :provider_sid, allow_nil: true
+
+  validates_inclusion_of :message_kind, in: [ CHALLENGE, REPLY, RESPONSE ]
+  validates_inclusion_of :direction, in: [ IN, OUT ]
   
-  scope :outstanding, ->{ where( 'messages.status not in (?)', CLOSED_STATUSES ) }
+  scope :outstanding, ->{ where( 'messages.status in (?)', OPEN_STATUSES ) }
   
   ##
   # Is the given string composed solely of basic SMS characters?
@@ -93,8 +129,8 @@ class Message < ActiveRecord::Base
   def ledger_entry_narrative( dir=nil )
     dir = self.direction if dir.nil?
     return case dir
-      when DIRECTION_OUT; LedgerEntry::OUTBOUND_SMS_NARRATIVE
-      when DIRECTION_IN; LedgerEntry::INBOUND_SMS_NARRATIVE
+      when OUT; LedgerEntry::OUTBOUND_SMS_NARRATIVE
+      when IN; LedgerEntry::INBOUND_SMS_NARRATIVE
       else; UNKNOWN_NARRATIVE
     end
   end
@@ -125,76 +161,15 @@ class Message < ActiveRecord::Base
     end
   end
   
-  ##
-  # Update costs based on message payload from provider
-#   def update_costs
-#   
-#     # Clear the cached payload
-#     self.clear_cached_payload()
-# 
-#     self.update_provider_cost() if self.provider_cost.nil?
-#     self.update_our_cost() if self.our_cost.nil?
-# 
-#     return true
-#   end
-  
-#   def update_provider_cost
-#     return unless self.has_provider_price?
-#     self.provider_cost = self.provider_price
-#   end
-  
-#   def update_our_cost
-#     return unless self.has_provider_price?
-#     plan = self.conversation.stencil.organization.account_plan
-#     
-#     # Update our costs based upon the direction of the message
-#     self.our_cost = case self.direction
-#       when Twilio::SMS_OUTBOUND_API
-#         plan.calculate_outbound_sms_cost( self.provider_price )
-#       when Twilio::SMS_INBOUND_API
-#         plan.calculate_inbound_sms_cost( self.provider_price )
-#     end
-#   end
-  
   def calculate_our_cost( value=nil )
     return 0 unless self.conversation && self.conversation.stencil && self.conversation.stencil.organization && self.conversation.stencil.organization.account_plan
     value = self.provider_cost if value.nil?
     plan = self.conversation.stencil.organization.account_plan
     return case self.direction
-      when DIRECTION_OUT
+      when OUT
         plan.calculate_outbound_sms_cost( value )
-      when DIRECTION_IN
+      when IN
         plan.calculate_inbound_sms_cost( value )
-    end
-  end
-  
-  def deliver!()
-    begin
-      #self.provider_response = self.conversation.stencil.organization.twilio_account.sms.messages.create({
-      #  to: self.to_number,
-      #  from: self.from_number,
-      #  body: self.body,
-      #  status_callback: self.conversation.stencil.organization.twilio_sms_status_url
-      #}).to_property_hash
-      
-      self.provider_response = self.conversation.stencil.organization.send_sms!( self.to_number, self.from_number, body, { default_callback: true, response_format: :smash })
-
-      self.twilio_sid = self.provider_response.sms_sid
-      self.status = Message.translate_twilio_message_status( self.provider_response.status )
-      self.provider_cost = self.provider_response.price
-
-    rescue Twilio::REST::RequestError => ex
-      self.status = FAILED
-
-      error_code = Conversation.translate_twilio_error_to_conversation_status ex.code
-      if Conversation::CRITICAL_ERRORS.include? error_code
-        raise SignalCloud::CriticalMessageSendingError.new( self.body, ex, error_code ) # Rethrow as a critical error
-      else
-        raise SignalCloud::MessageSendingError.new( self.body, ex, error_code ) # Rethrow in nice wrapper error
-      end
-
-    ensure
-      self.save
     end
   end
   
@@ -207,32 +182,6 @@ class Message < ActiveRecord::Base
       else; nil
     end
   end
-  
-#   def payload=(value)
-#     super(value)
-#     
-#     # If a 'price' is set in the payload, update all costs
-#     self.provider_cost = self.provider_price if self.has_provider_price?
-#     self.our_cost = self.calculcate_our_cost( self.provider_cost )
-#     
-#     # If a ledger_entry is available, update it
-#     if not self.ledger_entry.nil?
-#       self.ledger_entry.value = self.cost
-#     end
-#   end
-  
-#   def callback_payload=(value)
-#     super(value)
-#     
-#     # If a 'price' is set in the payload, update all costs
-#     self.provider_cost = self.provider_price if self.has_provider_price?
-#     self.our_cost = self.calculcate_our_cost( self.provider_cost )
-#     
-#     # If a ledger_entry is available, update it
-#     if not self.ledger_entry.nil?
-#       self.ledger_entry.value = self.cost
-#     end
-#   end
   
   def provider_cost=(value)
     super(value)
@@ -253,82 +202,30 @@ class Message < ActiveRecord::Base
   end
   
   ##
-  # Caches the payload, as frequent accesses to the encrypted, marshalled payload will slow down processing
-#   def cached_payload
-#     return ( @cached_payload ||= (self.callback_payload.nil? ? self.payload : self.callback_payload).try(:with_indifferent_access) )
-#   end
-  
-  ##
-  # Clear cached payload.
-#   def clear_cached_payload
-#     @cached_payload = nil
-#   end
-  
-  ##
-  # Shortcut to access the payload's 'body' parameter
-  # def body(reload=false)
-    # self.clear_cached_payload if reload
-    # return self.cached_payload.fetch(:body, nil)
-  # end
-  
-  ##
-  # Shortcut to access the payload's 'to' parameter
-  # def to_number(reload=false)
-    # self.clear_cached_payload if reload
-    # return self.cached_payload.fetch(:to, nil)
-  # end
-  
-  ##
-  # Shortcut to access the payload's 'from' parameter
-  # def from_number(reload=false)
-    # self.clear_cached_payload if reload
-    # return self.cached_payload.fetch(:from, nil)
-  # end
-
-  ##
-  # Shortcut to access the payload's 'direction' parameter
-#   def direction(reload=false)
-#     self.clear_cached_payload if reload
-#     return self.cached_payload.fetch(:direction, nil)
-#   end
-  
-  ##
-  # Internal cost
-#   def provider_price(reload=false)
-#     self.clear_cached_payload if reload
-#     return self.cached_payload.fetch(:price, nil)
-#   end
-  
-#   alias :internal_provider_cost :provider_price
-  
-#   def has_provider_price?(reload=true)
-#     #self.clear_cached_payload if reload
-#     begin
-#       price = self.payload.with_indifferent_access.fetch(:price, nil)
-#       return !price.nil? && ( Float(price) != nil )
-#     rescue
-#       return false
-#     end
-#   end
-  
-  ##
-  # Query the Twilio status of this message.
-  def twilio_status
-    self.organization.twilio_account.sms.messages.get( self.twilio_sid )
+  # Query the provider (Twilio, Nexmo, etc.) status of this message.
+  def provider_status
+    # self.organization.twilio_account.sms.messages.get( self.twilio_sid )
+    self.conversation.communication_gateway.sms_status self.provider_id
   end
   
-  def refresh_from_twilio
-    response = self.twilio_status.to_property_smash
+  ##
+  # Query the provider (Twilio, Nexmo, etc.) status of this message.
+  def refresh_from_provider
+    response = self.provider_status.to_property_smash
     self.status = response.message_status # Message.translate_twilio_message_status response.status
     self.sent_at = response.sent_at
     self.provider_cost = response.price # ( Float(response.price) rescue nil )
     self.provider_response = response
   end
   
-  def refresh_from_twilio!
-    self.refresh_from_twilio
+  def refresh_from_provider!
+    self.refresh_from_provider
     self.save!
   end
+  
+  alias_method :twilio_status, :provider_status
+  alias_method :refresh_from_twilio, :refresh_from_provider
+  alias_method :refresh_from_twilio!, :refresh_from_provider!
   
   ##
   # Is this message a challenge?
@@ -346,6 +243,47 @@ class Message < ActiveRecord::Base
     ledger_entry = super(attributes)
     ledger_entry.organization = self.organization
     return ledger_entry
+  end
+
+protected
+
+  def deliver
+#     begin
+    self.provider_response = self.conversation.communication_gateway.send_sms!( self.to_number, self.from_number, body, { default_callback: true, response_format: :smash })
+    self.provider_sid = self.provider_response.sms_sid
+    self.provider_cost = self.provider_response.price
+
+#     rescue Twilio::REST::RequestError => ex
+#       self.status = FAILED
+# 
+#       error_code = Conversation.translate_twilio_error_to_conversation_status ex.code
+#       if Conversation::CRITICAL_ERRORS.include? error_code
+#         raise SignalCloud::CriticalMessageSendingError.new( self.body, ex, error_code ) # Rethrow as a critical error
+#       else
+#         raise SignalCloud::MessageSendingError.new( self.body, ex, error_code ) # Rethrow in nice wrapper error
+#       end
+# 
+#     ensure
+#       self.save
+#     end
+  end
+
+  def receive( payload=nil )
+    # Update self with information from payload
+    self.provider_sid = payload.sms_sid
+    self.refresh_from_provider
+  end
+
+  def confirm
+    # Do nothing?
+  end
+
+  def fail
+    # Do nothing?
+  end
+  
+  def error
+    # Do nothing?
   end
 
 end

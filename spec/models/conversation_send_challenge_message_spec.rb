@@ -3,64 +3,45 @@ require 'spec_helper'
 
 shared_examples 'sends messages' do |message_count, body_length|
   it 'does not raise error' do
-    expect{ subject.send_challenge_message!() }.to_not raise_error
+    expect{ subject.deliver!() }.to_not raise_error
   end
   it "has #{message_count} messages" do
-    subject.send_challenge_message!().should have(message_count).item
+    subject.deliver!().should have(message_count).item
   end
   it 'assigns question to body' do
-    subject.send_challenge_message!().first.body.should == subject.question[0,body_length]
+    subject.deliver!().first.body.should == subject.question[0,body_length]
   end
   it 'assigns customer_number to to_number' do
-    subject.send_challenge_message!().first.to_number.should == subject.to_number
+    subject.deliver!().first.to_number.should == subject.customer_number
   end
   it 'assigns internal_number to from_number' do
-    subject.send_challenge_message!().first.from_number.should == subject.from_number
+    subject.deliver!().first.from_number.should == subject.internal_number
   end
   it 'creates new message' do
-    expect{ subject.send_challenge_message!() }.to change{subject.messages.count}.by(message_count)
+    expect{ subject.deliver!() }.to change{subject.messages.count}.by(message_count)
   end
   it 'does not create new ledger entry' do
     # Does not create it because no price was given
-    expect{ subject.send_challenge_message!() }.to_not change{subject.stencil.organization.ledger_entries.count}
-  end
-end
-
-shared_examples 'raises message error (without save)' do |message_count, error, error_code|
-  it 'flags as error' do
-    expect{ subject.send_challenge_message() }.to raise_error
-    subject.has_errored?.should be_true
-  end
-  it "raises error" do
-    expect{ subject.send_challenge_message() }.to raise_error( error )
-  end
-  it "raises error code" do
-    expect{ subject.send_challenge_message() }.to raise_error { |ex| ex.code.should == error_code }
-  end
-  it 'does not create messages' do
-    expect{ subject.send_challenge_message() rescue nil }.to change{subject.messages.count}.by(message_count)
-  end
-  it 'does not create ledger entries' do
-    expect{ subject.send_challenge_message() rescue nil }.to_not change{subject.stencil.organization.ledger_entries.count}
+    expect{ subject.deliver!() }.to_not change{subject.stencil.organization.ledger_entries.count}
   end
 end
 
 shared_examples 'raises message error' do |message_count, error, error_code|
   it 'flags as error' do
-    expect{ subject.send_challenge_message!() }.to raise_error
+    expect{ subject.deliver!() }.to raise_error
     subject.has_errored?.should be_true
   end
   it "raises error" do
-    expect{ subject.send_challenge_message!() }.to raise_error( error )
+    expect{ subject.deliver!() }.to raise_error( error )
   end
   it "raises error code" do
-    expect{ subject.send_challenge_message!() }.to raise_error { |ex| ex.code.should == error_code }
+    expect{ subject.deliver!() }.to raise_error { |ex| ex.code.should == error_code }
   end
   it 'does not create messages' do
-    expect{ subject.send_challenge_message!() rescue nil }.to change{subject.messages.count}.by(message_count)
+    expect{ subject.deliver!() rescue nil }.to change{subject.messages.count}.by(message_count)
   end
   it 'does not create ledger entries' do
-    expect{ subject.send_challenge_message!() rescue nil }.to_not change{subject.stencil.organization.ledger_entries.count}
+    expect{ subject.deliver!() rescue nil }.to_not change{subject.stencil.organization.ledger_entries.count}
   end
 end
 
@@ -131,56 +112,56 @@ describe Conversation, '#send_challenge_message', :vcr do
   
   context 'when missing body' do
     subject { build :conversation, stencil: stencil, question: nil }
-    include_examples 'raises message error (without save)', 0, SignalCloud::CriticalMessageSendingError, Conversation::ERROR_MISSING_BODY
+    include_examples 'raises message error', 0, SignalCloud::CriticalMessageSendingError, Conversation::ERROR_MISSING_BODY
   end
   
   context 'when blank body' do
     subject { build :conversation, stencil: stencil, question: '' }
-    include_examples 'raises message error (without save)', 0, SignalCloud::CriticalMessageSendingError, Conversation::ERROR_MISSING_BODY
+    include_examples 'raises message error', 0, SignalCloud::CriticalMessageSendingError, Conversation::ERROR_MISSING_BODY
   end
   
   context 'when spaced body' do
     subject { build :conversation, stencil: stencil, question: '    ' }
-    include_examples 'raises message error (without save)', 0, SignalCloud::CriticalMessageSendingError, Conversation::ERROR_MISSING_BODY
+    include_examples 'raises message error', 0, SignalCloud::CriticalMessageSendingError, Conversation::ERROR_MISSING_BODY
   end
   
   context 'when invalid TO' do
-    subject { create :conversation, stencil: stencil, to_number: Twilio::INVALID_NUMBER }
+    subject { create :conversation, stencil: stencil, customer_number: Twilio::INVALID_NUMBER }
     include_examples 'raises message error', 1, SignalCloud::MessageSendingError, Conversation::ERROR_INVALID_TO
   end
   
   context 'when TO has impossible routing' do
-    subject { create :conversation, stencil: stencil, to_number: Twilio::INVALID_CANNOT_ROUTE_TO_NUMBER }
+    subject { create :conversation, stencil: stencil, customer_number: Twilio::INVALID_CANNOT_ROUTE_TO_NUMBER }
     include_examples 'raises message error', 1, SignalCloud::MessageSendingError, Conversation::ERROR_CANNOT_ROUTE
   end
   
   context 'when international support is disabled' do
-    subject { create :conversation, stencil: stencil, to_number: Twilio::INVALID_INTERNATIONAL_NUMBER }
+    subject { create :conversation, stencil: stencil, customer_number: Twilio::INVALID_INTERNATIONAL_NUMBER }
     include_examples 'raises message error', 1, SignalCloud::MessageSendingError, Conversation::ERROR_INTERNATIONAL
   end
   
   context 'when TO is blacklisted' do
-    subject { create :conversation, stencil: stencil, to_number: Twilio::INVALID_BLACKLISTED_NUMBER }
+    subject { create :conversation, stencil: stencil, customer_number: Twilio::INVALID_BLACKLISTED_NUMBER }
     include_examples 'raises message error', 1, SignalCloud::MessageSendingError, Conversation::ERROR_BLACKLISTED_TO
   end
   
   context 'when TO is sms-incapable' do
-    subject { create :conversation, stencil: stencil, to_number: Twilio::INVALID_NOT_SMS_CAPABLE_TO_NUMBER }
+    subject { create :conversation, stencil: stencil, customer_number: Twilio::INVALID_NOT_SMS_CAPABLE_TO_NUMBER }
     include_examples 'raises message error', 1, SignalCloud::MessageSendingError, Conversation::ERROR_NOT_SMS_CAPABLE
   end
   
   context 'when invalid FROM' do
-    subject { create :conversation, stencil: stencil, from_number: Twilio::INVALID_NUMBER }
+    subject { create :conversation, stencil: stencil, internal_number: Twilio::INVALID_NUMBER }
     include_examples 'raises message error', 1, SignalCloud::MessageSendingError, Conversation::ERROR_INVALID_FROM
   end
   
   context 'when sms-incapable FROM' do
-    subject { create :conversation, stencil: stencil, from_number: Twilio::INVALID_NOT_SMS_CAPABLE_FROM_NUMBER }
+    subject { create :conversation, stencil: stencil, internal_number: Twilio::INVALID_NOT_SMS_CAPABLE_FROM_NUMBER }
     include_examples 'raises message error', 1, SignalCloud::MessageSendingError, Conversation::ERROR_NOT_SMS_CAPABLE
   end
   
   context 'when FROM queue is full' do
-    subject { create :conversation, stencil: stencil, from_number: Twilio::INVALID_FULL_SMS_QUEUE_NUMBER }
+    subject { create :conversation, stencil: stencil, internal_number: Twilio::INVALID_FULL_SMS_QUEUE_NUMBER }
     include_examples 'raises message error', 1, SignalCloud::MessageSendingError, Conversation::ERROR_SMS_QUEUE_FULL
   end
 

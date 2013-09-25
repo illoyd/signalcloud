@@ -2,7 +2,7 @@ FactoryGirl.define do
 
   factory :message do
     conversation
-    status        Message::PENDING
+    workflow_state     'pending'
     
 #     after(:create) do |message, evaluator|
 #       FactoryGirl.create(:ledger_entry, organization: message.conversation.stencil.organization, item: message, value: message.cost, narrative: LedgerEntry::OUTBOUND_SMS_NARRATIVE )
@@ -31,8 +31,8 @@ FactoryGirl.define do
                           "date_updated" => DateTime.now,
                           "date_sent" => nil,
                           "account_sid" => remote_sid,
-                          "to" => conversation.to_number,
-                          "from" => conversation.from_number,
+                          "to" => conversation.customer_number,
+                          "from" => conversation.internal_number,
                           "body" => conversation.question,
                           "status" => "queued",
                           "direction" => "outbound-api",
@@ -56,25 +56,25 @@ FactoryGirl.define do
 
     trait :challenge do
       message_kind  Message::CHALLENGE
-      direction     Message::DIRECTION_OUT
+      direction     Message::OUT
     end
 
     trait :response do
       message_kind  Message::RESPONSE
-      direction     Message::DIRECTION_IN
+      direction     Message::IN
     end
 
     trait :reply do
       message_kind  Message::REPLY
-      direction     Message::DIRECTION_OUT
+      direction     Message::OUT
     end
     
     trait :sending do
-      status        Message::SENDING
+      workflow_state 'sending'
     end
     
     trait :sent do
-      status        Message::SENT
+      workflow_state 'sent'
     end
     
     trait :settled do

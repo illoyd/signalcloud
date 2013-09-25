@@ -6,61 +6,42 @@ shared_examples 'sends reply messages' do |body, message_count, body_length|
     expect{ subject.send_reply_message!() }.to_not raise_error
   end
   it "has #{message_count} messages" do
-    subject.send_reply_message!().should have(message_count).item
+    subject.send(:deliver_message, body, Message::REPLY).should have(message_count).item
   end
   it 'assigns question to body' do
-    subject.send_reply_message!().first.body.should == subject.send(body)[0,body_length]
+    subject.send(:deliver_message, body, Message::REPLY).body.should == subject.send(body)[0,body_length]
   end
   it 'assigns customer_number to to_number' do
-    subject.send_reply_message!().first.to_number.should == subject.to_number
+    subject.send(:deliver_message, body, Message::REPLY).to_number.should == subject.customer_number
   end
   it 'assigns internal_number to from_number' do
-    subject.send_reply_message!().first.from_number.should == subject.from_number
+    subject.send(:deliver_message, body, Message::REPLY).from_number.should == subject.internal_number
   end
   it 'creates new message' do
-    expect{ subject.send_reply_message!() }.to change{subject.messages.count}.by(message_count)
+    expect{ subject.send(:deliver_message, body, Message::REPLY) }.to change{subject.messages.count}.by(message_count)
   end
   it 'does not create new ledger entry' do
     # Does not create it because no price was given
-    expect{ subject.send_reply_message!() }.to_not change{subject.stencil.organization.ledger_entries.count}
-  end
-end
-
-shared_examples 'raises reply message error (without save)' do |message_count, error, error_code|
-  it 'flags as error' do
-    expect{ subject.send_reply_message() }.to raise_error
-    subject.has_errored?.should be_false # False here as failures in the REPLY are not documented in the message
-  end
-  it "raises error" do
-    expect{ subject.send_reply_message() }.to raise_error( error )
-  end
-  it "raises error code" do
-    expect{ subject.send_reply_message() }.to raise_error { |ex| ex.code.should == error_code }
-  end
-  it 'does not create messages' do
-    expect{ subject.send_reply_message() rescue nil }.to change{subject.messages.count}.by(message_count)
-  end
-  it 'does not create ledger entries' do
-    expect{ subject.send_reply_message() rescue nil }.to_not change{subject.stencil.organization.ledger_entries.count}
+    expect{ subject.send(:deliver_message, body, Message::REPLY) }.to_not change{subject.stencil.organization.ledger_entries.count}
   end
 end
 
 shared_examples 'raises reply message error' do |message_count, error, error_code|
   it 'flags as error' do
-    expect{ subject.send_reply_message!() }.to raise_error
+    expect{ subject.send(:deliver_message, body, Message::REPLY) }.to raise_error
     subject.has_errored?.should be_false # False here as failures in the REPLY are not documented in the message
   end
   it "raises error" do
-    expect{ subject.send_reply_message!() }.to raise_error( error )
+    expect{ subject.send(:deliver_message, body, Message::REPLY) }.to raise_error( error )
   end
   it "raises error code" do
-    expect{ subject.send_reply_message!() }.to raise_error { |ex| ex.code.should == error_code }
+    expect{ subject.send(:deliver_message, body, Message::REPLY) }.to raise_error { |ex| ex.code.should == error_code }
   end
   it 'does not create messages' do
-    expect{ subject.send_reply_message!() rescue nil }.to change{subject.messages.count}.by(message_count)
+    expect{ subject.send(:deliver_message, body, Message::REPLY) rescue nil }.to change{subject.messages.count}.by(message_count)
   end
   it 'does not create ledger entries' do
-    expect{ subject.send_reply_message!() rescue nil }.to_not change{subject.stencil.organization.ledger_entries.count}
+    expect{ subject.send(:deliver_message, body, Message::REPLY) rescue nil }.to_not change{subject.stencil.organization.ledger_entries.count}
   end
 end
 
@@ -339,56 +320,56 @@ describe Conversation, '#send_reply_message', :vcr do
     
   context 'when missing body' do
     subject { build :conversation, :challenge_sent, :response_received, :expired, stencil: stencil, expired_reply: nil }
-    include_examples 'raises reply message error (without save)', 0, SignalCloud::CriticalMessageSendingError, Conversation::ERROR_MISSING_BODY
+    include_examples 'raises reply message error', 0, SignalCloud::CriticalMessageSendingError, Conversation::ERROR_MISSING_BODY
   end
   
   context 'when blank body' do
     subject { build :conversation, :challenge_sent, :response_received, :expired, stencil: stencil, expired_reply: '' }
-    include_examples 'raises reply message error (without save)', 0, SignalCloud::CriticalMessageSendingError, Conversation::ERROR_MISSING_BODY
+    include_examples 'raises reply message error', 0, SignalCloud::CriticalMessageSendingError, Conversation::ERROR_MISSING_BODY
   end
   
   context 'when spaced body' do
     subject { build :conversation, :challenge_sent, :response_received, :expired, stencil: stencil, expired_reply: '    ' }
-    include_examples 'raises reply message error (without save)', 0, SignalCloud::CriticalMessageSendingError, Conversation::ERROR_MISSING_BODY
+    include_examples 'raises reply message error', 0, SignalCloud::CriticalMessageSendingError, Conversation::ERROR_MISSING_BODY
   end
   
   context 'when invalid TO' do
-    subject { create :conversation, :challenge_sent, :response_received, :expired, stencil: stencil, to_number: Twilio::INVALID_NUMBER }
+    subject { create :conversation, :challenge_sent, :response_received, :expired, stencil: stencil, customer_number: Twilio::INVALID_NUMBER }
     include_examples 'raises reply message error', 1, SignalCloud::MessageSendingError, Conversation::ERROR_INVALID_TO
   end
   
   context 'when TO has impossible routing' do
-    subject { create :conversation, :challenge_sent, :response_received, :expired, stencil: stencil, to_number: Twilio::INVALID_CANNOT_ROUTE_TO_NUMBER }
+    subject { create :conversation, :challenge_sent, :response_received, :expired, stencil: stencil, customer_number: Twilio::INVALID_CANNOT_ROUTE_TO_NUMBER }
     include_examples 'raises reply message error', 1, SignalCloud::MessageSendingError, Conversation::ERROR_CANNOT_ROUTE
   end
   
   context 'when international support is disabled' do
-    subject { create :conversation, :challenge_sent, :response_received, :expired, stencil: stencil, to_number: Twilio::INVALID_INTERNATIONAL_NUMBER }
+    subject { create :conversation, :challenge_sent, :response_received, :expired, stencil: stencil, customer_number: Twilio::INVALID_INTERNATIONAL_NUMBER }
     include_examples 'raises reply message error', 1, SignalCloud::MessageSendingError, Conversation::ERROR_INTERNATIONAL
   end
   
   context 'when TO is blacklisted' do
-    subject { create :conversation, :challenge_sent, :response_received, :expired, stencil: stencil, to_number: Twilio::INVALID_BLACKLISTED_NUMBER }
+    subject { create :conversation, :challenge_sent, :response_received, :expired, stencil: stencil, customer_number: Twilio::INVALID_BLACKLISTED_NUMBER }
     include_examples 'raises reply message error', 1, SignalCloud::MessageSendingError, Conversation::ERROR_BLACKLISTED_TO
   end
   
   context 'when TO is sms-incapable' do
-    subject { create :conversation, :challenge_sent, :response_received, :expired, stencil: stencil, to_number: Twilio::INVALID_NOT_SMS_CAPABLE_TO_NUMBER }
+    subject { create :conversation, :challenge_sent, :response_received, :expired, stencil: stencil, customer_number: Twilio::INVALID_NOT_SMS_CAPABLE_TO_NUMBER }
     include_examples 'raises reply message error', 1, SignalCloud::MessageSendingError, Conversation::ERROR_NOT_SMS_CAPABLE
   end
   
   context 'when invalid FROM' do
-    subject { create :conversation, :challenge_sent, :response_received, :expired, stencil: stencil, from_number: Twilio::INVALID_NUMBER }
+    subject { create :conversation, :challenge_sent, :response_received, :expired, stencil: stencil, internal_number: Twilio::INVALID_NUMBER }
     include_examples 'raises reply message error', 1, SignalCloud::MessageSendingError, Conversation::ERROR_INVALID_FROM
   end
   
   context 'when sms-incapable FROM' do
-    subject { create :conversation, :challenge_sent, :response_received, :expired, stencil: stencil, from_number: Twilio::INVALID_NOT_SMS_CAPABLE_FROM_NUMBER }
+    subject { create :conversation, :challenge_sent, :response_received, :expired, stencil: stencil, internal_number: Twilio::INVALID_NOT_SMS_CAPABLE_FROM_NUMBER }
     include_examples 'raises reply message error', 1, SignalCloud::MessageSendingError, Conversation::ERROR_NOT_SMS_CAPABLE
   end
   
   context 'when FROM queue is full' do
-    subject { create :conversation, :challenge_sent, :response_received, :expired, stencil: stencil, from_number: Twilio::INVALID_FULL_SMS_QUEUE_NUMBER }
+    subject { create :conversation, :challenge_sent, :response_received, :expired, stencil: stencil, internal_number: Twilio::INVALID_FULL_SMS_QUEUE_NUMBER }
     include_examples 'raises reply message error', 1, SignalCloud::MessageSendingError, Conversation::ERROR_SMS_QUEUE_FULL
   end
 

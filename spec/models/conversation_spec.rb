@@ -7,37 +7,38 @@ describe Conversation do
     it { should belong_to :stencil }
     it { should have_many :messages }
 
-    [ :seconds_to_live, :stencil_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at ].each do |attribute| 
+    [ :seconds_to_live, :stencil_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :internal_number, :question, :customer_number, :expires_at ].each do |attribute| 
       it { should allow_mass_assignment_of(attribute) }
     end
 
-    [:stencil, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at].each do |attribute| 
+    [:stencil, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :internal_number, :question, :customer_number, :expires_at].each do |attribute| 
       it { should validate_presence_of(attribute) }
     end
   end
   
   describe '#is_open? and #is_closed? and #has_errored?' do
-    [ Conversation::QUEUED, Conversation::CHALLENGE_SENT ].each do |status|
+    [ 'pending' ].each do |status|
       context "when status is #{status}" do
-        subject { build :conversation, status: status }
+        subject { build :conversation, workflow_state: status }
         its('is_open?') { should be_true }
         its('is_closed?') { should be_false }
         its('has_errored?') { should be_false }
       end
     end
     
-    [ Conversation::CONFIRMED, Conversation::DENIED, Conversation::FAILED, Conversation::EXPIRED ].each do |status|
+    [ :confirmed, :denied, :failed, :expired ].each do |status|
       context "when status is #{status}" do
-        subject { build :conversation, status: status }
+        subject { build :conversation, workflow_state: status }
         its('is_open?') { should be_false }
         its('is_closed?') { should be_true }
         its('has_errored?') { should be_false }
       end
     end
     
-    [ Conversation::ERROR_INVALID_TO, Conversation::ERROR_INVALID_FROM, Conversation::ERROR_BLACKLISTED_TO, Conversation::ERROR_NOT_SMS_CAPABLE, Conversation::ERROR_CANNOT_ROUTE, Conversation::ERROR_SMS_QUEUE_FULL ].each do |status|
+    [ :errored ].each do |status|
+    #[ Conversation::ERROR_INVALID_TO, Conversation::ERROR_INVALID_FROM, Conversation::ERROR_BLACKLISTED_TO, Conversation::ERROR_NOT_SMS_CAPABLE, Conversation::ERROR_CANNOT_ROUTE, Conversation::ERROR_SMS_QUEUE_FULL ].each do |status|
       context "when status is #{status}" do
-        subject { build :conversation, status: status }
+        subject { build :conversation, workflow_state: status }
         its('is_open?') { should be_false }
         its('is_closed?') { should be_true }
         its('has_errored?') { should be_true }

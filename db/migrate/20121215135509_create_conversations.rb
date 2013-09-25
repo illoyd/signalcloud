@@ -3,28 +3,38 @@ class CreateConversations < ActiveRecord::Migration
     #create_table :conversations, primary_key: :id do |t|
     #  t.column :id, :bigint, null: false
     create_table :conversations do |t|
-      t.references :stencil, null: false
+      t.string :workflow_state
 
-      t.integer :status, null: false, default: 0, limit: 2
-      t.integer :challenge_status, limit: 2
-      t.integer :reply_status, limit: 2
-      
+      # References
+      t.references :stencil, null: false
+      t.references :box, null: true
+
+      # Fast search utilities
       t.string :hashed_internal_number, null: false
       t.string :hashed_customer_number, null: false
 
+      # Time information
+      t.datetime :send_at, null: true
       t.datetime :expires_at, null: false
       t.datetime :challenge_sent_at, null: true
       t.datetime :response_received_at, null: true
       t.datetime :reply_sent_at, null: true
       
+      # Additional state information
+      t.string :challenge_status
+      t.string :reply_status
+      
+      # Error field
+      t.string :error_code
+      
+      # Encrypted data
+      t.text :encrypted_internal_number, null: false
+      t.string :encrypted_internal_number_iv
+      t.string :encrypted_internal_number_salt
 
-      t.text :encrypted_from_number, null: false
-      t.string :encrypted_from_number_iv
-      t.string :encrypted_from_number_salt
-
-      t.text :encrypted_to_number, null: false
-      t.string :encrypted_to_number_iv
-      t.string :encrypted_to_number_salt
+      t.text :encrypted_customer_number, null: false
+      t.string :encrypted_customer_number_iv
+      t.string :encrypted_customer_number_salt
 
       t.text :encrypted_expected_confirmed_answer, null: false
       t.string :encrypted_expected_confirmed_answer_iv
@@ -63,7 +73,7 @@ class CreateConversations < ActiveRecord::Migration
     
     # Add indexes
     add_index :conversations, :stencil_id
-    add_index :conversations, :status
+    add_index :conversations, :workflow_state
     add_index :conversations, :hashed_internal_number
     add_index :conversations, :hashed_customer_number
     

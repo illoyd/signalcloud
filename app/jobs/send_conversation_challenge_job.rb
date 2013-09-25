@@ -10,16 +10,16 @@ class SendConversationChallengeJob
   include Sidekiq::Worker
   sidekiq_options :queue => :default
 
-  def perform( conversation_id, force_resend=false )
-    conversation ||= Conversation.find( conversation_id )
+  def perform( conversation_id )
+    conversation = Conversation.find( conversation_id )
 
     logger.debug{ 'Sending challenge message.' }
     begin
-      messages = conversation.send_challenge_message!()
-      logger.info{ 'Sent challenge message (Twilio: %s).' % [messages.first.twilio_sid] }
+      message = conversation.start!
+      logger.info{ 'Sent challenge message (Provider: %s).' % [messages.provider_sid] }
       
       # Create and enqueue a new expiration job
-      ExpireConversationJob.perform_at( conversation.expires_at, conversation.id, force_resend )
+      ExpireConversationJob.perform_at( conversation.expires_at, conversation.id )
 
     rescue SignalCloud::ChallengeAlreadySentError => ex
      logger.debug{ 'Skipping as challenge message has already been sent.' }

@@ -2,8 +2,8 @@ FactoryGirl.define do
 
   factory :conversation do
     stencil
-    from_number               Twilio::VALID_NUMBER
-    to_number                 Twilio::VALID_NUMBER
+    internal_number           Twilio::VALID_NUMBER
+    customer_number           Twilio::VALID_NUMBER
     expires_at                180.seconds.from_now
     question                  'Hello, I am a question.'
     expected_confirmed_answer 'yes'
@@ -14,9 +14,9 @@ FactoryGirl.define do
     expired_reply             'Took too long!'
     
     trait :challenge_sent do
-      status                  Conversation::CHALLENGE_SENT
+      workflow_state          'listening'
       challenge_sent_at       { DateTime.now }
-      challenge_status        Message::SENT
+      challenge_status        'sent'
     end
 
     trait :response_received do
@@ -25,30 +25,30 @@ FactoryGirl.define do
 
     trait :reply_sent do
       reply_sent_at           { DateTime.now }
-      reply_status            Message::SENT
+      reply_status            'sent'
     end
 
     trait :confirmed do
       challenge_sent
       response_received
-      status                  Conversation::CONFIRMED
+      workflow_state          'confirmed'
     end
 
     trait :denied do
       challenge_sent
       response_received
-      status                  Conversation::DENIED
+      workflow_state          'denied'
     end
 
     trait :failed do
       challenge_sent
       response_received
-      status                  Conversation::FAILED
+      workflow_state          'failed'
     end
 
     trait :expired do
       challenge_sent
-      status                  Conversation::EXPIRED
+      workflow_state          'expired'
     end
     
     trait :with_webhook_uri do

@@ -69,12 +69,20 @@ class TwilioCommunicationGateway < CommunicationGateway
     self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_sms_update_url
   end
   
+  def message( sid )
+    self.twilio_account.messages.get( { sid: sid } )
+  end
+  
+  def phone_number( sid )
+    self.twilio_account.incoming_phone_numbers.get( { sid: sid } )
+  end
+  
   ##
   # Send an SMS using the Twilio API.
   def send_sms!( to_number, from_number, body, options={} )
     payload = {
-      to: to_number,
-      from: from_number,
+      to: '+' + to_number,
+      from: '+' + from_number,
       body: body
     }
     
@@ -94,11 +102,38 @@ class TwilioCommunicationGateway < CommunicationGateway
   def purchase_number!( phone_number )
     results = self.twilio_account.incoming_phone_numbers.create( { phone_number: phone_number.number, application_sid: self.twilio_application_sid } )
     phone_number.twilio_phone_number_sid = results.sid
-    return results
+    results
+  end
+  
+  def unpurchase_number!( phone_number )
+    phone_number(phone_number.provider_sid).delete
+  end
+  
+  def update_number!( sid )
+    phone_number(phone_number.provider_sid).post(assemble_phone_number_data phone_number)
   end
   
 protected
 
+  def assemble_phone_number_data( phone_number )
+    # Assemble common data
+    data = {
+      voice_application_sid: self.organization.twilio_application_sid,
+      sms_application_sid: self.organization.twilio_application_sid
+    }
+    
+    # Insert existing record data
+    unless phone_number.provider_sid.blank?
+      data[:sid] = phone_number.provider_sid
+
+    # Insert new record data
+    else
+      data[:phone_number] = phone_number.number
+    end
+    
+    data
+  end
+  
   def create_remote
     self.create_twilio_account!
     self.create_twilio_application!

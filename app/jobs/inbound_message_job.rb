@@ -48,7 +48,7 @@ class InboundMessageJob
   end
   
   def perform_unsolicited_action()
-    unsolicited_message = self.internal_phone_number.unsolicited_messages.build( twilio_sms_sid: @sms.sms_sid, customer_number: @sms.from, received_at: DateTime.now, message_content: @provider_update )
+    unsolicited_message = self.internal_phone_number.unsolicited_messages.build( provider_sid: @sms.sms_sid, customer_number: @sms.from, received_at: DateTime.now, message_content: @provider_update )
     
     if self.internal_phone_number().should_reply_to_unsolicited_sms?
       unsolicited_message.action_taken = PhoneNumber::REPLY
@@ -62,12 +62,12 @@ class InboundMessageJob
   end
   
   def perform_matching_conversation_action( conversation )
-    message = conversation.messages.build( twilio_sid: @sms.sms_sid, from_number: @sms.from, to_number: @sms.to, body: @sms.body, direction: Message::DIRECTION_IN, provider_response: @provider_update )
-    message.refresh_from_twilio!
+    message = conversation.messages.create( provider_sid: @sms.sms_sid, from_number: @sms.from, to_number: @sms.to, body: @sms.body, direction: Message::IN, provider_response: @provider_update )
+    #message.refresh_from_twilio!
 
     conversation.accept_answer! @sms.body
-    SendConversationReplyJob.perform_async(conversation.id)
-    SendConversationStatusWebhookJob.perform_async( conversation.id, ConversationSerializer.new(conversation).as_json ) unless conversation.webhook_uri.blank?
+    #SendConversationReplyJob.perform_async(conversation.id)
+    #SendConversationStatusWebhookJob.perform_async( conversation.id, ConversationSerializer.new(conversation).as_json ) unless conversation.webhook_uri.blank?
   end
   
   def perform_multiple_matching_conversations_action( open_conversations )

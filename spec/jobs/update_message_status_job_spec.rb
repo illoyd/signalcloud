@@ -9,8 +9,8 @@ describe UpdateMessageStatusJob, :vcr do
       'AccountSid' => message.conversation.organization.twilio_account_sid,
       'SmsSid' =>     message.twilio_sid,
       'ApiVersion' => '2010-04-01',
-      'From' =>       reply ? message.conversation.to_number : message.conversation.from_number,
-      'To' =>	        reply ? message.conversation.from_number : message.conversation.to_number,
+      'From' =>       reply ? message.conversation.customer_number : message.conversation.internal_number,
+      'To' =>	        reply ? message.conversation.internal_number : message.conversation.customer_number,
       'Body' =>       body,
       'SmsStatus' =>	'sent'
     }.merge(others)

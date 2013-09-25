@@ -3,6 +3,7 @@ FactoryGirl.define do
   factory :phone_number, aliases: [ :us_phone_number ] do
     sequence(:number)           { |n| '+1%010d' % ( 6000000000 + n ) }
     organization
+    communication_gateway       { organization.communication_gateways.first }
     
     factory :valid_phone_number do
       number                    { Twilio::VALID_NUMBER }

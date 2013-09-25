@@ -1,0 +1,15 @@
+require 'spec_helper'
+
+describe "boxes/index" do
+  before(:each) do
+    assign(:boxes, [
+      stub_model(Box),
+      stub_model(Box)
+    ])
+  end
+
+  it "renders a list of boxes" do
+    render
+    # Run the generator again with the --webrat flag if you want to use webrat matchers
+  end
+end

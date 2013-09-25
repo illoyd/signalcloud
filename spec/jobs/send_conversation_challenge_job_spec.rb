@@ -7,15 +7,15 @@ describe SendConversationChallengeJob, :vcr do
     let(:stencil)         { create(:stencil, organization: organization) }
 
     context 'when conversation has not been sent' do
-      let(:conversation)  { create(:conversation, stencil: stencil, to_number: Twilio::VALID_NUMBER, from_number: Twilio::VALID_NUMBER) }
+      let(:conversation)  { create(:conversation, stencil: stencil, customer_number: Twilio::VALID_NUMBER, internal_number: Twilio::VALID_NUMBER) }
       it 'creates a new message' do
         expect { subject.perform( conversation.id ) }.to change{conversation.messages(true).count}.by(1)
       end
       it 'does not create a new ledger entry' do
         expect { subject.perform( conversation.id ) }.to_not change{conversation.stencil.organization.ledger_entries.count}
       end
-      it 'sets conversation status to queued' do
-        expect { subject.perform( conversation.id ) }.to change{conversation.reload.status}.to(Conversation::QUEUED)
+      it 'sets conversation workflow_state to queued' do
+        expect { subject.perform( conversation.id ) }.to change{conversation.reload.workflow_state}.to(Conversation::QUEUED)
       end
       it 'sets conversations challenge status to queued' do
         expect { subject.perform( conversation.id ) }.to change{conversation.reload.challenge_status}.to(Message::QUEUED)
@@ -26,15 +26,15 @@ describe SendConversationChallengeJob, :vcr do
     end
 
     context 'when conversation has been sent' do
-      let(:conversation)  { create(:conversation, :challenge_sent, stencil: stencil, to_number: Twilio::VALID_NUMBER, from_number: Twilio::VALID_NUMBER) }
+      let(:conversation)  { create(:conversation, :challenge_sent, stencil: stencil, customer_number: Twilio::VALID_NUMBER, internal_number: Twilio::VALID_NUMBER) }
       it 'does not create a new message' do
         expect { subject.perform( conversation.id ) }.to_not change{conversation.messages(true).count}
       end
       it 'does not create a new ledger entry' do
         expect { subject.perform( conversation.id ) }.to_not change{conversation.stencil.organization.ledger_entries.count}
       end
-      it 'does not change conversation status' do
-        expect { subject.perform( conversation.id ) }.to_not change{conversation.reload.status}
+      it 'does not change conversation workflow_state' do
+        expect { subject.perform( conversation.id ) }.to_not change{conversation.reload.workflow_state}
       end
       it 'does not change conversation challenge status' do
         expect { subject.perform( conversation.id ) }.to_not change{conversation.reload.challenge_status}
@@ -45,19 +45,19 @@ describe SendConversationChallengeJob, :vcr do
     end
     
     context 'with invalid TO number' do
-      let(:conversation)  { create(:conversation, stencil: stencil, to_number: Twilio::INVALID_NUMBER, from_number: Twilio::VALID_NUMBER) }
+      let(:conversation)  { create(:conversation, stencil: stencil, customer_number: Twilio::INVALID_NUMBER, internal_number: Twilio::VALID_NUMBER) }
       it 'creates a new message' do
         expect { subject.perform( conversation.id ) }.to change{conversation.messages(true).count}.by(1)
       end
       it 'fails newly created message' do
         subject.perform( conversation.id )
-        conversation.messages(true).order('created_at').last.status.should == Message::FAILED
+        conversation.messages(true).order('created_at').last.workflow_state.should == Message::FAILED
       end
       it 'does not create a new ledger entry' do
         expect { subject.perform( conversation.id ) }.to_not change{conversation.stencil.organization.ledger_entries.count}
       end
-      it 'changes conversation status to error' do
-        expect { subject.perform( conversation.id ) }.to change{conversation.reload.status}.to(Conversation::ERROR_INVALID_TO)
+      it 'changes conversation workflow_state to error' do
+        expect { subject.perform( conversation.id ) }.to change{conversation.reload.workflow_state}.to(Conversation::ERROR_INVALID_TO)
       end
       it 'changes conversation challenge status to error' do
         expect { subject.perform( conversation.id ) }.to change{conversation.reload.challenge_status}.to(Conversation::ERROR_INVALID_TO)
@@ -68,19 +68,19 @@ describe SendConversationChallengeJob, :vcr do
     end
 
     context 'with invalid FROM number' do
-      let(:conversation)  { create(:conversation, stencil: stencil, to_number: Twilio::VALID_NUMBER, from_number: Twilio::INVALID_NUMBER) }
+      let(:conversation)  { create(:conversation, stencil: stencil, customer_number: Twilio::VALID_NUMBER, internal_number: Twilio::INVALID_NUMBER) }
       it 'creates a new message' do
         expect { subject.perform( conversation.id ) }.to change{conversation.messages(true).count}.by(1)
       end
       it 'fails newly created message' do
         subject.perform( conversation.id )
-        conversation.messages(true).order('created_at').last.status.should == Message::FAILED
+        conversation.messages(true).order('created_at').last.workflow_state.should == Message::FAILED
       end
       it 'does not create a new ledger entry' do
         expect { subject.perform( conversation.id ) }.to_not change{conversation.stencil.organization.ledger_entries(true).count}
       end
-      it 'changes conversation status to error' do
-        expect { subject.perform( conversation.id ) }.to change{conversation.reload.status}.to(Conversation::ERROR_INVALID_FROM)
+      it 'changes conversation workflow_state to error' do
+        expect { subject.perform( conversation.id ) }.to change{conversation.reload.workflow_state}.to(Conversation::ERROR_INVALID_FROM)
       end
       it 'changes conversation challenge status to error' do
         expect { subject.perform( conversation.id ) }.to change{conversation.reload.challenge_status}.to(Conversation::ERROR_INVALID_FROM)

@@ -62,7 +62,7 @@
               = link_to [@organization, conversation] do
                 = conversation_status_icon(conversation.status)
                 = human_conversation_status(conversation.status)
-            %td= humanize_phone_number Phony.normalize conversation.from_number
+            %td= humanize_phone_number Phony.normalize conversation.internal_number
             %td= humanize_phone_number Phony.normalize conversation.to_number
             %td= conversation.expires_at
             %td{style:'text-align:center'}= conversation.challenge_sent_at ? icon(:ok) : ''

@@ -14,6 +14,8 @@ class SignalCloudError < StandardError
 
 end
 
+class WebhookMissingError < SignalCloudError; end
+
 class ObjectNotSavedError < SignalCloudError
   def initialize( original = nil, code = nil )
     super( 'Object not saved.', original, code )

@@ -38,9 +38,9 @@
   .row-fluid{style: 'margin-top: 3.0em;'}
     .span1= icon(:phone_numbers, class: 'icon-3x')
     .span11
-      = f.label :from_number do
+      = f.label :internal_number do
         \...from this phone number...
-      = f.collection_select :from_number, @stencil.phone_book.phone_numbers.uniq, :number, :human_number, include_blank: 'Auto-select'
+      = f.collection_select :internal_number, @stencil.phone_book.phone_numbers.uniq, :number, :human_number, include_blank: 'Auto-select'
     
   .row-fluid{style: 'margin-top: 3.0em;'}
     .span1= icon(:globe, class: 'icon-3x')

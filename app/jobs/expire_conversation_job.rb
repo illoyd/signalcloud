@@ -23,15 +23,13 @@ class ExpireConversationJob
       return true
     end
 
-    # Set conversation to expired
-    conversation.status = Conversation::EXPIRED
-    conversation.save!
-    
+    # Expire the bloody conversation
+
     # Send the expiration SMS if not already sent.
     # This will automatically create the associated message
-    logger.debug{ 'Attempting to send expiration message.' }
+    logger.debug{ 'Attempting to expire conversation.' }
     begin
-      messages = conversation.send_reply_message!()
+      messages = conversation.expire!
       logger.info{ 'Sent expiration message (Twilio: %s).' % [messages.first.twilio_sid] }
 
     rescue SignalCloud::ReplyAlreadySentError => ex
