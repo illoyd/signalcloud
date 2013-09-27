@@ -125,8 +125,8 @@ class Conversation < ActiveRecord::Base
   validates_inclusion_of :reply_status, in: Message.workflow_spec.valid_state_names, allow_nil: true
 
   # Scopes
-  scope :opened, where( :status => OPEN_STATUSES )
-  scope :closed, where( 'status not in (?)', OPEN_STATUSES )
+  scope :opened, where( :workflow_state => OPEN_STATUSES )
+  scope :closed, where( 'workflow_state not in (?)', OPEN_STATUSES )
   scope :today, lambda{ where( "conversations.created_at >= ? and conversations.created_at <= ?", DateTime.now.beginning_of_day, DateTime.now.end_of_day ) }
   scope :yesterday, lambda{ where( "conversations.created_at >= ? and conversations.created_at <= ?", DateTime.yesterday.beginning_of_day, DateTime.yesterday.end_of_day ) }
   scope :last_x_days, lambda{ where( "conversations.created_at >= ? and conversations.created_at <= ?", 7.days.ago.beginning_of_day, DateTime.yesterday.end_of_day ) }

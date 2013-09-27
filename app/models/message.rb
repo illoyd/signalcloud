@@ -49,7 +49,7 @@ class Message < ActiveRecord::Base
     end
   end
   
-  OPEN_STATUSES = [ 'pending', 'sending' ]
+  OPEN_STATUSES = [ 'pending', 'sending', :pending, :sending ]
   # CLOSED_STATUSES = [ SENT, FAILED, RECEIVED ]
   # STATUSES = OPEN_STATUSES + CLOSED_STATUSES
   
@@ -229,22 +229,24 @@ class Message < ActiveRecord::Base
   
   ##
   # Is this message a challenge?
-  def is_challenge?
+  def challenge?
     self.message_kind == CHALLENGE
   end
+  alias_method :is_challenge?, :challenge?
   
   ##
   # Is this message a reply?
-  def is_reply?
+  def reply?
     self.message_kind == REPLY
   end
+  alias_method :is_reply?, :reply?
   
   def build_ledger_entry( attributes={} )
     ledger_entry = super(attributes)
     ledger_entry.organization = self.organization
     return ledger_entry
   end
-
+  
 protected
 
   def deliver
@@ -270,22 +272,58 @@ protected
 #     end
   end
 
-  def receive( payload=nil )
+  def receive( sid=nil )
     # Update self with information from payload
-    self.provider_sid = payload.sms_sid
-    self.refresh_from_provider
+    self.provider_sid = sid unless sid.blank?
+    self.refresh_from_provider unless self.provider_sid.blank?
+    
+    # Update parent conversation
+    unless self.conversation.nil?
+      self.conversation.response_received_at = self.sent_at
+      self.conversation.answer_status = self.workflow_state.to_s
+    end
+  end
+
+  def deliver
+    self.update_parent_status
   end
 
   def confirm
-    # Do nothing?
+    self.update_parent_status
+    # Update parent conversation
+    unless self.conversation.nil?
+      # If this is a CHALLENGE message
+      if self.challenge?
+        self.conversation.challenge_sent_at ||= self.sent_at
+      # If this is a REPLY message
+      elsif self.reply?
+        self.conversation.reply_sent_at ||= self.sent_at
+      end
+    end
   end
 
   def fail
-    # Do nothing?
+    self.update_parent_status
   end
   
   def error
-    # Do nothing?
+    self.update_parent_status
+  end
+  
+  def update_parent_status
+    unless self.conversation.nil?
+      # If this is a CHALLENGE message
+      if self.challenge?
+        self.conversation.challenge_status = self.workflow_state.to_s
+      # If this is a REPLY message
+      elsif self.reply?
+        self.conversation.reply_status = self.workflow_state.to_s
+      end
+    end
+  end
+  
+  def update_costs
+    
   end
 
 end

@@ -62,12 +62,15 @@ class InboundMessageJob
   end
   
   def perform_matching_conversation_action( conversation )
-    message = conversation.messages.create( provider_sid: @sms.sms_sid, from_number: @sms.from, to_number: @sms.to, body: @sms.body, direction: Message::IN, provider_response: @provider_update )
-    #message.refresh_from_twilio!
-
-    conversation.accept_answer! @sms.body
-    #SendConversationReplyJob.perform_async(conversation.id)
-    #SendConversationStatusWebhookJob.perform_async( conversation.id, ConversationSerializer.new(conversation).as_json ) unless conversation.webhook_uri.blank?
+    conversation.with_lock do
+      message = conversation.messages.create( provider_sid: @sms.sms_sid, from_number: @sms.from, to_number: @sms.to, body: @sms.body, direction: Message::IN, provider_response: @provider_update )
+      message.receive!
+      #message.refresh_from_twilio!
+  
+      # Accept the answer
+      conversation.accept_answer! @sms.body
+      conversation.save!
+    end
   end
   
   def perform_multiple_matching_conversations_action( open_conversations )
