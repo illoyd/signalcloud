@@ -93,50 +93,51 @@ ActiveRecord::Schema.define(:version => 20130924181022) do
 
   create_table "conversations", :force => true do |t|
     t.string   "workflow_state"
-    t.integer  "stencil_id",                               :null => false
+    t.integer  "stencil_id",                                                  :null => false
     t.integer  "box_id"
-    t.string   "hashed_internal_number",                   :null => false
-    t.string   "hashed_customer_number",                   :null => false
+    t.string   "hashed_internal_number",                                      :null => false
+    t.string   "hashed_customer_number",                                      :null => false
+    t.boolean  "mock",                                     :default => false
     t.datetime "send_at"
-    t.datetime "expires_at",                               :null => false
+    t.datetime "expires_at",                                                  :null => false
     t.datetime "challenge_sent_at"
     t.datetime "response_received_at"
     t.datetime "reply_sent_at"
     t.string   "challenge_status"
     t.string   "reply_status"
     t.string   "error_code"
-    t.text     "encrypted_internal_number",                :null => false
+    t.text     "encrypted_internal_number",                                   :null => false
     t.string   "encrypted_internal_number_iv"
     t.string   "encrypted_internal_number_salt"
-    t.text     "encrypted_customer_number",                :null => false
+    t.text     "encrypted_customer_number",                                   :null => false
     t.string   "encrypted_customer_number_iv"
     t.string   "encrypted_customer_number_salt"
-    t.text     "encrypted_expected_confirmed_answer",      :null => false
+    t.text     "encrypted_expected_confirmed_answer",                         :null => false
     t.string   "encrypted_expected_confirmed_answer_iv"
     t.string   "encrypted_expected_confirmed_answer_salt"
-    t.text     "encrypted_expected_denied_answer",         :null => false
+    t.text     "encrypted_expected_denied_answer",                            :null => false
     t.string   "encrypted_expected_denied_answer_iv"
     t.string   "encrypted_expected_denied_answer_salt"
-    t.text     "encrypted_question",                       :null => false
+    t.text     "encrypted_question",                                          :null => false
     t.string   "encrypted_question_iv"
     t.string   "encrypted_question_salt"
-    t.text     "encrypted_confirmed_reply",                :null => false
+    t.text     "encrypted_confirmed_reply",                                   :null => false
     t.string   "encrypted_confirmed_reply_iv"
     t.string   "encrypted_confirmed_reply_salt"
-    t.text     "encrypted_denied_reply",                   :null => false
+    t.text     "encrypted_denied_reply",                                      :null => false
     t.string   "encrypted_denied_reply_iv"
     t.string   "encrypted_denied_reply_salt"
-    t.text     "encrypted_failed_reply",                   :null => false
+    t.text     "encrypted_failed_reply",                                      :null => false
     t.string   "encrypted_failed_reply_iv"
     t.string   "encrypted_failed_reply_salt"
-    t.text     "encrypted_expired_reply",                  :null => false
+    t.text     "encrypted_expired_reply",                                     :null => false
     t.string   "encrypted_expired_reply_iv"
     t.string   "encrypted_expired_reply_salt"
     t.text     "encrypted_webhook_uri"
     t.string   "encrypted_webhook_uri_iv"
     t.string   "encrypted_webhook_uri_salt"
-    t.datetime "created_at",                               :null => false
-    t.datetime "updated_at",                               :null => false
+    t.datetime "created_at",                                                  :null => false
+    t.datetime "updated_at",                                                  :null => false
   end
 
   add_index "conversations", ["hashed_customer_number"], :name => "index_conversations_on_hashed_customer_number"
@@ -177,7 +178,6 @@ ActiveRecord::Schema.define(:version => 20130924181022) do
   create_table "messages", :force => true do |t|
     t.string   "workflow_state"
     t.integer  "conversation_id",                                                              :null => false
-    t.integer  "communication_gateway_id",                                                     :null => false
     t.string   "provider_sid",                     :limit => 34
     t.string   "message_kind",                     :limit => 9
     t.string   "direction",                        :limit => 3
@@ -204,7 +204,6 @@ ActiveRecord::Schema.define(:version => 20130924181022) do
     t.datetime "updated_at",                                                                   :null => false
   end
 
-  add_index "messages", ["communication_gateway_id", "provider_sid"], :name => "index_messages_on_communication_gateway_id_and_provider_sid", :unique => true
   add_index "messages", ["conversation_id"], :name => "index_messages_on_conversation_id"
   add_index "messages", ["message_kind"], :name => "index_messages_on_message_kind"
   add_index "messages", ["updated_at"], :name => "index_messages_on_updated_at"
@@ -269,7 +268,8 @@ ActiveRecord::Schema.define(:version => 20130924181022) do
     t.integer  "organization_id",                                                                           :null => false
     t.string   "number",                                                                                    :null => false
     t.string   "workflow_state"
-    t.string   "twilio_phone_number_sid"
+    t.integer  "communication_gateway_id",                                                                  :null => false
+    t.string   "provider_sid"
     t.integer  "unsolicited_sms_action",    :limit => 2,                               :default => 0,       :null => false
     t.string   "unsolicited_sms_message"
     t.integer  "unsolicited_call_action",   :limit => 2,                               :default => 0,       :null => false

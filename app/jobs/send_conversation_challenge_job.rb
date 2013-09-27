@@ -15,7 +15,7 @@ class SendConversationChallengeJob
 
     logger.debug{ 'Sending challenge message.' }
     begin
-      message = conversation.start!
+      message = conversation.ask!
       logger.info{ 'Sent challenge message (Provider: %s).' % [messages.provider_sid] }
       
       # Create and enqueue a new expiration job

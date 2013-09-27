@@ -7,7 +7,7 @@ class CreateMessages < ActiveRecord::Migration
       t.references :conversation, null: false
 
       # Communication gateway information
-      t.references :communication_gateway, null: false
+      # t.references :communication_gateway, null: false
       t.string :provider_sid, limit: Twilio::SID_LENGTH
 
       # General details
@@ -51,6 +51,6 @@ class CreateMessages < ActiveRecord::Migration
     add_index :messages, :updated_at
     add_index :messages, :message_kind
     add_index :messages, :workflow_state
-    add_index :messages, [ :communication_gateway_id, :provider_sid ], unique: true
+    # add_index :messages, [ :communication_gateway_id, :provider_sid ], unique: true
   end
 end

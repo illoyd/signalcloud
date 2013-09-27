@@ -12,6 +12,9 @@ class CreateConversations < ActiveRecord::Migration
       # Fast search utilities
       t.string :hashed_internal_number, null: false
       t.string :hashed_customer_number, null: false
+      
+      # Mock this conversation?
+      t.boolean :mock, default: false
 
       # Time information
       t.datetime :send_at, null: true

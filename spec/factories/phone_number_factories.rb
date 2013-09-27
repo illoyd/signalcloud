@@ -26,11 +26,11 @@ FactoryGirl.define do
     end
     
     trait :with_twilio_sid do
-      twilio_phone_number_sid   { 'PN' + SecureRandom.hex(16) }
+      provider_sid              { 'PN' + SecureRandom.hex(16) }
     end
     
     trait :with_fixed_twilio_sid do
-      twilio_phone_number_sid   { 'PN465138f996b14d147c5fb4143bb30bea' }
+      provider_sid              { 'PN465138f996b14d147c5fb4143bb30bea' }
     end
     
     trait :active do

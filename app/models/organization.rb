@@ -4,10 +4,6 @@ class Organization < ActiveRecord::Base
   workflow do
     state :trial do
       event :upgrade, transition_to: :ready
-      event :enqueue_upgrade, transition_to: :pending_upgrade
-    end
-    state :pending_upgrade do
-      event :upgrade, transition_to: :ready
     end
     state :ready do
       event :suspend, transition_to: :suspended
@@ -16,7 +12,6 @@ class Organization < ActiveRecord::Base
     end
     state :suspended do
       event :upgrade, transition_to: :ready
-      event :enqueue_upgrade, transition_to: :pending_upgrade
       event :cancel, transition_to: :cancelled
     end
     state :cancelled
@@ -32,8 +27,9 @@ class Organization < ActiveRecord::Base
 
   has_one :account_balance, inverse_of: :organization, autosave: true, dependent: :destroy
   
+  has_many :communication_gateways, inverse_of: :organization
+
   has_one :accounting_gateway, inverse_of: :organization
-  has_one :communication_gateway, inverse_of: :organization
   has_one :payment_gateway, inverse_of: :organization
 
   belongs_to :account_plan, inverse_of: :organizations
@@ -66,7 +62,7 @@ class Organization < ActiveRecord::Base
   
   # Delegations
   delegate :update_balance!, :balance, :balance=, to: :account_balance
-  delegate :has_twilio_application?, :twilio_client, :twilio_account, :twilio_account_sid, :twilio_validator, :send_sms!, to: :communication_gateway
+  # delegate :has_twilio_application?, :twilio_client, :twilio_account, :twilio_account_sid, :twilio_validator, :send_sms!, to: :communication_gateway
   delegate :freshbooks_id, to: :accounting_gateway
 
   def ensure_sid_and_token
@@ -107,9 +103,9 @@ class Organization < ActiveRecord::Base
     !self.accounting_gateway.nil?
   end
   
-  def has_communication_gateway?
-    !self.communication_gateway.nil?
-  end
+#   def has_communication_gateway?
+#     !self.communication_gateway.nil?
+#   end
   
   def has_payment_gateway?
     !self.payment_gateway.nil?
@@ -123,13 +119,9 @@ class Organization < ActiveRecord::Base
 
 private
 
-  def enqueue_upgrade
-    UpgradeOrganizationJob.perform_async( self.id )
-  end
-  
   def upgrade
-    # Update SMS data if needed
-    self.create_or_update_communication_gateway
+    # Update SMS data if needed - this should be created when first needed
+    # self.create_or_update_communication_gateway
 
     # Update accounting data if needed
     self.create_or_update_client
@@ -149,7 +141,9 @@ private
     end
     
     # Cancel the communication gateway
-    self.communication_gateway.cancel!
+    self.communication_gateways.each do |gateway|
+      gateway.cancel!
+    end
   end
 
 end

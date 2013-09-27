@@ -4,7 +4,8 @@ class CommunicationGateway < ActiveRecord::Base
   attr_encrypted :remote_sid, key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :remote_token, key: ATTR_ENCRYPTED_SECRET
   
-  belongs_to :organization, inverse_of: :communication_gateway
+  belongs_to :organization, inverse_of: :communication_gateways
+  has_many :phone_numbers, inverse_of: :communication_gateway
   
   validates_presence_of :organization
   validates_presence_of :remote_sid, :remote_token, if: :ready?

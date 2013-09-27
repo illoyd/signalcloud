@@ -8,7 +8,7 @@ FactoryGirl.define do
     association         :contact_address, factory: :white_house_address
     association         :billing_address, factory: :address
     association         :account_plan, factory: :payg_account_plan
-    communication_gateway { build :twilio_communication_gateway }
+
     #test_twilio
     #test_freshbooks_client
 
@@ -30,11 +30,11 @@ FactoryGirl.define do
     end
     
     trait :test_twilio do
-      association :communication_gateway, factory: [ :twilio_communication_gateway, :test ]
+      after(:build) { |org| org.communication_gateways << build( :twilio_communication_gateway, :test, organization: org ) }
     end
     
     trait :master_twilio do
-      association :communication_gateway, factory: [ :twilio_communication_gateway, :master ]
+      after(:build) { |org| org.communication_gateways << build( :twilio_communication_gateway, :master, organization: org ) }
     end
     
     trait :with_twilio do

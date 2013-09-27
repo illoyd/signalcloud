@@ -1,7 +1,7 @@
 FactoryGirl.define do
 
   factory :twilio_communication_gateway do
-    # organization
+    organization
 
     trait :master do
       workflow_state     'ready'

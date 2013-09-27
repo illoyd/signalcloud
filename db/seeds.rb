@@ -75,8 +75,8 @@ unless Organization.exists?( sid: '76f78f836d4563bf4824da02b506346d' )
     workflow_state:     'ready'
   })
   
-  master_phone_number = org.phone_numbers.create!( number: '+1 202-601-3854', twilio_phone_number_sid: 'PNf7abf4d06e5faecb7d6878fa37b8cdc3' )
-  master_phone_number_gb = org.phone_numbers.create!( number: '+44 1753 254372', twilio_phone_number_sid: 'PNa11b228979b0759de22e39a8e6f8585c' )
+  master_phone_number = org.phone_numbers.create!( number: '+1 202-601-3854', provider_sid: 'PNf7abf4d06e5faecb7d6878fa37b8cdc3', communication_gateway: comm_gateway )
+  master_phone_number_gb = org.phone_numbers.create!( number: '+44 1753 254372', provider_sid: 'PNa11b228979b0759de22e39a8e6f8585c', communication_gateway: comm_gateway )
   org.phone_books.first.phone_book_entries.create!( phone_number_id: master_phone_number.id, country: nil )
   org.phone_books.first.phone_book_entries.create!( phone_number_id: master_phone_number_gb.id, country: 'GB' )
   
@@ -150,9 +150,9 @@ unless Rails.env.production? || Organization.exists?( sid: '00000000000000000000
   
   # Add example data for the test organization
   test_numbers = {
-    US: org.phone_numbers.create!( number: Twilio::VALID_NUMBER, twilio_phone_number_sid: 'XX'+SecureRandom.hex(16) ),
-    CA: org.phone_numbers.create!( number: '+17127005678', twilio_phone_number_sid: 'XX'+SecureRandom.hex(16) ),
-    GB: org.phone_numbers.create!( number: '+447540123456', twilio_phone_number_sid: 'XX'+SecureRandom.hex(16) )
+    US: org.phone_numbers.create!( number: Twilio::VALID_NUMBER, provider_sid: 'XX'+SecureRandom.hex(16), communication_gateway: comm_gateway ),
+    CA: org.phone_numbers.create!( number: '+17127005678', provider_sid: 'XX'+SecureRandom.hex(16), communication_gateway: comm_gateway ),
+    GB: org.phone_numbers.create!( number: '+447540123456', provider_sid: 'XX'+SecureRandom.hex(16), communication_gateway: comm_gateway )
   }
   
   example_book = org.phone_books.create label: 'Example Book', description: 'Example description.'
@@ -246,7 +246,7 @@ unless Organization.exists?( sid: '00000000000000000000000000000000' )
     workflow_state:     'ready'
   })
   
-  perf_phone_number = org.phone_numbers.create!( number: Twilio::VALID_NUMBER, twilio_phone_number_sid: 'PX'+SecureRandom.hex(16) )
+  perf_phone_number = org.phone_numbers.create!( number: Twilio::VALID_NUMBER, provider_sid: 'PX'+SecureRandom.hex(16), communication_gateway: comm_gateway )
   org.phone_books.first.phone_book_entries.create!( phone_number_id: perf_phone_number.id, country: nil )
 
   org.stencils.create!({

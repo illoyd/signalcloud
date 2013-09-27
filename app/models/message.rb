@@ -95,8 +95,8 @@ class Message < ActiveRecord::Base
   validates_length_of :provider_sid, is: Twilio::SID_LENGTH, allow_nil: true
   validates_uniqueness_of :provider_sid, allow_nil: true
 
-  validates_inclusion_of :message_kind, in: [ CHALLENGE, REPLY, RESPONSE ]
-  validates_inclusion_of :direction, in: [ IN, OUT ]
+  validates_inclusion_of :message_kind, in: [ CHALLENGE, REPLY, RESPONSE, :challenge, :reply, :response ]
+  validates_inclusion_of :direction, in: [ IN, OUT, :in, :out ]
   
   scope :outstanding, ->{ where( 'messages.status in (?)', OPEN_STATUSES ) }
   
@@ -249,9 +249,11 @@ protected
 
   def deliver
 #     begin
-    self.provider_response = self.conversation.communication_gateway.send_sms!( self.to_number, self.from_number, body, { default_callback: true, response_format: :smash })
-    self.provider_sid = self.provider_response.sms_sid
-    self.provider_cost = self.provider_response.price
+    unless self.conversation.mock
+      self.provider_response = self.conversation.communication_gateway.send_sms!( self.to_number, self.from_number, body, { default_callback: true, response_format: :smash })
+      self.provider_sid = self.provider_response.sms_sid
+      self.provider_cost = self.provider_response.price
+    end
 
 #     rescue Twilio::REST::RequestError => ex
 #       self.status = FAILED

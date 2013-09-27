@@ -34,23 +34,19 @@ class PhoneNumber < ActiveRecord::Base
   ITALIAN = 'it'
   LANGUAGES = [ AMERICAN_ENGLISH, BRITISH_ENGLISH, SPANISH, FRENCH, GERMAN, ITALIAN ]
 
-  attr_accessible :number, :status, :twilio_phone_number_sid, :organization_id, :our_cost, :provider_cost, :unsolicited_sms_action, :unsolicited_sms_message, :unsolicited_call_action, :unsolicited_call_message, :unsolicited_call_language, :unsolicited_call_voice
-
   belongs_to :organization, inverse_of: :phone_numbers
   has_many :phone_book_entries, inverse_of: :phone_number, dependent: :destroy
   has_many :phone_books, through: :phone_book_entries
   has_many :unsolicited_calls, inverse_of: :phone_number
   has_many :unsolicited_messages, inverse_of: :phone_number
+  belongs_to :communication_gateway, inverse_of: :phone_numbers
 
   ##
   # LedgerEntries for this message - usually one per month
   has_many :ledger_entries, as: :item
 
-  validates_presence_of :organization, :number
-  validates_numericality_of :our_cost, :provider_cost, :organization_id
-
-  validates_length_of :twilio_phone_number_sid, allow_nil: true, is: Twilio::SID_LENGTH
-  validates_uniqueness_of :twilio_phone_number_sid, allow_nil: true, case_sensitive: false
+  validates_presence_of :organization, :communication_gateway, :number
+  validates_numericality_of :our_cost, :provider_cost
 
   validates :number, :phone_number => true
   
@@ -99,7 +95,7 @@ class PhoneNumber < ActiveRecord::Base
   end
 
   def number=(value)
-    super( PhoneNumber.normalize_phone_number(value) )
+    super( self.class.normalize_phone_number(value) )
   end
   
   def should_ignore_unsolicited_sms?

@@ -12,15 +12,17 @@ FactoryGirl.define do
     denied_reply              'The other right answer!'
     failed_reply              'Wrong answer!'
     expired_reply             'Took too long!'
+    mock                      true
     
     trait :challenge_sent do
-      workflow_state          'listening'
+      workflow_state          'asked'
       challenge_sent_at       { DateTime.now }
       challenge_status        'sent'
     end
 
     trait :response_received do
       response_received_at    { DateTime.now }
+      workflow_state          'received'
     end
 
     trait :reply_sent do
@@ -53,6 +55,10 @@ FactoryGirl.define do
     
     trait :with_webhook_uri do
       webhook_uri             'https://us.signalcloudapp.com/bucket'
+    end
+    
+    trait :real do
+      mock false
     end
 
   end

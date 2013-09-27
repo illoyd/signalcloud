@@ -70,19 +70,25 @@ class TwilioCommunicationGateway < CommunicationGateway
   end
   
   def message( sid )
-    self.twilio_account.messages.get( { sid: sid } )
+    self.twilio_account.messages.get( sid )
   end
   
   def phone_number( sid )
-    self.twilio_account.incoming_phone_numbers.get( { sid: sid } )
+    self.twilio_account.incoming_phone_numbers.get( sid )
+  end
+  
+  def self.prepend_plus( number )
+    '+' + number unless number.start_with? '+'
   end
   
   ##
   # Send an SMS using the Twilio API.
   def send_sms!( to_number, from_number, body, options={} )
+    to_number = self.class.prepend_plus(to_number)
+    from_number = self.class.prepend_plus(from_number)
     payload = {
-      to: '+' + to_number,
-      from: '+' + from_number,
+      to: to_number,
+      from: from_number,
       body: body
     }
     
@@ -100,8 +106,9 @@ class TwilioCommunicationGateway < CommunicationGateway
   end
   
   def purchase_number!( phone_number )
-    results = self.twilio_account.incoming_phone_numbers.create( { phone_number: phone_number.number, application_sid: self.twilio_application_sid } )
-    phone_number.twilio_phone_number_sid = results.sid
+    pn = self.class.prepend_plus(phone_number.number)
+    results = self.twilio_account.incoming_phone_numbers.create( { phone_number: pn, application_sid: self.twilio_application_sid } )
+    phone_number.provider_sid = results.sid
     results
   end
   
@@ -109,7 +116,7 @@ class TwilioCommunicationGateway < CommunicationGateway
     phone_number(phone_number.provider_sid).delete
   end
   
-  def update_number!( sid )
+  def update_number!( phone_number )
     phone_number(phone_number.provider_sid).post(assemble_phone_number_data phone_number)
   end
   
@@ -118,8 +125,8 @@ protected
   def assemble_phone_number_data( phone_number )
     # Assemble common data
     data = {
-      voice_application_sid: self.organization.twilio_application_sid,
-      sms_application_sid: self.organization.twilio_application_sid
+      voice_application_sid: self.twilio_application_sid,
+      sms_application_sid: self.twilio_application_sid
     }
     
     # Insert existing record data
@@ -188,7 +195,6 @@ protected
     return {
       'FriendlyName' => self.organization.try(:label) || '[NEW]'
     }.merge(options)
-
   end
 
   def assemble_twilio_application_data( options={} )
@@ -212,7 +218,6 @@ protected
 
       'SmsStatusCallback' => self.twilio_sms_status_url
     }.merge(options)
-
   end
 
   def insert_twilio_authentication( url )

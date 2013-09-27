@@ -3,17 +3,50 @@ class Conversation < ActiveRecord::Base
   include Workflow
 
   workflow do
-    state :pending do
-      event :start, transitions_to: :listening
+    state :draft do
+      event :ask, transitions_to: :asking
       event :error, transitions_to: :errored
     end
-    state :listening do
-      event :confirm, transitions_to: :confirmed
-      event :deny, transitions_to: :denied
-      event :fail, transitions_to: :failed
-      event :expire, transitions_to: :expired
+
+    state :asking do
+      event :asked, transitions_to: :asked
+      event :expire, transitions_to: :expiring
       event :error, transitions_to: :errored
     end
+    state :asked do
+      event :receive, transitions_to: :receiving
+      event :expire, transitions_to: :expiring
+      event :error, transitions_to: :errored
+    end
+
+    state :receiving do
+      event :received, transitions_to: :received
+      event :error, transitions_to: :errored
+    end
+    state :received do
+      event :confirm, transitions_to: :confirming
+      event :deny, transitions_to: :denying
+      event :fail, transitions_to: :failing
+      event :error, transitions_to: :errored
+    end
+
+    state :confirming do
+      event :confirmed, transitions_to: :confirmed
+      event :error, transitions_to: :errored
+    end
+    state :denying do
+      event :denied, transitions_to: :denied
+      event :error, transitions_to: :errored
+    end
+    state :failing do
+      event :failed, transitions_to: :failed
+      event :error, transitions_to: :errored
+    end
+    state :expiring do
+      event :expired, transitions_to: :expired
+      event :error, transitions_to: :errored
+    end
+
     state :confirmed
     state :denied
     state :failed
@@ -32,7 +65,7 @@ class Conversation < ActiveRecord::Base
   DENIED = 4
   FAILED = 5
   EXPIRED = 6
-  OPEN_STATUSES = [ :pending, :queued, :listening ]
+  OPEN_STATUSES = [ :asking, :asked, 'asking', 'asked' ]
   STATUSES = [ PENDING, QUEUED, CHALLENGE_SENT, CONFIRMED, DENIED, FAILED, EXPIRED ]
   
   # SMS status constants
@@ -74,7 +107,7 @@ class Conversation < ActiveRecord::Base
   has_many :messages, inverse_of: :conversation, autosave: true
   #has_many :ledger_entries, as: :item
 
-  delegate :organization, to: :stencil, allow_nil: true
+  delegate :organization, to: :stencil #, allow_nil: true
   #delegate :communication_gateway, to: :internal_number, allow_nil: true
   
   def communication_gateway
@@ -175,8 +208,7 @@ class Conversation < ActiveRecord::Base
   
   ##
   # Update this conversation with appropriate flags indicating that a response has been received.
-  def accept_answer( answer, received=DateTime.now )
-    self.status = self.compare_answer(answer)
+  def accept_answer!( answer, received=DateTime.now )
     case self.compare_answer(answer)
       when :confirmed 
         self.confirm!
@@ -185,20 +217,12 @@ class Conversation < ActiveRecord::Base
       else
         self.fail!
     end
-    self.response_received_at = received
   end
   
   ##
-  # Accept the given answer and force a database save.
-  def accept_answer!( answer, received=DateTime.now )
-    self.accept_answer( answer, received )
-    self.save!
-  end
-
-  ##
   # Is the conversation currently open? Based upon the conversation's status.
   def is_open?
-    return Conversation::OPEN_STATUSES.include? self.status
+    return ( asked? || asking? )
   end
   
   ##
@@ -210,14 +234,14 @@ class Conversation < ActiveRecord::Base
   ##
   # Check if conversation is open and if the conversation's expires_at is in the past
   def is_expired?
-    return self.expires_at <= DateTime.now
+    return self.expires_at <= Time.now
   end
   
   ##
   # Is the conversation currently in an error state? Based upon the conversation's status.
-  def has_errored?
-    return Conversation::ERROR_STATUSES.include? self.workflow_state
-  end
+#   def has_errored?
+#     return Conversation::ERROR_STATUSES.include? self.workflow_state
+#   end
   
   ##
   # Has the challenge message already been sent to the recipient?
@@ -315,35 +339,44 @@ protected
   end
 
   def deliver_message( message_body, message_kind )
-    msg = self.messages.create( to_number: self.customer_number, from_number: self.internal_number, body: message_body, message_kind: message_kind, direction: :out )
+    msg = self.messages.create!( to_number: self.customer_number, from_number: self.internal_number, body: message_body, message_kind: message_kind, direction: :out )
     msg.deliver!
     msg
   end
   
 protected
 
-  def start
-    # Send challenge message
+  def ask
+    # Begin the process!
     self.deliver_message self.question, :challenge
+  end
+
+  def asked
     self.challenge_sent_at = Time.now
   end
 
   def confirm
     # Send confirmed reply
     self.deliver_message self.confirmed_reply, :reply
-    self.reply_sent_at = Time.now
 
     # Send confirmed webhook
     self.send_webhook_update unless self.webhook_uri.blank?
   end
   
+  def confirmed
+    self.reply_sent_at = Time.now
+  end
+  
   def deny
     # Send denied reply
     self.deliver_message self.denied_reply, :reply
-    self.reply_sent_at = Time.now
 
     # Send denied webhook
     self.send_webhook_update unless self.webhook_uri.blank?
+  end
+  
+  def denied
+    self.reply_sent_at = Time.now
   end
   
   def fail
@@ -355,6 +388,10 @@ protected
     self.send_webhook_update unless self.webhook_uri.blank?
   end
   
+  def failed
+    self.reply_sent_at = Time.now
+  end
+
   def expire
     # Send expired reply
     self.deliver_message self.expired_reply, :reply
@@ -362,6 +399,10 @@ protected
 
     # Send expired webhook
     self.send_webhook_update unless self.webhook_uri.blank?
+  end
+  
+  def expired
+    self.reply_sent_at = Time.now
   end
   
   def error
