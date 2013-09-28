@@ -76,8 +76,8 @@ ActiveRecord::Schema.define(:version => 20130924181022) do
   end
 
   create_table "communication_gateways", :force => true do |t|
-    t.string   "workflow_state"
     t.string   "type"
+    t.string   "workflow_state"
     t.integer  "organization_id"
     t.string   "encrypted_remote_sid_iv"
     t.string   "encrypted_remote_sid_salt"
@@ -90,6 +90,10 @@ ActiveRecord::Schema.define(:version => 20130924181022) do
     t.datetime "created_at",                  :null => false
     t.datetime "updated_at",                  :null => false
   end
+
+  add_index "communication_gateways", ["organization_id", "type"], :name => "index_communication_gateways_on_organization_id_and_type", :unique => true
+  add_index "communication_gateways", ["organization_id"], :name => "index_communication_gateways_on_organization_id"
+  add_index "communication_gateways", ["type"], :name => "index_communication_gateways_on_type"
 
   create_table "conversations", :force => true do |t|
     t.string   "workflow_state"
