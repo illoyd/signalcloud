@@ -116,6 +116,20 @@ class Organization < ActiveRecord::Base
   def last_invoice_date
     self.invoices.maximum('date_to') #.to_time rescue nil
   end
+  
+  ##
+  # Get the communication gateway for a particular service
+  def communication_gateway_for( service )
+    klass = case service.to_sym
+      when :twilio
+        TwilioCommunicationGateway.name
+      when :nexmo
+        raise RuntimeError.new('Nexmo service not yet configured!')
+      else
+        raise RuntimeError.new('Unrecognised service %s!' % [service.to_s])
+      end
+    self.communication_gateways.where( type: klass ).first
+  end
 
 private
 
