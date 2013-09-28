@@ -131,7 +131,7 @@ class Conversation < ActiveRecord::Base
   scope :yesterday, lambda{ where( "conversations.created_at >= ? and conversations.created_at <= ?", DateTime.yesterday.beginning_of_day, DateTime.yesterday.end_of_day ) }
   scope :last_x_days, lambda{ where( "conversations.created_at >= ? and conversations.created_at <= ?", 7.days.ago.beginning_of_day, DateTime.yesterday.end_of_day ) }
   scope :created_between, lambda{ |lower,upper| where( "conversations.created_at >= ? and conversations.created_at <= ?", lower.beginning_of_day, upper.end_of_day ) }
-  scope :count_by_status, select('count(conversations.*) as count, conversations.status').group('conversations.status')
+  scope :count_by_status, select('count(conversations.*) as count, conversations.workflow_state').group('conversations.workflow_state')
   scope :outstanding, where( 'challenge_sent_at is null or response_received_at is null or reply_sent_at is null' )
   
   ##
