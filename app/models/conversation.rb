@@ -68,23 +68,6 @@ class Conversation < ActiveRecord::Base
   OPEN_STATUSES = [ :asking, :asked, 'asking', 'asked' ]
   STATUSES = [ PENDING, QUEUED, CHALLENGE_SENT, CONFIRMED, DENIED, FAILED, EXPIRED ]
   
-  # SMS status constants
-  # SENT = CHALLENGE_SENT
-  
-  # Error constants
-  ERROR_INVALID_TO = 101
-  ERROR_INVALID_FROM = 102
-  ERROR_BLACKLISTED_TO = 105
-  ERROR_NOT_SMS_CAPABLE = 103
-  ERROR_CANNOT_ROUTE = 104
-  ERROR_SMS_QUEUE_FULL = 106
-  ERROR_INTERNATIONAL = 107
-  ERROR_MISSING_BODY = 108
-  ERROR_BODY_TOO_LARGE = 109
-  ERROR_UNKNOWN = 127
-  ERROR_STATUSES = [ ERROR_INVALID_TO, ERROR_INVALID_FROM, ERROR_BLACKLISTED_TO, ERROR_NOT_SMS_CAPABLE, ERROR_CANNOT_ROUTE, ERROR_SMS_QUEUE_FULL, ERROR_INTERNATIONAL, ERROR_MISSING_BODY, ERROR_BODY_TOO_LARGE, ERROR_UNKNOWN ]
-  CRITICAL_ERRORS = [ ERROR_MISSING_BODY, ERROR_BODY_TOO_LARGE, ERROR_INTERNATIONAL ]
-
   # attr_accessible :seconds_to_live, :stencil_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :internal_number, :question, :customer_number, :expires_at, :webhook_uri
   attr_accessor :seconds_to_live
   
@@ -291,33 +274,6 @@ class Conversation < ActiveRecord::Base
   def settle_messages_statuses!
     self.settle_messages_statuses
     self.save!
-  end
-  
-  ##
-  # Translate a given Twilio error message into a conversation status message
-  def self.translate_twilio_error_to_conversation_status( error_code )
-    return case error_code
-      when Twilio::ERR_INVALID_TO_PHONE_NUMBER, Twilio::ERR_SMS_TO_REQUIRED
-        ERROR_INVALID_TO
-      when Twilio::ERR_INVALID_FROM_PHONE_NUMBER, Twilio::ERR_SMS_FROM_REQUIRED
-        ERROR_INVALID_FROM
-      when Twilio::ERR_FROM_PHONE_NUMBER_NOT_SMS_CAPABLE, Twilio::ERR_TO_PHONE_NUMBER_NOT_VALID_MOBILE
-        ERROR_NOT_SMS_CAPABLE
-      when Twilio::ERR_FROM_PHONE_NUMBER_EXCEEDED_QUEUE_SIZE
-        ERROR_SMS_QUEUE_FULL
-      when Twilio::ERR_TO_PHONE_NUMBER_CANNOT_RECEIVE_SMS
-        ERROR_CANNOT_ROUTE
-      when Twilio::ERR_TO_PHONE_NUMBER_IS_BLACKLISTED
-        ERROR_BLACKLISTED_TO
-      when Twilio::ERR_INTERNATIONAL_NOT_ENABLED
-        ERROR_INTERNATIONAL
-      when Twilio::ERR_SMS_BODY_REQUIRED
-        ERROR_MISSING_BODY
-      when Twilio::ERR_SMS_BODY_EXCEEDS_MAXIMUM_LENGTH
-        ERROR_BODY_TOO_LARGE
-      else
-        ERROR_UNKNOWN
-      end
   end
   
   def send_webhook_update

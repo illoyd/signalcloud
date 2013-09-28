@@ -3,7 +3,7 @@ class LedgerEntry < ActiveRecord::Base
   PENDING = 0
   SETTLED = 1
   
-  UNKNOWN_NARRATIVE = 'Unknown!'
+  UNKNOWN_NARRATIVE = 'Activity under research'
   OUTBOUND_SMS_NARRATIVE = 'Outbound SMS'
   INBOUND_SMS_NARRATIVE = 'Inbound SMS'
   UNSOLICITED_SMS_NARRATIVE = 'Unsolicited Inbound SMS'

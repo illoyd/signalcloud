@@ -12,6 +12,20 @@ class TwilioCommunicationGateway < CommunicationGateway
   alias_method :twilio_application_sid,  :remote_application
   alias_method :twilio_application_sid=, :remote_application=
   
+  # Error constants
+  ERROR_INVALID_TO = 101
+  ERROR_INVALID_FROM = 102
+  ERROR_BLACKLISTED_TO = 105
+  ERROR_NOT_SMS_CAPABLE = 103
+  ERROR_CANNOT_ROUTE = 104
+  ERROR_SMS_QUEUE_FULL = 106
+  ERROR_INTERNATIONAL = 107
+  ERROR_MISSING_BODY = 108
+  ERROR_BODY_TOO_LARGE = 109
+  ERROR_UNKNOWN = 127
+  ERROR_STATUSES = [ ERROR_INVALID_TO, ERROR_INVALID_FROM, ERROR_BLACKLISTED_TO, ERROR_NOT_SMS_CAPABLE, ERROR_CANNOT_ROUTE, ERROR_SMS_QUEUE_FULL, ERROR_INTERNATIONAL, ERROR_MISSING_BODY, ERROR_BODY_TOO_LARGE, ERROR_UNKNOWN ]
+  CRITICAL_ERRORS = [ ERROR_MISSING_BODY, ERROR_BODY_TOO_LARGE, ERROR_INTERNATIONAL ]
+
   ##
   # Determine if this organization has an authorised Twilio account.
   def has_twilio_account?
@@ -78,12 +92,16 @@ class TwilioCommunicationGateway < CommunicationGateway
   end
   
   def self.prepend_plus( number )
-    '+' + number unless number.start_with? '+'
+    number.start_with?('+') ? number : ( '+' + number  )
   end
   
   ##
   # Send an SMS using the Twilio API.
   def send_sms!( to_number, from_number, body, options={} )
+  
+    raise SignalCloud::InvalidToError if to_number.blank?
+    raise SignalCloud::InvalidFromError if from_number.blank?
+  
     to_number = self.class.prepend_plus(to_number)
     from_number = self.class.prepend_plus(from_number)
     payload = {
@@ -94,14 +112,24 @@ class TwilioCommunicationGateway < CommunicationGateway
     
     payload[:status_callback] = self.twilio_sms_status_url if options.fetch( :default_callback, false )
 
-    response = self.twilio_account.sms.messages.create( payload )
-    return case options.fetch( :response_format, :raw )
-      when :smash
-        response.to_property_smash
-      when :hash
-        response.to_property_hash
+    begin
+      response = self.twilio_account.sms.messages.create( payload )
+      return case options.fetch( :response_format, :smash )
+        when :smash
+          response.to_property_smash
+        when :hash
+          response.to_property_hash
+        else
+          response
+      end
+
+    rescue Twilio::REST::RequestError => ex
+      error_code = self.class.translate_twilio_error_to_conversation_status ex.code
+      if CRITICAL_ERRORS.include? error_code
+        raise SignalCloud::CriticalMessageSendingError.new( body, ex, error_code ) # Rethrow as a critical error
       else
-        response
+        raise SignalCloud::MessageSendingError.new( body, ex, error_code ) # Rethrow in nice wrapper error
+      end
     end
   end
   
@@ -118,6 +146,33 @@ class TwilioCommunicationGateway < CommunicationGateway
   
   def update_number!( phone_number )
     phone_number(phone_number.provider_sid).post(assemble_phone_number_data phone_number)
+  end
+  
+  ##
+  # Translate a given Twilio error message into a conversation status message
+  def self.translate_twilio_error_to_conversation_status( error_code )
+    return case error_code
+      when Twilio::ERR_INVALID_TO_PHONE_NUMBER, Twilio::ERR_SMS_TO_REQUIRED
+        ERROR_INVALID_TO
+      when Twilio::ERR_INVALID_FROM_PHONE_NUMBER, Twilio::ERR_SMS_FROM_REQUIRED
+        ERROR_INVALID_FROM
+      when Twilio::ERR_FROM_PHONE_NUMBER_NOT_SMS_CAPABLE, Twilio::ERR_TO_PHONE_NUMBER_NOT_VALID_MOBILE
+        ERROR_NOT_SMS_CAPABLE
+      when Twilio::ERR_FROM_PHONE_NUMBER_EXCEEDED_QUEUE_SIZE
+        ERROR_SMS_QUEUE_FULL
+      when Twilio::ERR_TO_PHONE_NUMBER_CANNOT_RECEIVE_SMS
+        ERROR_CANNOT_ROUTE
+      when Twilio::ERR_TO_PHONE_NUMBER_IS_BLACKLISTED
+        ERROR_BLACKLISTED_TO
+      when Twilio::ERR_INTERNATIONAL_NOT_ENABLED
+        ERROR_INTERNATIONAL
+      when Twilio::ERR_SMS_BODY_REQUIRED
+        ERROR_MISSING_BODY
+      when Twilio::ERR_SMS_BODY_EXCEEDS_MAXIMUM_LENGTH
+        ERROR_BODY_TOO_LARGE
+      else
+        ERROR_UNKNOWN
+      end
   end
   
 protected

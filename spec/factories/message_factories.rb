@@ -3,6 +3,7 @@ FactoryGirl.define do
   factory :message do
     conversation
     workflow_state     'pending'
+    challenge
     
 #     after(:create) do |message, evaluator|
 #       FactoryGirl.create(:ledger_entry, organization: message.conversation.stencil.organization, item: message, value: message.cost, narrative: LedgerEntry::OUTBOUND_SMS_NARRATIVE )
@@ -14,11 +15,11 @@ FactoryGirl.define do
     end
     
     trait :with_twilio_sid do
-      twilio_sid        'SMe7a99c10b98ee37aa680ee0617c76d21'
+      provider_sid        'SMe7a99c10b98ee37aa680ee0617c76d21'
     end
     
     trait :with_random_twilio_sid do
-      twilio_sid        { 'SM' + SecureRandom.hex(16) }
+      provider_sid        { 'SM' + SecureRandom.hex(16) }
     end
     
     trait :with_provider_response do
@@ -26,7 +27,7 @@ FactoryGirl.define do
         remote_sid { conversation.stencil.organization.communication_gateway.twilio_account_sid rescue 'TEST' }
       end
       provider_response { {
-                          "sid" => twilio_sid,
+                          "sid" => provider_sid,
                           "date_created" => DateTime.now,
                           "date_updated" => DateTime.now,
                           "date_sent" => nil,
@@ -38,7 +39,7 @@ FactoryGirl.define do
                           "direction" => "outbound-api",
                           "api_version" => "2010-04-01",
                           "price" => nil,
-                          "uri" => "\/2010-04-01\/Accounts\/#{remote_sid}\/SMS\/Messages\/#{twilio_sid}.json"
+                          "uri" => "\/2010-04-01\/Accounts\/#{remote_sid}\/SMS\/Messages\/#{provider_sid}.json"
                         } }
     end
 

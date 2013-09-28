@@ -98,7 +98,7 @@ class Message < ActiveRecord::Base
   validates_inclusion_of :message_kind, in: [ CHALLENGE, REPLY, RESPONSE, :challenge, :reply, :response ]
   validates_inclusion_of :direction, in: [ IN, OUT, :in, :out ]
   
-  scope :outstanding, ->{ where( 'messages.status in (?)', OPEN_STATUSES ) }
+  scope :outstanding, ->{ where( 'messages.workflow_state in (?)', OPEN_STATUSES ) }
   
   ##
   # Is the given string composed solely of basic SMS characters?
@@ -131,7 +131,7 @@ class Message < ActiveRecord::Base
     return case dir
       when OUT; LedgerEntry::OUTBOUND_SMS_NARRATIVE
       when IN; LedgerEntry::INBOUND_SMS_NARRATIVE
-      else; UNKNOWN_NARRATIVE
+      else; LedgerEntry::UNKNOWN_NARRATIVE
     end
   end
   
@@ -250,26 +250,12 @@ class Message < ActiveRecord::Base
 protected
 
   def deliver
-#     begin
     unless self.conversation.mock
       self.provider_response = self.conversation.communication_gateway.send_sms!( self.to_number, self.from_number, body, { default_callback: true, response_format: :smash })
       self.provider_sid = self.provider_response.sms_sid
       self.provider_cost = self.provider_response.price
     end
-
-#     rescue Twilio::REST::RequestError => ex
-#       self.status = FAILED
-# 
-#       error_code = Conversation.translate_twilio_error_to_conversation_status ex.code
-#       if Conversation::CRITICAL_ERRORS.include? error_code
-#         raise SignalCloud::CriticalMessageSendingError.new( self.body, ex, error_code ) # Rethrow as a critical error
-#       else
-#         raise SignalCloud::MessageSendingError.new( self.body, ex, error_code ) # Rethrow in nice wrapper error
-#       end
-# 
-#     ensure
-#       self.save
-#     end
+    self.update_parent_status
   end
 
   def receive( sid=nil )
@@ -282,10 +268,6 @@ protected
       self.conversation.response_received_at = self.sent_at
       self.conversation.answer_status = self.workflow_state.to_s
     end
-  end
-
-  def deliver
-    self.update_parent_status
   end
 
   def confirm

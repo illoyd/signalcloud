@@ -138,6 +138,25 @@ end
 class CriticalMessageSendingError < MessageSendingError
 end
 
+
+
+class MessageSending2Error < SignalCloudError; end
+class CriticalMessageSending2Error < MessageSending2Error; end
+
+class InvalidToError < CriticalMessageSending2Error
+  def initialize( original=nil )
+    super( 'The \'To\' number is missing or malformed.', original, 1001 )
+  end
+end
+
+class InvalidFromError < CriticalMessageSending2Error
+  def initialize( original=nil )
+    super( 'The \'From\' number is missing or malformed.', original, 1002 )
+  end
+end
+
+
+
 class InvalidConversationStateError < ConversationError
   def initialize(conversation, original = nil, code = nil)
     super( 'The conversation is in an invalid state.', conversation, original, code )

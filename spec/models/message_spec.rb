@@ -14,16 +14,12 @@ describe Message, :vcr do
   # Validations
   describe 'validations' do
     before(:all) { 3.times { create :message, :with_random_twilio_sid, :with_provider_response } }
-    [ :our_cost, :provider_cost, :conversation_id, :provider_response, :provider_update, :twilio_sid ].each do |attribute| 
-      it { should allow_mass_assignment_of attribute }
-    end
     it { should belong_to(:conversation) }
     it { should have_one(:ledger_entry) }
     # it { should validate_presence_of(:conversation) }
-    it { should ensure_length_of(:twilio_sid).is_equal_to(Twilio::SID_LENGTH) }
     it { should validate_numericality_of(:our_cost) }
     it { should validate_numericality_of(:provider_cost) }
-    it { should validate_uniqueness_of(:twilio_sid) }
+    #it { should validate_uniqueness_of(:twilio_sid) }
   end
   
   describe '.is_sms_charset?' do
@@ -262,31 +258,32 @@ describe Message, :vcr do
   describe '#deliver!' do
     let(:organization) { create :organization, :test_twilio, :with_sid_and_token }
     let(:phone_number) { create :valid_phone_number, organization: organization }
-    let(:phone_book) { create :phone_book, organization: organization }
-    let(:stencil) { create :stencil, organization: organization, phone_book: phone_book }
-    let(:conversation) { create :conversation, stencil: stencil }
-    let!(:phone_book_entry) { create :phone_book_entry, phone_number: phone_number, phone_book: phone_book }
+    let(:phone_book)   { create :phone_book, organization: organization }
+    let(:stencil)      { create :stencil, organization: organization, phone_book: phone_book }
+    let(:conversation) { create :conversation, :real, stencil: stencil }
+    let(:phone_book_entry) { create :phone_book_entry, phone_number: phone_number, phone_book: phone_book }
+    before { phone_book_entry }
 
     context 'when properly configured' do
-      subject { build :message, conversation: conversation, to_number: Twilio::VALID_NUMBER, from_number: Twilio::VALID_NUMBER, body: 'Hello!' }
+      subject { create :message, conversation: conversation, to_number: Twilio::VALID_NUMBER, from_number: Twilio::VALID_NUMBER, body: 'Hello!' }
       it 'does not raise error' do
         expect { subject.deliver! }.to_not raise_error
       end
       it 'sets twilio sms sid' do
-        expect { subject.deliver! }.to change{subject.twilio_sid}.from(nil)
+        expect { subject.deliver! }.to change{subject.provider_sid}.from(nil)
       end
       it 'sets provider_response' do
         expect { subject.deliver! }.to change{subject.provider_response}.from(nil)
       end
-      it 'sets status' do
-        expect { subject.deliver! }.to change{subject.status}.from(Message::PENDING)
+      it 'sets workflow_state' do
+        expect { subject.deliver! }.to change{subject.workflow_state}.from('pending').to('sending')
       end
     end
 
     context 'when missing TO' do
-      subject { build :message, conversation: conversation, to_number: nil, from_number: Twilio::VALID_NUMBER, body: 'Hello!' }
+      subject { create :message, conversation: conversation, to_number: nil, from_number: Twilio::VALID_NUMBER, body: 'Hello!' }
       it "raises error" do
-        expect{ subject.deliver! }.to raise_error( SignalCloud::MessageSendingError )
+        expect{ subject.deliver! }.to raise_error( SignalCloud::MessageSending2Error )
       end
       it 'does not change provider response' do
         expect{ subject.deliver! rescue nil }.to_not change{subject.provider_response}
@@ -294,9 +291,9 @@ describe Message, :vcr do
     end
 
     context 'when missing FROM' do
-      subject { build :message, conversation: conversation, to_number: Twilio::VALID_NUMBER, from_number: nil, body: 'Hello!' }
+      subject { create :message, conversation: conversation, to_number: Twilio::VALID_NUMBER, from_number: nil, body: 'Hello!' }
       it "raises error" do
-        expect{ subject.deliver! }.to raise_error( SignalCloud::MessageSendingError )
+        expect{ subject.deliver! }.to raise_error( SignalCloud::MessageSending2Error )
       end
       it 'does not change provider response' do
         expect{ subject.deliver! rescue nil }.to_not change{subject.provider_response}
@@ -304,7 +301,7 @@ describe Message, :vcr do
     end
 
     context 'when missing BODY' do
-      subject { build :message, conversation: conversation, to_number: Twilio::VALID_NUMBER, from_number: Twilio::VALID_NUMBER, body: nil }
+      subject { create :message, conversation: conversation, to_number: Twilio::VALID_NUMBER, from_number: Twilio::VALID_NUMBER, body: nil }
       it "raises error" do
         expect{ subject.deliver! }.to raise_error( SignalCloud::CriticalMessageSendingError )
       end
