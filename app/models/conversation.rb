@@ -68,7 +68,6 @@ class Conversation < ActiveRecord::Base
   OPEN_STATUSES = [ :asking, :asked, 'asking', 'asked' ]
   STATUSES = [ PENDING, QUEUED, CHALLENGE_SENT, CONFIRMED, DENIED, FAILED, EXPIRED ]
   
-  # attr_accessible :seconds_to_live, :stencil_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :internal_number, :question, :customer_number, :expires_at, :webhook_uri
   attr_accessor :seconds_to_live
   
   # Encrypted attributes
@@ -282,7 +281,10 @@ class Conversation < ActiveRecord::Base
     
     # Assemble a webhook client and send self as update
     client = WebhookClient.new self.webhook_uri
+    
+    # Compile JSON and deliver it
     client.deliver self
+    true    
   end
 
 protected

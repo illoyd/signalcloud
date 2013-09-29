@@ -205,17 +205,20 @@ class Message < ActiveRecord::Base
   # Query the provider (Twilio, Nexmo, etc.) status of this message.
   def provider_status
     # self.organization.twilio_account.sms.messages.get( self.twilio_sid )
-    self.conversation.communication_gateway.sms_status self.provider_id
+    self.conversation.communication_gateway.message(self.provider_sid).to_property_smash
   end
   
   ##
   # Query the provider (Twilio, Nexmo, etc.) status of this message.
   def refresh_from_provider
-    response = self.provider_status.to_property_smash
-    self.status = response.message_status # Message.translate_twilio_message_status response.status
+    response = self.provider_status
+    #self.status = response.message_status # Message.translate_twilio_message_status response.status
     self.sent_at = response.sent_at
     self.provider_cost = response.price # ( Float(response.price) rescue nil )
     self.provider_response = response
+    
+    # If provider says we've sent, send!
+    self.confirm! if response.message_status == 'sent'
   end
   
   def refresh_from_provider!
@@ -266,7 +269,7 @@ protected
     # Update parent conversation
     unless self.conversation.nil?
       self.conversation.response_received_at = self.sent_at
-      self.conversation.answer_status = self.workflow_state.to_s
+      # self.conversation.answer_status = self.workflow_state.to_s
     end
   end
 

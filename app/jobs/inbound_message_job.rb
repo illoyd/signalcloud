@@ -58,17 +58,26 @@ class InboundMessageJob
       unsolicited_message.action_taken = PhoneNumber::IGNORE
     end
 
-    unsolicited_message.save
+    unsolicited_message.save!
   end
   
   def perform_matching_conversation_action( conversation )
     conversation.with_lock do
-      message = conversation.messages.create( provider_sid: @sms.sms_sid, from_number: @sms.from, to_number: @sms.to, body: @sms.body, direction: Message::IN, provider_response: @provider_update )
+      # Move conversation to receiving state
+      conversation.receive!
+      
+      # Create the internal message
+      message = conversation.messages.create( provider_sid: @sms.sms_sid, from_number: @sms.from, to_number: @sms.to, body: @sms.body, message_kind: Message::RESPONSE, direction: Message::IN, provider_response: @provider_update )
+      message.save!
       message.receive!
-      #message.refresh_from_twilio!
+      
+      # Move conversation to received state
+      conversation.received!
   
       # Accept the answer
       conversation.accept_answer! @sms.body
+      
+      # Save the damn fool
       conversation.save!
     end
   end

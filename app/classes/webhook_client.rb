@@ -10,7 +10,16 @@ class WebhookClient
   end
   
   def deliver( obj )
-    body = obj.as_json
-    self.class.post( self.webhook_uri, body: body )
+    body = if obj.respond_to? :active_model_serializer
+        obj.active_model_serializer.new(obj, {scope: obj}).to_json
+      else
+        obj.to_s
+      end
+    
+    begin
+      unless self.class.post( self.webhook_uri, body: body )
+        raise RuntimeError.new( 'Could not deliver webhook data.' )
+      end
+    end
   end
 end

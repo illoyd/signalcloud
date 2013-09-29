@@ -331,7 +331,7 @@ ActiveRecord::Schema.define(:version => 20130924181022) do
 
   create_table "unsolicited_calls", :force => true do |t|
     t.integer  "phone_number_id"
-    t.string   "twilio_call_sid", :limit => 34,                                              :null => false
+    t.string   "provider_sid",    :limit => 34,                                              :null => false
     t.string   "customer_number",                                                            :null => false
     t.datetime "received_at",                                                                :null => false
     t.integer  "action_taken",                                                :default => 0, :null => false
@@ -348,7 +348,7 @@ ActiveRecord::Schema.define(:version => 20130924181022) do
 
   create_table "unsolicited_messages", :force => true do |t|
     t.integer  "phone_number_id"
-    t.string   "twilio_sms_sid",  :limit => 34,                                              :null => false
+    t.string   "provider_sid",    :limit => 34,                                              :null => false
     t.string   "customer_number",                                                            :null => false
     t.datetime "received_at",                                                                :null => false
     t.integer  "action_taken",                                                :default => 0, :null => false

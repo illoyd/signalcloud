@@ -60,6 +60,10 @@ FactoryGirl.define do
     trait :real do
       mock false
     end
+    
+    trait :mock do
+      mock true
+    end
 
   end
 
