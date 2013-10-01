@@ -14,7 +14,7 @@ class ExpireConversationJob
     conversation = self.find_conversation(conversation_id)
     
     # If the conversation is not found or is closed, short-circuit and stop
-    return true if conversation.nil? or conversation.is_closed?
+    return true if ( conversation.nil? or conversation.is_closed? )
     
     # Retry expiration later if conversation has not expired
     if conversation.is_open? and !conversation.is_expired?
@@ -50,7 +50,7 @@ class ExpireConversationJob
   protected
 
   def find_conversation(conversation_id)
-    return Conversation.where( id: conversation_id, status: Conversation::OPEN_STATUSES ).first
+    return Conversation.opened.where( id: conversation_id ).first
   end
   
 end

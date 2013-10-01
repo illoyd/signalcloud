@@ -12,24 +12,43 @@ class SendConversationChallengeJob
 
   def perform( conversation_id )
     conversation = Conversation.find( conversation_id )
-
+    message = nil
+    
+    # Skip if unable to send
+    unless conversation.can_ask?
+      logger.debug{ 'Skipping as challenge message has already been sent.' }
+      return true
+    end
+    
+    # Continue
     logger.debug{ 'Sending challenge message.' }
     begin
       message = conversation.ask!
+      conversation.save!
       logger.info{ 'Sent challenge message (Provider: %s).' % [messages.provider_sid] }
       
       # Create and enqueue a new expiration job
       ExpireConversationJob.perform_at( conversation.expires_at, conversation.id )
 
     rescue SignalCloud::ChallengeAlreadySentError => ex
-     logger.debug{ 'Skipping as challenge message has already been sent.' }
+      logger.debug{ 'Skipping as challenge message has already been sent.' }
     
-    rescue SignalCloud::MessageSendingError => ex
-     logger.warn{ ex.message }
+    rescue SignalCloud::MessageError => ex
+      logger.warn{ ex.message }
+      ex.conversation_message.error!
+      # ex.conversation_message.save!
+      conversation.error!
     
     rescue => ex
       logger.error{ 'FAILED to send challenge message: %s.' % [ex.message] }
+#       message = conversation.messages.challenges.order('created_at').last
+#       ex.conversation_message.error!
+#       ex.conversation_message.save!
+#       conversation.error!
       raise ex
+    
+    ensure
+      conversation.save
 
     end
 

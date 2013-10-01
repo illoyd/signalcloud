@@ -24,6 +24,12 @@ describe PhoneBookEntry do
     let(:invalid_alpha2) { 'MO' }
     let(:invalid_alpha3) { 'MOO' }
     
+    let(:organization) { build :organization, :test_twilio }
+    let(:comm_gateway) { organization.communication_gateways.first }
+    let(:phone_number) { build :phone_number, organization: organization, communication_gateway: comm_gateway }
+    let(:phone_book)   { build :phone_book, organization: organization }
+    subject { build :phone_book_entry, phone_number: phone_number, phone_book: phone_book }
+    
     it "accepts valid country alpha2" do
       subject.country = valid_alpha2
       expect { subject.standardise_country }.not_to change(subject, :country)

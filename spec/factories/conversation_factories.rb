@@ -24,33 +24,81 @@ FactoryGirl.define do
       response_received_at    { DateTime.now }
       workflow_state          'received'
     end
-
+    
     trait :reply_sent do
       reply_sent_at           { DateTime.now }
       reply_status            'sent'
     end
+    
+    trait :draft do
+      workflow_state          'draft'
+    end
+    
+    trait :asking do
+      challenge_status        'sending'
+      workflow_state          'asking'
+    end
+
+    trait :asked do
+      asking
+      challenge_sent_at       { DateTime.now }
+      challenge_status        'sent'
+      workflow_state          'asked'
+    end
+    
+    trait :receiving do
+      asked
+      workflow_state          'receiving'
+    end
+
+    trait :received do
+      receiving
+      response_received_at    { DateTime.now }
+      workflow_state          'received'
+    end
+    
+    trait :confirming do
+      sending_reply
+      workflow_state          'confirming'
+    end
 
     trait :confirmed do
-      challenge_sent
-      response_received
+      sent_reply
       workflow_state          'confirmed'
     end
 
+    trait :denying do
+      sending_reply
+      workflow_state          'denying'
+    end
+
     trait :denied do
-      challenge_sent
-      response_received
+      sent_reply
       workflow_state          'denied'
     end
 
+    trait :failing do
+      sending_reply
+      workflow_state          'failing'
+    end
+
     trait :failed do
-      challenge_sent
-      response_received
+      sent_reply
       workflow_state          'failed'
     end
 
+    trait :expiring do
+      sending_reply
+      workflow_state          'expiring'
+    end
+
     trait :expired do
-      challenge_sent
+      sent_reply
       workflow_state          'expired'
+    end
+    
+    trait :errored do
+      workflow_state          'errored'
     end
     
     trait :with_webhook_uri do
@@ -65,6 +113,22 @@ FactoryGirl.define do
       mock true
     end
 
+
+    ##
+    # Intended for internal use only
+    trait :sending_reply do
+      received
+      reply_status            'sending'      
+    end
+    
+    ##
+    # Intneded for internal use 
+    trait :sent_reply do
+      sending_reply
+      reply_sent_at           { DateTime.now }
+      reply_status            'sent'
+    end
+    
   end
 
 end

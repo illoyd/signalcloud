@@ -17,6 +17,11 @@ class Message < ActiveRecord::Base
     state :failed
     state :received
     state :errored
+    
+    after_transition do |from, to, event, args|
+      update_parent_status
+      update_costs
+    end
   end
   
   before_validation :update_ledger_entry
@@ -99,6 +104,13 @@ class Message < ActiveRecord::Base
   validates_inclusion_of :direction, in: [ IN, OUT, :in, :out ]
   
   scope :outstanding, ->{ where( 'messages.workflow_state in (?)', OPEN_STATUSES ) }
+  scope :challenges,  ->{ where( message_kind: CHALLENGE ) }
+  scope :responses,   ->{ where( message_kind: RESPONSE ) }
+  scope :replies,     ->{ where( message_kind: REPLY ) }
+  
+  ##
+  # Delegate specific functions to the parent conversation
+  delegate :communication_gateway, to: :conversation
   
   ##
   # Is the given string composed solely of basic SMS characters?
@@ -233,14 +245,14 @@ class Message < ActiveRecord::Base
   ##
   # Is this message a challenge?
   def challenge?
-    self.message_kind == CHALLENGE
+    self.message_kind.to_s == CHALLENGE
   end
   alias_method :is_challenge?, :challenge?
   
   ##
   # Is this message a reply?
   def reply?
-    self.message_kind == REPLY
+    self.message_kind.to_s == REPLY
   end
   alias_method :is_reply?, :reply?
   
@@ -253,12 +265,26 @@ class Message < ActiveRecord::Base
 protected
 
   def deliver
-    unless self.conversation.mock
-      self.provider_response = self.conversation.communication_gateway.send_sms!( self.to_number, self.from_number, body, { default_callback: true, response_format: :smash })
-      self.provider_sid = self.provider_response.sms_sid
-      self.provider_cost = self.provider_response.price
+    begin
+      unless self.conversation.mock
+        self.provider_response = self.communication_gateway.send_sms!( self.to_number, self.from_number, body, { default_callback: true, response_format: :smash })
+        self.provider_sid = self.provider_response.sms_sid
+        self.provider_cost = self.provider_response.price
+      end
+
+    rescue SignalCloud::InvalidToNumberCommunicationGatewayError => ex
+      raise SignalCloud::InvalidToNumberMessageSendingError.new self
+
+    rescue SignalCloud::InvalidFromNumberCommunicationGatewayError => ex
+      raise SignalCloud::InvalidFromNumberMessageSendingError.new self
+
+    rescue SignalCloud::InvalidMessageBodyCommunicationGatewayError => ex
+      raise SignalCloud::InvalidBodyMessageSendingError.new self
+
+    rescue SignalCloud::CommunicationGatewayError => ex
+      raise SignalCloud::CriticalMessageError.new self
+
     end
-    self.update_parent_status
   end
 
   def receive( sid=nil )
@@ -274,7 +300,6 @@ protected
   end
 
   def confirm
-    self.update_parent_status
     # Update parent conversation
     unless self.conversation.nil?
       # If this is a CHALLENGE message
@@ -288,11 +313,11 @@ protected
   end
 
   def fail
-    self.update_parent_status
+    # Do nothing
   end
   
   def error
-    self.update_parent_status
+    # Do nothing
   end
   
   def update_parent_status
@@ -310,5 +335,5 @@ protected
   def update_costs
     
   end
-
+  
 end

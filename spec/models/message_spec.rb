@@ -283,7 +283,7 @@ describe Message, :vcr do
     context 'when missing TO' do
       subject { create :message, conversation: conversation, to_number: nil, from_number: Twilio::VALID_NUMBER, body: 'Hello!' }
       it "raises error" do
-        expect{ subject.deliver! }.to raise_error( SignalCloud::MessageSending2Error )
+        expect{ subject.deliver! }.to raise_error( SignalCloud::InvalidToNumberMessageSendingError )
       end
       it 'does not change provider response' do
         expect{ subject.deliver! rescue nil }.to_not change{subject.provider_response}
@@ -293,7 +293,7 @@ describe Message, :vcr do
     context 'when missing FROM' do
       subject { create :message, conversation: conversation, to_number: Twilio::VALID_NUMBER, from_number: nil, body: 'Hello!' }
       it "raises error" do
-        expect{ subject.deliver! }.to raise_error( SignalCloud::MessageSending2Error )
+        expect{ subject.deliver! }.to raise_error( SignalCloud::InvalidFromNumberMessageSendingError )
       end
       it 'does not change provider response' do
         expect{ subject.deliver! rescue nil }.to_not change{subject.provider_response}
@@ -303,7 +303,7 @@ describe Message, :vcr do
     context 'when missing BODY' do
       subject { create :message, conversation: conversation, to_number: Twilio::VALID_NUMBER, from_number: Twilio::VALID_NUMBER, body: nil }
       it "raises error" do
-        expect{ subject.deliver! }.to raise_error( SignalCloud::CriticalMessageSendingError )
+        expect{ subject.deliver! }.to raise_error( SignalCloud::InvalidBodyMessageSendingError )
       end
       it 'does not change provider response' do
         expect{ subject.deliver! rescue nil }.to_not change{subject.provider_response}

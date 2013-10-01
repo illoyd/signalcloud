@@ -99,8 +99,9 @@ class TwilioCommunicationGateway < CommunicationGateway
   # Send an SMS using the Twilio API.
   def send_sms!( to_number, from_number, body, options={} )
   
-    raise SignalCloud::InvalidToError if to_number.blank?
-    raise SignalCloud::InvalidFromError if from_number.blank?
+    raise SignalCloud::InvalidToNumberCommunicationGatewayError if to_number.blank?
+    raise SignalCloud::InvalidFromNumberCommunicationGatewayError if from_number.blank?
+    raise SignalCloud::InvalidMessageBodyCommunicationGatewayError if body.blank?
   
     to_number = self.class.prepend_plus(to_number)
     from_number = self.class.prepend_plus(from_number)
@@ -124,12 +125,26 @@ class TwilioCommunicationGateway < CommunicationGateway
       end
 
     rescue Twilio::REST::RequestError => ex
-      error_code = self.class.translate_twilio_error_to_conversation_status ex.code
-      if CRITICAL_ERRORS.include? error_code
-        raise SignalCloud::CriticalMessageSendingError.new( body, ex, error_code ) # Rethrow as a critical error
-      else
-        raise SignalCloud::MessageSendingError.new( body, ex, error_code ) # Rethrow in nice wrapper error
+      case ex.code
+        when Twilio::ERR_INVALID_TO_PHONE_NUMBER, Twilio::ERR_SMS_TO_REQUIRED, Twilio::ERR_TO_PHONE_NUMBER_NOT_VALID_MOBILE
+          raise SignalCloud::InvalidToNumberCommunicationGatewayError.new self
+  
+        when Twilio::ERR_INVALID_FROM_PHONE_NUMBER, Twilio::ERR_SMS_FROM_REQUIRED
+          raise SignalCloud::InvalidFromNumberCommunicationGatewayError.new self
+  
+        when Twilio::ERR_SMS_BODY_EXCEEDS_MAXIMUM_LENGTH, Twilio::ERR_SMS_BODY_REQUIRED
+          raise SignalCloud::InvalidMessageBodyCommunicationGatewayError.new self
+  
+        when Twilio::ERR_TO_PHONE_NUMBER_CANNOT_RECEIVE_SMS, Twilio::ERR_TO_PHONE_NUMBER_IS_BLACKLISTED
+          raise SignalCloud::MessageDeliveryCommunicationGatewayError.new self
+  
+        when Twilio::ERR_INTERNATIONAL_NOT_ENABLED, Twilio::ERR_FROM_PHONE_NUMBER_NOT_SMS_CAPABLE
+          raise SignalCloud::CommunicationGatewayConfigurationError.new self
+  
+        else
+          raise SignalCloud::CommunicationGatewayError.new self
       end
+
     end
   end
   
