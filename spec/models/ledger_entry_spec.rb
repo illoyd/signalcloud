@@ -9,10 +9,6 @@ describe LedgerEntry do
       it { should validate_presence_of(attribute) }
     end
 
-    [:organization_id, :item_id, :item_type, :narrative].each do |attribute|
-      it { should allow_mass_assignment_of(attribute) }
-    end
-
     it { should validate_numericality_of( :value ) }
     it { should belong_to :organization }
     it { should belong_to :item }
@@ -21,8 +17,8 @@ describe LedgerEntry do
   describe '#ensure_organization' do
     context 'item\'s organization is new' do
       let(:organization) { build :organization, :test_twilio }
-      let(:comm_gateway) { organization.communication_gateways.first }
-      let(:item) { build :phone_number, organization: organization, communication_gateways: comm_gateway }
+      let(:comm_gateway) { organization.communication_gateway_for :twilio }
+      let(:item) { build :phone_number, organization: organization, communication_gateway: comm_gateway }
       subject { build :ledger_entry, item: item, organization: nil }
       
       it 'updates organization' do
@@ -34,8 +30,9 @@ describe LedgerEntry do
     end
     
     context 'item\'s organization is persisted' do
-      let(:organization) { create :organization }
-      let(:item) { create :phone_number, organization: organization, communication_gateways: comm_gateway }
+      let(:organization) { create :organization, :test_twilio }
+      let(:comm_gateway) { organization.communication_gateway_for :twilio }
+      let(:item) { create :phone_number, organization: organization, communication_gateway: comm_gateway }
       subject { build :ledger_entry, item: item, organization: nil }
 
       it 'updates organization' do
@@ -47,9 +44,10 @@ describe LedgerEntry do
     end
     
     context 'item\'s organization changes' do
-      let(:organization) { create :organization }
-      let(:other_organization) { create :organization }
-      let(:item) { create :phone_number, organization: organization, communication_gateways: comm_gateway }
+      let(:organization) { create :organization, :test_twilio }
+      let(:comm_gateway) { organization.communication_gateway_for :twilio }
+      let(:other_organization) { create :organization, :test_twilio }
+      let(:item) { create :phone_number, organization: organization, communication_gateway: comm_gateway }
       subject { build :ledger_entry, item: item, organization: organization }
 
       it 'updates organization' do

@@ -99,9 +99,9 @@ class TwilioCommunicationGateway < CommunicationGateway
   # Send an SMS using the Twilio API.
   def send_sms!( to_number, from_number, body, options={} )
   
-    raise SignalCloud::InvalidToNumberCommunicationGatewayError if to_number.blank?
-    raise SignalCloud::InvalidFromNumberCommunicationGatewayError if from_number.blank?
-    raise SignalCloud::InvalidMessageBodyCommunicationGatewayError if body.blank?
+    raise SignalCloud::InvalidToNumberCommunicationGatewayError.new(self) if to_number.blank?
+    raise SignalCloud::InvalidFromNumberCommunicationGatewayError.new(self) if from_number.blank?
+    raise SignalCloud::InvalidMessageBodyCommunicationGatewayError.new(self) if body.blank?
   
     to_number = self.class.prepend_plus(to_number)
     from_number = self.class.prepend_plus(from_number)

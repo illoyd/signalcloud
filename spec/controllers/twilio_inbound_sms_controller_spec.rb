@@ -1,7 +1,7 @@
 require 'spec_helper'
 describe Twilio::InboundSmsController do
   #render_views
-  let(:organization) { create(:test_organization, :test_twilio, :with_sid_and_token) }
+  let(:organization) { create(:test_organization, :with_sid_and_token) }
   let(:comm_gateway) { organization.communication_gateways.first }
   let(:to_phone_number) { build( :phone_number, organization: organization, communication_gateway: comm_gateway ) }
   let(:from_phone_number) { build( :phone_number, organization: organization, communication_gateway: comm_gateway ) }
