@@ -137,7 +137,7 @@ class Conversation < ActiveRecord::Base
   end
   
   def self.count_by_status_hash( conversation_query )
-    counts = conversation_query.count_by_status.readonly.each_with_object({}) { |v, h| h[v.status] = v.count.to_i }
+    counts = conversation_query.count_by_status.readonly.each_with_object({}) { |v, h| h[v.workflow_state] = v.count.to_i }
     Conversation::STATUSES.each { |status| counts[status] = 0 unless counts.include?(status) }
     return counts
   end

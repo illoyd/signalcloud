@@ -8,7 +8,7 @@ describe Twilio::SmsUpdatesController do
       To: to_phone_number.number,
       From: from_phone_number.number,
       SmsSid: 'SM'+SecureRandom.hex(16),
-      AccountSid: organization.communication_gateway.twilio_account_sid,
+      AccountSid: organization.communication_gateway_for(:twilio),
       Body: 'Hello!'
     } }
 

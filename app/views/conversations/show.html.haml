@@ -13,8 +13,8 @@
           = @conversation.stencil.label
         %p
           %b Status:
-          = conversation_status_icon @conversation.status
-          = human_conversation_status @conversation.status
+          = conversation_status_icon @conversation.workflow_state
+          = human_conversation_status @conversation.workflow_state
         %p
           %b Conversation Expires:
           = l @conversation.expires_at

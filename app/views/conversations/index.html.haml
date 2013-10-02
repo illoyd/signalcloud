@@ -63,7 +63,7 @@
                 = conversation_status_icon(conversation.workflow_state)
                 = human_conversation_status(conversation.workflow_state)
             %td= humanize_phone_number Phony.normalize conversation.internal_number
-            %td= humanize_phone_number Phony.normalize conversation.to_number
+            %td= humanize_phone_number Phony.normalize conversation.customer_number
             %td= conversation.expires_at
             %td{style:'text-align:center'}= conversation.challenge_sent_at ? icon(:ok) : ''
             %td{style:'text-align:center'}= conversation.response_received_at ? icon(:ok) : ''
