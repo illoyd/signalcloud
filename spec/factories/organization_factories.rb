@@ -30,11 +30,19 @@ FactoryGirl.define do
     end
     
     trait :test_twilio do
-      after(:build) { |org| org.communication_gateways << build( :twilio_communication_gateway, :test, organization: org ) }
+      after(:build) do |org|
+        unless org.communication_gateway_for? :twilio
+          org.communication_gateways << build( :twilio_communication_gateway, :test, organization: org )
+        end
+      end
     end
     
     trait :master_twilio do
-      after(:build) { |org| org.communication_gateways << build( :twilio_communication_gateway, :master, organization: org ) }
+      after(:build) do |org|
+        unless org.communication_gateway_for? :twilio
+          org.communication_gateways << build( :twilio_communication_gateway, :master, organization: org )
+        end
+      end
     end
     
     trait :with_twilio do

@@ -1,7 +1,7 @@
 require 'spec_helper'
 describe Twilio::InboundCallsController do
-  let(:organization) { create(:test_organization, :test_twilio, :with_sid_and_token) }
-  let(:comm_gateway) { organization.communication_gateways.first }
+  let(:organization) { create(:test_organization, :with_sid_and_token) }
+  let(:comm_gateway) { organization.communication_gateway_for(:twilio) }
 
   def build_post_params( params={} )
     { 'CallSid' => 'CA' + SecureRandom.hex(16),
@@ -73,7 +73,7 @@ describe Twilio::InboundCallsController do
         end
         it 'records call sid' do
           post :create, params
-          phone_number.unsolicited_calls(true).order('created_at').last.twilio_call_sid.should_not be_nil
+          phone_number.unsolicited_calls(true).order('created_at').last.provider_sid.should_not be_nil
         end
         it 'records call contents' do
           post :create, params
@@ -119,7 +119,7 @@ describe Twilio::InboundCallsController do
         end
         it 'records call sid' do
           post :create, params
-          phone_number.unsolicited_calls(true).order('created_at').last.twilio_call_sid.should_not be_nil
+          phone_number.unsolicited_calls(true).order('created_at').last.provider_sid.should_not be_nil
         end
         it 'records call contents' do
           post :create, params
@@ -177,7 +177,7 @@ describe Twilio::InboundCallsController do
         end
         it 'records call sid' do
           post :create, params
-          phone_number.unsolicited_calls(true).order('created_at').last.twilio_call_sid.should_not be_nil
+          phone_number.unsolicited_calls(true).order('created_at').last.provider_sid.should_not be_nil
         end
         it 'records call contents' do
           post :create, params

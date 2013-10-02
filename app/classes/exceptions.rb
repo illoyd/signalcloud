@@ -3,7 +3,7 @@ module SignalCloud
 class Error < StandardError
   attr_accessor :original
   def initialize( msg = nil, original = $! )
-    super( msg )
+    super( msg || original.try(:message) )
     @original = original
   end
   def code

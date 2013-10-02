@@ -130,6 +130,10 @@ class Organization < ActiveRecord::Base
       end
     self.communication_gateways.where( type: klass ).first
   end
+  
+  def communication_gateway_for?( service )
+    !communication_gateway_for( service ).nil?
+  end
 
 private
 

@@ -26,7 +26,7 @@ class Twilio::InboundCallsController < ApplicationController
     phone_number = PhoneNumber.find_by_number( params[:To] ).first
     
     # Add record of inbound call
-    unsolicited_call = phone_number.nil? ? nil : phone_number.unsolicited_calls.build( twilio_call_sid: params[:CallSid], customer_number: params[:From], received_at: DateTime.now, call_content: params )
+    unsolicited_call = phone_number.nil? ? nil : phone_number.unsolicited_calls.build( provider_sid: params[:CallSid], customer_number: params[:From], received_at: DateTime.now, call_content: params )
 
     # Respond with an appropriate action
     twiml = Twilio::TwiML::Response.new do |r|
