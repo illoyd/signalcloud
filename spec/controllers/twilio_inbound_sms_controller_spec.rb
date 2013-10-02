@@ -2,14 +2,14 @@ require 'spec_helper'
 describe Twilio::InboundSmsController do
   #render_views
   let(:organization) { create(:test_organization, :with_sid_and_token) }
-  let(:comm_gateway) { organization.communication_gateways.first }
+  let(:comm_gateway) { organization.communication_gateway_for(:twilio) }
   let(:to_phone_number) { build( :phone_number, organization: organization, communication_gateway: comm_gateway ) }
   let(:from_phone_number) { build( :phone_number, organization: organization, communication_gateway: comm_gateway ) }
   let(:inbound_post_params) { {
       To: to_phone_number.number,
       From: from_phone_number.number,
       SmsSid: 'SM'+SecureRandom.hex(16),
-      AccountSid: organization.communication_gateway.twilio_account_sid,
+      AccountSid: organization.communication_gateway_for(:twilio).remote_sid,
       Body: 'Hello!'
     } }
 

@@ -21,7 +21,7 @@ describe TwilioCommunicationGateway, :vcr do
     its(:ready?) { should be_false }
 
     describe '#create_remote!' do
-      subject { build :twilio_communication_gateway, organization: organization }
+      subject { create :twilio_communication_gateway, organization: organization }
       it 'does not throw an error' do
         expect{ subject.create_remote! }.not_to raise_error
       end
@@ -38,7 +38,7 @@ describe TwilioCommunicationGateway, :vcr do
         expect{ subject.create_remote! }.to change(subject, :updated_remote_at).from(nil)
       end
       it 'transitions from new to ready' do
-        expect { subject.create_remote! }.to change(subject, :workflow_state).to('ready')
+        expect{ subject.create_remote! }.to change(subject, :workflow_state).to('ready')
       end
     end
 
@@ -101,7 +101,7 @@ describe TwilioCommunicationGateway, :vcr do
   end # Context when new
   
   context 'when ready' do
-    subject { build :twilio_communication_gateway, :test, organization: organization }
+    subject { create :twilio_communication_gateway, :test, organization: organization }
 
     its(:new?)   { should be_false }
     its(:ready?) { should be_true  }
@@ -178,8 +178,8 @@ describe TwilioCommunicationGateway, :vcr do
       subject { build :twilio_communication_gateway, :test, organization: organization }
       
       context 'when requesting default response' do
-        it 'returns a RESTful resource' do
-          subject.send_sms!( to_number, from_number, body ).should be_a Twilio::REST::InstanceResource
+        it 'returns a smash resource' do
+          subject.send_sms!( to_number, from_number, body ).should be_a APISmith::Smash
         end
       end
       
@@ -211,7 +211,7 @@ describe TwilioCommunicationGateway, :vcr do
       end
       
       context 'when requesting with callback'  do
-        let(:query) { subject.send_sms!( to_number, from_number, body, default_callback: true ) }
+        let(:query) { subject.send_sms!( to_number, from_number, body, response_format: :raw, default_callback: true ) }
 
         it 'returns a RESTful resource' do
           query.should be_a Twilio::REST::InstanceResource
@@ -265,7 +265,7 @@ describe TwilioCommunicationGateway, :vcr do
       context 'when requesting smash response' do
         let(:query) { subject.send_sms!( to_number, from_number, body, response_format: :smash ) }
 
-        it 'returns a Hash resource' do
+        it 'returns a Smash resource' do
           query.should be_a APISmith::Smash
         end
         it 'returns the TO' do
