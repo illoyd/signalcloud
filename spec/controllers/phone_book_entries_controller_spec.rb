@@ -2,9 +2,10 @@ require 'spec_helper'
 describe PhoneBookEntriesController do
   let(:user)         { create :user }
   let(:plan)         { create :account_plan, :default }
-  let(:organization) { create :organization, account_plan: plan }
+  let(:organization) { create :organization, :test_twilio, account_plan: plan }
+  let(:comm_gateway) { organization.communication_gateway_for :twilio }
   let(:phone_book)   { create :phone_book, organization: organization }
-  let(:phone_number) { create :phone_number, organization: organization }
+  let(:phone_number) { create :phone_number, organization: organization, communication_gateway: comm_gateway }
 
   let(:phone_book_entry) { create :phone_book_entry, country: country, phone_book: phone_book, phone_number: phone_number }
 
