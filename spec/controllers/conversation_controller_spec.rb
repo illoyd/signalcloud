@@ -100,11 +100,11 @@ describe ConversationsController do
       end
       it 'sets conversation\'s customer_number' do
         post :create, create_payload
-        Conversation.last.customer_number.should == customer_number
+        Conversation.last.customer_number.should == customer_number.gsub(/^\+/,'')
       end
       it 'sets conversation\'s internal_number' do
         post :create, create_payload
-        Conversation.last.internal_number.should == internal_number
+        Conversation.last.internal_number.should == internal_number.gsub(/^\+/,'')
       end
       it 'raises 400 bad request if no parameters' do
         post :create, organization_id: organization.id, stencil_id: stencil.id

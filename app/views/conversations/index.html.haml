@@ -8,7 +8,7 @@
 .row
   .span12.table-tools
     = stencil_dropdown_list( @organization, @stencil )
-    = status_dropdown_list( @organization, @stencil, params[:status] )
+    -# = status_dropdown_list( @organization, @stencil, params[:status] )
     - if can? :new, Conversation
       .pull-right= link_to 'Start a new conversation', conversation_path, :class=>'btn btn-success btn-small'
 
@@ -48,7 +48,7 @@
               %em No conversations match your selected filters. Please remove your filters to see more conversations.
         
         - @conversations.each do |conversation|
-          %tr{ :class=>conversation_class(conversation.status) }
+          %tr{ :class=>conversation_class(conversation.workflow_state) }
             %td= split_dropdown_list([ |
                 { label: 'Details', icon: :show, link: [@organization, conversation], if: can?(:show, conversation) }, |
                 { label: 'Force status to Confirmed', icon: 'ok-sign', link: [@organization, conversation], if: can?(:force, conversation) }, |
@@ -60,8 +60,8 @@
               %td= link_to conversation.stencil.label, [@organization, conversation.stencil]
             %td
               = link_to [@organization, conversation] do
-                = conversation_status_icon(conversation.status)
-                = human_conversation_status(conversation.status)
+                = conversation_status_icon(conversation.workflow_state)
+                = human_conversation_status(conversation.workflow_state)
             %td= humanize_phone_number Phony.normalize conversation.internal_number
             %td= humanize_phone_number Phony.normalize conversation.to_number
             %td= conversation.expires_at
