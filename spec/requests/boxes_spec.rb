@@ -1,10 +1,14 @@
 require 'spec_helper'
 
 describe "Boxes" do
+  let!(:user)          { create :user, user_roles: [ UserRole.create(organization: organization, roles: UserRole::ROLES) ] }
+  let!(:organization)  { create :organization }
+  let!(:box)           { create :box, organization: organization ) }
+  before(:each) { sign_in(user) }
+
   describe "GET /boxes" do
-    it "works! (now write some real specs)" do
-      # Run the generator again with the --webrat flag if you want to use webrat methods/matchers
-      get boxes_path
+    it "works!" do
+      get organization_boxes_path(organization)
       response.status.should be(200)
     end
   end
