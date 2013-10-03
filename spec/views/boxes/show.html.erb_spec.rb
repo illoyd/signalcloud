@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe "boxes/show" do
   before(:each) do
+    @organization = assign(:organization, stub_model(Organization))
     @box = assign(:box, stub_model(Box))
   end
 

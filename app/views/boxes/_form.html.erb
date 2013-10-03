@@ -1,4 +1,4 @@
-<%= form_for(@box) do |f| %>
+<%= form_for( [@organization, @box] ) do |f| %>
   <% if @box.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@box.errors.count, "error") %> prohibited this box from being saved:</h2>

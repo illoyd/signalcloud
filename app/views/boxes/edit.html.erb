@@ -2,5 +2,5 @@
 
 <%= render 'form' %>
 
-<%= link_to 'Show', @box %> |
-<%= link_to 'Back', boxes_path %>
+<%= link_to 'Show', [ @organization, @box ] %> |
+<%= link_to 'Back', organization_boxes_path(@organization) %>

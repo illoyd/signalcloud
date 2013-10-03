@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe "boxes/edit" do
   before(:each) do
+    @organization = assign(:organization, stub_model(Organization))
     @box = assign(:box, stub_model(Box))
   end
 
@@ -9,7 +10,7 @@ describe "boxes/edit" do
     render
 
     # Run the generator again with the --webrat flag if you want to use webrat matchers
-    assert_select "form[action=?][method=?]", box_path(@box), "post" do
+    assert_select "form[action=?][method=?]", organization_box_path(@organization, @box), "post" do
     end
   end
 end

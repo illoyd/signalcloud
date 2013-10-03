@@ -9,13 +9,13 @@
 
 <% @boxes.each do |box| %>
   <tr>
-    <td><%= link_to 'Show', box %></td>
-    <td><%= link_to 'Edit', edit_box_path(box) %></td>
-    <td><%= link_to 'Destroy', box, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+    <td><%= link_to 'Show', [ @organization, box ] %></td>
+    <td><%= link_to 'Edit', edit_organization_box_path(@organization, box) %></td>
+    <td><%= link_to 'Destroy', [ @organization, box ], method: :delete, data: { confirm: 'Are you sure?' } %></td>
   </tr>
 <% end %>
 </table>
 
 <br />
 
-<%= link_to 'New Box', new_box_path %>
+<%= link_to 'New Box', new_organization_box_path(@organization) %>

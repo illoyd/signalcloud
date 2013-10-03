@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe "boxes/index" do
   before(:each) do
+    @organization = assign(:organization, stub_model(Organization))
     assign(:boxes, [
       stub_model(Box),
       stub_model(Box)
