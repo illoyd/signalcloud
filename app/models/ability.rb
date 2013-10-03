@@ -83,6 +83,7 @@ class Ability
   def grant_conversation_manager_privileges(user, organization_id)
     grant_force_conversation_privileges user, organization_id
     grant_start_conversation_privileges user, organization_id
+    grant_manage_box_privileges user, organization_id
   end
   
   def grant_default_privileges(user)
@@ -90,7 +91,7 @@ class Ability
     can [ :index, :show, :shadow ], [ Organization ], { id: user.organization_ids }
     
     # Index and show for primary objects
-    can :read, [ Stencil, PhoneNumber, PhoneBook, PhoneBookEntry ], { organization_id: user.organization_ids }
+    can :read, [ Stencil, PhoneNumber, PhoneBook, PhoneBookEntry, Box ], { organization_id: user.organization_ids }
     can :read, [ Conversation ], { stencil: { organization_id: user.organization_ids } }
     can :read, [ Message ], { conversation: { stencil: { organization_id: user.organization_ids } } }
 
@@ -137,6 +138,11 @@ class Ability
     # Read (no editing!) for ledger entries
     can :read, LedgerEntry, { organization_id: organization_id }
     can :read, Invoice,     { organization_id: organization_id }
+  end
+  
+  def grant_manage_box_privileges(user, organization_id)
+    # All for boxes for this organization
+    can :manage, Box, { organization_id: organization_id }
   end
   
   def grant_force_conversation_privileges(user, organization_id)

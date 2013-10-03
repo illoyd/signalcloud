@@ -1,84 +1,58 @@
 class BoxesController < ApplicationController
+
+  respond_to :html, :json, :xml
+  load_and_authorize_resource :organization
+  before_filter :load_new_box, only: [ :new, :create ]
+  load_and_authorize_resource through: :organization
+  
+  def load_new_box
+    @box = @organization.boxes.build()
+    @box.assign_attributes( box_params ) if params.include? :box
+    @box
+  end
+
   # GET /boxes
   # GET /boxes.json
   def index
-    @boxes = Box.all
-
-    respond_to do |format|
-      format.html # index.html.erb
-      format.json { render json: @boxes }
-    end
+    respond_with @organization, @boxes
   end
 
   # GET /boxes/1
   # GET /boxes/1.json
   def show
-    @box = Box.find(params[:id])
-
-    respond_to do |format|
-      format.html # show.html.erb
-      format.json { render json: @box }
-    end
+    respond_with @organization, @box
   end
 
   # GET /boxes/new
   # GET /boxes/new.json
   def new
-    @box = Box.new
-
-    respond_to do |format|
-      format.html # new.html.erb
-      format.json { render json: @box }
-    end
+    respond_with @organization, @box
   end
 
   # GET /boxes/1/edit
   def edit
-    @box = Box.find(params[:id])
+    respond_with @organization, @box
   end
 
   # POST /boxes
   # POST /boxes.json
   def create
-    @box = Box.new(box_params)
-
-    respond_to do |format|
-      if @box.save
-        format.html { redirect_to @box, notice: 'Box was successfully created.' }
-        format.json { render json: @box, status: :created, location: @box }
-      else
-        format.html { render action: "new" }
-        format.json { render json: @box.errors, status: :unprocessable_entity }
-      end
-    end
+    flash[:success] = 'Your new box has been created.' if @box.update_attributes(box_params)
+    respond_with @organization, @box
   end
 
   # PATCH/PUT /boxes/1
   # PATCH/PUT /boxes/1.json
   def update
-    @box = Box.find(params[:id])
-
-    respond_to do |format|
-      if @box.update_attributes(box_params)
-        format.html { redirect_to @box, notice: 'Box was successfully updated.' }
-        format.json { head :no_content }
-      else
-        format.html { render action: "edit" }
-        format.json { render json: @box.errors, status: :unprocessable_entity }
-      end
-    end
+    flash[:success] = 'Your box has been updated.' if @box.update_attributes(box_params)
+    respond_with @organization, @box
   end
 
   # DELETE /boxes/1
   # DELETE /boxes/1.json
   def destroy
-    @box = Box.find(params[:id])
-    @box.destroy
-
-    respond_to do |format|
-      format.html { redirect_to boxes_url }
-      format.json { head :no_content }
-    end
+    flash[:success] = 'Your box has been deleted.' if @box.destroy
+    respond_with @organization, @box
   end
 
   private
@@ -87,6 +61,6 @@ class BoxesController < ApplicationController
     # params.require(:person).permit(:name, :age)
     # Also, you can specialize this method with per-user checking of permissible attributes.
     def box_params
-      params.require(:box).permit()
+      params.require(:box).permit( :label, :stencil_id, :start_at )
     end
 end

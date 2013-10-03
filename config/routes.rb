@@ -1,8 +1,5 @@
 SignalCloud::Application.routes.draw do
 
-  resources :boxes
-
-
   # Configure authentication for USERS
   devise_for :users #, :controllers => { :invitations => 'users/invitations' }
 
@@ -16,6 +13,14 @@ SignalCloud::Application.routes.draw do
   resources :organizations, only: [ :index, :new, :show, :create, :update, :edit ] do
     resources :users, only: [ :index ]
     resources :user_roles, only: [ :create, :update, :destroy ]
+    
+    resources :boxes do
+      resources :conversations, only: [ :index, :new, :create ] do
+        collection do
+          get 'page/:page', action: :index
+        end
+      end
+    end
 
     resources :stencils do
       collection do

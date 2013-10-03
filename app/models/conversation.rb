@@ -86,6 +86,7 @@ class Conversation < ActiveRecord::Base
 
   # Relationships
   belongs_to :stencil, inverse_of: :conversations
+  belongs_to :box, inverse_of: :conversations
   has_many :messages, inverse_of: :conversation, autosave: true
   #has_many :ledger_entries, as: :item
 

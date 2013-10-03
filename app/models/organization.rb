@@ -33,6 +33,7 @@ class Organization < ActiveRecord::Base
   has_one :payment_gateway, inverse_of: :organization
 
   belongs_to :account_plan, inverse_of: :organizations
+  has_many :boxes, inverse_of: :organization
   has_many :stencils, inverse_of: :organization
   has_many :conversations, through: :stencils
   has_many :phone_books, inverse_of: :organization

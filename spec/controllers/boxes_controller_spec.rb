@@ -19,16 +19,184 @@ require 'spec_helper'
 # that an instance is receiving a specific message.
 
 describe BoxesController do
+  let(:user)            { create :user }
+  let(:plan)            { create :account_plan, :default }
+  let(:organization)    { create :organization, account_plan: plan }
+  let(:stencil)         { create :stencil, organization: organization }
+  let(:box)             { create :box, organization: organization }
+  let(:conversation)    { create :conversation, stencil: stencil, box: box }
 
-  # This should return the minimal set of attributes required to create a valid
-  # Box. As you add validations to Box, be sure to
-  # adjust the attributes here as well.
-  let(:valid_attributes) { {  } }
+  let(:box_label)       { 'Test Box' }
+  let(:box_start_at)    { DateTime.now }
+  let(:create_payload)  {{ organization_id: organization.id, box: { label: box_label, start_at: box_start_at } }}
+  let(:update_payload)  { create_payload.merge({ id: box.id }) }
 
-  # This should return the minimal set of values that should be in the session
-  # in order to pass any filters (e.g. authentication) defined in
-  # BoxesController. Be sure to keep this updated too.
-  let(:valid_session) { {} }
+  it_behaves_like 'an organization resource'
+
+  context 'as affiliated user' do
+    before do
+      user.set_roles_for( organization, UserRole::READ )
+      sign_in user
+      box # Force the box to exist
+    end
+
+    it 'ensures user is unprivileged' do
+      user.is_conversation_manager_for?(organization).should be_false
+    end
+
+    describe "GET index" do
+      it 'renders index' do
+        get :index, organization_id: organization.id
+        expect( response ).to render_template( :index )
+      end
+      it "assigns all boxes as @boxes" do
+        get :index, organization_id: organization.id
+        assigns(:boxes).should =~ [box]
+      end
+    end
+
+    describe 'GET show' do
+      it 'renders show' do
+        get :show, organization_id: organization.id, id: box.id
+        expect( response ).to render_template( :show )
+      end
+      it 'assigns organization' do
+        get :show, organization_id: organization.id, id: box.id
+        assigns(:organization).should == organization
+      end
+      it 'assigns box' do
+        get :show, organization_id: organization.id, id: box.id
+        assigns(:box).should == box
+      end
+    end
+
+    describe 'GET new' do
+      it 'redirects to root' do
+        get :new, organization_id: organization.id #, box_id: box.id
+        expect( response ).to redirect_to( '/' )
+      end
+    end
+
+    describe 'POST create' do
+      it 'redirects to root' do
+        post :create, create_payload
+        expect( response ).to redirect_to( '/' )
+      end
+      it 'does not create box' do
+        expect{ post :create, create_payload }.not_to change( Box, :count )
+      end
+    end
+
+    describe 'GET edit' do
+      it 'redirects to root' do
+        get :edit, organization_id: organization.id, id: box.id
+        expect( response ).to redirect_to( '/' )
+      end
+    end
+
+    describe 'POST update' do
+      it 'redirects to root' do
+        post :update, update_payload
+        expect( response ).to redirect_to( '/' )
+      end
+      it 'does not create box' do
+        expect{ post :update, update_payload }.not_to change{ box.reload.label }
+      end
+    end
+
+  end # affiliated user
+
+  context 'as conversation manager', :focus  do
+    before do
+      user.set_roles_for( organization, [ :conversation_manager ] )
+      sign_in user
+      box # Force the box to exist
+    end
+
+    it 'grants conversation manager' do
+      user.is_conversation_manager_for?(organization).should be_true
+    end
+
+    describe 'GET new' do
+      it 'renders new' do
+        get :new, organization_id: organization.id
+        expect( response ).to render_template( :new )
+      end
+      it 'assigns organization' do
+        get :new, organization_id: organization.id
+        assigns(:organization).should == organization
+      end
+      it 'assigns a new box' do
+        get :new, organization_id: organization.id
+        assigns(:box).should be_a_new Box
+      end
+    end
+
+    describe 'POST create' do
+      it 'redirects to box\'s page' do
+        post :create, create_payload
+        expect( response ).to redirect_to( [ organization, Box.last ] )
+      end
+      it 'creates a new box' do
+        expect{ post :create, create_payload }.to change( Box, :count ).by(1)
+      end
+      it 'sets box\'s label' do
+        post :create, create_payload
+        Box.last.label.should == box_label
+      end
+      it 'raises 400 bad request if no parameters' do
+        post :create, organization_id: organization.id
+        response.status.should == 400
+      end
+    end
+
+    describe 'GET edit' do
+      it 'renders edit' do
+        get :edit, organization_id: organization.id, id: box.id
+        expect( response ).to render_template( :edit )
+      end
+      it 'assigns organization' do
+        get :edit, organization_id: organization.id, id: box.id
+        assigns(:organization).should == organization
+      end
+      it 'assigns box' do
+        get :edit, organization_id: organization.id, id: box.id
+        assigns(:box).should == box
+      end
+    end
+
+    describe 'POST update' do
+      it 'redirects to box\'s page' do
+        post :update, update_payload
+        expect( response ).to redirect_to( [ organization, box ] )
+      end
+      it 'does not create a new box' do
+        expect{ post :update, update_payload }.not_to change( Box, :count )
+      end
+      it 'sets box\'s label' do
+        expect{ post :update, update_payload }.to change{ box.reload.label }.to( box_label )
+      end
+      it 'raises 400 bad request if no parameters' do
+        post :update, organization_id: organization.id, id: box.id
+        response.status.should == 400
+      end
+    end
+
+    describe "DELETE destroy" do
+      it "destroys the requested box" do
+        expect { delete :destroy, organization_id: organization.id, id: box.id }.to change(Box, :count).by(-1)
+      end
+      it "destroys child conversations" do
+        conversation
+        expect { delete :destroy, organization_id: organization.id, id: box.id }.to change(Conversation, :count).by(-1)
+      end
+      it "redirects to the boxes list" do
+        delete :destroy, organization_id: organization.id, id: box.id
+        response.should redirect_to( organization_boxes_url( organization ) )
+      end
+    end
+
+  end # conversation manager
 
   describe "GET index" do
     it "assigns all boxes as @boxes" do
