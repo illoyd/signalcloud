@@ -269,7 +269,7 @@ protected
     begin
       unless self.conversation.mock
         self.provider_response = self.communication_gateway.send_sms!( self.to_number, self.from_number, body, { default_callback: true, response_format: :smash })
-        self.provider_sid = self.provider_response.sms_sid
+        self.provider_sid = self.provider_response.sid
         self.provider_cost = self.provider_response.price
       end
 
