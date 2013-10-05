@@ -92,6 +92,7 @@ module Twilio
     # Optional STATUS and PRICE fields
     property :status,       from: :SmsStatus
     property :price,        from: :Price,       transformer: lambda { |v| BigDecimal.new(v) rescue nil }
+    property :segments,     from: :NumSegments
 
     # Optional FROM fields
     property :from_city,    from: :FromCity
@@ -192,21 +193,12 @@ module Twilio
       class Smash < ::APISmith::Smash
   
         # Required fields
-        property :sid
-        alias_method :sms_sid, :sid
-        
+        property :sid        
         property :account_sid
 
-        property :segments,       from: :num_segments
-
-        property :date_created,   transformer: lambda { |v| Time.parse(v) rescue nil }
-        alias_method :created_at, :date_created
-
-        property :date_updated,   transformer: lambda { |v| Time.parse(v) rescue nil }
-        alias_method :updated_at, :date_updated
-
-        property :date_sent,      transformer: lambda { |v| Time.parse(v) rescue nil }
-        alias_method :sent_at, :date_sent
+        property :created_at, from: :date_created, transformer: lambda { |v| Time.parse(v) rescue nil }
+        property :updated_at, from: :date_updated, transformer: lambda { |v| Time.parse(v) rescue nil }
+        property :sent_at,    from: :date_sent,    transformer: lambda { |v| Time.parse(v) rescue nil }
 
         property :to
         alias_method :customer_number, :to
@@ -222,13 +214,30 @@ module Twilio
         property :price, transformer: lambda { |v| BigDecimal.new v rescue nil }
         property :price_unit
 
+        property :segments,   from: :num_segments
+
         property :api_version
 
-        def message_status
-          puts self.to_s if Twilio::InboundSms.translate_status(self.status).nil?
-          Twilio::InboundSms.translate_status self.status
+        def sent?
+          self.status == SMS_STATUS_SENT
         end
-
+        
+        def sending?
+          self.status == SMS_STATUS_SENDING
+        end
+        
+        def queued?
+          self.status == SMS_STATUS_QUEUED
+        end
+        
+        def received?
+          self.status == SMS_STATUS_RECEIVED
+        end
+        
+        def failed?
+          self.status == SMS_STATUS_FAILED
+        end
+        
       end
     end
 
