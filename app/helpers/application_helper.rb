@@ -62,6 +62,33 @@ module ApplicationHelper
     return 'Global' if country.nil?
     Country[country].name
   end
+  
+  def conversation_state_tag( state )
+    state = state.workflow_state if state.respond_to? :workflow_state
+    label = state.to_s
+    klass = case state.to_sym
+      when :confirming, :confirmed
+        :confirmed
+      when :denying, :denied
+        :denied
+      when :failing, :failed
+        :failed
+      when :expiring, :expired
+        :expired
+      when :asking
+        :asking
+      when :asked
+        :asked
+      when :receiving, :received
+        :received
+      when :draft
+        :draft
+      when :errored
+        :error
+      end
+    icon = icon(klass)
+    "<span class='label label-#{klass}'>#{icon} #{label}</span>".html_safe
+  end
 
   # A simple way to show error messages for the current devise resource. If you need
   # to customize this method, you can either overwrite it in your application helpers or
