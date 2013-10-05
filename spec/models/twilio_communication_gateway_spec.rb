@@ -294,9 +294,6 @@ describe TwilioCommunicationGateway, :vcr do
           query.internal_number.should == from_number
         end
         
-        it 'returns the date created' do
-          query.date_created.should_not be_nil
-        end
         it 'returns the created at' do
           query.created_at.should_not be_nil
         end

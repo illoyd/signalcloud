@@ -225,13 +225,12 @@ class Message < ActiveRecord::Base
   # Query the provider (Twilio, Nexmo, etc.) status of this message.
   def refresh_from_provider
     response = self.provider_status
-    #self.status = response.message_status # Message.translate_twilio_message_status response.status
     self.sent_at = response.sent_at
-    self.provider_cost = response.price # ( Float(response.price) rescue nil )
+    self.provider_cost = response.price
     self.provider_response = response
     
     # If provider says we've sent, send!
-    self.confirm! if response.message_status == 'sent'
+    self.confirm! if ( response.sent? and self.can_confirm? )
   end
   
   def refresh_from_provider!
