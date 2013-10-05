@@ -259,4 +259,4 @@ Devise.setup do |config|
 end
 
 # Configure delayed emails
-Devise::Async.backend = :delayed_job
+Devise::Async.backend = :sidekiq
