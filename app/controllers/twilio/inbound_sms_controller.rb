@@ -1,10 +1,5 @@
-class Twilio::InboundSmsController < ApplicationController
+class Twilio::InboundSmsController < Twilio::TwilioController
 
-  respond_to :xml
-  before_filter :authenticate_organization!, :authenticate_twilio!
-  skip_before_filter :authenticate_user!
-  skip_before_filter :verify_authenticity_token
-  
   # POST /twilio/inbound_sms
   # POST /twilio/inbound_sms.xml
   def create

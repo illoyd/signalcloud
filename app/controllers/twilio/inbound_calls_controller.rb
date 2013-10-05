@@ -12,13 +12,8 @@
 #   +Direction+     Indicates the direction of the call. In most cases this will be inbound, but if you are using <Dial> it will be outbound-dial.
 #   +ForwardedFrom+ This parameter is set only when Twilio receives a forwarded call, but its value depends on the caller's carrier including information when forwarding. Not all carriers support passing this information.
 #   +CallerName+    This parameter is set when the IncomingPhoneNumber that received the call has had its VoiceCallerIdLookup value set to true ($0.01 per look up).
-class Twilio::InboundCallsController < ApplicationController
+class Twilio::InboundCallsController < Twilio::TwilioController
 
-  #respond_to :xml
-  before_filter :authenticate_organization!, :authenticate_twilio!
-  skip_before_filter :authenticate_user!
-  skip_before_filter :verify_authenticity_token
-  
   # POST /account_plans
   # POST /account_plans.json
   def create
