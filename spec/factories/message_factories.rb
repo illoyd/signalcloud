@@ -70,6 +70,14 @@ FactoryGirl.define do
       direction     Message::OUT
     end
     
+    trait :draft do
+      workflow_state 'pending'
+    end
+    
+    trait :pending do
+      draft
+    end
+    
     trait :sending do
       workflow_state 'sending'
     end
