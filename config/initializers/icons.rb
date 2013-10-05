@@ -9,6 +9,7 @@ ICONS = {
   organizations: 'briefcase',
   users: 'group',
   ledger_entries: 'list-alt',
+  boxes: 'archive',
   
   # Common actions
   show: 'search',
@@ -21,6 +22,11 @@ ICONS = {
   failed: 'remove-sign',
   expired: 'time',
   pending: 'plus-sign',
-  queued: 'plus-sign',
-  challenge_sent: 'plus-sign'
+  asking: 'question-sign',
+  asked: 'question-sign',
+  received: 'exclamation-sign',
+  challenge_sent: 'plus-sign',
+  draft: 'file-text',
+
+  error: 'warning-sign'
 }.with_indifferent_access.freeze

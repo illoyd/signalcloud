@@ -3,6 +3,7 @@ FactoryGirl.define do
   factory :phone_number, aliases: [ :us_phone_number ] do
     sequence(:number)           { |n| '+1%010d' % ( 6000000000 + n ) }
     organization
+    communication_gateway       { organization.communication_gateways.first }
     
     factory :valid_phone_number do
       number                    { Twilio::VALID_NUMBER }
@@ -25,11 +26,11 @@ FactoryGirl.define do
     end
     
     trait :with_twilio_sid do
-      twilio_phone_number_sid   { 'PN' + SecureRandom.hex(16) }
+      provider_sid              { 'PN' + SecureRandom.hex(16) }
     end
     
     trait :with_fixed_twilio_sid do
-      twilio_phone_number_sid   { 'PN465138f996b14d147c5fb4143bb30bea' }
+      provider_sid              { 'PN465138f996b14d147c5fb4143bb30bea' }
     end
     
     trait :active do

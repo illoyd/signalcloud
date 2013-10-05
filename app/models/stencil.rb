@@ -9,6 +9,8 @@ class Stencil < ActiveRecord::Base
 
   attr_encrypted :expected_confirmed_answer, key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :expected_denied_answer, key: ATTR_ENCRYPTED_SECRET
+
+  attr_encrypted :webhook_uri, key: ATTR_ENCRYPTED_SECRET
   
   # Relationships
   belongs_to :organization, inverse_of: :stencils
@@ -31,8 +33,8 @@ class Stencil < ActiveRecord::Base
     options = options.with_indifferent_access.merge( passed_options.with_indifferent_access )
     
     # Add a randomly selected from number if needed
-    if options.fetch(:from_number, nil).blank? and !options.fetch(:to_number, nil).blank?
-      options[:from_number] = self.phone_book.select_internal_number_for( options[:to_number] ).number
+    if options.fetch(:internal_number, nil).blank? and !options.fetch(:customer_number, nil).blank?
+      options[:internal_number] = self.phone_book.select_internal_number_for( options[:customer_number] ).number
     end
     return self.conversations.build( options )
   end

@@ -33,5 +33,9 @@
                   %em No description configured.
                 - else
                   = phone_book.description
-            %td= phone_book.phone_book_entries.count
+            %td
+              = phone_book.phone_book_entries.count
+              - if phone_book.phone_book_entries.empty?
+                = warning_label('This Phone Book does not have any Phone Numbers! Add a Phone Number to use it in a Stencil.')
+
             %td= phone_book.stencils.count

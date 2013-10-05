@@ -30,5 +30,8 @@
                 { label: 'Delete', icon: :delete, link: [@organization, phone_number], options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, phone_number) } |
               ], { class: 'btn-mini' }) |
             %td= link_to humanize_phone_number(phone_number.number), [@organization, phone_number]
-            %td= phone_number.phone_books.count
+            %td
+              = phone_number.phone_books.count
+              - if phone_number.phone_book_entries.empty?
+                = warning_label('This Phone Number is not used in any Phone Books! Add a Phone Book to use it in a Stencil.')
             %td= currency_for phone_number.cost

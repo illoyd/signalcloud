@@ -101,7 +101,7 @@ end
 
 def build_twilio_signature( url, organization=nil, post_params={} )
   url = build_authenticated_request_url( url, organization.sid, organization.auth_token )
-  organization.twilio_validator.build_signature_for( url, post_params )
+  organization.communication_gateways.first.twilio_validator.build_signature_for( url, post_params )
 end
 
 def inject_twilio_signature( url, organization=nil, post_params={} )

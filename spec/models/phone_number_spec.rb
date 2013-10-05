@@ -12,18 +12,15 @@ describe PhoneNumber, :vcr do
   it_behaves_like 'a costable item', :phone_number
 
   let(:organization) { create :organization, :test_twilio, :with_sid_and_token }
+  let(:comm_gateway) { organization.communication_gateways.first }
   
   # Manage all validations
   describe "validations" do
-    before(:all) { 3.times { create :phone_number } }
+    before { 3.times { create :phone_number, organization: organization, communication_gateway: comm_gateway } }
 
-    # Allow mass assignment
-    [ :number, :twilio_phone_number_sid, :organization_id, :our_cost, :provider_cost, :unsolicited_sms_action, :unsolicited_sms_message, :unsolicited_call_action, :unsolicited_call_message, :unsolicited_call_language, :unsolicited_call_voice ].each do |entry|
-      it { should allow_mass_assignment_of(entry) }
-    end
-    
     # Belong-To
     it { should belong_to(:organization) }
+    it { should belong_to(:communication_gateway) }
 
     # Have-Many
     [ :phone_books, :phone_book_entries ].each do |entry|
@@ -31,28 +28,20 @@ describe PhoneNumber, :vcr do
     end
     
     # Validate presence
-    [ :organization, :number ].each do |entry|
+    [ :organization, :number, :communication_gateway ].each do |entry|
       it { should validate_presence_of(entry) }
     end
     
     # Validate numericality
-    [ :organization_id, :our_cost, :provider_cost ].each do |entry|
+    [ :our_cost, :provider_cost ].each do |entry|
       it { should validate_numericality_of(entry) }
     end
-        
-    # Uniqueness
-    pending 'Needs updated validate_uniqueness_of test' do
-      it { should validate_uniqueness_of(:twilio_phone_number_sid) }
-    end
-    
-    # Twilio SID
-    it { should ensure_length_of(:twilio_phone_number_sid).is_equal_to(Twilio::SID_LENGTH) }
   end
   
   describe '.find_by_number' do
-    let(:valid_number) { '+15551234567' }
+    let(:valid_number)   { '+15551234567' }
     let(:unknown_number) { '+18001234567' }
-    subject { create :phone_number, number: valid_number }
+    subject { create :phone_number, number: valid_number, organization: organization, communication_gateway: comm_gateway }
     
     it 'finds valid number' do
       PhoneNumber.find_by_number(subject.number).first.should be_a( PhoneNumber )
@@ -86,66 +75,33 @@ describe PhoneNumber, :vcr do
     context 'valid number' do
 
       context 'when inactive' do
-        subject { create :valid_phone_number, organization: organization }
-        it 'can be purchased' do
-          subject.can_purchase?.should be_true
-        end
-        it 'cannot be refreshed' do
-          subject.can_refresh?.should be_false
-        end
-        it 'cannot be unpurchased' do
-          subject.can_unpurchase?.should be_false
-        end
+        subject { create :valid_phone_number, organization: organization, communication_gateway: comm_gateway }
+        its('can_purchase?')   { should be_true }
+        its('can_refresh?')    { should be_false }
+        its('can_unpurchase?') { should be_false }
+
         it 'purchases number' do
           expect { subject.purchase! }.not_to raise_error
         end
-        
         it 'transitions to active state after purchasing' do
           expect { subject.purchase! }.to change(subject, :workflow_state).from('inactive').to('active')
-        end
-  
-        it 'enqueues a purchase number command' do
-          expect { subject.enqueue_purchase! }.not_to raise_error
-        end
-        it 'transitions to pending state after enqueuing purchase' do
-          expect { subject.enqueue_purchase! }.to change(subject, :workflow_state).from('inactive').to('pending_purchase')
         end
       end
       
       context 'when active' do
         subject { create :valid_phone_number, :active, :with_fixed_twilio_sid, organization: organization }
-        it 'cannot be purchased' do
-          subject.can_purchase?.should be_false
-        end
-        it 'can be refreshed' do
-          subject.can_refresh?.should be_true
-        end
-        it 'can be unpurchased' do
-          subject.can_refresh?.should be_true
-        end
+        its('can_purchase?')   { should be_false }
+        its('can_refresh?')    { should be_true }
+        its('can_unpurchase?') { should be_true }
 
         it 'unpurchases number' do
-          pending 'Twilio does not allow testing Phone Number Instance deletions' do
-            expect { subject.unpurchase! }.not_to raise_error
-          end
+          expect { subject.unpurchase! }.not_to raise_error
         end
         it 'refreshes number' do
-          pending 'Twilio does not allow testing Phone Number Instance updates' do
-            expect { subject.refresh! }.not_to raise_error
-          end
+          pending { expect { subject.refresh! }.not_to raise_error }
         end
-  
         it 'transitions to inactive state after unpurchasing' do
-          pending 'Twilio does not allow testing Phone Number Instance deletion' do
-            expect { subject.unpurchase! }.to change(subject, :workflow_state).from('active').to('inactive')
-          end
-        end
-  
-        it 'enqueues an unpurchase number command' do
-          expect { subject.enqueue_unpurchase! }.not_to raise_error
-        end
-        it 'transitions to pending state after enqueuing unpurchase' do
-          expect { subject.enqueue_unpurchase! }.to change(subject, :workflow_state).from('active').to('pending_unpurchase')
+          expect { subject.unpurchase! }.to change(subject, :workflow_state).from('active').to('inactive')
         end
       end
 

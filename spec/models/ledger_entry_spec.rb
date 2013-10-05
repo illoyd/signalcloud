@@ -9,10 +9,6 @@ describe LedgerEntry do
       it { should validate_presence_of(attribute) }
     end
 
-    [:organization_id, :item_id, :item_type, :narrative].each do |attribute|
-      it { should allow_mass_assignment_of(attribute) }
-    end
-
     it { should validate_numericality_of( :value ) }
     it { should belong_to :organization }
     it { should belong_to :item }
@@ -20,8 +16,9 @@ describe LedgerEntry do
   
   describe '#ensure_organization' do
     context 'item\'s organization is new' do
-      let(:organization) { build :organization }
-      let(:item) { build :phone_number, organization: organization }
+      let(:organization) { build :organization, :test_twilio }
+      let(:comm_gateway) { organization.communication_gateway_for :twilio }
+      let(:item) { build :phone_number, organization: organization, communication_gateway: comm_gateway }
       subject { build :ledger_entry, item: item, organization: nil }
       
       it 'updates organization' do
@@ -33,8 +30,9 @@ describe LedgerEntry do
     end
     
     context 'item\'s organization is persisted' do
-      let(:organization) { create :organization }
-      let(:item) { create :phone_number, organization: organization }
+      let(:organization) { create :organization, :test_twilio }
+      let(:comm_gateway) { organization.communication_gateway_for :twilio }
+      let(:item) { create :phone_number, organization: organization, communication_gateway: comm_gateway }
       subject { build :ledger_entry, item: item, organization: nil }
 
       it 'updates organization' do
@@ -46,9 +44,10 @@ describe LedgerEntry do
     end
     
     context 'item\'s organization changes' do
-      let(:organization) { create :organization }
-      let(:other_organization) { create :organization }
-      let(:item) { create :phone_number, organization: organization }
+      let(:organization) { create :organization, :test_twilio }
+      let(:comm_gateway) { organization.communication_gateway_for :twilio }
+      let(:other_organization) { create :organization, :test_twilio }
+      let(:item) { create :phone_number, organization: organization, communication_gateway: comm_gateway }
       subject { build :ledger_entry, item: item, organization: organization }
 
       it 'updates organization' do
@@ -178,8 +177,8 @@ describe LedgerEntry do
   describe '#update_organization_balance' do
     let(:original_value) { BigDecimal.new "-0.8" }
     let(:new_value)      { BigDecimal.new "-1.2" }
-    let(:organization)        { create :organization }
-    let(:phone_number)   { create :phone_number, organization: organization }
+    let(:organization)   { create :organization, :test_twilio }
+    let(:phone_number)   { create :phone_number, organization: organization, communication_gateway: organization.communication_gateway_for(:twilio) }
 
     context 'when entry is new' do
       subject { build :ledger_entry, organization: organization, item: phone_number, value: original_value }
@@ -211,95 +210,5 @@ describe LedgerEntry do
     end
 
   end
-  
-#   describe ".new" do
-#   
-#     #before(:each) do
-#       # Get all needed objects in the ownership chain
-#       #@organization = organizations(:test_organization)
-#       #@conversation = @organization.conversations.first
-#       #@message = @conversation.messages.first
-#     #end
-# 
-#     let(:organization) { create_freshbooks_account(10) }
-#     #let(:conversation)  { organization.conversations.first }
-#     let(:message) { organization.conversations.where( status: [Conversation::CHALLENGE_SENT, Conversation::CONFIRMED, Conversation::DENIED, Conversation::FAILED, Conversation::EXPIRED] ).first.messages.first }
-# 
-#     it "should create a new pending ledger_entry from scratch" do
-#       # Count the number of ledger_entries for the message
-#       original_ledger_entry_count = organization.ledger_entries.count
-#       
-#       # Create a new ledger_entry from scratch
-#       ledger_entry = LedgerEntry.create( organization: organization, item: message, narrative: 'Trial assignment' )
-#       ledger_entry.is_pending?.should == true
-#       ledger_entry.is_settled?.should == false
-#       ledger_entry.organization.should eq(organization)
-#       ledger_entry.item.should eq(message)
-#       ledger_entry.item_id.should == message.id
-#       ledger_entry.item_type.should == message.class.name
-#       ledger_entry.narrative.should == 'Trial assignment'
-#       
-#       # Count of ledger_entries should have increased by 1
-#       organization.ledger_entries.count.should == original_ledger_entry_count + 1
-#     end
-# 
-#     it "should create a new pending ledger_entry from organization" do
-#       message.should_not be_nil
-#       
-#       # Create a new ledger_entry from scratch
-#       expect {
-#         ledger_entry = organization.ledger_entries.create( item: message, narrative: 'Trial assignment' )
-#         ledger_entry.is_pending?.should == true
-#         ledger_entry.is_settled?.should == false
-#         ledger_entry.organization.should eq(organization)
-#         ledger_entry.item.should eq(message)
-#         ledger_entry.item_id.should == message.id
-#         ledger_entry.item_type.should == message.class.name        
-#       }.to change{ organization.ledger_entries.count }.by(1)
-#     end
-# 
-#     it "should create a new settled ledger_entry from scratch" do
-#       # Count the number of ledger_entries for the message
-#       original_ledger_entry_count = organization.ledger_entries.count
-#       
-#       # Make an expected settled_at datetime
-#       expected_settled_at = DateTime.now
-#       
-#       # Create a new ledger_entry from scratch
-#       ledger_entry = LedgerEntry.create( organization: organization, item: message, narrative: 'Trial assignment', settled_at: expected_settled_at )
-#       ledger_entry.settled_at.should == expected_settled_at
-#       ledger_entry.is_pending?.should == false
-#       ledger_entry.is_settled?.should == true
-#       ledger_entry.organization.should eq(organization)
-#       ledger_entry.item.should eq(message)
-#       ledger_entry.item_type.should == message.class.name
-#       ledger_entry.item_id.should == message.id
-#       
-#       # Count of ledger_entries should have increased by 1
-#       organization.ledger_entries.count.should == original_ledger_entry_count + 1
-#     end
-# 
-#     it "should create a new settled ledger_entry from organization" do
-#       # Count the number of ledger_entries for the message
-#       original_ledger_entry_count = organization.ledger_entries.count
-#       
-#       # Make an expected settled_at datetime
-#       expected_settled_at = DateTime.now
-#       
-#       # Create a new ledger_entry from scratch
-#       ledger_entry = organization.ledger_entries.create( item: message, narrative: 'Trial assignment', settled_at: expected_settled_at )
-#       ledger_entry.settled_at.should == expected_settled_at
-#       ledger_entry.is_pending?.should == false
-#       ledger_entry.is_settled?.should == true
-#       ledger_entry.organization.should eq(organization)
-#       ledger_entry.item.should eq(message)
-#       ledger_entry.item_id.should == message.id
-#       ledger_entry.item_type.should == message.class.name
-#       
-#       # Count of ledger_entries should have increased by 1
-#       organization.ledger_entries.count.should == original_ledger_entry_count + 1
-#     end
-# 
-#   end
   
 end

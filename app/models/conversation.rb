@@ -1,5 +1,58 @@
 # encoding: UTF-8
 class Conversation < ActiveRecord::Base
+  include Workflow
+
+  workflow do
+    state :draft do
+      event :ask, transitions_to: :asking
+      event :error, transitions_to: :errored
+    end
+
+    state :asking do
+      event :asked, transitions_to: :asked
+      event :expire, transitions_to: :expiring
+      event :error, transitions_to: :errored
+    end
+    state :asked do
+      event :receive, transitions_to: :receiving
+      event :expire, transitions_to: :expiring
+      event :error, transitions_to: :errored
+    end
+
+    state :receiving do
+      event :received, transitions_to: :received
+      event :error, transitions_to: :errored
+    end
+    state :received do
+      event :confirm, transitions_to: :confirming
+      event :deny, transitions_to: :denying
+      event :fail, transitions_to: :failing
+      event :error, transitions_to: :errored
+    end
+
+    state :confirming do
+      event :confirmed, transitions_to: :confirmed
+      event :error, transitions_to: :errored
+    end
+    state :denying do
+      event :denied, transitions_to: :denied
+      event :error, transitions_to: :errored
+    end
+    state :failing do
+      event :failed, transitions_to: :failed
+      event :error, transitions_to: :errored
+    end
+    state :expiring do
+      event :expired, transitions_to: :expired
+      event :error, transitions_to: :errored
+    end
+
+    state :confirmed
+    state :denied
+    state :failed
+    state :expired
+    state :errored
+  end
 
   before_validation :update_expiry_time_based_on_seconds_to_live
   before_save :normalize_phone_numbers, :hash_phone_numbers
@@ -12,27 +65,9 @@ class Conversation < ActiveRecord::Base
   DENIED = 4
   FAILED = 5
   EXPIRED = 6
-  OPEN_STATUSES = [ PENDING, QUEUED, CHALLENGE_SENT ]
+  OPEN_STATUSES = [ :asking, :asked, 'asking', 'asked' ]
   STATUSES = [ PENDING, QUEUED, CHALLENGE_SENT, CONFIRMED, DENIED, FAILED, EXPIRED ]
   
-  # SMS status constants
-  # SENT = CHALLENGE_SENT
-  
-  # Error constants
-  ERROR_INVALID_TO = 101
-  ERROR_INVALID_FROM = 102
-  ERROR_BLACKLISTED_TO = 105
-  ERROR_NOT_SMS_CAPABLE = 103
-  ERROR_CANNOT_ROUTE = 104
-  ERROR_SMS_QUEUE_FULL = 106
-  ERROR_INTERNATIONAL = 107
-  ERROR_MISSING_BODY = 108
-  ERROR_BODY_TOO_LARGE = 109
-  ERROR_UNKNOWN = 127
-  ERROR_STATUSES = [ ERROR_INVALID_TO, ERROR_INVALID_FROM, ERROR_BLACKLISTED_TO, ERROR_NOT_SMS_CAPABLE, ERROR_CANNOT_ROUTE, ERROR_SMS_QUEUE_FULL, ERROR_INTERNATIONAL, ERROR_MISSING_BODY, ERROR_BODY_TOO_LARGE, ERROR_UNKNOWN ]
-  CRITICAL_ERRORS = [ ERROR_MISSING_BODY, ERROR_BODY_TOO_LARGE, ERROR_INTERNATIONAL ]
-
-  # attr_accessible :seconds_to_live, :stencil_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at, :webhook_uri
   attr_accessor :seconds_to_live
   
   # Encrypted attributes
@@ -41,38 +76,45 @@ class Conversation < ActiveRecord::Base
   attr_encrypted :denied_reply,     key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :failed_reply,     key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :expired_reply,    key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :webhook_uri,      key: ATTR_ENCRYPTED_SECRET
 
   attr_encrypted :expected_confirmed_answer,  key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :expected_denied_answer,     key: ATTR_ENCRYPTED_SECRET
 
-  attr_encrypted :to_number,        key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :from_number,      key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :customer_number,  key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :internal_number,  key: ATTR_ENCRYPTED_SECRET
 
   # Relationships
   belongs_to :stencil, inverse_of: :conversations
+  belongs_to :box, inverse_of: :conversations
   has_many :messages, inverse_of: :conversation, autosave: true
   #has_many :ledger_entries, as: :item
 
-  delegate :organization, :to => :stencil, :allow_nil => true
+  delegate :organization, to: :stencil #, allow_nil: true
+  #delegate :communication_gateway, to: :internal_number, allow_nil: true
+  
+  def communication_gateway
+    self.organization.phone_numbers.where( number: self.internal_number ).first.communication_gateway
+  end
   
   # Before validation  
-  before_validation :assign_from_number #, on: :create
+  before_validation :assign_internal_number #, on: :create
   
   # Validation
-  validates_presence_of :stencil, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :from_number, :question, :to_number, :expires_at
-  validates :to_number, phone_number: true
-  validates :from_number, phone_number: true
-  validates_numericality_of :challenge_status, allow_nil: true, integer_only: true, greater_than_or_equal_to: 0
-  validates_numericality_of :reply_status, allow_nil: true, integer_only: true, greater_than_or_equal_to: 0
+  validates_presence_of :stencil, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :internal_number, :question, :customer_number, :expires_at
+  validates :customer_number, phone_number: true
+  validates :internal_number, phone_number: true
+  validates_inclusion_of :challenge_status, in: Message.workflow_spec.valid_state_names, allow_nil: true
+  validates_inclusion_of :reply_status, in: Message.workflow_spec.valid_state_names, allow_nil: true
 
   # Scopes
-  scope :opened, where( :status => OPEN_STATUSES )
-  scope :closed, where( 'status not in (?)', OPEN_STATUSES )
+  scope :opened, where( :workflow_state => OPEN_STATUSES )
+  scope :closed, where( 'workflow_state not in (?)', OPEN_STATUSES )
   scope :today, lambda{ where( "conversations.created_at >= ? and conversations.created_at <= ?", DateTime.now.beginning_of_day, DateTime.now.end_of_day ) }
   scope :yesterday, lambda{ where( "conversations.created_at >= ? and conversations.created_at <= ?", DateTime.yesterday.beginning_of_day, DateTime.yesterday.end_of_day ) }
   scope :last_x_days, lambda{ where( "conversations.created_at >= ? and conversations.created_at <= ?", 7.days.ago.beginning_of_day, DateTime.yesterday.end_of_day ) }
   scope :created_between, lambda{ |lower,upper| where( "conversations.created_at >= ? and conversations.created_at <= ?", lower.beginning_of_day, upper.end_of_day ) }
-  scope :count_by_status, select('count(conversations.*) as count, conversations.status').group('conversations.status')
+  scope :count_by_status, select('count(conversations.*) as count, conversations.workflow_state').group('conversations.workflow_state')
   scope :outstanding, where( 'challenge_sent_at is null or response_received_at is null or reply_sent_at is null' )
   
   ##
@@ -89,9 +131,6 @@ class Conversation < ActiveRecord::Base
   end
   
   def self.find_open_conversations( internal_number, customer_number )
-    #e_internal_number = Conversation.encrypt( :from_number, PhoneNumber.normalize_phone_number(internal_number) )
-    #e_customer_number = Conversation.encrypt( :to_number, PhoneNumber.normalize_phone_number(customer_number) )
-    #Conversation.where( encrypted_from_number: e_internal_number, encrypted_to_number: e_customer_number, status: Conversation::OPEN_STATUSES )
     Conversation.where(
       hashed_internal_number: Conversation.hash_phone_number( internal_number ),
       hashed_customer_number: Conversation.hash_phone_number( customer_number )
@@ -99,7 +138,7 @@ class Conversation < ActiveRecord::Base
   end
   
   def self.count_by_status_hash( conversation_query )
-    counts = conversation_query.count_by_status.readonly.each_with_object({}) { |v, h| h[v.status] = v.count.to_i }
+    counts = conversation_query.count_by_status.readonly.each_with_object({}) { |v, h| h[v.workflow_state] = v.count.to_i }
     Conversation::STATUSES.each { |status| counts[status] = 0 unless counts.include?(status) }
     return counts
   end
@@ -116,15 +155,15 @@ class Conversation < ActiveRecord::Base
   ##
   # Normalize phone numbers. Intended to be used with +before_save+ callbacks.
   def normalize_phone_numbers
-    self.to_number = PhoneNumber.normalize_phone_number(self.to_number)
-    self.from_number = PhoneNumber.normalize_phone_number(self.from_number)
+    self.customer_number = PhoneNumber.normalize_phone_number(self.customer_number)
+    self.internal_number = PhoneNumber.normalize_phone_number(self.internal_number)
   end
   
   ##
   # Standardise phone number hashes, to be used in searches for open conversations.
   def hash_phone_numbers
-    self.hashed_internal_number = Conversation.hash_phone_number( self.from_number )
-    self.hashed_customer_number = Conversation.hash_phone_number( self.to_number )
+    self.hashed_internal_number = Conversation.hash_phone_number( self.internal_number )
+    self.hashed_customer_number = Conversation.hash_phone_number( self.customer_number )
   end
   
   def normalized_expected_confirmed_answer
@@ -136,38 +175,37 @@ class Conversation < ActiveRecord::Base
   end
   
   def answer_applies?(answer)
-    self.compare_answer( answer ) != Conversation::FAILED
+    self.compare_answer( answer ) != :failed
   end
   
   def compare_answer( answer )
     return case Conversation.normalize_message(answer)
       when self.normalized_expected_confirmed_answer
-        Conversation::CONFIRMED
+        :confirmed
       when self.normalized_expected_denied_answer
-        Conversation::DENIED
+        :denied
       else
-        Conversation::FAILED
+        :failed
     end
   end
   
   ##
   # Update this conversation with appropriate flags indicating that a response has been received.
-  def accept_answer( answer, received=DateTime.now )
-    self.status = self.compare_answer(answer)
-    self.response_received_at = received
+  def accept_answer!( answer, received=DateTime.now )
+    case self.compare_answer(answer)
+      when :confirmed 
+        self.confirm!
+      when :denied
+        self.deny!
+      else
+        self.fail!
+    end
   end
   
   ##
-  # Accept the given answer and force a database save.
-  def accept_answer!( answer, received=DateTime.now )
-    self.accept_answer( answer, received )
-    self.save!
-  end
-
-  ##
   # Is the conversation currently open? Based upon the conversation's status.
   def is_open?
-    return Conversation::OPEN_STATUSES.include? self.status
+    return ( asked? || asking? )
   end
   
   ##
@@ -179,158 +217,35 @@ class Conversation < ActiveRecord::Base
   ##
   # Check if conversation is open and if the conversation's expires_at is in the past
   def is_expired?
-    return self.expires_at <= DateTime.now
+    return self.expires_at <= Time.now
   end
   
   ##
   # Is the conversation currently in an error state? Based upon the conversation's status.
-  def has_errored?
-    return Conversation::ERROR_STATUSES.include? self.status
-  end
-  
-  ##
-  # Choose the appropriate message to send based upon the conversation's status.
-  # If the conversation does not have a message ready, due to the conversation's status, raise a
-  # +MessageAlreadySentError+.
-  def select_reply_message_to_send()
-    return case self.status
-      when CONFIRMED
-        self.confirmed_reply
-      when DENIED
-        self.denied_reply
-      when FAILED
-        self.failed_reply
-      when EXPIRED
-        self.expired_reply
-      else
-        raise SignalCloud::InvalidConversationStateError(self)
-      end
-  end
-  
-  def send_challenge_message( force_resend = false )
-
-    # Abort if message already sent and we do not want to force a resend
-    raise SignalCloud::ChallengeAlreadySentError.new(self) unless ( force_resend || !self.has_challenge_been_sent? )
-
-    # Send the message, catching any errors
-    begin
-      sent_messages = self.send_message( self.question, Message::CHALLENGE, force_resend )
-      self.status = QUEUED
-      self.challenge_status = QUEUED
-      return sent_messages
-
-    rescue SignalCloud::MessageSendingError => ex
-      # Set message status
-      self.status = ex.code
-      self.challenge_status = ex.code
-      
-      # Log as appropriate
-      if ex.instance_of?( SignalCloud::CriticalMessageSendingError )
-        logger.error 'Conversation %s encountered critical error while sending challenge message (code %s)!' % [ self.id, self.challenge_status ]
-      else
-        logger.info 'Conversation %s encountered error while sending challenge message (code %s).' % [ self.id, self.challenge_status ]
-      end
-      
-      # Rethrow
-      raise ex
-    end
-  end
-  
-  def send_challenge_message!( force_resend = false )
-    begin
-      self.send_challenge_message(force_resend)
-    ensure
-      self.save
-    end
-  end
-  
-  def send_reply_message( force_resend = false )
-
-    # Abort if message already sent and we do not want to force a resend
-    raise SignalCloud::ReplyAlreadySentError.new(self) unless ( force_resend || !self.has_reply_been_sent? )
-    
-    # Send the message, catching any errors
-    begin
-      sent_messages = self.send_message( self.select_reply_message_to_send, Message::REPLY, force_resend )
-      self.reply_status = QUEUED
-      return sent_messages
-
-    rescue SignalCloud::MessageSendingError => ex
-      # Set message status
-      self.reply_status = ex.code
-      
-      # Log as appropriate
-      if ex.instance_of?( SignalCloud::CriticalMessageSendingError )
-        logger.error 'Conversation %s encountered critical error while sending reply message (code %s)!' % [ self.id, self.reply_status ]
-      else
-        logger.info 'Conversation %s encountered error while sending reply message (code %s)!' % [ self.id, self.reply_status ]
-      end
-      
-      # Rethrow
-      raise ex
-    end
-  end
-  
-  def send_reply_message!( force_resend = false )
-    begin
-      self.send_reply_message(force_resend)
-    ensure
-      self.save
-    end
-  end
-  
-  ##
-  # Send challenge SMS message. This will construct the appropriate SMS 'envelope' and pass to the +Conversation's+ +Account+. This will also convert
-  # the results into a message, to be held for reference.
-  def send_message( message_body, message_kind = nil, force_resend = false )
-    raise SignalCloud::CriticalMessageSendingError.new( nil, nil, Conversation::ERROR_MISSING_BODY ) if message_body.blank?
-  
-    # Do an initial clean-up on the body
-    message_body.strip!
-  
-    begin
-      chunking_strategy = Message.select_message_chunking_strategy( message_body )
-      return message_body.scan( chunking_strategy ).map do |message_part|
-        msg = self.messages.build( to_number: self.to_number, from_number: self.from_number, body: message_part, message_kind: message_kind, direction: Message::DIRECTION_OUT )
-        msg.deliver!
-        msg
-        # Send the SMS
-        #results = self.stencil.organization.send_sms( self.to_number, self.from_number, message_part )
-  
-        # Build a message and ledger_entry to hold the results
-        # sent_message = self.messages.build( twilio_sid: results.sid, provider_response: results.to_property_hash )
-        # ledger_entry = sent_message.build_ledger_entry( narrative: LedgerEntry::OUTBOUND_SMS_NARRATIVE )
-        # sent_message
-      end
-
-    rescue Twilio::REST::RequestError => ex
-      error_code = Conversation.translate_twilio_error_to_conversation_status ex.code
-      if CRITICAL_ERRORS.include? error_code
-        raise SignalCloud::CriticalMessageSendingError.new( message_body, ex, error_code ) # Rethrow as a critical error
-      else
-        raise SignalCloud::MessageSendingError.new( message_body, ex, error_code ) # Rethrow in nice wrapper error
-      end
-    end
-
-  end
+#   def has_errored?
+#     return Conversation::ERROR_STATUSES.include? self.workflow_state
+#   end
   
   ##
   # Has the challenge message already been sent to the recipient?
-  def has_challenge_been_sent?
+  def challenge_sent?
     return !self.challenge_sent_at.nil?
   end
+  alias_method :has_challenge_been_sent?, :challenge_sent?
   
   ##
   # Has the challenge message already been sent to the recipient?
-  def has_response_been_received?
+  def response_received?
     return !self.response_received_at.nil?
   end
+  alias_method :has_response_been_received?, :response_received?
   
   ##
   # Has the challenge message already been sent to the recipient?
-  def has_reply_been_sent?
+  def reply_sent?
     return !self.reply_sent_at.nil?
   end
+  alias_method :has_reply_been_sent?, :reply_sent?
   
   def has_outstanding_challenge_messages?
     return self.messages.where( 'message_kind = ? and status != ?', Message::CHALLENGE, Message::SENT ).any?
@@ -361,40 +276,97 @@ class Conversation < ActiveRecord::Base
     self.save!
   end
   
-  ##
-  # Translate a given Twilio error message into a conversation status message
-  def self.translate_twilio_error_to_conversation_status( error_code )
-    return case error_code
-      when Twilio::ERR_INVALID_TO_PHONE_NUMBER, Twilio::ERR_SMS_TO_REQUIRED
-        ERROR_INVALID_TO
-      when Twilio::ERR_INVALID_FROM_PHONE_NUMBER, Twilio::ERR_SMS_FROM_REQUIRED
-        ERROR_INVALID_FROM
-      when Twilio::ERR_FROM_PHONE_NUMBER_NOT_SMS_CAPABLE, Twilio::ERR_TO_PHONE_NUMBER_NOT_VALID_MOBILE
-        ERROR_NOT_SMS_CAPABLE
-      when Twilio::ERR_FROM_PHONE_NUMBER_EXCEEDED_QUEUE_SIZE
-        ERROR_SMS_QUEUE_FULL
-      when Twilio::ERR_TO_PHONE_NUMBER_CANNOT_RECEIVE_SMS
-        ERROR_CANNOT_ROUTE
-      when Twilio::ERR_TO_PHONE_NUMBER_IS_BLACKLISTED
-        ERROR_BLACKLISTED_TO
-      when Twilio::ERR_INTERNATIONAL_NOT_ENABLED
-        ERROR_INTERNATIONAL
-      when Twilio::ERR_SMS_BODY_REQUIRED
-        ERROR_MISSING_BODY
-      when Twilio::ERR_SMS_BODY_EXCEEDS_MAXIMUM_LENGTH
-        ERROR_BODY_TOO_LARGE
-      else
-        ERROR_UNKNOWN
-      end
+  def send_webhook_update
+    # If no webhook specified, fail
+    raise WebhookMissingError if self.webhook_uri.blank?
+    
+    # Assemble a webhook client and send self as update
+    client = WebhookClient.new self.webhook_uri
+    
+    # Compile JSON and deliver it
+    client.deliver self
+    true    
   end
 
-  protected
+protected
   
-  def assign_from_number
+  def assign_internal_number
     # Add a randomly selected from number if needed
-    if self.from_number.blank? and !self.to_number.blank?
-      self.from_number = self.stencil.phone_book.select_internal_number_for( self.to_number ).number
+    if self.internal_number.blank? and !self.customer_number.blank?
+      self.internal_number = self.stencil.phone_book.select_internal_number_for( self.customer_number ).number
     end
+  end
+
+  def deliver_message( message_body, message_kind )
+    msg = self.messages.create!( to_number: self.customer_number, from_number: self.internal_number, body: message_body, message_kind: message_kind, direction: :out )
+    msg.deliver!
+    msg
+  end
+  
+protected
+
+  def ask
+    # Begin the process!
+    self.deliver_message self.question, :challenge
+  end
+
+  def asked
+    self.challenge_sent_at ||= Time.now
+  end
+
+  def confirm
+    # Send confirmed reply
+    self.deliver_message self.confirmed_reply, :reply
+
+    # Send confirmed webhook
+    self.send_webhook_update unless self.webhook_uri.blank?
+  end
+  
+  def confirmed
+    self.reply_sent_at ||= Time.now
+  end
+  
+  def deny
+    # Send denied reply
+    self.deliver_message self.denied_reply, :reply
+
+    # Send denied webhook
+    self.send_webhook_update unless self.webhook_uri.blank?
+  end
+  
+  def denied
+    self.reply_sent_at ||= Time.now
+  end
+  
+  def fail
+    # Send failed reply
+    self.deliver_message self.failed_reply, :reply
+    self.reply_sent_at = Time.now
+
+    # Send failed webhook
+    self.send_webhook_update unless self.webhook_uri.blank?
+  end
+  
+  def failed
+    self.reply_sent_at ||= Time.now
+  end
+
+  def expire
+    # Send expired reply
+    self.deliver_message self.expired_reply, :reply
+    self.reply_sent_at ||= Time.now
+
+    # Send expired webhook
+    self.send_webhook_update unless self.webhook_uri.blank?
+  end
+  
+  def expired
+    self.reply_sent_at ||= Time.now
+  end
+  
+  def error
+    # Send error webhook
+    self.send_webhook_update unless self.webhook_uri.blank?
   end
 
 end

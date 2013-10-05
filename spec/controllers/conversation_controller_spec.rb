@@ -6,10 +6,10 @@ describe ConversationsController do
   let(:stencil)         { create :stencil, organization: organization }
   let(:conversation)    { create :conversation, stencil: stencil }
 
-  let(:to_number)       { Twilio::INVALID_NUMBER }
-  let(:from_number)     { Twilio::VALID_NUMBER }
-  let(:create_payload)  {{ organization_id: organization.id, stencil_id: stencil.id, conversation: { to_number: to_number, from_number: from_number } }}
-  let(:update_payload)  {{ organization_id: organization.id, stencil_id: stencil.id, id: conversation.id, conversation: { to_number: to_number, from_number: from_number } }}
+  let(:customer_number) { Twilio::INVALID_NUMBER }
+  let(:internal_number) { Twilio::VALID_NUMBER }
+  let(:create_payload)  {{ organization_id: organization.id, stencil_id: stencil.id, conversation: { customer_number: customer_number, internal_number: internal_number } }}
+  let(:update_payload)  {{ organization_id: organization.id, stencil_id: stencil.id, id: conversation.id, conversation: { customer_number: customer_number, internal_number: internal_number } }}
 
   it_behaves_like 'an organization resource'
   
@@ -98,13 +98,13 @@ describe ConversationsController do
       it 'creates a new organization' do
         expect{ post :create, create_payload }.to change( Conversation, :count ).by(1)
       end
-      it 'sets conversation\'s to_number' do
+      it 'sets conversation\'s customer_number' do
         post :create, create_payload
-        Conversation.last.to_number.should == to_number
+        Conversation.last.customer_number.should == customer_number.gsub(/^\+/,'')
       end
-      it 'sets conversation\'s from_number' do
+      it 'sets conversation\'s internal_number' do
         post :create, create_payload
-        Conversation.last.from_number.should == from_number
+        Conversation.last.internal_number.should == internal_number.gsub(/^\+/,'')
       end
       it 'raises 400 bad request if no parameters' do
         post :create, organization_id: organization.id, stencil_id: stencil.id

@@ -2,8 +2,9 @@ require 'spec_helper'
 
 describe "Walkabout" do
   let!(:user)          { create(:user, user_roles: [ UserRole.create(organization: organization, roles: UserRole::ROLES) ]) }
-  let!(:organization)  { create(:organization) }
-  let!(:phone_number)  { create :phone_number, organization: organization }
+  let!(:organization)  { create(:organization, :test_twilio) }
+  let!(:comm_gateway)  { organization.communication_gateways.first }
+  let!(:phone_number)  { create :phone_number, organization: organization, communication_gateway: comm_gateway }
   let!(:phone_book)    { create :phone_book, organization: organization }
   let!(:stencil)       { create :stencil, organization: organization, phone_book: phone_book }
   let!(:conversation)  { create :conversation, stencil: stencil }

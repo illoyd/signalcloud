@@ -13,7 +13,6 @@ class ConversationsController < ApplicationController
 
   def load_new_conversation
     @conversation = @stencil.build_conversation()
-    # @conversation.from_number = nil
     @conversation
   end
   
