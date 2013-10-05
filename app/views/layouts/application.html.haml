@@ -24,7 +24,7 @@
                 = link_to new_user_session_path do
                   %i.icon-signin
                   Sign In
-              -if devise_mapping.registerable?
+              -if devise_mapping.registerable? and ALLOW_USER_REGISTRATION
                 %li{ :class => ( request.path == new_user_registration_path ? 'active' : '' ) }
                   = link_to new_user_registration_path do
                     %i.icon-upload-alt
