@@ -61,6 +61,7 @@ class ConversationsController < ApplicationController
 
     if @conversation.update_attributes( conversation_params )
       #JobTools.enqueue SendConversationChallengeJob.new( @conversation.id )
+      SendConversationChallengeJob.perform_async( @conversation.id )
       flash[:success] = 'The conversation has been successfully started.'
     end
     respond_with @organization, @conversation

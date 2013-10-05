@@ -36,6 +36,9 @@ gem 'jquery-rails'
 # Use unicorn as the app server
 gem 'unicorn'
 
+# Add sinatra for sidekiq
+gem 'sinatra', '>= 1.3.0', :require => nil
+
 # Deploy with Capistrano
 # gem 'capistrano'
 
