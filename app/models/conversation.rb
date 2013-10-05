@@ -311,7 +311,7 @@ protected
   end
 
   def asked
-    self.challenge_sent_at = Time.now
+    self.challenge_sent_at ||= Time.now
   end
 
   def confirm
@@ -323,7 +323,7 @@ protected
   end
   
   def confirmed
-    self.reply_sent_at = Time.now
+    self.reply_sent_at ||= Time.now
   end
   
   def deny
@@ -335,7 +335,7 @@ protected
   end
   
   def denied
-    self.reply_sent_at = Time.now
+    self.reply_sent_at ||= Time.now
   end
   
   def fail
@@ -348,20 +348,20 @@ protected
   end
   
   def failed
-    self.reply_sent_at = Time.now
+    self.reply_sent_at ||= Time.now
   end
 
   def expire
     # Send expired reply
     self.deliver_message self.expired_reply, :reply
-    self.reply_sent_at = Time.now
+    self.reply_sent_at ||= Time.now
 
     # Send expired webhook
     self.send_webhook_update unless self.webhook_uri.blank?
   end
   
   def expired
-    self.reply_sent_at = Time.now
+    self.reply_sent_at ||= Time.now
   end
   
   def error

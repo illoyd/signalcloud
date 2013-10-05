@@ -299,21 +299,32 @@ protected
     end
   end
 
-  def confirm
+  def confirm( time=nil )
+    # Update sent_at time if needed
+    self.sent_at ||= ( time || Time.now )
+
     # Update parent conversation
     unless self.conversation.nil?
-      # If this is a CHALLENGE message
       if self.challenge?
         self.conversation.challenge_sent_at ||= self.sent_at
-      # If this is a REPLY message
       elsif self.reply?
         self.conversation.reply_sent_at ||= self.sent_at
       end
     end
   end
 
-  def fail
-    # Do nothing
+  def fail( time=nil )
+    # Update sent_at time if needed
+    self.sent_at ||= ( time || Time.now )
+
+    # Update parent conversation
+    unless self.conversation.nil?
+      if self.challenge?
+        self.conversation.challenge_sent_at ||= self.sent_at
+      elsif self.reply?
+        self.conversation.reply_sent_at ||= self.sent_at
+      end
+    end
   end
   
   def error
@@ -322,10 +333,8 @@ protected
   
   def update_parent_status
     unless self.conversation.nil?
-      # If this is a CHALLENGE message
       if self.challenge?
         self.conversation.challenge_status = self.workflow_state.to_s
-      # If this is a REPLY message
       elsif self.reply?
         self.conversation.reply_status = self.workflow_state.to_s
       end
