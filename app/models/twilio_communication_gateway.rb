@@ -85,7 +85,7 @@ class TwilioCommunicationGateway < CommunicationGateway
   
   ##
   # Send an SMS using the Twilio API.
-  def send_sms!( to_number, from_number, body, options={} )
+  def send_message!( to_number, from_number, body, options={} )
   
     raise SignalCloud::InvalidToNumberCommunicationGatewayError.new(self) if to_number.blank?
     raise SignalCloud::InvalidFromNumberCommunicationGatewayError.new(self) if from_number.blank?
@@ -135,7 +135,9 @@ class TwilioCommunicationGateway < CommunicationGateway
 
     end
   end
-  
+
+  alias_method :send_sms!, :send_message!
+
   def purchase_number!( phone_number )
     pn = self.class.prepend_plus(phone_number.number)
     results = self.twilio_account.incoming_phone_numbers.create( { phone_number: pn, application_sid: self.twilio_application_sid } )
