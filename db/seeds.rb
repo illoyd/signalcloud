@@ -75,8 +75,8 @@ unless Organization.exists?( sid: '76f78f836d4563bf4824da02b506346d' )
     workflow_state:     'ready'
   })
   
-  master_phone_number = org.phone_numbers.create!( number: '+1 202-601-3854', twilio_phone_number_sid: 'PNf7abf4d06e5faecb7d6878fa37b8cdc3' )
-  master_phone_number_gb = org.phone_numbers.create!( number: '+44 1753 254372', twilio_phone_number_sid: 'PNa11b228979b0759de22e39a8e6f8585c' )
+  master_phone_number = org.phone_numbers.create!( number: '+1 202-601-3854', workflow_state: :active, provider_sid: 'PNf7abf4d06e5faecb7d6878fa37b8cdc3', communication_gateway: comm_gateway )
+  master_phone_number_gb = org.phone_numbers.create!( number: '+44 1753 254372', workflow_state: :active, provider_sid: 'PNa11b228979b0759de22e39a8e6f8585c', communication_gateway: comm_gateway )
   org.phone_books.first.phone_book_entries.create!( phone_number_id: master_phone_number.id, country: nil )
   org.phone_books.first.phone_book_entries.create!( phone_number_id: master_phone_number_gb.id, country: 'GB' )
   
@@ -150,9 +150,9 @@ unless Rails.env.production? || Organization.exists?( sid: '00000000000000000000
   
   # Add example data for the test organization
   test_numbers = {
-    US: org.phone_numbers.create!( number: Twilio::VALID_NUMBER, twilio_phone_number_sid: 'XX'+SecureRandom.hex(16) ),
-    CA: org.phone_numbers.create!( number: '+17127005678', twilio_phone_number_sid: 'XX'+SecureRandom.hex(16) ),
-    GB: org.phone_numbers.create!( number: '+447540123456', twilio_phone_number_sid: 'XX'+SecureRandom.hex(16) )
+    US: org.phone_numbers.create!( number: Twilio::VALID_NUMBER, provider_sid: 'XX'+SecureRandom.hex(16), communication_gateway: comm_gateway ),
+    CA: org.phone_numbers.create!( number: '+17127005678', provider_sid: 'XX'+SecureRandom.hex(16), communication_gateway: comm_gateway ),
+    GB: org.phone_numbers.create!( number: '+447540123456', provider_sid: 'XX'+SecureRandom.hex(16), communication_gateway: comm_gateway )
   }
   
   example_book = org.phone_books.create label: 'Example Book', description: 'Example description.'
@@ -179,43 +179,43 @@ unless Rails.env.production? || Organization.exists?( sid: '00000000000000000000
   inbound_code  = -0.02
   
   customer_numbers.shuffle.each do |customer_number|
-    conversation = example_stencil.open_conversation( to_number: customer_number, expected_confirmed_answer: random_answer() )
-    conversation.status = Conversation::STATUSES.sample
+    conversation = example_stencil.open_conversation( customer_number: customer_number, expected_confirmed_answer: random_answer() )
+    conversation.workflow_state = Conversation.workflow_spec.state_names.sample
     conversation.created_at = rand_datetime( date_from, date_to );
     conversation.save!
-    if [ Conversation::CHALLENGE_SENT, Conversation::CONFIRMED, Conversation::DENIED, Conversation::FAILED, Conversation::EXPIRED ].include? conversation.status
+    if [ Conversation::CHALLENGE_SENT, Conversation::CONFIRMED, Conversation::DENIED, Conversation::FAILED, Conversation::EXPIRED ].include? conversation.workflow_state
       conversation.challenge_sent_at = conversation.created_at
-      conversation.messages.build( to_number: conversation.to_number, from_number: conversation.from_number, body: conversation.question, message_kind: Message::CHALLENGE, direction: Message::DIRECTION_OUT, provider_cost: outbound_cost, sent_at: conversation.challenge_sent_at, status: Message::SENT )
+      conversation.messages.build( to_number: conversation.customer_number, from_number: conversation.internal_number, body: conversation.question, message_kind: Message::CHALLENGE, direction: Message::OUT, provider_cost: outbound_cost, sent_at: conversation.challenge_sent_at, workflow_state: :sent )
     end
 
-    case conversation.status
+    case conversation.workflow_state
       when Conversation::CONFIRMED
         conversation.response_received_at = conversation.challenge_sent_at + rand_in_range( 1, conversation.stencil.seconds_to_live )
         conversation.reply_sent_at        = conversation.response_received_at + rand_in_range( 1, 5 )
-        conversation.messages.build( to_number: conversation.from_number, from_number: conversation.to_number, body: conversation.expected_confirmed_answer, direction: Message::DIRECTION_IN, provider_cost: inbound_code, sent_at: conversation.response_received_at )
-        conversation.messages.build( to_number: conversation.to_number, from_number: conversation.from_number, body: conversation.confirmed_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT, provider_cost: outbound_cost, sent_at: conversation.reply_sent_at, status: Message::SENT )
+        conversation.messages.build( to_number: conversation.internal_number, from_number: conversation.customer_number, body: conversation.expected_confirmed_answer, direction: Message::IN, provider_cost: inbound_code, sent_at: conversation.response_received_at, workflow_state: :received )
+        conversation.messages.build( to_number: conversation.customer_number, from_number: conversation.internal_number, body: conversation.confirmed_reply, message_kind: Message::REPLY, direction: Message::OUT, provider_cost: outbound_cost, sent_at: conversation.reply_sent_at, workflow_state: :sent )
 
       when Conversation::DENIED
         conversation.response_received_at = conversation.challenge_sent_at + rand_in_range( 1, conversation.stencil.seconds_to_live )
         conversation.reply_sent_at        = conversation.response_received_at + rand_in_range( 1, 5 )
-        conversation.messages.build( to_number: conversation.from_number, from_number: conversation.to_number, body: conversation.expected_denied_answer, direction: Message::DIRECTION_IN, provider_cost: inbound_code, sent_at: conversation.response_received_at )
-        conversation.messages.build( to_number: conversation.to_number, from_number: conversation.from_number, body: conversation.denied_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT, provider_cost: outbound_cost, sent_at: conversation.reply_sent_at, status: Message::SENT )
+        conversation.messages.build( to_number: conversation.internal_number, from_number: conversation.customer_number, body: conversation.expected_denied_answer, direction: Message::IN, provider_cost: inbound_code, sent_at: conversation.response_received_at, workflow_state: :received )
+        conversation.messages.build( to_number: conversation.customer_number, from_number: conversation.internal_number, body: conversation.denied_reply, message_kind: Message::REPLY, direction: Message::OUT, provider_cost: outbound_cost, sent_at: conversation.reply_sent_at, workflow_state: :sent )
 
       when Conversation::FAILED
         conversation.response_received_at = conversation.challenge_sent_at + rand_in_range( 1, conversation.stencil.seconds_to_live )
         conversation.reply_sent_at        = conversation.response_received_at + rand_in_range( 1, 5 )
-        conversation.messages.build( to_number: conversation.from_number, from_number: conversation.to_number, body: random_answer(), direction: Message::DIRECTION_IN, provider_cost: inbound_code, sent_at: conversation.response_received_at )
-        conversation.messages.build( to_number: conversation.to_number, from_number: conversation.from_number, body: conversation.failed_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT, provider_cost: outbound_cost, sent_at: conversation.reply_sent_at, status: Message::SENT )
+        conversation.messages.build( to_number: conversation.internal_number, from_number: conversation.customer_number, body: random_answer(), direction: Message::IN, provider_cost: inbound_code, sent_at: conversation.response_received_at, workflow_state: :received )
+        conversation.messages.build( to_number: conversation.customer_number, from_number: conversation.internal_number, body: conversation.failed_reply, message_kind: Message::REPLY, direction: Message::OUT, provider_cost: outbound_cost, sent_at: conversation.reply_sent_at, workflow_state: :sent )
 
       when Conversation::EXPIRED
         conversation.reply_sent_at        = conversation.challenge_sent_at + conversation.stencil.seconds_to_live + rand_in_range( 1, 5 )
-        conversation.messages.build( to_number: conversation.to_number, from_number: conversation.from_number, body: conversation.expired_reply, message_kind: Message::REPLY, direction: Message::DIRECTION_OUT, provider_cost: outbound_cost, sent_at: conversation.reply_sent_at, status: Message::SENT )
+        conversation.messages.build( to_number: conversation.customer_number, from_number: conversation.internal_number, body: conversation.expired_reply, message_kind: Message::REPLY, direction: Message::OUT, provider_cost: outbound_cost, sent_at: conversation.reply_sent_at, workflow_state: :sent )
     end
     #conversation.updated_at = [ conversation.created_at, conversation.challenge_sent_at, conversation.response_received_at, conversation.reply_sent_at ].reject_imax
     conversation.save!
   end
   
-  invoice = org.invoices.create( workflow_state: 'settled', date_to: 1.week.ago, freshbooks_invoice_id: 431652, public_link: 'https://signalcloud.freshbooks.com/view/yBkg7e8B9CChqJk', internal_link: 'https://signalcloud.freshbooks.com/invoices/431652' )
+  invoice = org.invoices.create( workflow_state: 'settled', date_from: 4.weeks.ago, date_to: 1.week.ago, freshbooks_invoice_id: 431652, public_link: 'https://signalcloud.freshbooks.com/view/yBkg7e8B9CChqJk', internal_link: 'https://signalcloud.freshbooks.com/invoices/431652' )
     invoice.capture_uninvoiced_ledger_entries!
     invoice.save!
 end
@@ -246,7 +246,7 @@ unless Organization.exists?( sid: '00000000000000000000000000000000' )
     workflow_state:     'ready'
   })
   
-  perf_phone_number = org.phone_numbers.create!( number: Twilio::VALID_NUMBER, twilio_phone_number_sid: 'PX'+SecureRandom.hex(16) )
+  perf_phone_number = org.phone_numbers.create!( number: Twilio::VALID_NUMBER, provider_sid: 'PX'+SecureRandom.hex(16), communication_gateway: comm_gateway )
   org.phone_books.first.phone_book_entries.create!( phone_number_id: perf_phone_number.id, country: nil )
 
   org.stencils.create!({

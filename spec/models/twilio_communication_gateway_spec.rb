@@ -1,4 +1,14 @@
+# encoding: UTF-8
 require 'spec_helper'
+
+shared_examples 'sends messages' do
+  it 'does not error' do
+    expect{ subject.send_sms!( to_number, from_number, body ) }.not_to raise_error
+  end
+  it 'returns a provider ID' do
+    subject.send_sms!( to_number, from_number, body, response_format: :smash ).sid.should_not be_nil
+  end
+end
 
 describe TwilioCommunicationGateway, :vcr do
   
@@ -11,7 +21,7 @@ describe TwilioCommunicationGateway, :vcr do
     its(:ready?) { should be_false }
 
     describe '#create_remote!' do
-      subject { build :twilio_communication_gateway, organization: organization }
+      subject { create :twilio_communication_gateway, organization: organization }
       it 'does not throw an error' do
         expect{ subject.create_remote! }.not_to raise_error
       end
@@ -28,7 +38,7 @@ describe TwilioCommunicationGateway, :vcr do
         expect{ subject.create_remote! }.to change(subject, :updated_remote_at).from(nil)
       end
       it 'transitions from new to ready' do
-        expect { subject.create_remote! }.to change(subject, :workflow_state).to('ready')
+        expect{ subject.create_remote! }.to change(subject, :workflow_state).to('ready')
       end
     end
 
@@ -91,7 +101,7 @@ describe TwilioCommunicationGateway, :vcr do
   end # Context when new
   
   context 'when ready' do
-    subject { build :twilio_communication_gateway, :test, organization: organization }
+    subject { create :twilio_communication_gateway, :test, organization: organization }
 
     its(:new?)   { should be_false }
     its(:ready?) { should be_true  }
@@ -163,12 +173,13 @@ describe TwilioCommunicationGateway, :vcr do
 
     describe '#send_sms!', :vcr do
       let(:to_number)    { Twilio::VALID_NUMBER }
-      let(:from_number)  { Twilio::VALID_NUMBER }
+      let(:from_number)  { '+12026013854' }
       let(:body)         { 'Hello, world!' }
+      subject { build :twilio_communication_gateway, :test, organization: organization }
       
       context 'when requesting default response' do
-        it 'returns a RESTful resource' do
-          subject.send_sms!( to_number, from_number, body ).should be_a Twilio::REST::InstanceResource
+        it 'returns a smash resource' do
+          subject.send_sms!( to_number, from_number, body ).should be_a APISmith::Smash
         end
       end
       
@@ -200,7 +211,7 @@ describe TwilioCommunicationGateway, :vcr do
       end
       
       context 'when requesting with callback'  do
-        let(:query) { subject.send_sms!( to_number, from_number, body, default_callback: true ) }
+        let(:query) { subject.send_sms!( to_number, from_number, body, response_format: :raw, default_callback: true ) }
 
         it 'returns a RESTful resource' do
           query.should be_a Twilio::REST::InstanceResource
@@ -254,7 +265,7 @@ describe TwilioCommunicationGateway, :vcr do
       context 'when requesting smash response' do
         let(:query) { subject.send_sms!( to_number, from_number, body, response_format: :smash ) }
 
-        it 'returns a Hash resource' do
+        it 'returns a Smash resource' do
           query.should be_a APISmith::Smash
         end
         it 'returns the TO' do
@@ -283,12 +294,54 @@ describe TwilioCommunicationGateway, :vcr do
           query.internal_number.should == from_number
         end
         
-        it 'returns the date created' do
-          query.date_created.should_not be_nil
-        end
         it 'returns the created at' do
           query.created_at.should_not be_nil
         end
+      end
+      
+      context 'sends typical message' do
+        let(:body) { 'confirmed' }
+        include_examples 'sends messages'
+      end
+      
+      context 'sends 160-character message' do
+        let(:body) { 'Mumblecore messenger bag fashion axe whatever pitchfork, squid sapiente banksy cosby sweater enim vegan mcsweeney\'s carles chambray. Stumptown twee single-origi' }
+        include_examples 'sends messages'
+      end
+      
+      context 'sends 1-character message' do
+        let(:body) { 'M' }
+        include_examples 'sends messages'
+      end
+      
+      context 'sends 161-character message' do
+        let(:body) { 'Mumblecore messenger bag fashion axe whatever pitchfork, squid sapiente banksy cosby sweater enim vegan mcsweeney\'s carles chambray. Stumptown twee single-origin' }
+        include_examples 'sends messages'
+      end
+  
+      context 'sends super long message' do
+        let(:body) { 'Mumblecore messenger bag fashion axe whatever pitchfork, squid sapiente banksy cosby sweater enim vegan mcsweeney\'s carles chambray. Stumptown twee single-origin coffee next level, echo park elit quis minim sed blue bottle. Single-origin coffee leggings cliche, farm-to-table try-hard ullamco wes anderson narwhal literally hella nisi actually. Retro whatever semiotics odd future 8-bit, polaroid letterpress non consectetur seitan cosby sweater. Pariatur fanny pack proident, carles skateboard scenester voluptate. Sunt consequat jean shorts chambray bushwick, lo-fi next level dolor yr. Wayfarers swag keffiyeh, williamsburg lo-fi tonx put a bird on it tumblr keytar YOLO fashion axe pug tempor delectus.' }
+        include_examples 'sends messages'
+      end
+  
+      context 'sends UTF message' do
+        let(:body) { 'こんにちは' }
+        include_examples 'sends messages'
+      end
+      
+      context 'sends 70-character UTF message' do
+        let(:body) { 'こんにちは こんにちは こんにちは こんにちは こんにちは こんにちは こんにちは こんにちは こんにちは こんにちは こんにちは 1234' }
+        include_examples 'sends messages'
+      end
+      
+      context 'sends 71-character UTF message' do
+        let(:body) { 'こんにちは こんにちは こんにちは こんにちは こんにちは こんにちは こんにちは こんにちは こんにちは こんにちは こんにちは 12345' }
+        include_examples 'sends messages'
+      end
+      
+      context 'sends super-long UTF message' do
+        let(:body) { 'こんにちは' * 30 }
+        include_examples 'sends messages'
       end
     end
 
@@ -356,294 +409,4 @@ describe TwilioCommunicationGateway, :vcr do
     end
 
   end # Context when ready
-
-
-
-
-
-
-
-
-
-#   describe '#create_twilio_account' do
-#     context 'when organization already created' do
-#       subject { create :organization, :test_twilio, :with_sid_and_token }
-#       it 'does not raise error' do
-#         expect{ subject.communication_gateway.create_twilio_account }.to_not raise_error
-#       end
-#       it 'does not change #twilio_account_sid' do
-#         expect { subject.communication_gateway.create_twilio_account }.to_not change(subject, :twilio_account_sid)
-#       end
-#       it 'does not change #twilio_auth_token' do
-#         expect { subject.communication_gateway.create_twilio_account }.to_not change(subject, :twilio_auth_token)
-#       end
-#     end
-#   end
-#   
-#   describe '#create_twilio_account!' do
-# 
-#     context 'when organization not already created' do
-#       subject { create :organization, :with_sid_and_token }
-#       it 'does not raise error' do
-#         expect{ subject.communication_gateway.create_twilio_account! }.to_not raise_error
-#       end
-#       it 'adds .twilio_account_sid' do
-#         expect { subject.communication_gateway.create_twilio_account! }.to change(subject, :twilio_account_sid).from(nil)
-#       end
-#       it 'adds .twilio_auth_token' do
-#         expect { subject.communication_gateway.create_twilio_account! }.to change(subject, :twilio_auth_token).from(nil)
-#       end
-#       it 'allows creating a twilio client' do
-#         expect{ subject.twilio_client }.to raise_error(SignalCloud::MissingTwilioAccountError)
-#         subject.create_twilio_account!
-#         expect{ subject.twilio_client }.to_not raise_error
-#       end
-#     end
-# 
-#     context 'when organization already created' do
-#       subject { create :organization, :test_twilio, :with_sid_and_token }
-#       it 'raises error' do
-#         expect{ subject.communication_gateway.create_twilio_account! }.to raise_error(SignalCloud::TwilioAccountAlreadyExistsError)
-#       end
-#       it 'does not change .twilio_account_sid' do
-#         expect { subject.communication_gateway.create_twilio_account! rescue nil }.to_not change(subject, :twilio_account_sid)
-#       end
-#       it 'does not change .twilio_auth_token' do
-#         expect { subject.communication_gateway.create_twilio_account! rescue nil }.to_not change(subject, :twilio_auth_token)
-#       end
-#     end
-# 
-#   end
-#   
-#   describe '#create_or_update_twilio_application' do
-#   
-#     context 'when organization is not configured' do
-#       let(:organization)   { create :organization, :with_sid_and_token }
-#       it 'raises error' do
-#         expect { organization.communication_gateway.create_or_update_twilio_application }.to raise_error(SignalCloud::MissingTwilioAccountError)
-#       end
-#     end
-#     
-#     context 'when application is not configured, creates' do
-#       let(:organization)   { create :organization, :master_twilio, :with_sid_and_token, twilio_application_sid: nil }
-#       it 'does not raise error' do
-#         expect { organization.communication_gateway.create_or_update_twilio_application }.to_not raise_error()
-#       end
-#       it 'returns a response' do
-#         organization.communication_gateway.create_or_update_twilio_application.should_not be_nil
-#       end
-#       it 'updates twilio application' do
-#         expect { organization.communication_gateway.create_or_update_twilio_application }.to change{ organization.twilio_application_sid }.from(nil)
-#       end
-#     end
-#     
-#     context 'when application is configured, updates' do
-#       let(:organization)   { create :organization, :master_twilio, :with_sid_and_token }
-#       it 'does not raise error' do
-#         expect { organization.communication_gateway.create_or_update_twilio_application }.to_not raise_error()
-#       end
-#       it 'returns a response' do
-#         organization.communication_gateway.create_or_update_twilio_application.should_not be_nil
-#       end
-#       it 'does not change twilio application' do
-#         expect { organization.communication_gateway.create_or_update_twilio_application }.not_to change{ organization.twilio_application_sid }
-#       end
-#     end
-#     
-#   end
-#   
-#   describe '#create_twilio_application' do
-#     
-#     context 'when organization is configured' do
-#       context 'and when application is configured' do
-#         subject { create :organization, :master_twilio, :with_sid_and_token }
-#         it 'does not raise error' do
-#           expect { subject.create_twilio_application }.not_to raise_error
-#         end
-#         it 'does not change twilio_application_sid' do
-#           expect { subject.create_twilio_application }.not_to change(subject, :twilio_application_sid)
-#         end
-#         it 'returns nil (since nothing was created)' do
-#           subject.create_twilio_application.should be_nil
-#         end
-#       end
-# 
-#       context 'and when application is not configured' do
-#         subject { create :organization, :master_twilio, :with_sid_and_token, twilio_application_sid: nil }
-#         it 'does not raise error' do
-#           expect { subject.create_twilio_application }.not_to raise_error
-#         end
-#         it 'returns a response object' do
-#           subject.create_twilio_application.should_not be_nil
-#         end
-#         it 'sets twilio_application_sid' do
-#           expect { subject.create_twilio_application }.to change(subject, :twilio_application_sid).from(nil)
-#         end
-#       end
-#     end
-#     
-#     context 'when organization is not configured' do
-#       subject { create :organization }
-#       it 'raises error' do
-#         expect{ subject.create_twilio_application }.to raise_error(SignalCloud::MissingTwilioAccountError)
-#       end
-#     end
-# 
-#   end
-#   
-#   describe '#create_twilio_application!' do
-#     context 'when accout and application are configured' do
-#       subject { create :organization, :master_twilio, :with_sid_and_token }
-#       it 'raises application-exists error' do
-#         expect { subject.create_twilio_application! }.to raise_error(SignalCloud::TwilioApplicationAlreadyExistsError)
-#       end
-#     end
-#   end
-#   
-#   describe '#update_twilio_application' do
-#     
-#     context 'when organization is configured' do
-#       context 'and when application is configured' do
-#         subject { create :organization, :master_twilio, :with_sid_and_token }
-#         it 'does not raise error' do
-#           expect { subject.update_twilio_application }.not_to raise_error
-#         end
-#         it 'does not change twilio_application_sid' do
-#           expect { subject.update_twilio_application }.not_to change(subject, :twilio_application_sid)
-#         end
-#         it 'returns response' do
-#           subject.update_twilio_application.should_not be_nil
-#         end
-#       end
-# 
-#       context 'and when application is not configured' do
-#         subject { create :organization, :master_twilio, :with_sid_and_token, twilio_application_sid: nil }
-#         it 'does not raise error' do
-#           expect { subject.update_twilio_application }.not_to raise_error
-#         end
-#         it 'does not change twilio_application_sid' do
-#           expect { subject.update_twilio_application }.not_to change(subject, :twilio_application_sid).from(nil)
-#         end
-#         it 'returns nil (nothing updated)' do
-#           subject.update_twilio_application.should be_nil
-#         end
-#       end
-#     end
-#     
-#     context 'when organization is not configured' do
-#       subject { create :organization }
-#       it 'raises error' do
-#         expect{ subject.create_twilio_application }.to raise_error(SignalCloud::MissingTwilioAccountError)
-#       end
-#     end
-# 
-#   end
-#   
-#   
-#   describe '#twilio_application_configuration' do
-# 
-#     context 'when organization is configured' do
-#       subject { create :organization, :test_twilio }
-#       let(:digest_auth) { "https://#{subject.sid}:#{subject.auth_token}" }
-#       its(:twilio_application_configuration) { should be_a Hash }
-# 
-#       [ 'VoiceUrl', 'VoiceFallbackUrl', 'StatusCallback', 'SmsUrl', 'SmsFallbackUrl', 'SmsStatusCallback' ].each do |key|
-#         its(:'twilio_application_configuration.keys') { should include(key) }
-#         it "embedds auth tokens in #{key}" do
-#           subject.twilio_application_configuration[key].should start_with(digest_auth)
-#         end
-#       end
-#       
-#       [ 'VoiceMethod', 'VoiceFallbackMethod', 'StatusCallbackMethod', 'SmsMethod', 'SmsFallbackMethod' ].each do |key|
-#         its(:'twilio_application_configuration.keys') { should include(key) }
-#         it "uses POST for #{key}" do
-#           subject.twilio_application_configuration[key].should == 'POST'
-#         end
-#       end
-# 
-#     end
-# 
-#     context 'when organization is not configured' do
-#       subject { create :organization }
-#       it 'raises error' do
-#         expect{ subject.twilio_application_configuration }.to raise_error(SignalCloud::MissingTwilioAccountError)
-#       end
-#     end
-# 
-#   end
-  
-#   describe '#send_sms!', :vcr do
-#     let(:organization) { create :organization, :test_twilio, :with_sid_and_token }
-#     let(:to_number)    { Twilio::VALID_NUMBER }
-#     let(:from_number)  { Twilio::VALID_NUMBER }
-#     let(:body)         { 'Hello, world!' }
-#     
-#     context 'when requesting default response' do
-#       subject { organization.send_sms!( to_number, from_number, body ) }
-#       it { should be_a Twilio::REST::InstanceResource }
-#     end
-#     
-#     context 'when requesting raw response' do
-#       subject { organization.send_sms!( to_number, from_number, body, response_format: :raw ) }
-#       it { should be_a Twilio::REST::InstanceResource }
-#       its(:to)   { should == to_number }
-#       its(:from) { should == from_number }
-#       its(:body) { should == body }
-#       it 'errors with #[:to]' do
-#         expect {subject[:to] }.to raise_error
-#       end
-#       it 'errors with #[:from]' do
-#         expect {subject[:from] }.to raise_error
-#       end
-#       it 'errors with #[:body]' do
-#         expect {subject[:body] }.to raise_error
-#       end
-#     end
-#     
-#     context 'when requesting with callback'  do
-#       subject { organization.send_sms!( to_number, from_number, body, default_callback: true ) }
-#       it { should be_a Twilio::REST::InstanceResource }
-#       its(:to)     { should == to_number }
-#       its(:from)   { should == from_number }
-#       its(:body)   { should == body }
-#     end
-#     
-#     context 'when requesting hash response' do
-#       subject { organization.send_sms!( to_number, from_number, body, response_format: :hash ) }
-#       it { should be_a Hash }
-#       its([:to])   { should == to_number }
-#       its([:from]) { should == from_number }
-#       its([:body]) { should == body }
-#       its(['to'])   { should == to_number }
-#       its(['from']) { should == from_number }
-#       its(['body']) { should == body }
-#       it 'errors with #to' do
-#         expect {subject.to }.to raise_error
-#       end
-#       it 'errors with #from' do
-#         expect {subject.from }.to raise_error
-#       end
-#       it 'errors with #body' do
-#         expect {subject.body }.to raise_error
-#       end
-#     end
-#     
-#     context 'when requesting smash response' do
-#       subject { organization.send_sms!( to_number, from_number, body, response_format: :smash ) }
-#       it { should be_a APISmith::Smash }
-#       its(:to)     { should == to_number }
-#       its(:from)   { should == from_number }
-#       its(:body)   { should == body }
-#       its([:to])   { should == to_number }
-#       its([:from]) { should == from_number }
-#       its([:body]) { should == body }
-# 
-#       its(:customer_number)  { should == to_number }
-#       its(:internal_number)  { should == from_number }
-#       
-#       its(:date_created) { should be_a Time }
-#       its(:created_at)   { should be_a Time }
-#     end
-#   end
-
 end

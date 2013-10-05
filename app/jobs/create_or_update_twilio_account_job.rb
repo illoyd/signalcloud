@@ -12,9 +12,10 @@ class CreateOrUpdateTwilioAccountJob
   def perform( organization_id )
   
     organization = Organization.find( organization_id )
-    communication_gateway = ( organization.communication_gateway || TwilioCommunicationGateway.new({ organization: organization }) )
+    communication_gateway = ( organization.communication_gateway_for(:twilio) || TwilioCommunicationGateway.new({ organization: organization }) )
 
     if communication_gateway.new?
+      communication_gateway.save!
       communication_gateway.create_remote!
 
     elsif communication_gateway.ready?

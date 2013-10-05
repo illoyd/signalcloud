@@ -4,7 +4,7 @@ class UnsolicitedCall < ActiveRecord::Base
 
   before_save :update_ledger_entry
 
-  attr_accessible :twilio_call_sid, :action_content, :action_taken, :action_taken_at, :customer_number, :call_content, :received_at, :provider_price, :our_price
+  #attr_accessible :twilio_call_sid, :action_content, :action_taken, :action_taken_at, :customer_number, :call_content, :received_at, :provider_price, :our_price
   serialize :call_content, JSON
   serialize :action_content, JSON
   
@@ -33,9 +33,11 @@ class UnsolicitedCall < ActiveRecord::Base
   #   +forwarded_from+    If this call was an incoming call forwarded from another number, the forwarding phone number (depends on carrier supporting forwarding). Empty otherwise.
   #   +caller_name+       If this call was an incoming call from a phone number with Caller ID Lookup enabled, the caller's name. Empty otherwise.
   #   +uri+               The URI for this resource, relative to https://api.twilio.comment
-  def twilio_status
-    self.organization.twilio_account.calls.get( self.twilio_call_sid )
+  def provider_status
+    self.organization.twilio_account.calls.get( self.provider_sid )
   end
+  
+  alias_method :twilio_status, :provider_status
   
   ##
   # Is a price defined for this message?

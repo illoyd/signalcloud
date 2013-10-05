@@ -8,7 +8,7 @@
 .row
   .span12.table-tools
     = stencil_dropdown_list( @organization, @stencil )
-    = status_dropdown_list( @organization, @stencil, params[:status] )
+    -# = status_dropdown_list( @organization, @stencil, params[:status] )
     - if can? :new, Conversation
       .pull-right= link_to 'Start a new conversation', conversation_path, :class=>'btn btn-success btn-small'
 
@@ -27,17 +27,17 @@
           %th Expires On
           %th
             %span{ rel: 'tooltip', title: 'Message sent to person' }
-              = icon( :cloud )
+              = icon( 'map-marker' )
               = icon( 'arrow-right' )
               = icon( :user )
           %th
             %span{ rel: 'tooltip', title: 'Message received from person' }
-              = icon( :cloud )
+              = icon( 'map-marker' )
               = icon( 'arrow-left' )
               = icon( :user )
           %th
             %span{ rel: 'tooltip', title: 'Reply sent to person' }
-              = icon( :cloud )
+              = icon( 'map-marker' )
               = icon( 'arrow-right' )
               = icon( :user )
             / Manage toolbox
@@ -48,7 +48,7 @@
               %em No conversations match your selected filters. Please remove your filters to see more conversations.
         
         - @conversations.each do |conversation|
-          %tr{ :class=>conversation_class(conversation.status) }
+          %tr
             %td= split_dropdown_list([ |
                 { label: 'Details', icon: :show, link: [@organization, conversation], if: can?(:show, conversation) }, |
                 { label: 'Force status to Confirmed', icon: 'ok-sign', link: [@organization, conversation], if: can?(:force, conversation) }, |
@@ -60,10 +60,9 @@
               %td= link_to conversation.stencil.label, [@organization, conversation.stencil]
             %td
               = link_to [@organization, conversation] do
-                = conversation_status_icon(conversation.status)
-                = human_conversation_status(conversation.status)
-            %td= humanize_phone_number Phony.normalize conversation.from_number
-            %td= humanize_phone_number Phony.normalize conversation.to_number
+                = conversation_state_tag( conversation )
+            %td= humanize_phone_number Phony.normalize conversation.internal_number
+            %td= humanize_phone_number Phony.normalize conversation.customer_number
             %td= conversation.expires_at
             %td{style:'text-align:center'}= conversation.challenge_sent_at ? icon(:ok) : ''
             %td{style:'text-align:center'}= conversation.response_received_at ? icon(:ok) : ''

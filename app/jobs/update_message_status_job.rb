@@ -9,57 +9,70 @@ class UpdateMessageStatusJob
   include Sidekiq::Worker
   sidekiq_options :queue => :default
   
-  REQUIRED_KEYS = [ :sms_sid, :price, :sms_status, :date_sent ]
-  
-  SMS_STATUS_SENT = 'sent'
-  SMS_STATUS_SENDING = 'sending'
-  SMS_STATUS_QUEUED = 'queued'
-  
-  def perform( callback_values )
-    sms = Twilio::InboundSms.new( callback_values )
-    message = Message.find_by_twilio_sid!( sms.sms_sid )
+  def perform( provider_sid, message_status, sent_at=nil )
+    # sms = Twilio::InboundSms.new( callback_values )
+    message = Message.find_by_provider_sid!( provider_sid )
+    message_status = ActiveSupport::StringInquirer.new( message_status )
 
     # If we are missing a price, try to requery for it
-    sms = message.twilio_status.to_property_smash if ( sms.price.nil? and sms.message_status == Message::SENT )
+    # sms = message.twilio_status.to_property_smash if ( sms.price.nil? and sms.message_status == Message::SENT )
+    # sms = message.provider_status
     
     # Update the message
-    message.provider_update = callback_values
-    message.status = sms.message_status
-    message.sent_at = sms.sent_at if ( sms.message_status == Message::SENT )
+    # message.provider_update = callback_values
+    message.provider_update = { sid: provider_sid, status: message_status, sent_at: sent_at }
+    # message.segments = sms.segments unless sms.try(:segments).blank?
     
     # Update price if available
-    unless sms.price.nil?
-      message.provider_cost = sms.price
-      message.ledger_entry.settled_at = sms.sent_at || DateTime.now
+#     unless sms.price.nil?
+#       message.provider_cost = sms.price
+#       message.ledger_entry.settled_at = sms.sent_at || DateTime.now
+#     end
+
+    # Shift message state
+    case
+      when message_status.sent?
+        message.confirm!( sent_at )
+        transition_conversation( message.conversation )
+      
+      when message_status.sending?
+        # Do nothing
+      
+      when message_status.queued?
+        # Do nothing
+      
+      when message_status.received?
+        # Uh, what? Shouldn't happen...
+      
+      when message_status.failed?
+        message.fail!( sent_at )
+        message.conversation.error!
+      
+      else
+        # This should never happen, so that means something's gone wrong!
+        # TODO raise an event or log!
     end
 
     # Save as a db transaction
     message.save!
-    message.ledger_entry.save! if message.ledger_entry
-    
-    # Check and close the conversation's phase if appropriate
-    conversation = message.conversation
-    case message.message_kind
-      when Message::CHALLENGE
-        unless conversation.has_outstanding_challenge_messages?
-          conversation.challenge_sent_at = sms.sent_at
-          conversation.challenge_status = Message::SENT
-          conversation.status = Conversation::CHALLENGE_SENT unless conversation.is_closed?
-        else
-          conversation.challenge_status = Message::SENDING
-          conversation.status = Conversation::QUEUED unless conversation.is_closed?
-        end 
-      when Message::REPLY
-        unless conversation.has_outstanding_reply_messages?
-          conversation.reply_sent_at = sms.sent_at
-          conversation.reply_status = Message::SENT
-        else
-          conversation.reply_status = Message::SENDING
-        end
-    end
-    conversation.save!
+    message.conversation.save!
   end
     
   alias :run :perform
+  
+  def transition_conversation( conversation )
+    case
+      when conversation.can_asked?
+        conversation.asked!
+      when conversation.can_confirmed?
+        conversation.confirmed!
+      when conversation.can_denied?
+        conversation.denied!
+      when conversation.can_failed?
+        conversation.failed!
+      when conversation.can_expired?
+        conversation.expired!
+    end
+  end
 
 end

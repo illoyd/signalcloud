@@ -4,25 +4,27 @@ describe PhoneBook do
 
   # Construct a book, attaching numbers for each country as well as defaults
   def create_book( defaults=0, us_numbers=0, ca_numbers=0, gb_numbers=0 )
+    organization = create :organization, :test_twilio
+    comm_gateway = organization.communication_gateways.first
     book = create(:phone_book)
     
     defaults.times do |n|
-      pn = create :phone_number, organization: book.organization
+      pn = create :phone_number, organization: book.organization, communication_gateway: comm_gateway
       book.phone_book_entries.create phone_number_id: pn.id, country: nil
     end
     
     us_numbers.times do
-      pn = create :us_phone_number, organization: book.organization
+      pn = create :us_phone_number, organization: book.organization, communication_gateway: comm_gateway
       book.phone_book_entries.create phone_number_id: pn.id, country: PhoneBookEntry::US
     end
     
     ca_numbers.times do
-      pn = create :ca_phone_number, organization: book.organization
+      pn = create :ca_phone_number, organization: book.organization, communication_gateway: comm_gateway
       book.phone_book_entries.create phone_number_id: pn.id, country: PhoneBookEntry::CA
     end
     
     gb_numbers.times do
-      pn = create :uk_phone_number, organization: book.organization
+      pn = create :uk_phone_number, organization: book.organization, communication_gateway: comm_gateway
       book.phone_book_entries.create phone_number_id: pn.id, country: PhoneBookEntry::GB
     end
     

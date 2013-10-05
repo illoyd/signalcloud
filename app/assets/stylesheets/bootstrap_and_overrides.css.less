@@ -132,21 +132,19 @@ body.users {
 div.modal form { margin: 0px; }
 
 // Custom labels
-.label-pending, .badge-pending,
-.label-queued, .badge-queued { background-color: @blue }
-.label-challenge_sent, .badge-challenge_sent,
-.label-challenge-sent, .badge-challenge-sent { background-color: @blueDark }
+.label-asking, .badge-asking { background-color: @blue }
+.label-asked, .badge-asked, .label-received, .badge-received { background-color: @blueDark }
 .label-confirmed, .badge-confirmed { background-color: @green }
 .label-denied, .badge-denied { background-color: @red }
 .label-failed, .badge-failed { background-color: @orange }
 .label-expired, .badge-expired { background-color: @gray }
+.label-error, .badge-error { background-color: @yellow }
 
 // Create custom progress bars
-.progress-pending .bar, .progress .bar-pending,
-.progress-queued .bar, .progress .bar-queued { background-color: @blue }
-.progress-challenge_sent .bar, .progress .bar-challenge_sent,
-.progress-challenge-sent .bar, .progress .bar-challenge-sent { background-color: @blueDark }
+.progress-asking .bar, .progress .bar-asking { background-color: @blue }
+.progress-asked .bar, .progress .bar-asked, .progress-received .bar, .progress .bar-received { background-color: @blueDark }
 .progress-confirmed .bar, .progress .bar-confirmed { background-color: @green }
 .progress-denied .bar, .progress .bar-denied { background-color: @red }
 .progress-failed .bar, .progress .bar-failed { background-color: @orange }
 .progress-expired .bar, .progress .bar-expired { background-color: @gray }
+.progress-error .bar, .progress .bar-error { background-color: @yellow }

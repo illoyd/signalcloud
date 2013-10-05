@@ -1,17 +1,19 @@
 class TwilioCommunicationGateway < CommunicationGateway
 
-  alias_method :twilio_account_sid,  :remote_sid
-  alias_method :twilio_account_sid=, :remote_sid=
+  # Error constants
+  ERROR_INVALID_TO = 101
+  ERROR_INVALID_FROM = 102
+  ERROR_BLACKLISTED_TO = 105
+  ERROR_NOT_SMS_CAPABLE = 103
+  ERROR_CANNOT_ROUTE = 104
+  ERROR_SMS_QUEUE_FULL = 106
+  ERROR_INTERNATIONAL = 107
+  ERROR_MISSING_BODY = 108
+  ERROR_BODY_TOO_LARGE = 109
+  ERROR_UNKNOWN = 127
+  ERROR_STATUSES = [ ERROR_INVALID_TO, ERROR_INVALID_FROM, ERROR_BLACKLISTED_TO, ERROR_NOT_SMS_CAPABLE, ERROR_CANNOT_ROUTE, ERROR_SMS_QUEUE_FULL, ERROR_INTERNATIONAL, ERROR_MISSING_BODY, ERROR_BODY_TOO_LARGE, ERROR_UNKNOWN ]
+  CRITICAL_ERRORS = [ ERROR_MISSING_BODY, ERROR_BODY_TOO_LARGE, ERROR_INTERNATIONAL ]
 
-  alias_method :twilio_auth_token,  :remote_token
-  alias_method :twilio_auth_token=, :remote_token=
-
-  alias_method :twilio_application,  :remote_application
-  alias_method :twilio_application=, :remote_application=
-  
-  alias_method :twilio_application_sid,  :remote_application
-  alias_method :twilio_application_sid=, :remote_application=
-  
   ##
   # Determine if this organization has an authorised Twilio account.
   def has_twilio_account?
@@ -69,9 +71,28 @@ class TwilioCommunicationGateway < CommunicationGateway
     self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_sms_update_url
   end
   
+  def message( sid )
+    self.twilio_account.messages.get( sid )
+  end
+  
+  def phone_number( sid )
+    self.twilio_account.incoming_phone_numbers.get( sid )
+  end
+  
+  def self.prepend_plus( number )
+    number.start_with?('+') ? number : ( '+' + number  )
+  end
+  
   ##
   # Send an SMS using the Twilio API.
-  def send_sms!( to_number, from_number, body, options={} )
+  def send_message!( to_number, from_number, body, options={} )
+  
+    raise SignalCloud::InvalidToNumberCommunicationGatewayError.new(self) if to_number.blank?
+    raise SignalCloud::InvalidFromNumberCommunicationGatewayError.new(self) if from_number.blank?
+    raise SignalCloud::InvalidMessageBodyCommunicationGatewayError.new(self) if body.blank?
+  
+    to_number = self.class.prepend_plus(to_number)
+    from_number = self.class.prepend_plus(from_number)
     payload = {
       to: to_number,
       from: from_number,
@@ -80,35 +101,116 @@ class TwilioCommunicationGateway < CommunicationGateway
     
     payload[:status_callback] = self.twilio_sms_status_url if options.fetch( :default_callback, false )
 
-    response = self.twilio_account.sms.messages.create( payload )
-    return case options.fetch( :response_format, :raw )
-      when :smash
-        response.to_property_smash
-      when :hash
-        response.to_property_hash
-      else
-        response
+    begin
+      response = self.twilio_account.sms.messages.create( payload )
+      return case options.fetch( :response_format, :smash )
+        when :smash
+          response.to_property_smash
+        when :hash
+          response.to_property_hash
+        else
+          response
+      end
+
+    rescue Twilio::REST::RequestError => ex
+      case ex.code
+        when Twilio::ERR_INVALID_TO_PHONE_NUMBER, Twilio::ERR_SMS_TO_REQUIRED, Twilio::ERR_TO_PHONE_NUMBER_NOT_VALID_MOBILE
+          raise SignalCloud::InvalidToNumberCommunicationGatewayError.new self
+  
+        when Twilio::ERR_INVALID_FROM_PHONE_NUMBER, Twilio::ERR_SMS_FROM_REQUIRED
+          raise SignalCloud::InvalidFromNumberCommunicationGatewayError.new self
+  
+        when Twilio::ERR_SMS_BODY_EXCEEDS_MAXIMUM_LENGTH, Twilio::ERR_SMS_BODY_REQUIRED
+          raise SignalCloud::InvalidMessageBodyCommunicationGatewayError.new self
+  
+        when Twilio::ERR_TO_PHONE_NUMBER_CANNOT_RECEIVE_SMS, Twilio::ERR_TO_PHONE_NUMBER_IS_BLACKLISTED
+          raise SignalCloud::MessageDeliveryCommunicationGatewayError.new self
+  
+        when Twilio::ERR_INTERNATIONAL_NOT_ENABLED, Twilio::ERR_FROM_PHONE_NUMBER_NOT_SMS_CAPABLE
+          raise SignalCloud::CommunicationGatewayConfigurationError.new self
+  
+        else
+          raise SignalCloud::CommunicationGatewayError.new self
+      end
+
     end
   end
-  
+
+  alias_method :send_sms!, :send_message!
+
   def purchase_number!( phone_number )
-    results = self.twilio_account.incoming_phone_numbers.create( { phone_number: phone_number.number, application_sid: self.twilio_application_sid } )
-    phone_number.twilio_phone_number_sid = results.sid
-    return results
+    pn = self.class.prepend_plus(phone_number.number)
+    results = self.twilio_account.incoming_phone_numbers.create( { phone_number: pn, application_sid: self.twilio_application_sid } )
+    phone_number.provider_sid = results.sid
+    results
+  end
+  
+  def unpurchase_number!( phone_number )
+    phone_number(phone_number.provider_sid).delete
+  end
+  
+  def update_number!( phone_number )
+    phone_number(phone_number.provider_sid).update(assemble_phone_number_data phone_number)
+  end
+  
+  ##
+  # Translate a given Twilio error message into a conversation status message
+  def self.translate_twilio_error_to_conversation_status( error_code )
+    return case error_code
+      when Twilio::ERR_INVALID_TO_PHONE_NUMBER, Twilio::ERR_SMS_TO_REQUIRED
+        ERROR_INVALID_TO
+      when Twilio::ERR_INVALID_FROM_PHONE_NUMBER, Twilio::ERR_SMS_FROM_REQUIRED
+        ERROR_INVALID_FROM
+      when Twilio::ERR_FROM_PHONE_NUMBER_NOT_SMS_CAPABLE, Twilio::ERR_TO_PHONE_NUMBER_NOT_VALID_MOBILE
+        ERROR_NOT_SMS_CAPABLE
+      when Twilio::ERR_FROM_PHONE_NUMBER_EXCEEDED_QUEUE_SIZE
+        ERROR_SMS_QUEUE_FULL
+      when Twilio::ERR_TO_PHONE_NUMBER_CANNOT_RECEIVE_SMS
+        ERROR_CANNOT_ROUTE
+      when Twilio::ERR_TO_PHONE_NUMBER_IS_BLACKLISTED
+        ERROR_BLACKLISTED_TO
+      when Twilio::ERR_INTERNATIONAL_NOT_ENABLED
+        ERROR_INTERNATIONAL
+      when Twilio::ERR_SMS_BODY_REQUIRED
+        ERROR_MISSING_BODY
+      when Twilio::ERR_SMS_BODY_EXCEEDS_MAXIMUM_LENGTH
+        ERROR_BODY_TOO_LARGE
+      else
+        ERROR_UNKNOWN
+      end
   end
   
 protected
 
+  def assemble_phone_number_data( phone_number )
+    # Assemble common data
+    data = {
+      voice_application_sid: self.twilio_application_sid,
+      sms_application_sid: self.twilio_application_sid
+    }
+    
+    # Insert existing record data
+    unless phone_number.provider_sid.blank?
+      data[:sid] = phone_number.provider_sid
+
+    # Insert new record data
+    else
+      data[:phone_number] = phone_number.number
+    end
+    
+    data
+  end
+  
   def create_remote
     self.create_twilio_account!
     self.create_twilio_application!
-    self.updated_remote_at = DateTime.now
+    self.updated_remote_at = Time.now
   end
   
   def update_remote
     self.update_twilio_account!
     self.update_twilio_application!
-    self.updated_remote_at = DateTime.now
+    self.updated_remote_at = Time.now
   end
 
   ##
@@ -153,7 +255,6 @@ protected
     return {
       'FriendlyName' => self.organization.try(:label) || '[NEW]'
     }.merge(options)
-
   end
 
   def assemble_twilio_application_data( options={} )
@@ -177,7 +278,6 @@ protected
 
       'SmsStatusCallback' => self.twilio_sms_status_url
     }.merge(options)
-
   end
 
   def insert_twilio_authentication( url )

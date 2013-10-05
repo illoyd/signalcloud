@@ -83,37 +83,53 @@ module Twilio
   class InboundSms < ::APISmith::Smash
 
     # Required fields
-    property :sms_sid,      :from => :SmsSid,      required: true
-    property :account_sid,  :from => :AccountSid,  required: true
-    property :from,         :from => :From,        required: true
-    property :to,           :from => :To,          required: true
-    property :body,         :from => :Body,        required: true
+    property :sid,          from: :SmsSid,      required: true
+    property :account_sid,  from: :AccountSid,  required: true
+    property :from,         from: :From,        required: true
+    property :to,           from: :To,          required: true
+    property :body,         from: :Body,        required: true
 
     # Optional STATUS and PRICE fields
-    property :status,       :from => :SmsStatus
-    property :price,        :from => :Price,       transformer: lambda { |v| BigDecimal.new(v) rescue nil }
+    property :status,       from: :SmsStatus
+    property :price,        from: :Price,       transformer: lambda { |v| BigDecimal.new(v) rescue nil }
+    property :segments,     from: :NumSegments
 
     # Optional FROM fields
-    property :from_city,    :from => :FromCity
-    property :from_state,   :from => :FromState
-    property :from_zip,     :from => :FromZip
-    property :from_country, :from => :FromCountry
+    property :from_city,    from: :FromCity
+    property :from_state,   from: :FromState
+    property :from_zip,     from: :FromZip
+    property :from_country, from: :FromCountry
 
     # Optional TO fields
-    property :to_city,      :from => :ToCity
-    property :to_state,     :from => :ToState
-    property :to_zip,       :from => :ToZip
-    property :to_country,   :from => :ToCountry
+    property :to_city,      from: :ToCity
+    property :to_state,     from: :ToState
+    property :to_zip,       from: :ToZip
+    property :to_country,   from: :ToCountry
 
     # Optional DATE fields
-    property :date_created, :from => :DateCreated, transformer: lambda { |v| Time.parse(v) rescue nil }
-    alias_method :created_at, :date_created
-
-    property :date_updated, :from => :DateUpdated, transformer: lambda { |v| Time.parse(v) rescue nil }
-    alias_method :updated_at, :date_updated
-
-    property :date_sent,    :from => :DateSent,    transformer: lambda { |v| Time.parse(v) rescue nil }
-    alias_method :sent_at, :date_sent
+    property :created_at,   from: :DateCreated, transformer: lambda { |v| Time.parse(v) rescue nil }
+    property :updated_at,   from: :DateUpdated, transformer: lambda { |v| Time.parse(v) rescue nil }
+    property :sent_at,      from: :DateSent,    transformer: lambda { |v| Time.parse(v) rescue nil }
+    
+    def sent?
+      self.status == SMS_STATUS_SENT
+    end
+    
+    def sending?
+      self.status == SMS_STATUS_SENDING
+    end
+    
+    def queued?
+      self.status == SMS_STATUS_QUEUED
+    end
+    
+    def received?
+      self.status == SMS_STATUS_RECEIVED
+    end
+    
+    def failed?
+      self.status == SMS_STATUS_FAILED
+    end
     
     def message_status
       self.class.translate_status self.status
@@ -177,19 +193,12 @@ module Twilio
       class Smash < ::APISmith::Smash
   
         # Required fields
-        property :sid
-        alias_method :sms_sid, :sid
-        
+        property :sid        
         property :account_sid
 
-        property :date_created, transformer: lambda { |v| Time.parse(v) rescue nil }
-        alias_method :created_at, :date_created
-
-        property :date_updated, transformer: lambda { |v| Time.parse(v) rescue nil }
-        alias_method :updated_at, :date_updated
-
-        property :date_sent,    transformer: lambda { |v| Time.parse(v) rescue nil }
-        alias_method :sent_at, :date_sent
+        property :created_at, from: :date_created, transformer: lambda { |v| Time.parse(v) rescue nil }
+        property :updated_at, from: :date_updated, transformer: lambda { |v| Time.parse(v) rescue nil }
+        property :sent_at,    from: :date_sent,    transformer: lambda { |v| Time.parse(v) rescue nil }
 
         property :to
         alias_method :customer_number, :to
@@ -204,15 +213,31 @@ module Twilio
 
         property :price, transformer: lambda { |v| BigDecimal.new v rescue nil }
         property :price_unit
-        
+
+        property :segments,   from: :num_segments
 
         property :api_version
 
-        def message_status
-          puts self.to_s if Twilio::InboundSms.translate_status(self.status).nil?
-          Twilio::InboundSms.translate_status self.status
+        def sent?
+          self.status == SMS_STATUS_SENT
         end
-
+        
+        def sending?
+          self.status == SMS_STATUS_SENDING
+        end
+        
+        def queued?
+          self.status == SMS_STATUS_QUEUED
+        end
+        
+        def received?
+          self.status == SMS_STATUS_RECEIVED
+        end
+        
+        def failed?
+          self.status == SMS_STATUS_FAILED
+        end
+        
       end
     end
 

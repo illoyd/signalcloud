@@ -1,5 +1,72 @@
 module SignalCloud
 
+class Error < StandardError
+  attr_accessor :original
+  def initialize( msg = nil, original = $! )
+    super( msg || original.try(:message) )
+    @original = original
+  end
+  def code
+    self.class.const_defined?(:CODE) ? self.class.get_const(:CODE) : nil
+  end
+end
+
+class ProviderCodeError < Error
+  def provider_code
+    self.original.try(:code)
+  end
+end
+
+##
+# An exception class for communicating all communication gateway errors.
+class CommunicationGatewayError < ProviderCodeError
+  attr_accessor :communication_gateway
+  def initialize( communication_gateway, code = nil, msg = nil, original = $! )
+    super( msg, original )
+    @communication_gateway = communication_gateway
+  end
+end
+
+class MessageDeliveryCommunicationGatewayError < CommunicationGatewayError; CODE=400.1; end
+class InvalidToNumberCommunicationGatewayError < MessageDeliveryCommunicationGatewayError; CODE=400.2; end
+class InvalidFromNumberCommunicationGatewayError < MessageDeliveryCommunicationGatewayError; CODE=400.3; end
+class InvalidMessageBodyCommunicationGatewayError < MessageDeliveryCommunicationGatewayError; CODE=400.4; end
+
+class CriticalCommunicationGatewayError < CommunicationGatewayError; CODE=500; end
+class CommunicationGatewayConfigurationError < CriticalCommunicationGatewayError; end
+
+
+##
+# An exception class for communicating all message errors.
+class MessageError < Error
+  attr_accessor :conversation_message
+  def initialize( conversation_message, msg = nil, original = $! )
+    super( msg, original )
+    @conversation_message = conversation_message
+  end
+end
+
+##
+# An exception class for communicating all critical message errors.
+class CriticalMessageError < MessageError; end
+
+##
+# Raised when the message's 'To' number is invalid.
+class InvalidToNumberMessageSendingError < CriticalMessageError; CODE=400.1; end
+
+##
+# Raised when the message's 'From' number is invalid.
+class InvalidFromNumberMessageSendingError < CriticalMessageError; CODE=400.2; end
+
+##
+# Raised when the message's 'From' number is invalid.
+class InvalidBodyMessageSendingError < CriticalMessageError; CODE=400.3; end
+
+
+
+
+
+
 ##
 # Standard SignalCloud error, which includes options for a nested +original+ error and error +code+.
 class SignalCloudError < StandardError
@@ -13,6 +80,8 @@ class SignalCloudError < StandardError
   end
 
 end
+
+class WebhookMissingError < SignalCloudError; end
 
 class ObjectNotSavedError < SignalCloudError
   def initialize( original = nil, code = nil )
@@ -113,13 +182,13 @@ class ConversationError < SignalCloudError
   end
 end
 
-class MessageError < SignalCloudError
-  attr_accessor :conversation_message
-  def initialize( msg, conversation_message, original = nil, code = nil )
-    super( msg, original, code )
-    self.conversation_message = conversation_message
-  end
-end
+# class MessageError < SignalCloudError
+#   attr_accessor :conversation_message
+#   def initialize( msg, conversation_message, original = nil, code = nil )
+#     super( msg, original, code )
+#     self.conversation_message = conversation_message
+#   end
+# end
 
 class ConversationSendingError < ConversationError
   def initialize(conversation, original = nil, code = nil)
@@ -127,14 +196,33 @@ class ConversationSendingError < ConversationError
   end
 end
 
-class MessageSendingError < MessageError
-  def initialize(message, original = nil, code = nil)
-    super( 'Conversation encountered an error while sending (code %i). Original is "%s".' % [code, original], message, original, code )
-  end
-end
+# class MessageSendingError < MessageError
+#   def initialize(message, original = nil, code = nil)
+#     super( 'Conversation encountered an error while sending (code %i). Original is "%s".' % [code, original], message, original, code )
+#   end
+# end
 
-class CriticalMessageSendingError < MessageSendingError
-end
+# class CriticalMessageSendingError < MessageSendingError
+# end
+
+
+
+# class MessageSending2Error < SignalCloudError; end
+# class CriticalMessageSending2Error < MessageSending2Error; end
+# 
+# class InvalidToError < CriticalMessageSending2Error
+#   def initialize( original=nil )
+#     super( 'The \'To\' number is missing or malformed.', original, 1001 )
+#   end
+# end
+# 
+# class InvalidFromError < CriticalMessageSending2Error
+#   def initialize( original=nil )
+#     super( 'The \'From\' number is missing or malformed.', original, 1002 )
+#   end
+# end
+
+
 
 class InvalidConversationStateError < ConversationError
   def initialize(conversation, original = nil, code = nil)

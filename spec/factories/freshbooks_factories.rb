@@ -3,10 +3,11 @@ FactoryGirl.define do
   factory :freshbooks_account, parent: :organization do
     association :account_plan,       factory: :payg_account_plan
     association :accounting_gateway, factory: [ :fresh_books_accounting_gateway, :ready ]
+    test_twilio
     
     after(:create) do |organization, evaluator|
       # Create basics
-      phone_number    = create(:phone_number, organization: organization)
+      phone_number    = create(:phone_number, organization: organization, communication_gateway: organization.communication_gateway_for(:twilio))
       phone_book      = create(:phone_book, organization: organization)
       create(:phone_book_entry, phone_number: phone_number, phone_book: phone_book)
       stencil         = create(:stencil, organization: organization, phone_book: phone_book)
@@ -54,24 +55,24 @@ def create_conversations_for_month( stencil, month, count )
 end
 
 def open_and_configure_conversation( stencil, settled=false, date_sent=nil, status=nil, outbound_price=-0.04, inbound_price=-0.01 )
-  conversation = stencil.open_conversation( to_number: random_us_number(), from_number: stencil.phone_book.phone_numbers.first.number )
-  conversation.status = status || Conversation::STATUSES.sample
+  conversation = stencil.open_conversation( customer_number: random_us_number(), internal_number: stencil.phone_book.phone_numbers.first.number )
+  conversation.workflow_state = status || Conversation.workflow_spec.state_names.sample
   conversation.created_at = date_sent if date_sent
 
-  if [ Conversation::CHALLENGE_SENT, Conversation::CONFIRMED, Conversation::DENIED, Conversation::FAILED, Conversation::EXPIRED ].include? conversation.status
+  if [ Conversation::CHALLENGE_SENT, Conversation::CONFIRMED, Conversation::DENIED, Conversation::FAILED, Conversation::EXPIRED ].include? conversation.workflow_state
     conversation.challenge_sent_at = conversation.created_at #rand_datetime( '2012-12-01'.to_datetime, '2012-12-31'.to_datetime )
     conversation.challenge_status = Message::SENT
     build_message conversation, :challenge_message, settled, conversation.challenge_sent_at, outbound_price
   end
 
-  if [ Conversation::CONFIRMED, Conversation::DENIED, Conversation::FAILED ].include? conversation.status
+  if [ Conversation::CONFIRMED, Conversation::DENIED, Conversation::FAILED ].include? conversation.workflow_state
     conversation.response_received_at = conversation.challenge_sent_at + rand_in_range( 1, stencil.seconds_to_live )
     conversation.reply_sent_at = conversation.response_received_at + rand_in_range( 1, 5 )
     build_message conversation, :response_message, settled, conversation.response_received_at, inbound_price
     build_message conversation, :reply_message, settled, conversation.reply_sent_at, outbound_price
   end
 
-  if [ Conversation::EXPIRED ].include? conversation.status
+  if [ Conversation::EXPIRED ].include? conversation.workflow_state
     conversation.reply_sent_at = conversation.challenge_sent_at + stencil.seconds_to_live + rand_in_range( 1, 5 )
     build_message conversation, :reply_message, settled, conversation.reply_sent_at, outbound_price
   end

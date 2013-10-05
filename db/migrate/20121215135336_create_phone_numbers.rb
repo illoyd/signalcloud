@@ -6,8 +6,10 @@ class CreatePhoneNumbers < ActiveRecord::Migration
       t.string :number, null: false
       
       t.string :workflow_state
+      
+      t.references :communication_gateway, null: false
 
-      t.string :twilio_phone_number_sid, length: Twilio::SID_LENGTH
+      t.string :provider_sid
 
       t.integer :unsolicited_sms_action, null: false, limit: 1, default: PhoneNumber::IGNORE
       t.string :unsolicited_sms_message
@@ -19,7 +21,9 @@ class CreatePhoneNumbers < ActiveRecord::Migration
 
       t.decimal :provider_cost, null: false, default: 0, precision: 6, scale: 4
       t.decimal :our_cost, null: false, default: 0, precision: 6, scale: 4
-
+      
+      t.datetime :updated_remote_at
+      
       t.timestamps
     end
     
