@@ -13,6 +13,7 @@ class CreateMessages < ActiveRecord::Migration
       # General details
       t.string :message_kind, limit: 9
       t.string :direction, limit: 3
+      t.integer :segments, null: false, default: 1
       t.datetime :sent_at
       
       # Cost details

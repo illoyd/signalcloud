@@ -97,6 +97,7 @@ class Message < ActiveRecord::Base
   validates_presence_of :conversation
   validates_numericality_of :our_cost, allow_nil: true
   validates_numericality_of :provider_cost, allow_nil: true
+  validates_numericality_of :segments, only_integer: true, greater_than_or_equal_to: 0
   validates_length_of :provider_sid, is: Twilio::SID_LENGTH, allow_nil: true
   validates_uniqueness_of :provider_sid, allow_nil: true
 

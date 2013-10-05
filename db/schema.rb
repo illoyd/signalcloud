@@ -184,10 +184,11 @@ ActiveRecord::Schema.define(:version => 20130917210618) do
 
   create_table "messages", :force => true do |t|
     t.string   "workflow_state"
-    t.integer  "conversation_id",                                                              :null => false
+    t.integer  "conversation_id",                                                                             :null => false
     t.string   "provider_sid",                     :limit => 34
     t.string   "message_kind",                     :limit => 9
     t.string   "direction",                        :limit => 3
+    t.integer  "segments",                                                                     :default => 1, :null => false
     t.datetime "sent_at"
     t.decimal  "provider_cost",                                  :precision => 6, :scale => 4
     t.decimal  "our_cost",                                       :precision => 6, :scale => 4
@@ -207,8 +208,8 @@ ActiveRecord::Schema.define(:version => 20130917210618) do
     t.text     "encrypted_provider_update"
     t.string   "encrypted_provider_update_iv"
     t.string   "encrypted_provider_update_salt"
-    t.datetime "created_at",                                                                   :null => false
-    t.datetime "updated_at",                                                                   :null => false
+    t.datetime "created_at",                                                                                  :null => false
+    t.datetime "updated_at",                                                                                  :null => false
   end
 
   add_index "messages", ["conversation_id"], :name => "index_messages_on_conversation_id"

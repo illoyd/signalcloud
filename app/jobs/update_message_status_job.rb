@@ -24,6 +24,7 @@ class UpdateMessageStatusJob
     
     # Update the message
     message.provider_update = callback_values
+    message.segments = sms.segments unless sms.segments.blank?
     
     # Update price if available
     unless sms.price.nil?
