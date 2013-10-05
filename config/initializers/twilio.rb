@@ -83,7 +83,7 @@ module Twilio
   class InboundSms < ::APISmith::Smash
 
     # Required fields
-    property :sms_sid,      :from => :SmsSid,      required: true
+    property :sid,          :from => :SmsSid,      required: true
     property :account_sid,  :from => :AccountSid,  required: true
     property :from,         :from => :From,        required: true
     property :to,           :from => :To,          required: true
@@ -106,14 +106,29 @@ module Twilio
     property :to_country,   :from => :ToCountry
 
     # Optional DATE fields
-    property :date_created, :from => :DateCreated, transformer: lambda { |v| Time.parse(v) rescue nil }
-    alias_method :created_at, :date_created
-
-    property :date_updated, :from => :DateUpdated, transformer: lambda { |v| Time.parse(v) rescue nil }
-    alias_method :updated_at, :date_updated
-
-    property :date_sent,    :from => :DateSent,    transformer: lambda { |v| Time.parse(v) rescue nil }
-    alias_method :sent_at, :date_sent
+    property :created_at,   :from => :DateCreated, transformer: lambda { |v| Time.parse(v) rescue nil }
+    property :updated_at,   :from => :DateUpdated, transformer: lambda { |v| Time.parse(v) rescue nil }
+    property :sent_at,      :from => :DateSent,    transformer: lambda { |v| Time.parse(v) rescue nil }
+    
+    def sent?
+      self.status == SMS_STATUS_SENT
+    end
+    
+    def sending?
+      self.status == SMS_STATUS_SENDING
+    end
+    
+    def queued?
+      self.status == SMS_STATUS_QUEUED
+    end
+    
+    def received?
+      self.status == SMS_STATUS_RECEIVED
+    end
+    
+    def failed?
+      self.status == SMS_STATUS_FAILED
+    end
     
     def message_status
       self.class.translate_status self.status
