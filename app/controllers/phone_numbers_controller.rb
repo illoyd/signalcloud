@@ -92,7 +92,7 @@ class PhoneNumbersController < ApplicationController
     
     # Search and reply
     begin
-      @available_phone_numbers = @organization.twilio_account.available_phone_numbers.get( country_code ).local.list( search_params ).first(@numbers_to_show)
+      @available_phone_numbers = @organization.communication_gateway_for(:twilio).remote_instance.available_phone_numbers.get( country_code ).local.list( search_params ).first(@numbers_to_show)
       respond_with @available_phone_numbers
     rescue Twilio::REST::RequestError => ex
       flash.now[:error] = '%s (%s)' % [ ex.message, ex.code ]

@@ -150,7 +150,7 @@ class TwilioCommunicationGateway < CommunicationGateway
   end
   
   def update_number!( phone_number )
-    phone_number(phone_number.provider_sid).post(assemble_phone_number_data phone_number)
+    phone_number(phone_number.provider_sid).update(assemble_phone_number_data phone_number)
   end
   
   ##
@@ -204,13 +204,13 @@ protected
   def create_remote
     self.create_twilio_account!
     self.create_twilio_application!
-    self.updated_remote_at = DateTime.now
+    self.updated_remote_at = Time.now
   end
   
   def update_remote
     self.update_twilio_account!
     self.update_twilio_application!
-    self.updated_remote_at = DateTime.now
+    self.updated_remote_at = Time.now
   end
 
   ##
