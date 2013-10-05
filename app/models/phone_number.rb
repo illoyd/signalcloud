@@ -65,6 +65,10 @@ class PhoneNumber < ActiveRecord::Base
   def human_number
     PhoneTools.humanize( self.number )
   end
+  
+  def country
+    PhoneTools.country( self.number )
+  end
 
   ##
   # Update provider cost and, by extension, our cost.

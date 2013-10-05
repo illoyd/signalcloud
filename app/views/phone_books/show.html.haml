@@ -11,25 +11,8 @@
       - else
         = @phone_book.description
 
-    %h4 Phone Numbers
-    
-    = form_for( [@organization, @phone_book.phone_book_entries.build], class:'form-inline' ) do |f|
-      - if flash[:validation_errors]
-        .error
-          %h2
-            -# = pluralize(@stencil.errors.count, "error")
-            prohibited this stencil from being saved:
-          %ul
-            = flash[:validation_errors]
-            -#
-              - @phone_book.errors.full_messages.each do |msg|
-                %li= msg
-
-      = f.hidden_field :phone_book_id
-      = f.collection_select :phone_number_id, @phone_book.organization.phone_numbers, :id, :number, class: 'input-small'
-      = f.country_select :country
-      = submit_tag 'Add', class: 'btn btn-primary btn-small'
-
+    .pull-right= link_to 'Add Phone Number', '#phone_book_entry_modal', class: 'btn btn-success btn-small', 'data-toggle' => 'modal'
+    %h4 Phone numbers
     %table.table.table-striped
       %thead
         %tr
@@ -48,7 +31,15 @@
               { label: 'Details', icon: :show, link: [@organization, entry.phone_number], if: can?(:show, entry.phone_number) }, |
               { label: 'Remove from book', icon: :delete, link: [@organization, entry], options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, entry) } |
               ], {class:'btn-mini'}) |
-            %td= link_to_if can?(:show, entry.phone_number), humanize_phone_number(entry.phone_number.number), [@organization, entry.phone_number]
+            %td
+              - if can?(:show, entry.phone_number)
+                = link_to [@organization, entry.phone_number] do
+                  = flag_icon(entry.phone_number.country)
+                  = humanize_phone_number(entry.phone_number.number)
+              - else
+                = flag_icon(entry.phone_number.country)
+                = humanize_phone_number(entry.phone_number.number)
+
             %td
               - if entry.country.blank?
                 = flag_icon()
@@ -56,11 +47,6 @@
               - else
                 = flag_icon(entry.country)
                 = Country[entry.country].name rescue entry.country
-    
-                
-
-    -# %div= link_to 'Link a phone number', new_phone_book_phone_number_entry_path( @phone_book ), :class => 'btn btn-success'
-            
 
     %h4 Stencils using this book
     %table.table.table-striped
@@ -83,3 +69,31 @@
                 { label: 'Conversations', icon: :conversations, link: organization_stencil_conversations_path(@organization, stencil), if: can?(:show, Conversation) } |
                 ], { class: "btn-mini"} ) |
             %td= link_to_if can?(:show, stencil), stencil.label, [@organization, stencil]
+
+
+#phone_book_entry_modal.modal.hide.fade{ "aria-hidden" => "true", "aria-labelledby" => "PhoneBookEntryModal", :role => "dialog", :tabindex => "-1"}
+  = form_for( [@organization, @phone_book.phone_book_entries.build], :html => { class: "form-horizontal", style: 'margin: 0px;' } ) do |f|
+    .modal-header
+      %button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} &times;
+      %h3
+        = icon(:phone_books)
+        Add Phone Number
+    .modal-body
+      = f.hidden_field :phone_book_id      
+      .row-fluid
+        .span2= icon(:phone_numbers, class: 'icon-3x')
+        .span10
+          = f.label :phone_number_id do
+            Use this number...
+          = f.collection_select :phone_number_id, @phone_book.organization.phone_numbers, :id, :human_number #, class: 'input-small'
+
+      .row-fluid{style: 'margin-top: 2.0em;'}
+        .span2= icon(:globe, class: 'icon-3x')
+        .span10
+          = f.label :country do
+            \...when conversing with phone numbers in this country
+          = f.country_select :country, nil, iso_codes: true, include_blank: 'Any'
+
+    .modal-footer
+      = f.submit 'Add Phone Number', class: 'btn btn-primary'
+      %button.btn{"aria-hidden" => "true", "data-dismiss" => "modal"} Cancel
