@@ -48,7 +48,7 @@ class InboundMessageJob
   end
   
   def perform_unsolicited_action()
-    unsolicited_message = self.internal_phone_number.unsolicited_messages.build( provider_sid: @sms.sms_sid, customer_number: @sms.from, received_at: DateTime.now, message_content: @provider_update )
+    unsolicited_message = self.internal_phone_number.unsolicited_messages.build( provider_sid: @sms.sid, customer_number: @sms.from, received_at: DateTime.now, message_content: @provider_update )
     
     if self.internal_phone_number().should_reply_to_unsolicited_sms?
       unsolicited_message.action_taken = PhoneNumber::REPLY
@@ -67,7 +67,7 @@ class InboundMessageJob
       conversation.receive!
       
       # Create the internal message
-      message = conversation.messages.create( provider_sid: @sms.sms_sid, from_number: @sms.from, to_number: @sms.to, body: @sms.body, message_kind: Message::RESPONSE, direction: Message::IN, provider_response: @provider_update )
+      message = conversation.messages.create( provider_sid: @sms.sid, from_number: @sms.from, to_number: @sms.to, body: @sms.body, message_kind: Message::RESPONSE, direction: Message::IN, provider_response: @provider_update )
       message.save!
       message.receive!
       
