@@ -75,8 +75,8 @@ unless Organization.exists?( sid: '76f78f836d4563bf4824da02b506346d' )
     workflow_state:     'ready'
   })
   
-  master_phone_number = org.phone_numbers.create!( number: '+1 202-601-3854', provider_sid: 'PNf7abf4d06e5faecb7d6878fa37b8cdc3', communication_gateway: comm_gateway )
-  master_phone_number_gb = org.phone_numbers.create!( number: '+44 1753 254372', provider_sid: 'PNa11b228979b0759de22e39a8e6f8585c', communication_gateway: comm_gateway )
+  master_phone_number = org.phone_numbers.create!( number: '+1 202-601-3854', workflow_state: :active, provider_sid: 'PNf7abf4d06e5faecb7d6878fa37b8cdc3', communication_gateway: comm_gateway )
+  master_phone_number_gb = org.phone_numbers.create!( number: '+44 1753 254372', workflow_state: :active, provider_sid: 'PNa11b228979b0759de22e39a8e6f8585c', communication_gateway: comm_gateway )
   org.phone_books.first.phone_book_entries.create!( phone_number_id: master_phone_number.id, country: nil )
   org.phone_books.first.phone_book_entries.create!( phone_number_id: master_phone_number_gb.id, country: 'GB' )
   

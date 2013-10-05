@@ -168,6 +168,7 @@ protected
     # If not assigned to an organization, cannot refresh a number!
     raise OrganizationNotAssociatedError.new if self.organization.nil?
     self.communication_gateway.update_number! self
+    self.updated_remote_at = Time.now
   end
 
 end

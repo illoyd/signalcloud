@@ -21,7 +21,9 @@ class CreatePhoneNumbers < ActiveRecord::Migration
 
       t.decimal :provider_cost, null: false, default: 0, precision: 6, scale: 4
       t.decimal :our_cost, null: false, default: 0, precision: 6, scale: 4
-
+      
+      t.datetime :updated_remote_at
+      
       t.timestamps
     end
     
