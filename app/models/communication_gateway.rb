@@ -19,13 +19,16 @@ class CommunicationGateway < ActiveRecord::Base
   validates_presence_of :organization, :type
   validates_presence_of :remote_sid, :remote_token, if: :ready?
 
-  attr_accessible :organization, :remote_sid, :remote_token, :remote_application, :workflow_state
+  # Legacy aliases for Twilio
+  alias_method :twilio_account_sid,  :remote_sid
+  alias_method :twilio_account_sid=, :remote_sid=
 
-private
+  alias_method :twilio_auth_token,  :remote_token
+  alias_method :twilio_auth_token=, :remote_token=
 
-#   def persist_workflow_state(new_value)
-#     write_attribute self.class.workflow_column, new_value
-#     save
-#   end
+  alias_method :twilio_application,  :remote_application
+  alias_method :twilio_application=, :remote_application=
   
+  alias_method :twilio_application_sid,  :remote_application
+  alias_method :twilio_application_sid=, :remote_application=
 end

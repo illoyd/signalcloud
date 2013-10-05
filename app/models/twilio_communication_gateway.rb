@@ -1,17 +1,5 @@
 class TwilioCommunicationGateway < CommunicationGateway
 
-  alias_method :twilio_account_sid,  :remote_sid
-  alias_method :twilio_account_sid=, :remote_sid=
-
-  alias_method :twilio_auth_token,  :remote_token
-  alias_method :twilio_auth_token=, :remote_token=
-
-  alias_method :twilio_application,  :remote_application
-  alias_method :twilio_application=, :remote_application=
-  
-  alias_method :twilio_application_sid,  :remote_application
-  alias_method :twilio_application_sid=, :remote_application=
-  
   # Error constants
   ERROR_INVALID_TO = 101
   ERROR_INVALID_FROM = 102
