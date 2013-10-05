@@ -24,9 +24,9 @@
   .row-fluid{style: 'margin-top: 1.0em;'}
     .span1= icon('user', class: 'icon-3x')
     .span11
-      = f.label :to_number do
+      = f.label :customer_number do
         Ask this person...
-      = f.text_field :to_number
+      = f.text_field :customer_number
     
   .row-fluid{style: 'margin-top: 3.0em;'}
     .span1= icon('question-sign', class: 'icon-3x')
@@ -68,9 +68,7 @@
       =f.text_area :confirmed_reply, :rows=>3, style: 'width: 100%'
       %p{ style: 'margin-top: 8px' }
         \...and mark the conversation as
-        %span.label.label-confirmed
-          = icon(:confirmed)
-          confirmed
+        = conversation_state_tag(:confirmed)
   %hr
 
   / Denied Reply
@@ -87,9 +85,7 @@
       =f.text_area :denied_reply, :rows=>3, style: 'width: 100%'
       %p{ style: 'margin-top: 8px' }
         \...and mark the conversation as
-        %span.label.label-denied
-          = icon(:denied)
-          denied
+        = conversation_state_tag(:denied)
   %hr
     
   / Failed Reply
@@ -103,9 +99,7 @@
       =f.text_area :failed_reply, :rows=>3, style: 'width: 100%'
       %p{ style: 'margin-top: 8px' }
         \...and mark the conversation as
-        %span.label.label-failed
-          = icon(:failed)
-          failed
+        = conversation_state_tag(:failed)
   %hr
 
   / Expired Reply
@@ -123,9 +117,7 @@
       =f.text_area :expired_reply, :rows=>3, style: 'width: 100%'
       %p{ style: 'margin-top: 8px' }
         \...and mark the conversation as
-        %span.label.label-expired
-          = icon(:expired)
-          expired
+        = conversation_state_tag(:expired)
 
   .control-group.actions
     .controls
