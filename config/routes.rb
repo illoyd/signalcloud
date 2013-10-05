@@ -79,6 +79,12 @@ SignalCloud::Application.routes.draw do
     resource :inbound_sms, only: [ :create ], defaults: { format: 'xml' }
     resource :sms_update, only: [ :create ], defaults: { format: 'xml' }
   end
+  
+  # Sidekiq!
+  require 'sidekiq/web'
+  authenticate :user do #, lambda { |u| u.admin? } do
+    mount Sidekiq::Web => '/sidekiq'
+  end
 
 #   resources :organizations, only: [:index] do
 #     member do
