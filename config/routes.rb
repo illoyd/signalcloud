@@ -81,10 +81,10 @@ SignalCloud::Application.routes.draw do
   end
   
   # Sidekiq!
-  require 'sidekiq/web'
-  authenticate :user do #, lambda { |u| u.admin? } do
-    mount Sidekiq::Web => '/sidekiq'
-  end
+  #   require 'sidekiq/web'
+  #   authenticate :user do #, lambda { |u| u.admin? } do
+  #     mount Sidekiq::Web => '/sidekiq'
+  #   end
 
 #   resources :organizations, only: [:index] do
 #     member do
