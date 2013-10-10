@@ -164,8 +164,8 @@ class Conversation < ActiveRecord::Base
   ##
   # Standardise phone number hashes, to be used in searches for open conversations.
   def hash_phone_numbers
-    self.hashed_internal_number = Conversation.hash_phone_number( self.internal_number )
-    self.hashed_customer_number = Conversation.hash_phone_number( self.customer_number )
+    self.hashed_customer_number = Conversation.hash_phone_number( PhoneNumber.normalize_phone_number(self.customer_number) )
+    self.hashed_internal_number = Conversation.hash_phone_number( PhoneNumber.normalize_phone_number(self.internal_number) )
   end
   
   def normalized_expected_confirmed_answer
