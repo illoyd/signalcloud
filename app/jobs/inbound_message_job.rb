@@ -39,11 +39,11 @@ class InboundMessageJob
       
       # Only one conversation, so process immediately
       when 1
-        self.perform_matching_conversation_action(open_conversations.first )
+        self.perform_matching_conversation_action( open_conversations.first )
 
       # More than 1, so scan for possible positive or negative match.
       else
-        self.perform_multiple_matching_conversations_action(open_conversations )
+        self.perform_multiple_matching_conversations_action( open_conversations )
     end
   end
   

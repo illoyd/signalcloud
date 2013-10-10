@@ -131,6 +131,8 @@ class Conversation < ActiveRecord::Base
   end
   
   def self.find_open_conversations( internal_number, customer_number )
+    internal_number = PhoneNumber.normalize_phone_number(internal_number)
+    customer_number = PhoneNumber.normalize_phone_number(customer_number)
     Conversation.where(
       hashed_internal_number: Conversation.hash_phone_number( internal_number ),
       hashed_customer_number: Conversation.hash_phone_number( customer_number )

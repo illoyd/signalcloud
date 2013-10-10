@@ -30,7 +30,8 @@ class ExpireConversationJob
     logger.debug{ 'Attempting to expire conversation.' }
     begin
       messages = conversation.expire!
-      logger.info{ 'Sent expiration message (Twilio: %s).' % [messages.first.twilio_sid] }
+      conversation.save!
+      logger.info{ 'Sent expiration message for Conversation %i.' % [conversation.id] }
 
     rescue SignalCloud::ReplyAlreadySentError => ex
       logger.info{ 'Skipping as message has already been sent.' }
