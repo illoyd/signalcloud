@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 describe FreshBooksAccountingGateway, :vcr do
+pending 'Block all FreshBooks connections for now' do
   let(:organization_without_contacts) { build :organization, contact_address: nil, billing_address: nil }
 
   context 'when new' do
@@ -143,5 +144,5 @@ describe FreshBooksAccountingGateway, :vcr do
 #     end
 #     
 #   end
-  
+end # Freshbooks pending block
 end
