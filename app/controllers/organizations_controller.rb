@@ -25,19 +25,11 @@ class OrganizationsController < ApplicationController
   # GET /organizations/new
   # GET /organizations/new.json
   def new
-    if params[:complete]
-      @organization.contact_address ||= Address.new
-      @organization.billing_address ||= Address.new
-    end
     respond_with @organization
   end
 
   # GET /organizations/1/edit
   def edit
-    if params[:complete]
-      @organization.build_contact_address if @organization.contact_address.nil?
-      @organization.build_billing_address if @organization.billing_address.nil?
-    end
     respond_with @organization
   end
 
