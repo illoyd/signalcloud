@@ -71,6 +71,7 @@ ActiveRecord::Schema.define(:version => 20130917210618) do
   add_index "addresses", ["organization_id"], :name => "index_addresses_on_organization_id"
 
   create_table "boxes", :force => true do |t|
+    t.string   "workflow_state"
     t.integer  "organization_id", :null => false
     t.datetime "start_at"
     t.string   "label"
