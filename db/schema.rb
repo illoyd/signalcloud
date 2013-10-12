@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130917210618) do
+ActiveRecord::Schema.define(:version => 20131012084127) do
 
   create_table "account_balances", :force => true do |t|
     t.integer  "organization_id",                                                :null => false
@@ -51,26 +51,8 @@ ActiveRecord::Schema.define(:version => 20130917210618) do
     t.datetime "updated_at",                :null => false
   end
 
-  create_table "addresses", :force => true do |t|
-    t.integer  "organization_id"
-    t.string   "first_name",      :null => false
-    t.string   "last_name",       :null => false
-    t.string   "email",           :null => false
-    t.string   "line1"
-    t.string   "line2"
-    t.string   "city"
-    t.string   "region"
-    t.string   "postcode"
-    t.string   "country"
-    t.string   "work_phone"
-    t.datetime "created_at",      :null => false
-    t.datetime "updated_at",      :null => false
-  end
-
-  add_index "addresses", ["country"], :name => "index_addresses_on_country"
-  add_index "addresses", ["organization_id"], :name => "index_addresses_on_organization_id"
-
   create_table "boxes", :force => true do |t|
+    t.string   "workflow_state"
     t.integer  "organization_id", :null => false
     t.datetime "start_at"
     t.string   "label"
@@ -218,21 +200,40 @@ ActiveRecord::Schema.define(:version => 20130917210618) do
   add_index "messages", ["workflow_state"], :name => "index_messages_on_workflow_state"
 
   create_table "organizations", :force => true do |t|
-    t.integer  "account_plan_id",    :null => false
+    t.integer  "account_plan_id",                                  :null => false
     t.string   "workflow_state"
-    t.string   "sid",                :null => false
-    t.string   "auth_token",         :null => false
-    t.string   "label",              :null => false
+    t.string   "sid",                                              :null => false
+    t.string   "auth_token",                                       :null => false
+    t.string   "label",                                            :null => false
     t.string   "icon"
-    t.integer  "owner_id",           :null => false
-    t.integer  "contact_address_id"
-    t.integer  "billing_address_id"
+    t.integer  "owner_id",                                         :null => false
     t.string   "purchase_order"
     t.string   "vat_name"
     t.string   "vat_number"
     t.text     "description"
-    t.datetime "created_at",         :null => false
-    t.datetime "updated_at",         :null => false
+    t.datetime "created_at",                                       :null => false
+    t.datetime "updated_at",                                       :null => false
+    t.string   "billing_first_name"
+    t.string   "billing_last_name"
+    t.string   "billing_email"
+    t.string   "billing_line1"
+    t.string   "billing_line2"
+    t.string   "billing_city"
+    t.string   "billing_region"
+    t.string   "billing_postcode"
+    t.string   "billing_country"
+    t.string   "billing_work_phone"
+    t.string   "contact_first_name"
+    t.string   "contact_last_name"
+    t.string   "contact_email"
+    t.string   "contact_line1"
+    t.string   "contact_line2"
+    t.string   "contact_city"
+    t.string   "contact_region"
+    t.string   "contact_postcode"
+    t.string   "contact_country"
+    t.string   "contact_work_phone"
+    t.boolean  "use_billing_as_contact_address", :default => true, :null => false
   end
 
   add_index "organizations", ["label"], :name => "index_organizations_on_label"

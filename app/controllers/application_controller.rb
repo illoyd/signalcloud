@@ -43,22 +43,7 @@ class ApplicationController < ActionController::Base
   protected
   
   def organization_params
-    # Re-used address attributes
-    address_attributes = [ :first_name, :last_name, :email, :work_phone, :line1, :line2, :city, :region, :postcode, :country, :organization_id ]
-    
-    # General organization attributes
-    organization_attributes = [
-      :label, :icon, :description, :vat_name, :vat_number, :purchase_order,
-      contact_address_attributes: address_attributes,
-      billing_address_attributes: address_attributes
-    ]
-    
-    # Additional attributes if current user is an administrator
-    #organization_attributes += [ :account_plan, :account_plan_id ] if current_user.system_admin
-    
-    # require and permit
-    # params.require(:organization).permit(organization_attributes)
-    params.require(:organization).permit( :label, :icon, :description )
+    params.require(:organization).permit( :label, :icon, :description, :vat_name, :vat_number, :purchase_order, :use_billing_as_contact_address, :contact_first_name, :contact_last_name, :contact_email, :contact_work_phone, :contact_line1, :contact_line2, :contact_city, :contact_region, :contact_postcode, :contact_country, :billing_first_name, :billing_last_name, :billing_email, :billing_work_phone, :billing_line1, :billing_line2, :billing_city, :billing_region, :billing_postcode, :billing_country )
   end
 
   def stencil_params
