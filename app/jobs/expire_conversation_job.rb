@@ -29,7 +29,7 @@ class ExpireConversationJob
     # This will automatically create the associated message
     logger.debug{ 'Attempting to expire conversation.' }
     begin
-      messages = conversation.expire!
+      conversation.expire!
       conversation.save!
       logger.info{ 'Sent expiration message for Conversation %i.' % [conversation.id] }
 
