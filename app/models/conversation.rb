@@ -127,12 +127,11 @@ class Conversation < ActiveRecord::Base
   # Provide a standardised way to convert a phone number into a deterministic hash.
   def self.hash_phone_number( phone_number )
     # BCrypt::Password.new( BCrypt::Engine.hash_secret( pn, ATTR_ENCRYPTED_SECRET, BCrypt::Engine::DEFAULT_COST ) )
-    phone_number.nil? ? nil : Digest::SHA1.base64digest( ATTR_ENCRYPTED_SECRET + phone_number.to_s )
+    phone_number = PhoneNumber.normalize_phone_number(phone_number)
+    phone_number.nil? ? nil : Digest::SHA1.base64digest( ATTR_ENCRYPTED_SECRET + phone_number )
   end
   
   def self.find_open_conversations( internal_number, customer_number )
-    internal_number = PhoneNumber.normalize_phone_number(internal_number)
-    customer_number = PhoneNumber.normalize_phone_number(customer_number)
     Conversation.where(
       hashed_internal_number: Conversation.hash_phone_number( internal_number ),
       hashed_customer_number: Conversation.hash_phone_number( customer_number )

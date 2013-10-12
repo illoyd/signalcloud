@@ -28,6 +28,7 @@ class InboundMessageJob
     # Save for future use
     @provider_update = provider_update
     @sms ||= Twilio::InboundSms.new( provider_update )
+    logger.info{ "Received inbound sms: #{@sms}" }
     
     # Find all open conversations
     open_conversations = self.find_open_conversations()
