@@ -28,6 +28,7 @@ class InboundMessageJob
     # Save for future use
     @provider_update = provider_update
     @sms ||= Twilio::InboundSms.new( provider_update )
+    logger.info{ "Received inbound sms: #{@sms}" }
     
     # Find all open conversations
     open_conversations = self.find_open_conversations()
@@ -35,14 +36,17 @@ class InboundMessageJob
     case open_conversations.count
       # No open conversations found; treat as an unsolicited message.
       when 0
+        logger.info{ 'Received an unsolicited message.' }
         self.perform_unsolicited_action()
       
       # Only one conversation, so process immediately
       when 1
+        logger.info{ 'Received a reply to conversation %i.' % [open_conversations.first.id] }
         self.perform_matching_conversation_action( open_conversations.first )
 
       # More than 1, so scan for possible positive or negative match.
       else
+        logger.info{ 'Received a reply to multiple conversations %s' % [open_conversations.pluck(:id).to_s] }
         self.perform_multiple_matching_conversations_action( open_conversations )
     end
   end
@@ -67,8 +71,7 @@ class InboundMessageJob
       conversation.receive!
       
       # Create the internal message
-      message = conversation.messages.create( provider_sid: @sms.sid, from_number: @sms.from, to_number: @sms.to, body: @sms.body, message_kind: Message::RESPONSE, direction: Message::IN, provider_response: @provider_update )
-      message.save!
+      message = conversation.messages.create!( provider_sid: @sms.sid, from_number: @sms.from, to_number: @sms.to, body: @sms.body, message_kind: Message::RESPONSE, direction: Message::IN, provider_response: @provider_update )
       message.receive!
       
       # Move conversation to received state
