@@ -1,3 +1,11 @@
+def address
+  Address.new( 'John Q', 'Public', 'john.q.public@signalcloudapp.com', '+12021234567', 'Test Address', nil, 'Washington', 'DC', '20500', 'US' )
+end
+
+def white_house_address
+  Address.new( 'Barack', 'Obama', 'theprez@signalcloudapp.com', '+12021234568', 'The White House', '1600 Pennsylvania Ave NW', 'Washington', 'DC', '20500', 'US' )
+end
+
 FactoryGirl.define do
 
   factory :organization do
@@ -5,12 +13,11 @@ FactoryGirl.define do
     auth_token          { SecureRandom.hex(16) }
     label               'Test Account'
     association         :owner, factory: :user
-    association         :contact_address, factory: :white_house_address
-    association         :billing_address, factory: :address
-    association         :account_plan, factory: :payg_account_plan
+    contact_address     white_house_address
+    billing_address     address
+    use_billing_as_contact_address false
 
-    #test_twilio
-    #test_freshbooks_client
+    association         :account_plan, factory: :payg_account_plan
 
     factory :test_organization do
       label               'White House'
