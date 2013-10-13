@@ -191,7 +191,7 @@ ActiveRecord::Schema.define(:version => 20130917210618) do
     t.string   "direction",                        :limit => 3
     t.integer  "segments",                                                                     :default => 1, :null => false
     t.datetime "sent_at"
-    t.decimal  "cost",                                           :precision => 8, :scale => 6
+    t.decimal  "cost",                                           :precision => 9, :scale => 6
     t.string   "error_code"
     t.text     "encrypted_to_number"
     t.string   "encrypted_to_number_iv"

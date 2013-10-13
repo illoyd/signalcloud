@@ -17,7 +17,7 @@ class CreateMessages < ActiveRecord::Migration
       t.datetime :sent_at
       
       # Cost details
-      t.decimal :cost, precision: 8, scale: 6
+      t.decimal :cost, precision: 9, scale: 6
 
       # Error field
       t.string :error_code
