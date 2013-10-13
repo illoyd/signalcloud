@@ -2,7 +2,7 @@ require 'spec_helper'
 describe ConversationPricer do
   it_behaves_like 'a pricer'
   
-  describe '#price_for', :focus do
+  describe '#price_for' do
     let(:us_price_sheet)  { PriceSheet.new 'us', 0.10, 1.5 }
     let(:gb_price_sheet)  { PriceSheet.new 'gb', 0.15, 2.0 }
     before(:each) do
