@@ -8,8 +8,6 @@ UNAVAILABLE_AREACODE = '533'
 AVAILABLE_AREACODE = '500'
 
 describe PhoneNumber, :vcr do
-  
-  it_behaves_like 'a costable item', :phone_number
 
   let(:organization) { create :organization, :test_twilio, :with_sid_and_token }
   let(:comm_gateway) { organization.communication_gateways.first }
@@ -33,18 +31,16 @@ describe PhoneNumber, :vcr do
     end
     
     # Validate numericality
-    [ :our_cost, :provider_cost ].each do |entry|
-      it { should validate_numericality_of(entry) }
-    end
+    it { should validate_numericality_of(:cost) }
   end
   
   describe '.find_by_number' do
     let(:valid_number)   { '+15551234567' }
     let(:unknown_number) { '+18001234567' }
-    subject { create :phone_number, number: valid_number, organization: organization, communication_gateway: comm_gateway }
+    let(:phone_number)   { create :phone_number, number: valid_number, organization: organization, communication_gateway: comm_gateway }
     
     it 'finds valid number' do
-      PhoneNumber.find_by_number(subject.number).first.should be_a( PhoneNumber )
+      PhoneNumber.find_by_number(phone_number.number).first.should be_a( PhoneNumber )
     end
     
     it 'cannot find a number' do
@@ -170,52 +166,5 @@ describe PhoneNumber, :vcr do
       its(:'should_reply_to_unsolicited_sms?') { should be_true }
     end
   end
-  
-  describe '#has_cost?' do
-
-    context 'when both costs are present' do
-      subject { build :phone_number, provider_cost: -1.00, our_cost: -0.50 }
-      its(:'has_cost?') { should be_true }
-    end
-    context 'when only provider_cost is present' do
-      subject { build :phone_number, provider_cost: -1.00, our_cost: nil }
-      its(:'has_cost?') { should be_false }
-    end
-    context 'when only our_cost is present' do
-      subject { build :phone_number, provider_cost: nil, our_cost: -0.50 }
-      its(:'has_cost?') { should be_false }
-    end
-    context 'when both costs are not present' do
-      subject { build :phone_number, provider_cost: nil, our_cost: nil }
-      its(:'has_cost?') { should be_false }
-    end
-
-  end
-  
-  describe '#provider_cost=' do
-
-    context 'when cost is not nil' do
-      let(:provider_cost) { -1.00 }
-      subject { build :phone_number, provider_cost: nil, our_cost: nil }
-      it 'updates provider_cost' do
-        expect{ subject.provider_cost = provider_cost }.to change{ subject.provider_cost }.to(provider_cost)
-      end
-      it 'updates our_cost' do
-        expect{ subject.provider_cost = provider_cost }.to change{ subject.our_cost }
-      end
-    end
-
-    context 'when cost is nil' do
-      let(:provider_cost) { nil }
-      subject { build :phone_number, provider_cost: -1.00, our_cost: -0.50 }
-      it 'updates provider_cost' do
-        expect{ subject.provider_cost = provider_cost }.to change{ subject.provider_cost }.to(nil)
-      end
-      it 'updates our_cost' do
-        expect{ subject.provider_cost = provider_cost }.to change{ subject.our_cost }.to(nil)
-      end
-    end
-
-  end
-  
+    
 end

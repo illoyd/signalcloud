@@ -284,8 +284,7 @@ ActiveRecord::Schema.define(:version => 20130917210618) do
     t.string   "unsolicited_call_message"
     t.string   "unsolicited_call_language",                                            :default => "en"
     t.string   "unsolicited_call_voice",                                               :default => "woman"
-    t.decimal  "provider_cost",                          :precision => 6, :scale => 4, :default => 0.0,     :null => false
-    t.decimal  "our_cost",                               :precision => 6, :scale => 4, :default => 0.0,     :null => false
+    t.decimal  "cost",                                   :precision => 9, :scale => 6, :default => 0.0,     :null => false
     t.datetime "updated_remote_at"
     t.datetime "created_at",                                                                                :null => false
     t.datetime "updated_at",                                                                                :null => false
