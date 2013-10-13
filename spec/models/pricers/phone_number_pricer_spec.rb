@@ -13,7 +13,7 @@ describe PhoneNumberPricer do
     end
 
     it 'no errors!' do
-      expect{ subject.price_for( phone_number ) }.not_to raise_error()
+      expect{ subject.price_for( us_phone_number ) }.not_to raise_error()
     end
 
     it 'calculates a US number' do

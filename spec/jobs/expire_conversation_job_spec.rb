@@ -3,19 +3,19 @@ require 'spec_helper'
 describe ExpireConversationJob, :vcr do
   # subject { ExpireConversationJob.new }
   
-  OPEN_STATES = [ :asking, :asked ]
-  CLOSED_STATES = [ :draft, :receiving, :received, :confirming, :confirmed, :denying, :denied, :failing, :failed, :expiring, :expired, :errored ]
+  ExpireConversationJob_OPEN_STATES = [ :asking, :asked ]
+  ExpireConversationJob_CLOSED_STATES = [ :draft, :receiving, :received, :confirming, :confirmed, :denying, :denied, :failing, :failed, :expiring, :expired, :errored ]
   
   # Verifies that all states are tested
   it 'tests all possible workflow states' do
-    ( Conversation.workflow_spec.state_names - OPEN_STATES - CLOSED_STATES ).should be_empty
+    ( Conversation.workflow_spec.state_names - ExpireConversationJob_OPEN_STATES - ExpireConversationJob_CLOSED_STATES ).should be_empty
   end
 
   describe '#perform' do
     let(:organization)            { create(:organization, :test_twilio, :with_sid_and_token) }
     let(:stencil)                 { create(:stencil, organization: organization) }
 
-    OPEN_STATES.each do |state|
+    ExpireConversationJob_OPEN_STATES.each do |state|
       context "when conversation is #{state}" do
   
         context 'and conversation has not yet passed expiration' do
@@ -84,7 +84,7 @@ describe ExpireConversationJob, :vcr do
       end
     end
     
-    CLOSED_STATES.each do |state|
+    ExpireConversationJob_CLOSED_STATES.each do |state|
 
       context "when conversation is #{state}" do
         let(:conversation) { create :conversation, state, stencil: stencil, expires_at: 900.seconds.ago }
