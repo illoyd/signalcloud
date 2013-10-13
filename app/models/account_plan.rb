@@ -1,4 +1,6 @@
 class AccountPlan < ActiveRecord::Base
+  extend Deprecations
+  
   ARREARS = 1
   CREDIT = 0
   
@@ -47,6 +49,7 @@ class AccountPlan < ActiveRecord::Base
   end
   
   alias :calculate_phone_number_price :calculate_phone_number_cost
+  deprecated :calculate_phone_number_cost
   
   ##
   # Calculate the cost of an inbound SMS, based on the cost from the provider
@@ -55,6 +58,7 @@ class AccountPlan < ActiveRecord::Base
   end
 
   alias :calculate_inbound_sms_price :calculate_inbound_sms_cost
+  deprecated :calculate_inbound_sms_cost
   
   ##
   # Calculate the cost of an outbound SMS, based on the cost from the provider
@@ -63,6 +67,7 @@ class AccountPlan < ActiveRecord::Base
   end
   
   alias :calculate_outbound_sms_price :calculate_outbound_sms_cost
+  deprecated :calculate_outbound_sms_cost
   
   ##
   # Calculate the cost of an inbound phone call, based on the cost from the provider
@@ -71,6 +76,7 @@ class AccountPlan < ActiveRecord::Base
   end
   
   alias :calculate_inbound_call_price :calculate_inbound_call_cost
+  deprecated :calculate_inbound_call_cost
   
   ##
   # Is this plan payable in arrears?
