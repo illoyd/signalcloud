@@ -13,7 +13,7 @@ module LedgerEntriesHelper
 
   def item_label( item )
     return case item.class.to_s
-      when 'Message'
+      when 'Message', 'Conversation'
         'Conversation'
       when 'PhoneNumber'
         'Phone Number'
@@ -28,7 +28,7 @@ module LedgerEntriesHelper
 
   def item_icon( item )
     return case item.class.to_s
-      when 'Message'
+      when 'Message', 'Conversation'
         :conversations
       when 'PhoneNumber'
         :phone_numbers

@@ -13,6 +13,9 @@ class PhoneNumber < ActiveRecord::Base
       event :refresh, transitions_to: :active
     end
   end
+
+  alias_method :buy!, :purchase!
+  alias_method :unbuy!, :unpurchase!
   
   IGNORE = 0
   REJECT = 0
@@ -46,7 +49,7 @@ class PhoneNumber < ActiveRecord::Base
   has_many :ledger_entries, as: :item
 
   validates_presence_of :organization, :communication_gateway, :number
-  validates_numericality_of :our_cost, :provider_cost
+  validates_numericality_of :cost
 
   validates :number, :phone_number => true
   
@@ -68,25 +71,6 @@ class PhoneNumber < ActiveRecord::Base
   
   def country
     PhoneTools.country( self.number )
-  end
-
-  ##
-  # Update provider cost and, by extension, our cost.
-  def provider_cost=(value)
-    super(value)
-    self.our_cost = value.nil? ? nil : self.calculate_our_cost(value)
-  end
-  
-  ##
-  # Is a cost defined for this phone number?
-  def has_cost?
-    return !(self.our_cost.nil? or self.provider_cost.nil?)
-  end
-  
-  ##
-  # Cost of this phone number, combining provider and own charges
-  def cost
-    return (self.our_cost || 0) + (self.provider_cost || 0)
   end
 
   def self.normalize_phone_number(pn)
@@ -123,37 +107,27 @@ class PhoneNumber < ActiveRecord::Base
   end
   
   def send_reply_to_unsolicited_sms( customer_number )
-    sms = self.communication_gateway.send_sms!( customer_number, self.number, self.unsolicited_sms_message )
-    #sms.stac
+    # sms = self.communication_gateway.send_sms!( customer_number, self.number, self.unsolicited_sms_message )
+    # sms.stac
   end
 
-  def calculate_our_cost( value=nil )
-    return nil unless self.organization && self.organization.account_plan
-    value = self.provider_cost if value.nil?
-    return self.organization.account_plan.calculate_phone_number_cost( value )
-  end
-  
   def record_unsolicited_message( options={} )
   end
 
+protected
+
+  ##
+  # Automagically normalise the number.
   def ensure_normalized_phone_number
     self.number = PhoneNumber.normalize_phone_number(self.number)
   end
   
-protected
-
-#   def persist_workflow_state(new_value)
-#     write_attribute self.class.workflow_column, new_value
-#     save
-#   end
-
   ##
   # Attempt to buy the phone number from the Twilio API. If it receives an error, halt the operation.
   def purchase
     raise OrganizationNotAssociatedError.new if self.organization.nil?
     self.communication_gateway.purchase_number!( self )
   end
-  alias_method :buy, :purchase
 
   ##
   # Using the phone number's Twilio SID, get an instance of it from Twilio's API then perform a 'DELETE' action against it.
@@ -162,7 +136,6 @@ protected
     raise OrganizationNotAssociatedError.new if self.organization.nil?
     self.communication_gateway.unpurchase_number! self
   end
-  alias_method :unbuy, :unpurchase
 
   def refresh
     # If not assigned to an organization, cannot refresh a number!

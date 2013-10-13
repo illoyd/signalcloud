@@ -3,8 +3,6 @@ require 'spec_helper'
 
 describe Message, :vcr do
   
-  it_behaves_like 'a costable item', :message
-
   # Helper: Build a random string for standard SMS
   def random_sms_string(length)
     charset_length = Message::SMS_CHARSET_LIST.length
@@ -13,13 +11,9 @@ describe Message, :vcr do
   
   # Validations
   describe 'validations' do
-    before(:all) { 3.times { create :message, :with_random_twilio_sid, :with_provider_response } }
+    before(:each) { 3.times { create :message, :with_random_twilio_sid, :with_provider_response } }
     it { should belong_to(:conversation) }
-    it { should have_one(:ledger_entry) }
-    # it { should validate_presence_of(:conversation) }
-    it { should validate_numericality_of(:our_cost) }
-    it { should validate_numericality_of(:provider_cost) }
-    #it { should validate_uniqueness_of(:twilio_sid) }
+    it { should validate_numericality_of(:cost) }
   end
   
   describe '.is_sms_charset?' do
@@ -128,132 +122,6 @@ describe Message, :vcr do
       its(:provider_response) { should be_nil }
     end
   end
-  
-#   describe "#cached_payload" do
-#     it "should encrypt and decrypt nicely" do
-#       # Prepare an expected payload
-#       expected_payload = { body: 'Hello!', to: '+12121234567', from: '+4561237890' }.with_indifferent_access
-#       
-#       # Next, create a new message without a payload; the cache should be nil
-#       message = Message.new()
-#       message.cached_payload.should be_nil
-#       
-#       # Add the payload, then re-try - they should not be nil
-#       message.payload = expected_payload
-#       message.cached_payload.should_not be_nil
-# 
-#       # Ensure that payload is equal to its cache
-#       message.cached_payload.should eq( message.payload )
-#       message.cached_payload.should eq( expected_payload )
-#     end
-#   end
-
-#   describe '#cost' do
-#     [ [nil,nil], [nil,1], [1,nil], [1,1], [1,-1], [-1,1], [0.25,-0.32] ].each do |costs|
-#       it "properly sums provider:#{costs.first} and our:#{costs.second}" do
-#         msg = build :message, provider_cost: costs.first, our_cost: costs.second
-#         msg.cost.should == costs.reject{ |entry| entry.nil? }.sum
-#       end
-#     end
-#   end
-
-  describe '#has_cost?' do
-    context 'when both costs are present' do
-      subject { build :message, provider_cost: -1.00, our_cost: -0.50 }
-      its(:'has_cost?') { should be_true }
-    end
-    context 'when only provider_cost is present' do
-      subject { build :message, provider_cost: -1.00, our_cost: nil }
-      its(:'has_cost?') { should be_false }
-    end
-    context 'when only our_cost is present' do
-      subject { build :message, provider_cost: nil, our_cost: -0.50 }
-      its(:'has_cost?') { should be_false }
-    end
-    context 'when both costs are not present' do
-      subject { build :message, provider_cost: nil, our_cost: nil }
-      its(:'has_cost?') { should be_false }
-    end
-  end
-  
-  describe '#provider_cost=' do
-    context 'when cost is not nil' do
-      subject { build :message, :with_random_twilio_sid, :with_provider_response }
-      let(:provider_cost) { -1.00 }
-      it 'updates provider_cost' do
-        expect{ subject.provider_cost = provider_cost }.to change{ subject.provider_cost }.to(provider_cost)
-      end
-      it 'updates our_cost' do
-        expect{ subject.provider_cost = provider_cost }.to change{ subject.our_cost }
-      end
-    end
-    context 'when cost is nil' do
-      subject { build :message, :with_random_twilio_sid, :with_provider_response, provider_cost: -1.00, our_cost: -0.50 }
-      let(:provider_cost) { nil }
-      it 'updates provider_cost' do
-        expect{ subject.provider_cost = provider_cost }.to change{ subject.provider_cost }.to(nil)
-      end
-      it 'updates our_cost' do
-        expect{ subject.provider_cost = provider_cost }.to change{ subject.our_cost }.to(nil)
-      end
-    end
-  end
-  
-  describe 'callbacks' do
-    let(:provider_cost) { -0.01 }
-    let(:provider_response) { { body: 'Hello!', to: '+12121234567', from: '+4561237890', status: 'queued' } }
-    subject { build :message, :with_random_twilio_sid, :with_provider_response, body: provider_response[:body], to_number: provider_response[:to], from_number: provider_response[:from], provider_response: provider_response }
-
-    context 'when price is set' do
-      it 'creates a ledger entry' do
-        expect{ subject.provider_cost = provider_cost }.to change{subject.ledger_entry}.from(nil)
-      end
-      it 'sets ledger entry\'s value' do
-        subject.provider_cost = provider_cost
-        subject.save!
-        subject.ledger_entry.value.should == subject.cost
-      end
-    end
-
-    context 'when price is not set' do
-      it 'does not create a ledger entry' do
-        subject.provider_cost = nil
-        expect{ subject.save! }.to_not change{subject.ledger_entry}.from(nil)
-      end
-    end
-
-#     it 'should auto-save ledger entry' do
-#       message = Message.new( payload: { body: 'Hello!', to: '+12121234567', from: '+4561237890' }, twilio_sid: 'XX' + SecureRandom.hex(16) )
-#       message.conversation = conversations(:test_conversation)
-#       message.organization.should_not be_nil
-#       #expect{ message.save! }.to_not raise_error
-#       
-#       ledger_entry = message.build_ledger_entry( narrative: 'TEST' )
-#       #ledger_entry.item = message
-#       expect{ message.save! }.to_not raise_error
-#       
-#       ledger_entry.item_id.should eq( message.id )
-#       ledger_entry.item_type.should eq( message.class.name.to_s )
-#       ledger_entry.item.should eq( message )
-# 
-#       #ledger_entry.item.respond_to?(:organization).should == true
-#       #ledger_entry.item.should_not be_nil
-# 
-#       expect{ ledger_entry.ensure_organization }.to_not raise_error      
-#       ledger_entry.organization_id.should eq( message.organization.id )
-#       
-#       expect{ message.save! }.to_not raise_error
-#     end
-  end
-  
-#   describe "payload helpers" do
-#     let(:expected_payload) { { body: 'Hello!', to: '+12121234567', from: '+4561237890', direction: 'api-in' }.with_indifferent_access }
-#     subject { create :message, payload: expected_payload }
-#     its(:body) { should == expected_payload[:body] }
-#     its(:to_number) { should == expected_payload[:to] }
-#     its(:from_number) { should == expected_payload[:from] }
-#     its(:direction) { should == expected_payload[:direction] }
-#   end
   
   describe '#deliver!' do
     let(:organization) { create :organization, :test_twilio, :with_sid_and_token }

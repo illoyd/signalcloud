@@ -19,8 +19,7 @@ class CreatePhoneNumbers < ActiveRecord::Migration
       t.string :unsolicited_call_language, default: PhoneNumber::AMERICAN_ENGLISH
       t.string :unsolicited_call_voice, default: PhoneNumber::WOMAN_VOICE
 
-      t.decimal :provider_cost, null: false, default: 0, precision: 6, scale: 4
-      t.decimal :our_cost, null: false, default: 0, precision: 6, scale: 4
+      t.decimal :cost, null: false, default: 0, precision: 9, scale: 6
       
       t.datetime :updated_remote_at
       

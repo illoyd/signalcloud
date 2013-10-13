@@ -2,19 +2,19 @@ require 'spec_helper'
 
 describe SendConversationChallengeJob, :vcr do
 
-  OPEN_STATES = [ :draft ]
-  CLOSED_STATES = [ :asking, :asked, :receiving, :received, :confirming, :confirmed, :denying, :denied, :failing, :failed, :expiring, :expired, :errored ]
+  SendConversationChallengeJob_OPEN_STATES = [ :draft ]
+  SendConversationChallengeJob_CLOSED_STATES = [ :asking, :asked, :receiving, :received, :confirming, :confirmed, :denying, :denied, :failing, :failed, :expiring, :expired, :errored ]
   
   # Verifies that all states are tested
   it 'tests all possible workflow states' do
-    ( Conversation.workflow_spec.state_names - OPEN_STATES - CLOSED_STATES ).should be_empty
+    ( Conversation.workflow_spec.state_names - SendConversationChallengeJob_OPEN_STATES - SendConversationChallengeJob_CLOSED_STATES ).should be_empty
   end
 
   describe '#perform' do
     let(:organization)    { create(:organization, :test_twilio, :with_sid_and_token) }
     let(:stencil)         { create(:stencil, organization: organization) }
 
-    OPEN_STATES.each do |state|
+    SendConversationChallengeJob_OPEN_STATES.each do |state|
       context "when conversation is #{state} and not sent" do
         let(:conversation)  { create(:conversation, state, stencil: stencil, customer_number: Twilio::VALID_NUMBER, internal_number: Twilio::VALID_NUMBER) }
         it 'creates a new message' do
@@ -38,7 +38,7 @@ describe SendConversationChallengeJob, :vcr do
       end
     end # open states
 
-    CLOSED_STATES.each do |state|
+    SendConversationChallengeJob_CLOSED_STATES.each do |state|
       context "when conversation is #{state} and sent" do
         let(:conversation)  { create(:conversation, state, stencil: stencil, customer_number: Twilio::VALID_NUMBER, internal_number: Twilio::VALID_NUMBER) }
         it 'does not create a new message' do

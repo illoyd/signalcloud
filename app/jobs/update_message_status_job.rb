@@ -25,7 +25,7 @@ class UpdateMessageStatusJob
     
     # Update price if available
 #     unless sms.price.nil?
-#       message.provider_cost = sms.price
+#       message.cost = sms.price
 #       message.ledger_entry.settled_at = sms.sent_at || DateTime.now
 #     end
 

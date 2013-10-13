@@ -106,9 +106,6 @@ describe UpdateMessageStatusJob, :vcr do
         it 'does not update challenge_sent_at' do
           expect { subject.perform( payload['SmsSid'], payload['SmsStatus'], payload.fetch('DateSent') ) }.not_to change{ conversation.reload.challenge_sent_at }.from(nil)
         end
-        it 'does not create a ledger entry' do
-          expect { subject.perform( payload['SmsSid'], payload['SmsStatus'], payload.fetch('DateSent') ) }.to_not change{message.reload.ledger_entry}.from(nil)
-        end
       end
 
       context 'and message is sending' do
@@ -119,9 +116,6 @@ describe UpdateMessageStatusJob, :vcr do
         it 'does not update challenge_sent_at' do
           expect { subject.perform( payload['SmsSid'], payload['SmsStatus'], payload.fetch('DateSent') ) }.not_to change{ conversation.reload.challenge_sent_at }.from(nil)
         end
-        it 'does not create a ledger entry' do
-          expect { subject.perform( payload['SmsSid'], payload['SmsStatus'], payload.fetch('DateSent') ) }.to_not change{message.reload.ledger_entry}.from(nil)
-        end
       end
 
       context 'and message is sent' do
@@ -131,22 +125,6 @@ describe UpdateMessageStatusJob, :vcr do
         end
         it 'updates challenge_sent_at' do
           expect { subject.perform( payload['SmsSid'], payload['SmsStatus'], payload.fetch('DateSent') ) }.to change{ conversation.reload.challenge_sent_at }.from(nil)
-        end
-        it 'creates a ledger entry' do
-          pending do
-            subject.perform( payload['SmsSid'], payload['SmsStatus'], payload.fetch('DateSent') )
-            message.reload.ledger_entry.should_not be_nil
-          end
-        end
-        it 'settles ledger entry' do
-          pending do
-            expect { subject.perform( payload['SmsSid'], payload['SmsStatus'], payload.fetch('DateSent') ) }.to change{message.reload.ledger_entry(true).try(:settled_at)}.from(nil).to(date_sent)
-          end
-        end
-        it 'updates ledger entry costs' do
-          pending do
-            expect { subject.perform( payload['SmsSid'], payload['SmsStatus'], payload.fetch('DateSent') ) }.to change{message.reload.ledger_entry(true).try(:value)} #.to(message.reload.cost)
-          end
         end
       end
     end
@@ -163,9 +141,6 @@ describe UpdateMessageStatusJob, :vcr do
         it 'does not update reply_sent_at' do
           expect { subject.perform( payload['SmsSid'], payload['SmsStatus'], payload.fetch('DateSent') ) }.not_to change{ conversation.reload.reply_sent_at }.from(nil)
         end
-        it 'does not create a ledger entry' do
-          expect { subject.perform( payload['SmsSid'], payload['SmsStatus'], payload.fetch('DateSent') ) }.to_not change{message.reload.ledger_entry}.from(nil)
-        end
       end
 
       context 'and message is sending' do
@@ -176,9 +151,6 @@ describe UpdateMessageStatusJob, :vcr do
         it 'does not update reply_sent_at' do
           expect { subject.perform( payload['SmsSid'], payload['SmsStatus'], payload.fetch('DateSent') ) }.not_to change{ conversation.reload.reply_sent_at }.from(nil)
         end
-        it 'does not create a ledger entry' do
-          expect { subject.perform( payload['SmsSid'], payload['SmsStatus'], payload.fetch('DateSent') ) }.to_not change{message.reload.ledger_entry}.from(nil)
-        end
       end
 
       context 'and message is sent' do
@@ -188,22 +160,6 @@ describe UpdateMessageStatusJob, :vcr do
         end
         it 'updates reply_sent_at' do
           expect { subject.perform( payload['SmsSid'], payload['SmsStatus'], payload.fetch('DateSent') ) }.to change{ conversation.reload.reply_sent_at }.from(nil)
-        end
-        it 'creates a ledger entry' do
-          pending do
-            subject.perform( payload['SmsSid'], payload['SmsStatus'], payload.fetch('DateSent') )
-            message.reload.ledger_entry.should_not be_nil
-          end
-        end
-        it 'settles ledger entry' do
-          pending do
-            expect { subject.perform( payload['SmsSid'], payload['SmsStatus'], payload.fetch('DateSent') ) }.to change{message.reload.ledger_entry(true).try(:settled_at)}.from(nil).to(date_sent)
-          end
-        end
-        it 'updates ledger entry costs' do
-          pending do
-            expect { subject.perform( payload['SmsSid'], payload['SmsStatus'], payload.fetch('DateSent') ) }.to change{message.reload.ledger_entry(true).try(:value)} #.to(message.reload.cost)
-          end
         end
       end
     end

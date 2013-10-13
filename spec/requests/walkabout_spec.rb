@@ -9,7 +9,7 @@ describe "Walkabout" do
   let!(:stencil)       { create :stencil, organization: organization, phone_book: phone_book }
   let!(:conversation)  { create :conversation, stencil: stencil }
   let!(:message)       { create :message, conversation: conversation }
-  let!(:ledger_entry)  { create :ledger_entry, item: message }
+  let!(:ledger_entry)  { create :ledger_entry, item: conversation }
 
   before(:each) { sign_in(user) }
 
