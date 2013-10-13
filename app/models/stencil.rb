@@ -36,8 +36,28 @@ class Stencil < ActiveRecord::Base
     if options.fetch(:internal_number, nil).blank? and !options.fetch(:customer_number, nil).blank?
       options[:internal_number] = self.phone_book.select_internal_number_for( options[:customer_number] ).number
     end
-    return self.conversations.build( options )
+    
+    # Finally, build the stupid conversation and return it
+    self.conversations.build( options )
   end
   alias_method :open_conversation, :build_conversation
   
+  def defined_parameters
+    (
+      find_parameters( self.question ) +
+      find_parameters( self.expected_confirmed_answer ) +
+      find_parameters( self.expected_denied_answer ) +
+      find_parameters( self.confirmed_reply ) +
+      find_parameters( self.denied_reply ) +
+      find_parameters( self.failed_reply ) +
+      find_parameters( self.expired_reply )
+    ).flatten.uniq
+  end
+  
+protected
+
+  def find_parameters( text )
+    text.scan(/\{\{\s*(.+?)\s*\}\}/i).flatten
+  end
+
 end
