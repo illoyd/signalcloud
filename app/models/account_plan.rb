@@ -1,9 +1,11 @@
 class AccountPlan < ActiveRecord::Base
   ARREARS = 1
   CREDIT = 0
+  
+  attr_accessor :phone_number_pricer, :conversation_pricer
 
   # Attributes
-  attr_accessible :plan_kind, :default, :call_in_add, :call_in_mult, :label, :month, :phone_add, :phone_mult, :sms_in_add, :sms_in_mult, :sms_out_add, :sms_out_mult
+  # attr_accessible :plan_kind, :default, :call_in_add, :call_in_mult, :label, :month, :phone_add, :phone_mult, :sms_in_add, :sms_in_mult, :sms_out_add, :sms_out_mult
   
   # Relationships
   has_many :organizations, inverse_of: :account_plan
@@ -17,6 +19,27 @@ class AccountPlan < ActiveRecord::Base
   # Return the account plan used for new organisations.  
   def self.default
     where( default: true ).first
+  end
+  
+  def phone_number_pricer
+    self.phone_number_pricer = PhoneNumberPricer.new if super.nil?
+    super
+  end
+  
+  def conversation_pricer
+    self.conversation_pricer = ConversationPricer.new if super.nil?
+    super
+  end
+  
+  def price_for(obj)
+    case
+      when obj.is_a?(PhoneNumber)
+        self.phone_number_pricer.price_for(obj)
+      when obj.is_a?(Conversation)
+        self.conversation_pricer.price_for(obj)
+      else
+        raise 'Unknown object!'
+    end
   end
   
   ##

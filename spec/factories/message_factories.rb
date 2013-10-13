@@ -91,6 +91,10 @@ FactoryGirl.define do
       provider_cost { random_price() }
       our_cost      { random_price() }
     end
+    
+    after(:create, :build, :stub) do |instance|
+      instance.segments = (instance.body.length.to_f / 160).ceil
+    end
 
   end
 
