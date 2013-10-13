@@ -24,8 +24,6 @@ class Message < ActiveRecord::Base
     end
   end
   
-  before_validation :update_ledger_entry
-
   SMS_CHARSET_LIST = " @Δ0¡P¿p£_!1AQaq$Φ\"2BRbr¥Γ#3CScsèΛ¤4DTdtéΩ%5EUeuùΠ&6FVfvìΨ'7GWgwòΣ(8HXhxÇΘ)9IYiy\nΞ*:JZjzØ\e+;KÄkäøÆ,<LÖlö\ræ=MÑmñÅß.>NÜnüåÉ/?O§oà-"
   SMS_CHARSET = /\A[ @Δ0¡P¿p£_!1AQaq$Φ"2BRbr¥Γ#3CScsèΛ¤4DTdtéΩ%5EUeuùΠ&6FVfvìΨ'7GWgwòΣ\(8HXhxÇΘ\)9IYiy\nΞ*:JZjzØ\e+;KÄkäøÆ,<LÖlö\ræ=MÑmñÅß.>NÜnüåÉ\/?O§oà-]+\Z/
   SMS_CBS_MAX_LENGTH = 160
@@ -87,11 +85,7 @@ class Message < ActiveRecord::Base
   
   ##
   # Chain up to parent's organization.
-  delegate :organization, :to => :conversation, :allow_nil => true
-  
-  ##
-  # LedgerEntry for this message.
-  has_one :ledger_entry, as: :item, autosave: true
+  delegate :organization, :communication_gateway, to: :conversation
 
   # Validations
   validates_presence_of :conversation
@@ -109,11 +103,7 @@ class Message < ActiveRecord::Base
   scope :replies,     ->{ where( message_kind: REPLY ) }
   scope :inbound,     ->{ where( direction: IN ) }
   scope :outbound,    ->{ where( direction: OUT ) }
-  
-  ##
-  # Delegate specific functions to the parent conversation
-  delegate :communication_gateway, to: :conversation
-  
+
   ##
   # Is the given string composed solely of basic SMS characters?
   def self.is_sms_charset?( message )
@@ -137,41 +127,6 @@ class Message < ActiveRecord::Base
       /.{1,160}/
     else
       /.{1,70}/
-    end
-  end
-  
-  def ledger_entry_narrative( dir=nil )
-    dir = self.direction if dir.nil?
-    return case dir
-      when OUT; LedgerEntry::OUTBOUND_SMS_NARRATIVE
-      when IN; LedgerEntry::INBOUND_SMS_NARRATIVE
-      else; LedgerEntry::UNKNOWN_NARRATIVE
-    end
-  end
-  
-  def update_ledger_entry
-    # If provider cost is given, but not our cost, this implies that the message is in a partial state.
-    # Force the provider_cost again.
-    self.provider_cost = self.provider_cost if !self.provider_cost.nil? and self.our_cost.nil?
-    
-    # Is this message has a cost set...
-    if self.has_cost?
-      self.build_ledger_entry( narrative: self.ledger_entry_narrative ) if self.ledger_entry.nil?
-      self.ledger_entry.value = self.cost
-      self.ledger_entry.settled_at = self.sent_at || DateTime.now
-    
-    # Otherwise, if a ledger entry is already created, nil the value
-    elsif not self.ledger_entry.nil?
-      self.ledger_entry.value = nil
-      self.ledger_entry.settled_at = nil
-    end
-    
-    unless self.ledger_entry.nil?
-      # Force an update of the ledger entry's organization
-      self.ledger_entry.organization = self.organization
-      
-      # Finally, try to save the ledger entry if it exists and this is NOT a new record
-      # self.ledger_entry.save unless self.new_record?
     end
   end
   
@@ -226,12 +181,6 @@ class Message < ActiveRecord::Base
     self.message_kind.to_s == REPLY
   end
   alias_method :is_reply?, :reply?
-  
-  def build_ledger_entry( attributes={} )
-    ledger_entry = super(attributes)
-    ledger_entry.organization = self.organization
-    return ledger_entry
-  end
   
 protected
 
