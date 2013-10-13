@@ -93,7 +93,9 @@ FactoryGirl.define do
     end
     
     after(:create, :build, :stub) do |instance|
-      instance.segments = (instance.body.length.to_f / 160).ceil
+      unless instance.body.blank?
+        instance.segments = (instance.body.length.to_f / 160).ceil
+      end
     end
 
   end
