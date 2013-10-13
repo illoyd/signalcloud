@@ -64,16 +64,20 @@ describe Conversation do
   describe 'validations' do  
     it { should belong_to :stencil }
     it { should have_many :messages }
-
-    [ :seconds_to_live, :stencil_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :internal_number, :question, :customer_number, :expires_at ].each do |attribute| 
-      it { should allow_mass_assignment_of(attribute) }
-    end
+    it { should have_one  :ledger_entry }
 
     [:stencil, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :internal_number, :question, :customer_number, :expires_at].each do |attribute| 
       it { should validate_presence_of(attribute) }
     end
   end
   
+  describe 'callbacks' do
+    subject { build :conversation }
+    it 'creates a ledger entry' do
+      expect{ subject.save }.to change{subject.ledger_entry}.from(nil)
+    end
+  end
+
   describe '#is_open? and #is_closed? and #has_errored?' do
     [ :asking, :asked ].each do |status|
       context "when status is #{status}" do

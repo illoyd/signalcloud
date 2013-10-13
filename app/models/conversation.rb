@@ -55,7 +55,7 @@ class Conversation < ActiveRecord::Base
   end
 
   before_validation :update_expiry_time_based_on_seconds_to_live
-  before_save :normalize_phone_numbers, :hash_phone_numbers
+  before_save :normalize_phone_numbers, :hash_phone_numbers, :update_ledger_entry
 
   # Status constants
   PENDING = 0
@@ -88,9 +88,12 @@ class Conversation < ActiveRecord::Base
   belongs_to :stencil, inverse_of: :conversations
   belongs_to :box, inverse_of: :conversations
   has_many :messages, inverse_of: :conversation, autosave: true
-  #has_many :ledger_entries, as: :item
+  
+  ##
+  # LedgerEntry for this conversation.
+  has_one :ledger_entry, as: :item, autosave: true
 
-  delegate :organization, to: :stencil #, allow_nil: true
+  delegate :organization, to: :stencil
   #delegate :communication_gateway, to: :internal_number, allow_nil: true
   
   def communication_gateway
@@ -302,6 +305,14 @@ protected
     msg = self.messages.create!( to_number: self.customer_number, from_number: self.internal_number, body: message_body, message_kind: message_kind, direction: :out )
     msg.deliver!
     msg
+  end
+  
+  def update_ledger_entry
+    if self.ledger_entry.nil?
+      country = PhoneTools.country( self.customer_number )
+      self.build_ledger_entry( organization: self.organization, narrative: "#{country.to_s.upcase} Conversation" )
+    end
+    self.ledger_entry.value = -self.organization.account_plan.price_for(self)
   end
   
 protected
