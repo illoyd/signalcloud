@@ -34,6 +34,9 @@
       = f.label :question do
         \...this question...
       = f.text_area :question, rows: 3, style: 'width: 100%'
+      %p.tip{ style: 'margin-top: .5em' }
+        %span.label.label-info Tip
+        Insert parameters with <code>{{parameter}}</code>, substituting your parameter name. Parameter names are case sensitive.
     
   .row-fluid{style: 'margin-top: 3.0em;'}
     .span1= icon(:phone_numbers, class: 'icon-3x')
@@ -41,6 +44,16 @@
       = f.label :internal_number do
         \...from this phone number...
       = f.collection_select :internal_number, @stencil.phone_book.phone_numbers.uniq, :number, :human_number, include_blank: 'Auto-select'
+    
+  .row-fluid{style: 'margin-top: 3.0em;'}
+    .span1= icon(:'file-text', class: 'icon-3x')
+    .span11
+      = f.label :parameters_as_assignments do
+        \...using these parameters...
+      = f.text_area :parameters_as_assignments, rows: 4, style: 'width: 100%'
+      %p.tip{ style: 'margin-top: .5em' }
+        %span.label.label-info Tip
+        Add one parameter per line in the format <code>parameter=value</code>. Spaces before and after <code>=</code> will be ignored. Parameter names <strong>are case sensitive</strong>.
     
   .row-fluid{style: 'margin-top: 3.0em;'}
     .span1= icon(:globe, class: 'icon-3x')
@@ -53,6 +66,9 @@
         Leave blank to not send updates
 
   %h4{ style: 'margin-top: 2em;'} ...Answer
+  %p.tip{ style: 'margin-top: .5em' }
+    %span.label.label-info Tip
+    Insert parameters with <code>{{parameter}}</code>, substituting your parameter name. Parameter names are case sensitive.
 
   / Confirmed Reply
   .row-fluid
