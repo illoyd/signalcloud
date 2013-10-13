@@ -107,8 +107,8 @@ class PhoneNumber < ActiveRecord::Base
   end
   
   def send_reply_to_unsolicited_sms( customer_number )
-    sms = self.communication_gateway.send_sms!( customer_number, self.number, self.unsolicited_sms_message )
-    #sms.stac
+    # sms = self.communication_gateway.send_sms!( customer_number, self.number, self.unsolicited_sms_message )
+    # sms.stac
   end
 
   def record_unsolicited_message( options={} )
@@ -122,13 +122,6 @@ protected
     self.number = PhoneNumber.normalize_phone_number(self.number)
   end
   
-protected
-
-#   def persist_workflow_state(new_value)
-#     write_attribute self.class.workflow_column, new_value
-#     save
-#   end
-
   ##
   # Attempt to buy the phone number from the Twilio API. If it receives an error, halt the operation.
   def purchase
