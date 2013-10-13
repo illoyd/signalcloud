@@ -31,6 +31,7 @@ class Stencil < ActiveRecord::Base
     # Build a hash of options using self as a default, merging passed options
     options = CONVERSATION_PARAMETERS.each_with_object({}) { |key,h| h[key] = send(key) }
     options = options.with_indifferent_access.merge( passed_options.with_indifferent_access )
+    options[:parameters] = options.fetch(:parameters,{}).merge( self.defined_parameters_hash )
     
     # Add a randomly selected from number if needed
     if options.fetch(:internal_number, nil).blank? and !options.fetch(:customer_number, nil).blank?
@@ -52,6 +53,10 @@ class Stencil < ActiveRecord::Base
       find_parameters( self.failed_reply ) +
       find_parameters( self.expired_reply )
     ).flatten.uniq
+  end
+  
+  def defined_parameters_hash
+    self.defined_parameters.each_with_object({}) { |key,h| h[key] = '' }
   end
   
 protected
