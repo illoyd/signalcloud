@@ -1,4 +1,4 @@
---- !ruby/object:PriceSheet
-country: us
-base_conversation_price: 10.0
-base_phone_number_price: 4.04
+---
+:country: US
+:base_conversation_price: 0.1
+:base_phone_number_price: 2.0
