@@ -11,6 +11,12 @@ class Error < StandardError
   end
 end
 
+class UnknownPriceSheetError < Error
+  def initialize( country, original = $! )
+    super( "No price sheet for country '#{country}.'", original )
+  end
+end
+
 class ProviderCodeError < Error
   def provider_code
     self.original.try(:code)

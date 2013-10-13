@@ -108,6 +108,8 @@ class Message < ActiveRecord::Base
   scope :challenges,  ->{ where( message_kind: CHALLENGE ) }
   scope :responses,   ->{ where( message_kind: RESPONSE ) }
   scope :replies,     ->{ where( message_kind: REPLY ) }
+  scope :inbound,     ->{ where( direction: IN ) }
+  scope :outbound,    ->{ where( direction: OUT ) }
   
   ##
   # Delegate specific functions to the parent conversation
