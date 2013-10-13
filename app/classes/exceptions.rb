@@ -17,6 +17,12 @@ class UnknownPriceSheetError < Error
   end
 end
 
+class UnpriceableObjectError < Error
+  def initialize( object, original = $! )
+    super( "Can not price a #{object.class}.", original )
+  end
+end
+
 class ProviderCodeError < Error
   def provider_code
     self.original.try(:code)

@@ -22,13 +22,11 @@ class AccountPlan < ActiveRecord::Base
   end
   
   def phone_number_pricer
-    self.phone_number_pricer = PhoneNumberPricer.new if super.nil?
-    super
+    @phone_number_pricer ||= PhoneNumberPricer.new
   end
   
   def conversation_pricer
-    self.conversation_pricer = ConversationPricer.new if super.nil?
-    super
+    @conversation_pricer ||= ConversationPricer.new
   end
   
   def price_for(obj)
@@ -38,7 +36,7 @@ class AccountPlan < ActiveRecord::Base
       when obj.is_a?(Conversation)
         self.conversation_pricer.price_for(obj)
       else
-        raise 'Unknown object!'
+        raise SignalCloud::UnpriceableObjectError.new(obj)
     end
   end
   
