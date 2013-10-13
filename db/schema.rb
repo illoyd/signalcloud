@@ -122,6 +122,9 @@ ActiveRecord::Schema.define(:version => 20131012084127) do
     t.text     "encrypted_expired_reply",                                     :null => false
     t.string   "encrypted_expired_reply_iv"
     t.string   "encrypted_expired_reply_salt"
+    t.text     "encrypted_parameters"
+    t.string   "encrypted_parameters_iv"
+    t.string   "encrypted_parameters_salt"
     t.text     "encrypted_webhook_uri"
     t.string   "encrypted_webhook_uri_iv"
     t.string   "encrypted_webhook_uri_salt"

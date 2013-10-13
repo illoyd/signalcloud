@@ -67,6 +67,10 @@ class CreateConversations < ActiveRecord::Migration
       t.string :encrypted_expired_reply_iv
       t.string :encrypted_expired_reply_salt
       
+      t.text :encrypted_parameters
+      t.string :encrypted_parameters_iv
+      t.string :encrypted_parameters_salt
+      
       t.text :encrypted_webhook_uri
       t.string :encrypted_webhook_uri_iv
       t.string :encrypted_webhook_uri_salt

@@ -76,6 +76,7 @@ class Conversation < ActiveRecord::Base
   attr_encrypted :denied_reply,     key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :failed_reply,     key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :expired_reply,    key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :parameters,       key: ATTR_ENCRYPTED_SECRET, marshal: true, marshaler: JSON
   attr_encrypted :webhook_uri,      key: ATTR_ENCRYPTED_SECRET
 
   attr_encrypted :expected_confirmed_answer,  key: ATTR_ENCRYPTED_SECRET
@@ -291,7 +292,84 @@ class Conversation < ActiveRecord::Base
     client.deliver self
     true    
   end
+  
+  def parameters_as_assignments
+    return "" if self.parameters.blank?
+    self.parameters.keys.map { |key| "#{key} = #{self.parameters[key]}" }.join("\n")
+  end
+  
+  def parameters_as_assignments=(params)
+    h = {}
+    params.scan(/^(.+?)=(.+)$/i) do |key,value|
+      h[key.strip] = value.strip
+    end
+    self.parameters = h
+  end
+  
+  def render!
+    self.question = self.question_template.render( self.parameters )
+    self.expected_confirmed_answer = self.expected_confirmed_answer_template.render( self.parameters )
+    self.expected_denied_answer = self.expected_denied_answer_template.render( self.parameters )
+    self.confirmed_reply = self.confirmed_reply_template.render( self.parameters )
+    self.denied_reply = self.denied_reply_template.render( self.parameters )
+    self.failed_reply_template = self.failed_reply_template_template.render( self.parameters )
+    self.expired_reply = self.expired_reply_template.render( self.parameters )
+  end
+  
+  ##
+  # Get the question as a liquid template
+  def question_template
+    Liquid::Template.parse question
+  end
 
+  ##
+  # Get the expected confirmed answer as a liquid template
+  def expected_confirmed_answer_template
+    Liquid::Template.parse expected_confirmed_answer
+  end
+  
+  ##
+  # Get the expected denied answer as a liquid template
+  def expected_denied_answer_template
+    Liquid::Template.parse expected_denied_answer
+  end
+  
+  ##
+  # Get the confirmed reply as a liquid template
+  def confirmed_reply_template
+    Liquid::Template.parse confirmed_reply
+  end
+  
+  ##
+  # Get the denied reply as a liquid template
+  def denied_reply_template
+    Liquid::Template.parse denied_reply
+  end
+  
+  ##
+  # Get the failed reply as a liquid template
+  def failed_reply_template
+    Liquid::Template.parse failed_reply
+  end
+  
+  ##
+  # Get the expired reply as a liquid template
+  def expired_reply_template
+    Liquid::Template.parse expired_reply
+  end
+  
+  def defined_parameters
+    (
+      find_parameters( self.question ) +
+      find_parameters( self.expected_confirmed_answer ) +
+      find_parameters( self.expected_denied_answer ) +
+      find_parameters( self.confirmed_reply ) +
+      find_parameters( self.denied_reply ) +
+      find_parameters( self.failed_reply ) +
+      find_parameters( self.expired_reply )
+    ).flatten.uniq
+  end
+  
 protected
   
   def assign_internal_number
@@ -315,10 +393,15 @@ protected
     self.ledger_entry.value = -self.organization.account_plan.price_for(self)
   end
   
+  def find_parameters( text )
+    text.scan(/\{\{\s*(.+?)\s*\}\}/i).flatten
+  end
+
 protected
 
   def ask
     # Begin the process!
+    self.render!
     self.deliver_message self.question, :challenge
   end
 
