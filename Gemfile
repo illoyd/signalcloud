@@ -67,6 +67,7 @@ gem 'countries'
 gem 'workflow'
 gem 'strong_parameters'
 gem 'lograge'
+gem 'liquid'
 
 group :test, :development do
   gem "rspec-rails", "~> 2.0"
