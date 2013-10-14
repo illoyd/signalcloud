@@ -306,14 +306,20 @@ class Conversation < ActiveRecord::Base
     self.parameters = h
   end
   
+  def render
+    {
+      question:                  self.question_template.render( self.parameters ),
+      expected_confirmed_answer: self.expected_confirmed_answer_template.render( self.parameters ),
+      expected_denied_answer:    self.expected_denied_answer_template.render( self.parameters ),
+      confirmed_reply:           self.confirmed_reply_template.render( self.parameters ),
+      denied_reply:              self.denied_reply_template.render( self.parameters ),
+      failed_reply:              self.failed_reply_template.render( self.parameters ),
+      expired_reply:             self.expired_reply_template.render( self.parameters )      
+    }
+  end
+  
   def render!
-    self.question = self.question_template.render( self.parameters )
-    self.expected_confirmed_answer = self.expected_confirmed_answer_template.render( self.parameters )
-    self.expected_denied_answer = self.expected_denied_answer_template.render( self.parameters )
-    self.confirmed_reply = self.confirmed_reply_template.render( self.parameters )
-    self.denied_reply = self.denied_reply_template.render( self.parameters )
-    self.failed_reply_template = self.failed_reply_template_template.render( self.parameters )
-    self.expired_reply = self.expired_reply_template.render( self.parameters )
+    assign_attributes( self.render )
   end
   
   ##
@@ -394,6 +400,7 @@ protected
   end
   
   def find_parameters( text )
+    return [] if text.nil?
     text.scan(/\{\{\s*(.+?)\s*\}\}/i).flatten
   end
 

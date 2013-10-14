@@ -62,6 +62,7 @@ class Stencil < ActiveRecord::Base
 protected
 
   def find_parameters( text )
+    return [] if text.nil?
     text.scan(/\{\{\s*(.+?)\s*\}\}/i).flatten
   end
 
