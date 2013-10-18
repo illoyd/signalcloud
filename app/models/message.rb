@@ -41,6 +41,13 @@ class Message < ActiveRecord::Base
   RECEIVED = 5
   ERRORED = 6
   
+  PENDING_SZ = 'pending'
+  SENDING_SZ = 'sending'
+  SENT_SZ    = 'sent'
+  FAILED_SZ  = 'failed'
+  RECEIVED_SZ = 'received'
+  ERRORED_SZ = 'errored'
+  
   def self.status_to_code( status )
     case status
       when 'pending'; PENDING
