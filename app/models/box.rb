@@ -12,8 +12,11 @@ class Box < ActiveRecord::Base
   
   belongs_to :organization, inverse_of: :boxes
   has_many :conversations, inverse_of: :box, dependent: :destroy
+  
+  has_attached_file :document
 
   validates_presence_of :organization
+  validates :document, attachment_presence: true, attachment_content_type: [ 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ], if: :draft?
   
   protected
   

@@ -6,6 +6,9 @@ class CreateBoxes < ActiveRecord::Migration
       # References
       t.references :organization, null: false
       
+      # Document
+      t.attachment :document
+      
       # Information
       t.datetime :start_at
       t.string :label
