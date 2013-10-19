@@ -51,6 +51,8 @@ class TwilioCommunicationGateway < CommunicationGateway
     return @twilio_validator
   end
   
+  alias_method :signature_validator, :twilio_validator
+  
   def twilio_voice_url
     raise SignalCloud::MissingTwilioAccountError.new(self) unless self.has_twilio_account?
     self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_inbound_call_url
@@ -179,7 +181,7 @@ class TwilioCommunicationGateway < CommunicationGateway
         ERROR_UNKNOWN
       end
   end
-  
+
 protected
 
   def assemble_phone_number_data( phone_number )
