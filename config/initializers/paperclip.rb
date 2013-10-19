@@ -1,0 +1,1 @@
+# Paperclip::Attachment.default_options[:path] = ":rails_root/paperclip/:rails_env/:class/:attachment/:id_partition/:filename"
