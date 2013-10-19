@@ -10,7 +10,8 @@ describe Twilio::SmsUpdatesController do
       From: from_phone_number.number,
       SmsSid: 'SM'+SecureRandom.hex(16),
       AccountSid: organization.communication_gateway_for(:twilio).remote_sid,
-      Body: 'Hello!'
+      Body: 'Hello!',
+      SmsStatus: 'sent'
     } }
 
   describe 'POST create' do
