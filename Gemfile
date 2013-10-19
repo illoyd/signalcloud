@@ -69,6 +69,7 @@ gem 'strong_parameters'
 gem 'paperclip'
 gem 'spreadsheet'
 gem 'lograge'
+gem 'liquid'
 
 group :test, :development do
   gem "rspec-rails", "~> 2.0"

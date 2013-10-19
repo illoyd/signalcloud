@@ -31,13 +31,39 @@ class Stencil < ActiveRecord::Base
     # Build a hash of options using self as a default, merging passed options
     options = CONVERSATION_PARAMETERS.each_with_object({}) { |key,h| h[key] = send(key) }
     options = options.with_indifferent_access.merge( passed_options.with_indifferent_access )
+    options[:parameters] = options.fetch(:parameters,{}).merge( self.defined_parameters_hash )
     
     # Add a randomly selected from number if needed
     if options.fetch(:internal_number, nil).blank? and !options.fetch(:customer_number, nil).blank?
       options[:internal_number] = self.phone_book.select_internal_number_for( options[:customer_number] ).number
     end
-    return self.conversations.build( options )
+    
+    # Finally, build the stupid conversation and return it
+    self.conversations.build( options )
   end
   alias_method :open_conversation, :build_conversation
   
+  def defined_parameters
+    (
+      find_parameters( self.question ) +
+      find_parameters( self.expected_confirmed_answer ) +
+      find_parameters( self.expected_denied_answer ) +
+      find_parameters( self.confirmed_reply ) +
+      find_parameters( self.denied_reply ) +
+      find_parameters( self.failed_reply ) +
+      find_parameters( self.expired_reply )
+    ).flatten.uniq
+  end
+  
+  def defined_parameters_hash
+    self.defined_parameters.each_with_object({}) { |key,h| h[key] = '' }
+  end
+  
+protected
+
+  def find_parameters( text )
+    return [] if text.nil?
+    text.scan(/\{\{\s*(.+?)\s*\}\}/i).flatten
+  end
+
 end

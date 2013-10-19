@@ -125,6 +125,7 @@ GEM
       actionpack (>= 3.1)
       less (~> 2.4.0)
     libv8 (3.16.14.3)
+    liquid (2.5.3)
     lograge (0.2.2)
       actionpack (>= 3)
       activesupport (>= 3)
@@ -291,6 +292,7 @@ DEPENDENCIES
   jquery-rails
   kaminari
   less-rails
+  liquid
   lograge
   newrelic_rpm
   paperclip
