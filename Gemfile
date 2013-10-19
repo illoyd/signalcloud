@@ -62,10 +62,12 @@ gem 'ruby-freshbooks'
 gem 'httparty'
 gem 'api_smith'
 gem 'twitter_bootstrap_form_for', :git => 'git://github.com/stouset/twitter_bootstrap_form_for.git', :branch => 'bootstrap-2.0'
-gem 'country_select'
 gem 'countries'
+gem 'country_select'
 gem 'workflow'
 gem 'strong_parameters'
+gem 'paperclip'
+gem 'spreadsheet'
 gem 'lograge'
 
 group :test, :development do
