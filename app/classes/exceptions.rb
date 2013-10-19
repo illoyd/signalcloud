@@ -11,6 +11,8 @@ class Error < StandardError
   end
 end
 
+class TransformError < Error; end
+
 class UnknownPriceSheetError < Error
   def initialize( country, original = $! )
     super( "No price sheet for country '#{country}.'", original )
