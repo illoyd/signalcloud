@@ -17,7 +17,10 @@ class Box < ActiveRecord::Base
   has_attached_file :document
 
   validates :organization, presence: true
-  validates :document, attachment_presence: true, attachment_content_type: [ 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ], if: :draft?
+  validates_attachment :document,
+    presence: true,
+    content_type: { content_type: [ 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ] },
+    if: :draft?
   
   protected
   

@@ -1,20 +1,21 @@
-class ConvesationWorkbookReader
+class ConversationWorkbookReader
 
-  attr_accessor :document
+  attr_accessor :document, :stencil, :headers, :keys
 
-  def self.parse( document )
+  def self.parse( stencil, document )
     reader = ConversationWorkbookReader.new( document )
     reader.read( document )
   end
   
-  def initialize( document )
+  def initialize( stencil, document )
+    self.stencil = stencil
     self.document = document
   end
   
   def read
     conversations = []
 
-    @book.worksheets.each do |worksheet|
+    self.book.worksheets.each do |worksheet|
       conversations += read_worksheet(worksheet)
     end
 
@@ -28,12 +29,12 @@ class ConvesationWorkbookReader
   protected
   
   def build_conversation( params )
-    params = safe_params( params )
+    self.stencil.open_conversation( safe_params( params ) )
   end
   
   def safe_params( params )
     params = ActionController::Parameters.new(params)
-    params.require(:conversation).permit( :seconds_to_live, :stencil_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :internal_number, :question, :customer_number, :expires_at, :webhook_uri )
+    params.require( :conversation ).permit( :seconds_to_live, :stencil_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :internal_number, :question, :customer_number, :expires_at, :webhook_uri, :parameters, :parameters_as_assignments )
   end
   
   def read_worksheet( worksheet )
@@ -48,11 +49,11 @@ class ConvesationWorkbookReader
   def read_header( worksheet )
     worksheet.each do |row|
       @index += 1
-      @header = []
+      @headers = []
       @keys = HashWithIndifferentAccess.new
       row.each_with_index do |key, index|
         key = key.to_s.underscore
-        @header << key
+        @headers << key
         @keys[key] = index
       end
       break
@@ -68,11 +69,15 @@ class ConvesationWorkbookReader
   end
   
   def cell( row, column )
-    row[@keys[column]]
+    row[column(column)]
   end
   
-  def header(index)
-    @header[index]
+  def header(column)
+    @headers[column]
+  end
+  
+  def column(header)
+    @keys[header]
   end
 
 end
