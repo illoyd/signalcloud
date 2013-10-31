@@ -36,7 +36,7 @@ class ExpireConversationJob
     rescue SignalCloud::ReplyAlreadySentError => ex
       logger.info{ 'Skipping as message has already been sent.' }
     
-    rescue SignalCloud::MessageSendingError => ex
+    rescue SignalCloud::MessageError => ex
       logger.warn{ ex.message }
     
     rescue => ex
