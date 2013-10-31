@@ -53,6 +53,7 @@ GEM
     arel (3.0.2)
     attr_encryptor (2.0.0)
       encryptor2 (>= 1.0.0)
+    attribute_normalizer (1.1.0)
     autotest-rails (4.1.0)
       ZenTest
     bcrypt-ruby (3.1.2)
@@ -134,9 +135,12 @@ GEM
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
     mime-types (1.25)
+    mini_portile (0.5.1)
     multi_json (1.8.0)
     multi_xml (0.5.5)
     newrelic_rpm (3.6.7.152)
+    nokogiri (1.6.0)
+      mini_portile (~> 0.5.0)
     orm_adapter (0.4.0)
     paperclip (3.5.1)
       activemodel (>= 3.0.0)
@@ -177,6 +181,10 @@ GEM
     redis-namespace (1.3.1)
       redis (~> 3.0.0)
     ref (1.0.5)
+    roo (1.12.2)
+      nokogiri
+      rubyzip
+      spreadsheet (> 0.6.4)
     rspec (2.14.1)
       rspec-core (~> 2.14.0)
       rspec-expectations (~> 2.14.0)
@@ -201,6 +209,7 @@ GEM
       httparty (>= 0.5.0)
     ruby-ole (1.2.11.7)
     ruby-progressbar (1.2.0)
+    rubyzip (1.0.0)
     safe_yaml (0.9.7)
     sass (3.2.10)
     sass-rails (3.2.6)
@@ -277,6 +286,7 @@ DEPENDENCIES
   active_model_serializers
   api_smith
   attr_encryptor (~> 2.0.0)
+  attribute_normalizer
   autotest-rails (~> 4.1.0)
   cancan
   coffee-rails (~> 3.2.1)
@@ -299,6 +309,7 @@ DEPENDENCIES
   pg
   phony!
   rails (= 3.2.13)
+  roo
   rspec-rails (~> 2.0)
   rspec-sidekiq
   ruby-freshbooks
@@ -307,7 +318,6 @@ DEPENDENCIES
   sidekiq
   simplecov
   sinatra (>= 1.3.0)
-  spreadsheet
   stringex
   strong_parameters
   therubyracer

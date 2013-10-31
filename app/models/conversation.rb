@@ -97,9 +97,9 @@ class Conversation < ActiveRecord::Base
   delegate :organization, to: :stencil
   #delegate :communication_gateway, to: :internal_number, allow_nil: true
   
-  def communication_gateway
-    self.organization.phone_numbers.where( number: self.internal_number ).first.communication_gateway
-  end
+  # Normalise
+  normalize_attributes :question, :expected_confirmed_answer, :expected_denied_answer, :confirmed_reply, :denied_reply, :expired_reply, :failed_reply, with: [ :strip, :squish, :blank ]
+  normalize_attribute :webhook_uri
   
   # Before validation  
   before_validation :assign_internal_number #, on: :create
@@ -148,6 +148,12 @@ class Conversation < ActiveRecord::Base
     return counts
   end
 
+  ##
+  # Get the communication gateway based on the internal number of this conversation
+  def communication_gateway
+    self.organization.phone_numbers.where( number: self.internal_number ).first.communication_gateway
+  end
+  
   ##
   # Update expires_at based upon seconds to live. Intended to be used with +before_save+ callbacks.
   def update_expiry_time_based_on_seconds_to_live

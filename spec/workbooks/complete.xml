@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
+  <Author>SignalCloud</Author>
+ </DocumentProperties>
+ <Styles>
+  <Style ss:ID="Default" ss:Name="Normal">
+   <Alignment ss:Vertical="Bottom"/>
+   <Borders/>
+   <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="12" ss:Color="#000000"/>
+   <Interior/>
+   <NumberFormat/>
+   <Protection/>
+  </Style>
+  <Style ss:ID="s20">
+   <NumberFormat ss:Format="@"/>
+  </Style>
+  <Style ss:ID="s21">
+   <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="12" ss:Color="#000000"
+    ss:Bold="1"/>
+  </Style>
+ </Styles>
+ <Worksheet ss:Name="Sheet1">
+  <Table ss:ExpandedColumnCount="12" ss:ExpandedRowCount="6">
+   <Row>
+    <Cell ss:StyleID="s21"><Data ss:Type="String">internal_number</Data></Cell>
+    <Cell ss:StyleID="s21"><Data ss:Type="String">customer_number</Data></Cell>
+    <Cell ss:StyleID="s21"><Data ss:Type="String">question</Data></Cell>
+    <Cell ss:StyleID="s21"><Data ss:Type="String">expected_confirmed_answer</Data></Cell>
+    <Cell ss:StyleID="s21"><Data ss:Type="String">confirmed_reply</Data></Cell>
+    <Cell ss:StyleID="s21"><Data ss:Type="String">expected_denied_answer</Data></Cell>
+    <Cell ss:StyleID="s21"><Data ss:Type="String">denied_reply</Data></Cell>
+    <Cell ss:StyleID="s21"><Data ss:Type="String">seconds_to_live</Data></Cell>
+    <Cell ss:StyleID="s21"><Data ss:Type="String">expired_reply</Data></Cell>
+    <Cell ss:StyleID="s21"><Data ss:Type="String">failed_reply</Data></Cell>
+    <Cell ss:StyleID="s21"><Data ss:Type="String">webhook_uri</Data></Cell>
+    <Cell ss:StyleID="s21"><Data ss:Type="String">parameters</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">+15001112001</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">+15551112001</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">Q1</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">Confirm 1</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">CR1</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">Denied 1</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">DR1</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">600</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">EX1</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">FR1</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">+15001112002</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">+15551112002</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">Q2</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">Confirm 2</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">CR2</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">Denied 2</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">DR2</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">600</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">EX2</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">FR2</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">+15001112003</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">+15551112003</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">Q3</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">Confirm 3</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">CR3</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">Denied 3</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">DR3</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">600</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">EX3</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">FR3</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">+15001112004</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">+15551112004</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">Q4</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">Confirm 4</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">CR4</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">Denied 4</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">DR4</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">600</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">EX4</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">FR4</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">+15001112005</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">+15551112005</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">Q1</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">Confirm 5</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">CR5</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">Denied 5</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">DR5</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">600</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">EX5</Data></Cell>
+    <Cell ss:StyleID="s20"><Data ss:Type="String">FR5</Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+</Workbook>

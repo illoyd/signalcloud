@@ -1,0 +1,80 @@
+!!! XML
+%Workbook{xmlns: "urn:schemas-microsoft-com:office:spreadsheet", "xmlns:html" => "http://www.w3.org/TR/REC-html40", "xmlns:o" => "urn:schemas-microsoft-com:office:office", "xmlns:ss" => "urn:schemas-microsoft-com:office:spreadsheet", "xmlns:x" => "urn:schemas-microsoft-com:office:excel"}
+  %DocumentProperties{xmlns: "urn:schemas-microsoft-com:office:office"}
+    %Author SignalCloud
+  %Styles
+    %Style{"ss:id" => "Default", "ss:name" => "Normal"}
+    %Style{"ss:id" => "s20"}
+      %NumberFormat{"ss:Format" => "@"}
+    %Style{"ss:id" => "s21"}
+      %Font{ "ss:Bold" => "1" }
+  %Worksheet{"ss:name" => "Sheet1"}
+    %Table{"ss:ExpandedColumnCount" => "14", "ss:ExpandedRowCount" => @box.conversations.count+1 }
+      %Row
+        %Cell{"ss:styleid" => "s21"}
+          %Data{"ss:type" => "String"} ID
+        %Cell{"ss:styleid" => "s21"}
+          %Data{"ss:type" => "String"} Stencil
+        %Cell{"ss:styleid" => "s21"}
+          %Data{"ss:type" => "String"} Internal Number
+        %Cell{"ss:styleid" => "s21"}
+          %Data{"ss:type" => "String"} Customer Number
+        %Cell{"ss:styleid" => "s21"}
+          %Data{"ss:type" => "String"} Question
+        %Cell{"ss:styleid" => "s21"}
+          %Data{"ss:type" => "String"} Reply
+        %Cell{"ss:styleid" => "s21"}
+          %Data{"ss:type" => "String"} Webhook URI
+        %Cell{"ss:styleid" => "s21"}
+          %Data{"ss:type" => "String"} Parameters
+        %Cell{"ss:styleid" => "s21"}
+          %Data{"ss:type" => "String"} Created At
+        %Cell{"ss:styleid" => "s21"}
+          %Data{"ss:type" => "String"} Updated At
+        %Cell{"ss:styleid" => "s21"}
+          %Data{"ss:type" => "String"} Expires At
+        %Cell{"ss:styleid" => "s21"}
+          %Data{"ss:type" => "String"} Challenge Sent At
+        %Cell{"ss:styleid" => "s21"}
+          %Data{"ss:type" => "String"} Answer Received At
+        %Cell{"ss:styleid" => "s21"}
+          %Data{"ss:type" => "String"} Reply Sent At
+
+      - @box.conversations.each do |conversation|
+        %Row
+          %Cell{"ss:styleid" => "s20"}
+            %Data{"ss:type" => "Number"}= conversation.id
+          %Cell{"ss:styleid" => "s20"}
+            %Data{"ss:type" => "String"}= conversation.stencil.label
+          %Cell{"ss:styleid" => "s20"}
+            %Data{"ss:type" => "String"}= conversation.internal_number
+          %Cell{"ss:styleid" => "s20"}
+            %Data{"ss:type" => "String"}= conversation.customer_number
+          %Cell{"ss:styleid" => "s20"}
+            %Data{"ss:type" => "String"}= conversation.question
+          %Cell{"ss:styleid" => "s20"}
+            %Data{"ss:type" => "String"}
+              - if conversation.confiming? or conversation.confirmed?
+                = conversation.confirmed_reply
+              - elsif conversation.denying? or conversation.denied?
+                = conversation.denied_reply
+              - elsif conversation.failing? or conversation.failed?
+                = conversation.failed_reply
+              - elsif conversation.expiring? or conversation.expired?
+                = conversation.expired_reply
+          %Cell{"ss:styleid" => "s20"}
+            %Data{"ss:type" => "String"}= conversation.webhook_uri
+          %Cell{"ss:styleid" => "s20"}
+            %Data{"ss:type" => "String"}= conversation.parameters_as_assignments
+          %Cell{"ss:styleid" => "s20"}
+            %Data{"ss:type" => "DateTime"}= conversation.created_at
+          %Cell{"ss:styleid" => "s20"}
+            %Data{"ss:type" => "DateTime"}= conversation.updated_at
+          %Cell{"ss:styleid" => "s20"}
+            %Data{"ss:type" => "DateTime"}= conversation.expires_at
+          %Cell{"ss:styleid" => "s20"}
+            %Data{"ss:type" => "DateTime"}= conversation.challenge_sent_at
+          %Cell{"ss:styleid" => "s20"}
+            %Data{"ss:type" => "DateTime"}= conversation.answer_received_at
+          %Cell{"ss:styleid" => "s20"}
+            %Data{"ss:type" => "DateTime"}= conversation.reply_sent_at

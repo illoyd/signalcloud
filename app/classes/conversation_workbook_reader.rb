@@ -1,83 +1,84 @@
 class ConversationWorkbookReader
 
-  attr_accessor :document, :stencil, :headers, :keys
+  attr_accessor :document, :stencil
 
+  RESERVED_KEYS = [ :seconds_to_live, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :internal_number, :question, :customer_number, :webhook_uri, :parameters_as_assignments, :parameters ]
+
+  ## Quickly build a reader and return its found conversations.
   def self.parse( stencil, document )
     reader = ConversationWorkbookReader.new( document )
     reader.read( document )
   end
   
+  ##
+  # Construct a brand-new reader, using a default stencil and pointing to a specific document.
   def initialize( stencil, document )
     self.stencil = stencil
     self.document = document
   end
   
+  ##
+  # Process the given workbook.
   def read
     conversations = []
-
-    self.book.worksheets.each do |worksheet|
-      conversations += read_worksheet(worksheet)
+    self.book.each_with_pagename do |name, worksheet|
+      conversations = conversations + read_worksheet( worksheet )
     end
-
     conversations
   end
   
+  ##
+  # Return the current workbook, opening it if necessary.
   def book
-    @book ||= Spreadsheet.open self.document
+    @book ||= Roo::Spreadsheet.open( self.document )
   end
   
   protected
   
+  ##
+  # Short-hand to safely build a conversation within the current stencil.
   def build_conversation( params )
-    self.stencil.open_conversation( safe_params( params ) )
+    self.stencil.build_conversation( safe_params( params ) )
   end
   
+  ##
+  # Safely verify all parameters for insertion into a conversation model.
   def safe_params( params )
     params = ActionController::Parameters.new(params)
-    params.require( :conversation ).permit( :seconds_to_live, :stencil_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :internal_number, :question, :customer_number, :expires_at, :webhook_uri, :parameters, :parameters_as_assignments )
+    params.require( :conversation ).permit( *RESERVED_KEYS ).tap do |whitelisted|
+      whitelisted[:parameters] = params[:conversation][:parameters]
+    end
   end
   
+  ##
+  # Process each row in the worksheet
   def read_worksheet( worksheet )
-    # Read in the header
-    @index = 0
-    read_header( worksheet )
-    
-    # Read in all data
-    worksheet.rows.each(@index) { |row| read_row(row) }
-  end
-  
-  def read_header( worksheet )
-    worksheet.each do |row|
-      @index += 1
-      @headers = []
-      @keys = HashWithIndifferentAccess.new
-      row.each_with_index do |key, index|
-        key = key.to_s.underscore
-        @headers << key
-        @keys[key] = index
-      end
-      break
+    conversations = []
+    worksheet.each(headers: true) do |row|
+      # Skip if this is the header row (weird bug in Roo?)
+      next if row.fetch('internal_number', nil) == 'internal_number'
+
+      # Otherwise process the row!
+      row = clean_row(row).with_indifferent_access
+      row[:parameters] = parameterise_row(row)
+      conversation = build_conversation( { conversation: row } )
+      conversation.render!
+      conversations << conversation
     end
+    conversations
   end
   
-  def read_row( row )
-    values = HashWithIndifferentAccess.new
-    row.each_with_index do |value, index|
-      values[header(index)] = value
-    end
-    values
+  ##
+  # Remove all keys which are blank. This assumes that a blank value should be replaced by the default value from the stencil.
+  def clean_row( row )
+    row.reject { |key,value| value.blank? }
   end
   
-  def cell( row, column )
-    row[column(column)]
-  end
-  
-  def header(column)
-    @headers[column]
-  end
-  
-  def column(header)
-    @keys[header]
+  ##
+  # Merge un-expected columns into a parameters field
+  def parameterise_row( row )
+    params = row.fetch(:parameters, HashWithIndifferentAccess.new)
+    params.merge row.reject { |key,value| RESERVED_KEYS.include? key.to_sym }
   end
 
 end

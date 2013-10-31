@@ -1,0 +1,74 @@
+!!! XML
+%Workbook{xmlns: "urn:schemas-microsoft-com:office:spreadsheet", "xmlns:html" => "http://www.w3.org/TR/REC-html40", "xmlns:o" => "urn:schemas-microsoft-com:office:office", "xmlns:ss" => "urn:schemas-microsoft-com:office:spreadsheet", "xmlns:x" => "urn:schemas-microsoft-com:office:excel"}
+  %DocumentProperties{xmlns: "urn:schemas-microsoft-com:office:office"}
+    %Author SignalCloud
+  %Worksheet{"ss:Name" => "Sheet1"}
+    %Table
+      %Row
+        %Cell
+          %Data{"ss:Type" => "String"} ID
+        %Cell
+          %Data{"ss:Type" => "String"} Stencil
+        %Cell
+          %Data{"ss:Type" => "String"} Internal Number
+        %Cell
+          %Data{"ss:Type" => "String"} Customer Number
+        %Cell
+          %Data{"ss:Type" => "String"} Question
+        %Cell
+          %Data{"ss:Type" => "String"} Reply
+        %Cell
+          %Data{"ss:Type" => "String"} Webhook URI
+        %Cell
+          %Data{"ss:Type" => "String"} Parameters
+        %Cell
+          %Data{"ss:Type" => "String"} Created At
+        %Cell
+          %Data{"ss:Type" => "String"} Updated At
+        %Cell
+          %Data{"ss:Type" => "String"} Expires At
+        %Cell
+          %Data{"ss:Type" => "String"} Challenge Sent At
+        %Cell
+          %Data{"ss:Type" => "String"} Answer Received At
+        %Cell
+          %Data{"ss:Type" => "String"} Reply Sent At
+
+      - @box.conversations.each do |conversation|
+        %Row
+          %Cell
+            %Data{"ss:Type" => "Number"}= conversation.id
+          %Cell
+            %Data{"ss:Type" => "String"}= conversation.stencil.label
+          %Cell
+            %Data{"ss:Type" => "String"}= conversation.internal_number
+          %Cell
+            %Data{"ss:Type" => "String"}= conversation.customer_number
+          %Cell
+            %Data{"ss:Type" => "String"}= conversation.question
+          %Cell
+            %Data{"ss:Type" => "String"}
+              - if conversation.confiming? or conversation.confirmed?
+                = conversation.confirmed_reply
+              - elsif conversation.denying? or conversation.denied?
+                = conversation.denied_reply
+              - elsif conversation.failing? or conversation.failed?
+                = conversation.failed_reply
+              - elsif conversation.expiring? or conversation.expired?
+                = conversation.expired_reply
+          %Cell
+            %Data{"ss:Type" => "String"}= conversation.webhook_uri
+          %Cell
+            %Data{"ss:Type" => "String"}= conversation.parameters_as_assignments
+          %Cell
+            %Data{"ss:Type" => "DateTime"}= conversation.created_at
+          %Cell
+            %Data{"ss:Type" => "DateTime"}= conversation.updated_at
+          %Cell
+            %Data{"ss:Type" => "DateTime"}= conversation.expires_at
+          %Cell
+            %Data{"ss:Type" => "DateTime"}= conversation.challenge_sent_at
+          %Cell
+            %Data{"ss:Type" => "DateTime"}= conversation.answer_received_at
+          %Cell
+            %Data{"ss:Type" => "DateTime"}= conversation.reply_sent_at

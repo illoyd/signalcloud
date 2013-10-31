@@ -4,23 +4,14 @@ require 'spec_helper'
 describe ConversationWorkbookReader do
   let(:files) { File.join '.', 'spec', 'workbooks' }
   let(:stencil) { build_stubbed :stencil }
-  subject{ ConversationWorkbookReader.new( stencil, file ) }
+  let(:reader) { ConversationWorkbookReader.new( stencil, file ) }
+  subject{ reader }
   
-  describe '#book', :focus do
-    context 'with valid XLSX document' do
-      let(:file) { File.join files, 'complete.xlsx' }
-      its(:book) { should be_a Spreadsheet::Workbook }
-    end
-
-    context 'with valid XLS document' do
-      let(:file) { File.join files, 'complete.xls' }
-      its(:book) { should be_a Spreadsheet::Workbook }
-    end
-    
+  describe '#book' do
     context 'with missing file path' do
       let(:file) { File.join files, 'ostriches.xlsx' }
       it 'raises File Not Found' do
-        expect{ subject.book }.to raise_error(Errno::ENOENT)
+        expect{ subject.book }.to raise_error(IOError)
       end
     end
     
@@ -31,46 +22,52 @@ describe ConversationWorkbookReader do
       end
     end
   end
-    
-  context 'with a fully formed Excel workbook' do
-    let(:file)    { File.join files, 'complete.xlsx' }
-    let(:expected_headers ) { [ :internal_number, :customer_number, :question, :expected_confirmed_answer, :confirmed_reply, :expected_denied_answer, :denied_reply, :seconds_to_live, :expired_reply, :failed_reply, :webhook_uri, :parameters ] }
-    let(:expected_keys)     { h = HashWithIndifferentAccess.new; expected_headers.each_with_index{ |header,index| h[header] = index }; h }
-    
-    describe '#read' do
-      it 'reads the file without errors' do
-        expect{ subject.read }.not_to raise_error
+  
+  describe '#read' do
+    context 'with a fully formed ExcelX workbook' do
+      let(:file) { File.join files, 'complete.xlsx' }
+      its(:book) { should be_a Roo::Base }
+      it_behaves_like 'a conversation reader', 5
+    end    
+
+    context 'with a fully formed Excel workbook' do
+      let(:file) { File.join files, 'complete.xls' }
+      its(:book) { should be_a Roo::Base }
+      it_behaves_like 'a conversation reader', 5
+    end    
+
+    context 'with a fully formed CSV workbook' do
+      let(:file) { File.join files, 'complete.csv' }
+      its(:book) { should be_a Roo::Base }
+      it_behaves_like 'a conversation reader', 5
+    end    
+
+    context 'with parameters', :focus do
+      let(:file) { File.join files, 'parameters.xlsx' }
+      its(:book) { should be_a Roo::Base }
+      it_behaves_like 'a conversation reader', 3
+
+      context 'with the first conversation' do
+        subject{ reader.read[0] }
+        its(:parameters) { should have(3).params }
+        its(:parameters) { should == { 'param1' => 'value1', 'param2' => 'value2', 'param3' => 'value3' }}
+        its(:question)   { should == 'Q1 value1 value2 value3 test' }
       end
-      
-      it 'finds headers' do
-        expect{ subject.read }.to change(subject, :headers).to(expected_headers)
+
+      context 'with the second conversation' do
+        subject{ reader.read[1] }
+        its(:parameters) { should have(1).param }
+        its(:parameters) { should == { 'param2' => 'valueA' }}
+        its(:question)   { should == 'Q2 valueA test' }
       end
-      
-      it 'finds keys' do
-        expect{ subject.read }.to change(subject, :keys).to(expected_keys)
+
+      context 'with the third conversation' do
+        subject{ reader.read[2] }
+        its(:parameters) { should have(0).params }
+        its(:parameters) { should == {} }
+        its(:question)   { should == 'Q3 test' }
       end
-      
-      it 'returns an array of conversations' do
-      end
-      
-      it 'attaches the stencil to each conversation' do
-      end
-    end
-    
-    describe '#column' do
-      before{ subject.read }
-      it 'returns the expected column for each request' do
-        expected_headers.each_with_index { |header,column| subject.send(:column, header).should == column }
-      end
-    end
-    
-    describe '#header' do
-      before{ subject.read }
-      it 'returns the expected header for each request' do
-        expected_keys.each { |header,column| subject.send(:header, column).should == header }
-      end
-    end
-    
+    end    
   end
   
 end

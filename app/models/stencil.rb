@@ -1,22 +1,25 @@
 class Stencil < ActiveRecord::Base
 
   # Encrypted attributes
-  attr_encrypted :confirmed_reply, key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :denied_reply, key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :expired_reply, key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :failed_reply, key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :question, key: ATTR_ENCRYPTED_SECRET
-
+  attr_encrypted :question,                  key: ATTR_ENCRYPTED_SECRET
   attr_encrypted :expected_confirmed_answer, key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :expected_denied_answer, key: ATTR_ENCRYPTED_SECRET
-
-  attr_encrypted :webhook_uri, key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :confirmed_reply,           key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :expected_denied_answer,    key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :denied_reply,              key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :expired_reply,             key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :failed_reply,              key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :webhook_uri,               key: ATTR_ENCRYPTED_SECRET
   
   # Relationships
   belongs_to :organization, inverse_of: :stencils
   belongs_to :phone_book, inverse_of: :stencils
   has_many :conversations, inverse_of: :stencil
   
+  # Normalise
+  normalize_attributes :question, :expected_confirmed_answer, :expected_denied_answer, :confirmed_reply, :denied_reply, :expired_reply, :failed_reply, with: [ :strip, :squish, :blank ]
+  normalize_attribute :webhook_uri
+  
+  # Validate
   validates_presence_of :organization, :label
   
   # Scopes
@@ -29,9 +32,9 @@ class Stencil < ActiveRecord::Base
 
   def build_conversation( passed_options={} )
     # Build a hash of options using self as a default, merging passed options
-    options = CONVERSATION_PARAMETERS.each_with_object({}) { |key,h| h[key] = send(key) }
-    options = options.with_indifferent_access.merge( passed_options.with_indifferent_access )
-    options[:parameters] = options.fetch(:parameters,{}).merge( self.defined_parameters_hash )
+    options = CONVERSATION_PARAMETERS.each_with_object(HashWithIndifferentAccess.new) { |key,h| h[key] = send(key) }
+    options = options.merge( passed_options.with_indifferent_access )
+    options[:parameters] = options.fetch(:parameters, HashWithIndifferentAccess.new).merge( self.defined_parameters_hash )
     
     # Add a randomly selected from number if needed
     if options.fetch(:internal_number, nil).blank? and !options.fetch(:customer_number, nil).blank?

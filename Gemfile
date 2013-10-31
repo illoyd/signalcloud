@@ -46,6 +46,7 @@ gem 'sinatra', '>= 1.3.0', :require => nil
 # gem 'debugger'
 
 # Additional gems
+gem 'attribute_normalizer'
 gem 'active_model_serializers'
 gem 'sidekiq'
 gem 'haml'
@@ -67,7 +68,7 @@ gem 'country_select'
 gem 'workflow'
 gem 'strong_parameters'
 gem 'paperclip'
-gem 'spreadsheet'
+gem 'roo'
 gem 'lograge'
 gem 'liquid'
 

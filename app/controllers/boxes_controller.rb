@@ -1,6 +1,6 @@
 class BoxesController < ApplicationController
 
-  respond_to :html, :json, :xml
+  respond_to :html, :json, :xml, :xlsx
   load_and_authorize_resource :organization
   before_filter :load_new_box, only: [ :new, :create ]
   load_and_authorize_resource through: :organization

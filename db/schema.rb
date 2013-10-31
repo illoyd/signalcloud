@@ -53,11 +53,15 @@ ActiveRecord::Schema.define(:version => 20131012084127) do
 
   create_table "boxes", :force => true do |t|
     t.string   "workflow_state"
-    t.integer  "organization_id", :null => false
+    t.integer  "organization_id",       :null => false
+    t.string   "document_file_name"
+    t.string   "document_content_type"
+    t.integer  "document_file_size"
+    t.datetime "document_updated_at"
     t.datetime "start_at"
     t.string   "label"
-    t.datetime "created_at",      :null => false
-    t.datetime "updated_at",      :null => false
+    t.datetime "created_at",            :null => false
+    t.datetime "updated_at",            :null => false
   end
 
   create_table "communication_gateways", :force => true do |t|
