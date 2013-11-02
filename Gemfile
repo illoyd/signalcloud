@@ -68,6 +68,10 @@ gem 'workflow'
 gem 'strong_parameters'
 gem 'lograge'
 
+# Additional authentication gems
+gem 'omniauth'
+gem 'omniauth-google-oauth2'
+
 group :test, :development do
   gem "rspec-rails", "~> 2.0"
 end
