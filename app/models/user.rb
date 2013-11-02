@@ -13,6 +13,25 @@ class User < ActiveRecord::Base
     where( email: email.chomp.downcase ).first
   end
   
+  def self.from_omniauth( auth, current_user=nil )
+    authorization = Authorization.for_provider( auth.provider, auth )
+
+    unless authorization.user
+      user = current_user || User.where( email: auth.info.email ).first
+
+      unless user
+        user = User.new( email: auth.info.email, name: auth.info.name, password: Devise.friendly_token[0,20] )
+        auth.provider == "twitter" ? user.save(:validate => false) : user.save
+      end
+
+      authorization.username = auth.info.nickname
+      authorization.user = user
+      authorization.save
+    end
+
+    authorization.user
+  end
+   
   def nickname
     read_attribute(:nickname) || name
   end
