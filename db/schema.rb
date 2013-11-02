@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131012084127) do
+ActiveRecord::Schema.define(:version => 20131101202245) do
 
   create_table "account_balances", :force => true do |t|
     t.integer  "organization_id",                                                :null => false
@@ -49,6 +49,26 @@ ActiveRecord::Schema.define(:version => 20131012084127) do
     t.datetime "updated_remote_at"
     t.datetime "created_at",                :null => false
     t.datetime "updated_at",                :null => false
+  end
+
+  create_table "authorizations", :force => true do |t|
+    t.string   "type"
+    t.integer  "user_id"
+    t.string   "oauth_hash"
+    t.text     "encrypted_username"
+    t.string   "encrypted_username_salt"
+    t.string   "encrypted_username_iv"
+    t.text     "encrypted_uid"
+    t.string   "encrypted_uid_salt"
+    t.string   "encrypted_uid_iv"
+    t.text     "encrypted_token"
+    t.string   "encrypted_token_salt"
+    t.string   "encrypted_token_iv"
+    t.text     "encrypted_secret"
+    t.string   "encrypted_secret_salt"
+    t.string   "encrypted_secret_iv"
+    t.datetime "created_at",              :null => false
+    t.datetime "updated_at",              :null => false
   end
 
   create_table "boxes", :force => true do |t|

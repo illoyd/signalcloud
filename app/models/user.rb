@@ -3,10 +3,9 @@ class User < ActiveRecord::Base
   # :token_authenticatable, :confirmable, :trackable,
   # :lockable, :timeoutable and :omniauthable
   devise :database_authenticatable, :recoverable, :rememberable, :validatable, :lockable, :timeoutable, :async, :invitable, :registerable
+  devise :omniauthable, :omniauth_providers => [:google_oauth2]
 
-  # Setup accessible (or protected) attributes for your model
-#   attr_accessible :email, :password, :password_confirmation, :remember_me
-  
+  has_many :authorizations, inverse_of: :user, autosave: true
   has_many :user_roles, inverse_of: :user
   has_many :organizations, through: :user_roles
   has_many :owned_organizations, foreign_key: 'owner_id', class_name: "Organization", inverse_of: :owner
@@ -15,6 +14,25 @@ class User < ActiveRecord::Base
     where( email: email.chomp.downcase ).first
   end
   
+  def self.from_omniauth( auth, current_user=nil )
+    authorization = Authorization.for_provider( auth.provider, auth )
+
+    unless authorization.user
+      user = current_user || User.where( email: auth.info.email ).first
+
+      unless user
+        user = User.new( email: auth.info.email, name: auth.info.name, password: Devise.friendly_token[0,20] )
+        auth.provider == "twitter" ? user.save(:validate => false) : user.save
+      end
+
+      authorization.username = auth.info.nickname
+      authorization.user = user
+      authorization.save
+    end
+
+    authorization.user
+  end
+   
   def nickname
     read_attribute(:nickname) || name
   end

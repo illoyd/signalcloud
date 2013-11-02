@@ -72,6 +72,10 @@ gem 'roo'
 gem 'lograge'
 gem 'liquid'
 
+# Additional authentication gems
+gem 'omniauth'
+gem 'omniauth-google-oauth2'
+
 group :test, :development do
   gem "rspec-rails", "~> 2.0"
 end
