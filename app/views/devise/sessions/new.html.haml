@@ -1,29 +1,18 @@
 - content_for :title, 'Sign In'
 
--#
-  %h2 Sign in
-  = form_for( resource, :as => resource_name, :url => session_path(resource_name) ) do |f|
-    %div
-      = f.label :email
-      %br/
-      = f.email_field :email
-    %div
-      = f.label :password
-      %br/
-      = f.password_field :password
-    - if devise_mapping.rememberable?
-      %div
-        = f.check_box :remember_me
-        = f.label :remember_me
-    %div= f.submit "Sign in"
-  = render "devise/shared/links"
-
 = form_for( resource, :as => resource_name, :url => session_path(resource_name), :html => { :class => "form-horizontal" } ) do |f|
   .modal.inline-modal
     .modal-header
-      / %button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} &times;
       %h3 Sign in
     .modal-body
+
+      = link_to user_omniauth_authorize_path(:google_oauth2), class: 'btn btn-google-plus' do
+        = icon 'google-plus', style: 'font-size: 150%'
+        %span.text= t 'Sign in with Google'
+
+      %hr
+      
+      %h4{ style: 'margin-bottom: 16px;' } Use a SignalCloud account
       .control-group
         = f.label :email, :class => 'control-label'
         .controls= f.email_field :email
