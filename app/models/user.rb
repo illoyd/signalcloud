@@ -3,6 +3,7 @@ class User < ActiveRecord::Base
   # :token_authenticatable, :confirmable, :trackable,
   # :lockable, :timeoutable and :omniauthable
   devise :database_authenticatable, :recoverable, :rememberable, :validatable, :lockable, :timeoutable, :async, :invitable, :registerable
+  devise :omniauthable, :omniauth_providers => [:google_oauth2]
 
   has_many :authorizations, inverse_of: :user, autosave: true
   has_many :user_roles, inverse_of: :user

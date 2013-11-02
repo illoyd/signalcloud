@@ -1,7 +1,7 @@
 SignalCloud::Application.routes.draw do
 
   # Configure authentication for USERS
-  devise_for :users #, :controllers => { :invitations => 'users/invitations' }
+  devise_for :users, :controllers => { :omniauth_callbacks => "users/omniauth_callbacks" }
 
   # Global resources
   resources :account_plans
