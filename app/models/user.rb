@@ -8,6 +8,7 @@ class User < ActiveRecord::Base
   has_many :authorizations, inverse_of: :user, autosave: true
   has_many :user_roles, inverse_of: :user
   has_many :organizations, through: :user_roles
+  has_many :boxes, inverse_of: :user
   has_many :owned_organizations, foreign_key: 'owner_id', class_name: "Organization", inverse_of: :owner
 
   def self.find_by_email( email )
@@ -31,6 +32,14 @@ class User < ActiveRecord::Base
     end
 
     authorization.user
+  end
+  
+  def authorization_for( provider )
+    self.authorizations.where( type: Authorization.provider_class(provider).name ).order('updated_at desc').first
+  end
+  
+  def has_authorization_for( provider )
+    self.authorizations.where( type: Authorization.provider_class(provider).name ).exist?
   end
    
   def nickname

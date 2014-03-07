@@ -1,36 +1,38 @@
 class ConversationWorkbookReader
 
-  attr_accessor :document, :stencil
+  attr_accessor :document, :stencil, :options
 
   RESERVED_KEYS = [ :seconds_to_live, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :internal_number, :question, :customer_number, :webhook_uri, :parameters_as_assignments, :parameters ]
 
   ## Quickly build a reader and return its found conversations.
-  def self.parse( stencil, document )
-    reader = ConversationWorkbookReader.new( document )
-    reader.read( document )
+  def self.parse( stencil, document, options={} )
+    reader = ConversationWorkbookReader.new( stencil )
+    reader.read( document, options )
   end
   
   ##
   # Construct a brand-new reader, using a default stencil and pointing to a specific document.
-  def initialize( stencil, document )
+  def initialize( stencil )
     self.stencil = stencil
-    self.document = document
   end
   
   ##
   # Process the given workbook.
-  def read
+  def read( document, options={} )
+    self.document = document
+    self.options = options
+
     conversations = []
     self.book.each_with_pagename do |name, worksheet|
       conversations = conversations + read_worksheet( worksheet )
     end
     conversations
   end
-  
+
   ##
   # Return the current workbook, opening it if necessary.
   def book
-    @book ||= Roo::Spreadsheet.open( self.document )
+    @book ||= Roo::Spreadsheet.open( self.document, self.options )
   end
   
   protected

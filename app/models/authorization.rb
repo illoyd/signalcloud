@@ -1,10 +1,11 @@
 class Authorization < ActiveRecord::Base
   belongs_to :user, inverse_of: :authorizations
 
-  attr_encrypted :username, key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :uid,      key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :token,    key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :secret,   key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :username,      key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :uid,           key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :token,         key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :secret,        key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :refresh_token, key: ATTR_ENCRYPTED_SECRET
 
   before_save :build_oauth_hash
   after_create :fetch_details
@@ -14,14 +15,17 @@ class Authorization < ActiveRecord::Base
   
   def self.provider_class( provider )
     case provider
-      when 'google_oauth2'; GoogleAuthorization
+      when 'google_oauth2', 'google', :google_oauth2, :google; GoogleAuthorization
       else; self
     end
   end
-  
+
   def self.for_provider( provider, auth )
     logger.warn "Getting authorisation for #{provider} with auth: #{auth}"
-    provider_class(provider).find_by_oauth_tokens( auth.uid, auth.credentials.token, auth.credentials.secret ).first_or_initialize
+    
+    authorization = provider_class(provider).find_by_oauth_tokens( auth.uid, auth.credentials.token, auth.credentials.secret ).order('updated_at desc').first
+    authorization = provider_class(provider).new( uid: auth.uid, token: auth.credentials.token, secret: auth.credentials.secret ) unless authorization
+    authorization
   end
   
   def self.oauth_hash( uid, token, secret )
@@ -32,7 +36,11 @@ class Authorization < ActiveRecord::Base
     where( oauth_hash: oauth_hash( uid, token, secret ) )
   end
   
-  protected
+  def expired?
+    self.expires_at.past?
+  end
+  
+protected
   
   def build_oauth_hash
     self.oauth_hash = Authorization.oauth_hash( self.uid, self.token, self.secret )

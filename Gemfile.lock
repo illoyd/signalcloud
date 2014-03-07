@@ -103,6 +103,10 @@ GEM
       rspec (~> 2.0)
       rspec-instafail (~> 0.2.0)
       ruby-progressbar (~> 1.0)
+    google_drive (0.3.6)
+      nokogiri (>= 1.4.4, != 1.5.2, != 1.5.1)
+      oauth (>= 0.3.6)
+      oauth2 (>= 0.5.0)
     haml (4.0.3)
       tilt
     hashie (2.0.5)
@@ -145,6 +149,7 @@ GEM
     newrelic_rpm (3.6.7.152)
     nokogiri (1.6.0)
       mini_portile (~> 0.5.0)
+    oauth (0.4.7)
     oauth2 (0.8.1)
       faraday (~> 0.8)
       httpauth (~> 0.1)
@@ -316,6 +321,7 @@ DEPENDENCIES
   devise_invitable
   factory_girl
   fuubar
+  google_drive
   haml
   httparty
   jquery-rails
@@ -327,7 +333,7 @@ DEPENDENCIES
   omniauth
   omniauth-google-oauth2
   paperclip
-  pg
+  pg (~> 0.17.0)
   phony!
   rails (= 3.2.13)
   roo

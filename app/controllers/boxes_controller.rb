@@ -6,7 +6,7 @@ class BoxesController < ApplicationController
   load_and_authorize_resource through: :organization
   
   def load_new_box
-    @box = @organization.boxes.build()
+    @box = @organization.boxes.build( user: current_user )
     @box.assign_attributes( box_params ) if params.include? :box
     @box
   end

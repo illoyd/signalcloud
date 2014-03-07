@@ -1,13 +1,13 @@
 source 'https://rubygems.org'
 
-ruby "2.0.0"
+ruby "2.1.0"
 gem 'rails', '3.2.13'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
 
 # gem 'sqlite3'
-gem 'pg'
+gem 'pg', '~> 0.17.0'
 
 # Gems used only for assets and not required
 # in production environments by default.
@@ -71,6 +71,7 @@ gem 'paperclip'
 gem 'roo'
 gem 'lograge'
 gem 'liquid'
+gem 'google_drive'
 
 # Additional authentication gems
 gem 'omniauth'

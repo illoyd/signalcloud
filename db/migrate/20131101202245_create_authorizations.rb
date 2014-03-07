@@ -23,7 +23,15 @@ class CreateAuthorizations < ActiveRecord::Migration
       t.string :encrypted_secret_salt
       t.string :encrypted_secret_iv
       
+      t.text :encrypted_refresh_token
+      t.string :encrypted_refresh_token_salt
+      t.string :encrypted_refresh_token_iv
+
+      t.datetime :expires_at     
+
       t.timestamps
     end
+
+    add_index :authorizations, [ :type, :user_id ], unique: true
   end
 end

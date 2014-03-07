@@ -8,34 +8,37 @@ class Box < ActiveRecord::Base
     state :working do
       event :complete, transitions_to: :complete
     end
-    state :complete
+    state :complete do
+      event :export, transitions_to: :complete
+    end
   end
   
+  belongs_to :user, inverse_of: :boxes
   belongs_to :organization, inverse_of: :boxes
   has_many :conversations, inverse_of: :box, dependent: :destroy
   
-  has_attached_file :document
-
   validates :organization, presence: true
-  validates_attachment :document,
-    presence: true,
-    content_type: { content_type: [ 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ] },
-    if: :draft?
+  validates :user, presence: true
+  
+  def reader
+    @reader ||= ConversationWorkbookReader.new
+  end
   
   protected
+  
+  def read_conversations
+    self.reader.parse( self.document_file_name )
+  end
   
   def refresh
     # Delete all existing draft conversations
     self.conversations.with_draft_state.clear
     
     # Reload from document
-    self.conversations = ConversationWorkbookReader.parse( self.document )
+    self.conversations = self.read_conversations
   end
   
   def start
-    # Delete the attachment
-    self.document = nil
-  
     # Initiate new start jobs for all conversations
     self.conversations.pluck(:id).each do |conversation_id|
       SendConversationChallengeJob.perform_async( conversation_id )
