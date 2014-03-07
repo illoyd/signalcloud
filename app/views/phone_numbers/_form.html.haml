@@ -1,4 +1,4 @@
-= form_for( @phone_number, :html => { :class => 'form-horizontal' } ) do |f|
+= form_for( [@organization, @phone_number], :html => { :class => 'form-horizontal' } ) do |f|
   - if @phone_number.errors.any?
     #error_explanation
       %h2
@@ -55,4 +55,4 @@
   .control-group
     .controls
       = f.submit :class => 'btn btn-primary'
-      = link_to 'Discard changes', @phone_number, :class => 'btn'
+      = link_to 'Discard changes', [@organization, @phone_number], :class => 'btn'

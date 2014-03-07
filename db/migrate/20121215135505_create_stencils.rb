@@ -1,13 +1,12 @@
 class CreateStencils < ActiveRecord::Migration
   def change
     create_table :stencils do |t|
-      t.references :account, null: false
-      t.references :phone_directory, null: false
+      t.references :organization, null: false
+      t.references :phone_book, null: false
       t.string :label, null: false
       t.integer :seconds_to_live, default: 180, null: false
       t.boolean :primary, default: false, null: false
       t.boolean :active, default: true, null: false
-      t.string :webhook_uri
       
       t.text :description
 
@@ -39,12 +38,16 @@ class CreateStencils < ActiveRecord::Migration
       t.string :encrypted_expired_reply_iv
       t.string :encrypted_expired_reply_salt
 
+      t.text :encrypted_webhook_uri
+      t.string :encrypted_webhook_uri_iv
+      t.string :encrypted_webhook_uri_salt
+
       t.timestamps
     end
     
     # Indices
-    add_index :stencils, :account_id
-    add_index :stencils, :phone_directory_id
+    add_index :stencils, :organization_id
+    add_index :stencils, :phone_book_id
     add_index :stencils, :primary
   end
 end

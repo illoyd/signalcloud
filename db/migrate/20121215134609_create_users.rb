@@ -1,15 +1,12 @@
 class CreateUsers < ActiveRecord::Migration
   def change
     create_table :users do |t|
-      t.references :account
-      t.string :first_name
-      t.string :last_name
-      t.integer :roles_mask, nil: false, default: 0
+      t.string :name
+      t.string :nickname
+      
+      t.boolean :system_admin, null: false, default: false
 
       t.timestamps
     end
-    
-    # Add indices
-    add_index :users, :account_id
   end
 end

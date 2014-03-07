@@ -1,15 +1,17 @@
 require 'spec_helper'
 describe Twilio::SmsUpdatesController do
   #render_views
-  let(:account) { create(:test_account, :test_twilio, :with_sid_and_token) }
-  let(:to_phone_number) { build( :phone_number ) }
-  let(:from_phone_number) { build( :phone_number ) }
+  let(:organization)       { create :test_organization, :with_sid_and_token }
+  let(:comm_gateway)       { organization.communication_gateway_for(:twilio) }
+  let(:to_phone_number)    { build :phone_number, organization: organization, communication_gateway: comm_gateway }
+  let(:from_phone_number)  { build :phone_number, organization: organization, communication_gateway: comm_gateway }
   let(:update_post_params) { {
       To: to_phone_number.number,
       From: from_phone_number.number,
       SmsSid: 'SM'+SecureRandom.hex(16),
-      AccountSid: account.twilio_account_sid,
-      Body: 'Hello!'
+      AccountSid: organization.communication_gateway_for(:twilio).remote_sid,
+      Body: 'Hello!',
+      SmsStatus: 'sent'
     } }
 
   describe 'POST create' do
@@ -23,7 +25,7 @@ describe Twilio::SmsUpdatesController do
     context 'when passing HTTP DIGEST' do
       context 'when not passing message auth header' do
         it 'responds with forbidden' do
-          authenticate_with_http_digest account.account_sid, account.auth_token, DIGEST_REALM
+          authenticate_with_http_digest organization.sid, organization.auth_token, DIGEST_REALM
           post :create, update_post_params
           response.status.should eq( 403 )
         end
@@ -31,8 +33,8 @@ describe Twilio::SmsUpdatesController do
 
       context 'when passing message auth header' do
         it 'responds with success' do
-          authenticate_with_http_digest account.account_sid, account.auth_token, DIGEST_REALM
-          inject_twilio_signature( twilio_sms_update_url, account, update_post_params )
+          authenticate_with_http_digest organization.sid, organization.auth_token, DIGEST_REALM
+          inject_twilio_signature( twilio_sms_update_url, organization, update_post_params )
           post :create, update_post_params
           response.status.should eq( 200 )
         end
@@ -41,15 +43,15 @@ describe Twilio::SmsUpdatesController do
     
     context 'when responding to sms update' do
       before {
-        authenticate_with_http_digest account.account_sid, account.auth_token, DIGEST_REALM
-        inject_twilio_signature( twilio_sms_update_url, account, update_post_params )
+        authenticate_with_http_digest organization.sid, organization.auth_token, DIGEST_REALM
+        inject_twilio_signature( twilio_sms_update_url, organization, update_post_params )
       }
       it 'responds with blank TwiML' do
         post :create, update_post_params
         response.body.should include('<Response/>')
       end
       it 'adds a job to process request' do
-        expect { post :create, update_post_params }.to change{Delayed::Job.count}.by(1)
+        expect { post :create, update_post_params }.to change(UpdateMessageStatusJob.jobs, :count).by(1)
       end
       it 'responds with xml' do
         post :create, update_post_params

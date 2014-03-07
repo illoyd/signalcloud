@@ -3,57 +3,81 @@ class ApplicationController < ActionController::Base
   
   before_filter :authenticate_user!
   
+  # helper_method :current_organization
+  helper_method :current_stencil
+  
   rescue_from CanCan::AccessDenied do |exception|
     redirect_to root_url, :alert => exception.message
   end
+  
+  def assign_organization
+    @organization = Organization.find(params[:organization_id])
+    authorize! :show, @organization
+  end
 
-  def authenticate_account!
+  def authenticate_organization!
     # Validate digest authentication
     results = authenticate_or_request_with_http_digest( DIGEST_REALM ) do |sid|
-      (@account = Account.find_by_account_sid( sid )).try( :auth_token ) || false
-    end
-  end
-  
-  def authenticate_twilio!
-    # If no account given, kill immediately    
-    if @account.nil? || @account == false
-      head :unauthorized
-
-    # Only continue processing if the account was found
-    else
-      # Capture parameters
-      signature_uri_without_auth = request.original_request_url
-      signature_uri_with_auth = request.original_request_url @account.account_sid, @account.auth_token
-      signature_params = request.post? ? request.request_parameters : request.query_parameters
-      signature = request.headers.fetch( 'HTTP_X_TWILIO_SIGNATURE', 'NO HEADER GIVEN' )
-      
-      # FORBID if does not pass validation
-      unless ( @account.twilio_validator.validate( signature_uri_without_auth, signature_params, signature ) || @account.twilio_validator.validate( signature_uri_with_auth, signature_params, signature ) )
-        expected_signature_without_auth = @account.twilio_validator.build_signature_for( signature_uri_without_auth, signature_params )
-        expected_signature_with_auth = @account.twilio_validator.build_signature_for( signature_uri_with_auth, signature_params )
-        logger.error 'Could not auth Twilio ignoring digest! Given %s, expected %s. Using URI %s and POST %s.' % [ signature, expected_signature_without_auth, signature_uri_without_auth, signature_params ]
-        logger.error 'Could not auth Twilio using digest! Given %s, expected %s. Using URI %s and POST %s.' % [ signature, expected_signature_with_auth, signature_uri_with_auth, signature_params ]
-        head :forbidden
-      end
+      (@organization = Organization.find_by_sid( sid )).try( :auth_token ) || false
     end
   end
   
   ##
-  # Return the account of the current request, based upon the request as well as user privileges.
-  # Will default to the +current_user+ parent account.
-  def current_account
-    return Account.find( session[:shadow_account_id] ) if current_user.can_shadow_account? && session.include?(:shadow_account_id)
-    return current_user.account
-  end
+  # Return the organization of the current request, based upon the request as well as user privileges.
+  # Will default to the +current_user+ parent organization.
+#   def current_organization
+#     return Organization.find( session[:shadow_organization_id] ) if can?( :shadow, Organization ) && session.include?(:shadow_organization_id)
+#     return current_user.organizations.first
+#   end
   
   ##
-  # Return the stencil of the current request, based upon the request and filtered to the current account.
+  # Return the stencil of the current request, based upon the request and filtered to the current organization.
   # Will return nil if no stencil is specified in the request. This method is primarily intended to be used for 
   # nested resource requests.
   def current_stencil( use_default = true )
-    return current_account.stencils.find( params[:stencil_id] ) if params.include? :stencil_id
-    return current_account.primary_stencil if use_default
+    return current_organization.stencils.find( params[:stencil_id] ) if params.include? :stencil_id
+    return current_organization.primary_stencil if use_default
     return nil
+  end
+
+  protected
+  
+  def organization_params
+    params.require(:organization).permit( :label, :icon, :description, :vat_name, :vat_number, :purchase_order, :use_billing_as_contact_address, :contact_first_name, :contact_last_name, :contact_email, :contact_work_phone, :contact_line1, :contact_line2, :contact_city, :contact_region, :contact_postcode, :contact_country, :billing_first_name, :billing_last_name, :billing_email, :billing_work_phone, :billing_line1, :billing_line2, :billing_city, :billing_region, :billing_postcode, :billing_country )
+  end
+
+  def stencil_params
+    params.require(:stencil).permit( :label, :primary, :phone_book_id, :seconds_to_live, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :question, :description, :webhook_uri )
+  end
+
+  def phone_book_params
+    params.require(:phone_book).permit( :description, :label )
+  end
+
+  def conversation_params
+    params.require(:conversation).permit( :seconds_to_live, :stencil_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :internal_number, :question, :customer_number, :expires_at, :webhook_uri )
+  end
+  
+  def phone_book_entry_params
+    params.require(:phone_book_entry).permit( :country, :phone_number_id, :phone_book_id )
+  end
+  
+  def user_role_params
+    params.require(:user_role).permit( roles: [] )
+  end
+  
+  def new_user_role_params
+    params.require(:user_role).permit( :user_id, roles: [] )
+  end
+  
+  def user_role_user_params
+    params.require(:user_role).permit( :email, :nickname, :name )
+  end
+  
+  def cannot_manage_organization_owner_roles
+    if @organization
+      current_ability.cannot [:edit, :destroy], UserRole, { organization_id: @organization.id, user_id: @organization.owner_id }
+    end
   end
 
 end

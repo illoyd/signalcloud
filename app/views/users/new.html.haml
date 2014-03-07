@@ -1,33 +1,6 @@
-%h1 New user
-= render 'form'
-= link_to 'Back', users_path
+/ Page Header
+- titles 'Users', 'invite someone', :users
 
-= form_for( resource, :as => resource_name, :url => session_path(resource_name), :html => { :class => "form-horizontal" } ) do |f|
-  .modal.inline-modal
-    .modal-header
-      / %button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} &times;
-      %h3 Sign up
-
-    .modal-body
-      .control-group
-        = f.label :email, :class => 'control-label'
-        .controls= f.email_field :email
-      .control-group
-        = f.label :password, :class => 'control-label'
-        .controls= f.password_field :password
-      .control-group
-        = f.label :password_confirmation, :class => 'control-label'
-        .controls= f.password_field :password_confirmation
-
-      .control-group
-        = f.label :first_name, :class => 'control-label'
-        .controls= f.password_field :first_name
-      .control-group
-        = f.label :last_name, :class => 'control-label'
-        .controls= f.password_field :last_name
-
-    .modal-footer
-      / %a.btn{:href => "#"} Close
-      %div= f.submit "Sign up", class: 'btn btn-primary'
-
-= render "devise/shared/links"
+.row
+  .span3= render :partial => 'navlist'
+  .span9= render 'form'

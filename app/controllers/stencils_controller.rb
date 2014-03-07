@@ -1,90 +1,63 @@
 class StencilsController < ApplicationController
   
   respond_to :html, :json, :xml
-  load_and_authorize_resource
+  load_and_authorize_resource :organization
+  before_filter :load_new_stencil, only: [ :new, :create ]
+  load_and_authorize_resource through: :organization
 
+  def load_new_stencil
+    @stencil = Stencil.new( organization_id: @organization.id, phone_book_id: @organization.phone_books.first.id )
+    @stencil.assign_attributes( stencil_params ) if params.include? :stencil
+    @stencil
+  end
+  
   # GET /stencils
   # GET /stencils.json
   def index
-    @stencils = current_account.stencils.order('label')
-    
     # Apply an active/inactive filter if requested
     if ( params.include? :active_filter )
       @stencils = @stencils.where( active: params[:active_filter] )
     end
 
-    respond_with @stencils
+    respond_with @organization, @stencils
   end
 
   # GET /stencils/1
   # GET /stencils/1.json
   def show
-    @stencil = current_account.stencils.find( params[:id] )
-
-    respond_to do |format|
-      format.html # show.html.erb
-      format.json { render json: @stencil }
-    end
+    respond_with @organization, @stencil
   end
 
   # GET /stencils/new
   # GET /stencils/new.json
   def new
-    @stencil = current_account.stencils.build
-#    respond_with @stencil
-    respond_to do |format|
-      format.html # new.html.erb
-      format.json { render json: @stencil }
-    end
+    respond_with @organization, @stencil
   end
 
   # GET /stencils/1/edit
   def edit
-    @stencil = current_account.stencils.find( params[:id] )
+    respond_with @organization, @stencil
   end
 
   # POST /stencils
   # POST /stencils.json
   def create
-    @stencil = current_account.stencils.build( params[:stencil] )
-
-    respond_to do |format|
-      if @stencil.save
-        format.html { redirect_to @stencil, notice: 'Stencil was successfully created.' }
-        format.json { render json: @stencil, status: :created, location: @stencil }
-      else
-        format.html { render action: "new" }
-        format.json { render json: @stencil.errors, status: :unprocessable_entity }
-      end
-    end
+    flash[:success] = 'Your new stencil has been saved.' if @stencil.update_attributes(stencil_params)
+    respond_with @organization, @stencil
   end
 
   # PUT /stencils/1
   # PUT /stencils/1.json
   def update
-    @stencil = current_account.stencils.find( params[:id] )
-
-    respond_to do |format|
-      if @stencil.update_attributes(params[:stencil])
-        format.html { redirect_to @stencil, notice: 'Stencil was successfully updated.' }
-        format.json { head :no_content }
-      else
-        format.html { render action: "edit" }
-        format.json { render json: @stencil.errors, status: :unprocessable_entity }
-      end
-    end
+    flash[:success] = 'Your stencil has been updated.' if @stencil.update_attributes(stencil_params)
+    respond_with @organization, @stencil
   end
 
   # DELETE /stencils/1
   # DELETE /stencils/1.json
   def destroy
-    @stencil = current_account.stencils.find( params[:id] )
-    @stencil.destroy
-
-    respond_to do |format|
-      format.html { redirect_to stencils_url }
-      format.json { head :no_content }
-    end
+    flash[:success] = 'Your stencil has been deleted.' if @stencil.destroy
+    respond_with @organization, @stencil
   end
 
 end

@@ -2,6 +2,10 @@ FactoryGirl.define do
 
   factory :account_plan do
     label         'Dev'
+    
+    trait :default do
+      default     true
+    end
 
     factory :payg_account_plan do
       label         'Pay-as-You-Go'

@@ -1,0 +1,56 @@
+- available_icons = %w( rocket briefcase beaker beer bell anchor bolt briefcase bullhorn bullseye camera camera-retro coffee credit-card desktop envelope fire-extinguisher fire flag flag-alt flag-checkered food folder folder-open gamepad gift glass globe headphones heart inbox keyboard laptop leaf legal lemon lightbulb magic magnet microphone money music pencil picture plane print pushpin puzzle-piece road rocket shield shopping-cart signal sitemap star tablet tag ticket tint trophy truck umbrella wrench ambulance hospital medkit ).sort.uniq
+
+= twitter_bootstrap_form_for( @organization, :html => { :class => 'form-horizontal' } ) do |f|
+  - if @organization.errors.any?
+    .alert.alert-warning.alert-block.fade.in
+      %h4
+        Oops!
+        = pluralize(@organization.errors.count, "error")
+        stopped us from saving this organization
+      %ul
+        - @organization.errors.full_messages.each do |msg|
+          %li= msg
+
+  = f.fieldset 'Details' do
+    = f.text_field :label
+    = f.select :icon, 'Icon', available_icons.map{ |x| [ x.humanize, x ] }
+    = f.text_area :description, rows: 3
+
+    - if can? :index, AccountPlan
+      = f.collection_select :account_plan_id, 'Plan', AccountPlan.all, :id, :label
+
+  - if @organization.billing_address or @organization.contact_address
+    = f.fieldset 'VAT Details <small>(optional)</small>'.html_safe do
+      = f.text_field :vat_name, 'VAT Registered Name'
+      = f.text_field :vat_number, 'VAT Number'
+    
+    = f.fieldset 'Billing Address <small>(optional)</small>'.html_safe do
+      = f.text_field :billing_first_name, 'First Name'
+      = f.text_field :billing_last_name, 'Last Name'
+      = f.text_field :billing_email, 'Email'
+      = f.text_field :billing_work_phone, 'Work Phone'
+      = f.text_field :billing_line1, 'Line 1'
+      = f.text_field :billing_line2, 'Line 2'
+      = f.text_field :billing_city, 'City'
+      = f.text_field :billing_region, 'State/Provinece'
+      = f.text_field :billing_postcode, 'Postal Code'
+      = f.country_select :billing_country, 'Country', ['Canada', 'United Kingdom', 'United States'], include_blank: true
+      = f.label '' do |controls|
+        = controls.check_box :use_billing_as_contact_address, 'Use billing address as contact address'
+      
+
+    = f.fieldset 'Contact Address <small>(optional)</small>'.html_safe do
+      = f.text_field :contact_first_name, 'First Name'
+      = f.text_field :contact_last_name, 'Last Name'
+      = f.text_field :contact_email, 'Email'
+      = f.text_field :contact_work_phone, 'Work Phone'
+      = f.text_field :contact_line1, 'Line 1'
+      = f.text_field :contact_line2, 'Line 2'
+      = f.text_field :contact_city, 'City'
+      = f.text_field :contact_region, 'State/Provinece'
+      = f.text_field :contact_postcode, 'Postal Code'
+      = f.country_select :contact_country, 'Country', ['Canada', 'United Kingdom', 'United States'], include_blank: true
+        
+  = f.actions do
+    = f.submit :class => 'btn btn-primary'
+    = link_to 'Discard changes', ( @organization.new_record? ? organizations_path : @organization ), :class => 'btn'

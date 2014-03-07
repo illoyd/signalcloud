@@ -1,16 +1,18 @@
+- organization_user_entries = current_user.organizations.map { |org| { label: "All Users for #{org.label}", icon: (org.icon || :organizations), link: organization_users_path(org), if: ( can?(:index, User) ) } }
+
 - if @user.new_record?
-  -# New ticket navigation
+  -# New conversation navigation
   = navigation_list([ |
     { header: 'Related' }, |
-    { label: 'All Users', icon: :user, link: users_path, if: can?(:index, User) } |
-    ]) |
+    { header: 'Related', if: can?(:index, User) } ] + organization_user_entries |
+    ) |
 - else
-  -# Existing ticket navigation
+  -# Existing conversation navigation
   = navigation_list([ |
     { header: 'Manage' }, |
     { label: 'Details', icon: :show, link: @user, if: can?(:show, @user) }, |
-    { label: 'Edit', icon: :edit, link: edit_user_path( @user ), if: can?(:edit, @user) }, |
-    { label: 'Delete', icon: :delete, link: @user, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: ( can?(:destroy, @user) && @user.id != current_user.id ) }, |
-    { header: 'Related', if: can?(:index, User) }, |
-    { label: 'All Users', icon: :user, link: users_path, if: can?(:index, User) } |
-    ]) |
+    { label: 'Change profile', icon: :edit, link: edit_user_path( @user ), if: can?(:edit, @user) }, |
+    { label: 'Change password', icon: :key, link: edit_user_registration_path, if: can?(:change_password, @user) }, |
+    { label: 'Delete', icon: :delete, link: @user, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, @user) }, |
+    { header: 'Related', if: can?(:index, User) } ] + organization_user_entries |
+    ) |

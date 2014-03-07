@@ -32,7 +32,19 @@ module Twilio
   SMS_OUTBOUND_API = 'outbound-api'
 
   ##
-  # Error codes
+  # SMS Status flags
+  SMS_STATUS_SENT = 'sent'
+  SMS_STATUS_SENDING = 'sending'
+  SMS_STATUS_QUEUED = 'queued'
+  SMS_STATUS_RECEIVED = 'received'
+  SMS_STATUS_FAILED = 'failed'
+
+  ##
+  # Purchasing error codes
+  ERR_PHONE_NUMBER_NOT_AVAILABLE = 21452
+
+  ##
+  # SMS Error codes
   ERR_INVALID_TO_PHONE_NUMBER = 21211
   ERR_INVALID_FROM_PHONE_NUMBER = 21212
   ERR_FROM_PHONE_NUMBER_NOT_SMS_CAPABLE = 21606
@@ -53,6 +65,10 @@ module Twilio
     Twilio::REST::Client.new ENV['TWILIO_MASTER_ACCOUNT_SID'], ENV['TWILIO_MASTER_AUTH_TOKEN']
   end
   
+  def self.test_client
+    Twilio::REST::Client.new ENV['TWILIO_TEST_ACCOUNT_SID'], ENV['TWILIO_TEST_AUTH_TOKEN']
+  end
+  
   def self.assumed_phone_number_price( country_code )
     case country_code.upcase
       when 'US', 'CA', 'GB'
@@ -63,37 +79,21 @@ module Twilio
   end
 
   ##
-  # Inbound SMSs are POST'ed to the application and arrive as a key-value hash.
-  class InboundSms < ::APISmith::Smash
-
-    # Required fields
-    property :sms_sid,      :from => :SmsSid,      required: true
-    property :account_sid,  :from => :AccountSid,  required: true
-    property :from,         :from => :From,        required: true
-    property :to,           :from => :To,          required: true
-    property :body,         :from => :Body,        required: true
-
-    # Optional FROM fields
-    property :from_city,    :from => :FromCity
-    property :from_state,   :from => :FromState
-    property :from_zip,     :from => :FromZip
-    property :from_country, :from => :FromCountry
-
-    # Optional TO fields
-    property :to_city,      :from => :ToCity
-    property :to_state,     :from => :ToState
-    property :to_zip,       :from => :ToZip
-    property :to_country,   :from => :ToCountry
-  end
-
-  ##
   # REST API interface
   module REST
 
     class InstanceResource
+    
+      ##
+      # Test if the object is loaded from Twilio. We test this by querying for the existance of additional methods on the object.
+      def is_loaded?
+        !(self.methods - self.class.instance_methods).empty?
+      end
+
       ##
       # Convert the 'payload' of the message into a hash class, for ease of use later
       def to_property_hash
+        self.refresh unless self.is_loaded?
         (self.methods - self.class.instance_methods).each_with_object(HashWithIndifferentAccess.new) do |property, properties|
           properties[property] = self.send(property) if self.respond_to?(property)
         end
@@ -120,35 +120,34 @@ module Twilio
       class Smash < ::APISmith::Smash
   
         # Required fields
-        property :sid
-        alias_method :sms_sid, :sid
-        
+        property :sid,        required: true
         property :account_sid
 
-        property :date_created, transformer: lambda { |v| DateTime.parse(v) rescue nil }
-        alias_method :created_at, :date_created
+        property :created_at, from: :date_created, transformer: lambda { |v| Time.parse(v) rescue nil }
+        property :updated_at, from: :date_updated, transformer: lambda { |v| Time.parse(v) rescue nil }
+        property :sent_at,    from: :date_sent,    transformer: lambda { |v| Time.parse(v) rescue nil }
 
-        property :date_updated, transformer: lambda { |v| DateTime.parse(v) rescue nil }
-        alias_method :updated_at, :date_updated
-
-        property :date_sent,    transformer: lambda { |v| DateTime.parse(v) rescue nil }
-        alias_method :sent_at, :date_sent
-
-        property :to
+        property :to,         required: true
         alias_method :customer_number, :to
 
-        property :from
+        property :from,       required: true
         alias_method :internal_number, :from
 
-        property :body
+        property :body,       required: true
         
-        property :status
-        property :direction
+        property :status,     required: true, transformer: lambda { |v| ActiveSupport::StringInquirer.new Twilio::StatusTransformer.transform(v) }
+        property :direction,  required: true, transformer: lambda { |v| ActiveSupport::StringInquirer.new Twilio::DirectionTransformer.transform(v) }
 
-        property :price, transformer: lambda { |v| BigDecimal.new v rescue nil }
+        property :price,      transformer: lambda { |v| BigDecimal.new v rescue nil }
         property :price_unit
-        
+
+        property :segments,   from: :num_segments
+
         property :api_version
+
+        delegate :sent?, :sending?, :queued?, :received?, :failed?, to: :status
+        delegate :inbound?, :outbound?, to: :direction
+        
       end
     end
 

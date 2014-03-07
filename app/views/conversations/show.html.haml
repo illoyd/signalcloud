@@ -1,0 +1,62 @@
+/ Page header
+- titles 'Conversations', "conversation #{@conversation.id}", :conversations
+
+/ Page body
+.row
+  .span3
+    = render :partial => 'navlist'
+  .span9
+    .row
+      .span9
+        %p
+          %b Stencil:
+          = @conversation.stencil.label
+        %p
+          %b Status:
+          = conversation_state_tag( @conversation )
+        %p
+          %b Conversation Expires:
+          = l @conversation.expires_at
+
+    .row
+      .span9
+        / Conversation flow
+        %table.table.table-striped
+          %thead
+            %tr
+              %th{ :width=>'50%'}
+                %span{ rel: 'tooltip', title: 'Message sent to person' }
+                  = icon( :rss )
+                  = humanize_phone_number @conversation.internal_number
+              %th{ :width=>'50%'}
+                %span{ rel: 'tooltip', title: 'Message received from person' }
+                  = icon( :user )
+                  = humanize_phone_number @conversation.customer_number
+          %tbody
+            - @conversation.messages.order('coalesce(messages.sent_at, messages.created_at)').each do |message|
+              %tr
+                -# Do OUTBOUND
+                %td
+                  - if message.direction == Message::OUT
+                    %p
+                      %small
+                        Sent
+                        = l (message.sent_at || message.created_at)
+                    %p= message.body
+                -# Do INBOUND
+                %td
+                  - if message.direction == Message::IN
+                    %p
+                      %small
+                        Received
+                        = l (message.sent_at || message.created_at)
+                    %p
+                      - case @conversation.compare_answer( message.body )
+                        - when Conversation::CONFIRMED
+                          %i Confirmed message received. (Message hidden for security.)
+                        - when Conversation::DENIED
+                          %i Denied message received. (Message hidden for security.)
+                        - when Conversation::FAILED
+                          %i Unrecognised message received. (Message hidden for security.)
+                        - else
+                          message.body

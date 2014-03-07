@@ -1,0 +1,59 @@
+/ Page header
+- titles( 'Organizations', 'all organizations', :organizations )
+
+/ Table tools
+.row
+  .span12.table-tools
+    - if can? :new, Organization      
+      %div.pull-right= link_to 'New Organization', new_organization_path, :class => 'btn btn-success btn-small'
+
+/ Page body
+.row
+  .span12
+    %table.table.table-striped
+      %thead
+        %tr
+          %th.span1
+          %th Name
+          %th Plan
+          %th Balance
+          %th.centered
+            %span{ rel: 'tooltip', :title => 'Conversations (Active / Today)' }
+              = icon(:conversations)
+          %th.centered
+            %span{ rel: 'tooltip', :title => 'Stencils' }
+              = icon(:stencils)
+          %th.centered
+            %span{ rel: 'tooltip', :title => 'Phone Books' }
+              = icon(:phone_books)
+          %th.centered
+            %span{ rel: 'tooltip', :title => 'Phone Numbers' }
+              = icon(:phone_numbers)
+          %th.centered
+            %span{ rel: 'tooltip', :title => 'Users' }
+              = icon(:users)
+      %tbody
+        - @organizations.each do |organization|
+          %tr
+            %td
+              = split_dropdown_list([ |
+                { label: 'Details', icon: :show, link: organization, if: can?(:show, organization) }, |
+                { label: 'Edit', icon: :edit, link: edit_organization_path(organization) }, |
+                { label: 'Delete', icon: :delete, link: organization, options: { method: :delete, data: { confirm: 'Are you sure?' } } } |
+                ], {class: 'btn-mini'} ) |
+            %td
+              = link_to organization do
+                = icon(organization.icon || :organizations )
+                = organization.label
+            %td
+              #{organization.status rescue 'TODO'}
+              (#{organization.account_plan.label})
+            %td{'align'=>'right'}= currency_for( organization.balance )
+            %td.centered
+              = organization.conversations.today.opened.count
+              \/
+              = organization.conversations.today.count
+            %td.centered= organization.stencils.count
+            %td.centered= organization.phone_books.count
+            %td.centered= organization.phone_numbers.count
+            %td.centered= organization.users.count

@@ -2,7 +2,7 @@ class CreateUnsolicitedCalls < ActiveRecord::Migration
   def change
     create_table :unsolicited_calls do |t|
       t.references :phone_number
-      t.string :twilio_call_sid, null: false, limit: Twilio::SID_LENGTH
+      t.string :provider_sid, null: false, limit: Twilio::SID_LENGTH
       t.string :customer_number, null: false
       t.datetime :received_at, null: false
       t.integer :action_taken, null: false, default: PhoneNumber::REJECT

@@ -1,94 +1,52 @@
 class UsersController < ApplicationController
   
-  load_and_authorize_resource
+  respond_to :html, :json, :xml
 
-  # GET /users
-  # GET /users.json
+  # before_filter :cannot_manage_organization_owner_roles, only: [:index]
+
+  # Index authorisations
+  load_and_authorize_resource :organization, only: :index
+  load_and_authorize_resource through: :organization, only: :index
+  
+  # Other authorisations
+  load_and_authorize_resource except: [:index]
+
+  # GET /organization/1/users
   def index
-    @users = current_account.users.all
-
-    respond_to do |format|
-      format.html # index.html.erb
-      format.json { render json: @users }
-    end
+    @user_role = UserRole.new( organization: @organization )
+    respond_with @organization, @users
   end
 
   # GET /users/1
   # GET /users/1.json
   def show
-    @user = current_account.users.find(params[:id])
-
-    respond_to do |format|
-      format.html # show.html.erb
-      format.json { render json: @user }
-    end
+    @shared_organizations = @user.organizations.accessible_by(current_ability)
+    respond_with @user
   end
 
   # GET /users/new
   # GET /users/new.json
   def new
-    @user = User.new
-
-    respond_to do |format|
-      format.html # new.html.erb
-      format.json { render json: @user }
-    end
+    respond_with @user
   end
 
   # GET /users/1/edit
   def edit
-    @user = current_account.users.find(params[:id])
+    respond_with @user
   end
 
   # POST /users
   # POST /users.json
   def create
-    @user = User.new(params[:user])
-
-    respond_to do |format|
-      if @user.save
-        format.html { redirect_to @user, notice: 'User was successfully created.' }
-        format.json { render json: @user, status: :created, location: @user }
-      else
-        format.html { render action: "new" }
-        format.json { render json: @user.errors, status: :unprocessable_entity }
-      end
-    end
+    flash[:notice] = 'User was successfully created.' if @user.update_attributes(user_params)
+    respond_with @user
   end
 
   # PUT /users/1
   # PUT /users/1.json
   def update
-    @user = current_account.users.find(params[:id])
-
-    if can?(:permissions, @user)
-      params[:user][:roles] ||= []
-      params[:user][:roles] << :manage_user_permissions if @user.id == current_user.id
-      params[:user][:roles] = params[:user][:roles].reject{ |entry| entry.blank? }.map{ |entry| entry.to_sym }.uniq
-    else
-      params[:user].remove(:roles)
-    end
-
-    respond_to do |format|
-      if @user.update_attributes(params[:user])
-        format.html { redirect_to @user, notice: 'User was successfully updated.' }
-        format.json { head :no_content }
-      else
-        format.html { render action: "edit" }
-        format.json { render json: @user.errors, status: :unprocessable_entity }
-      end
-    end
+    flash[:notice] = 'User was successfully updated.' if @user.update_attributes(user_params)
+    respond_with @user
   end
 
-  # DELETE /users/1
-  # DELETE /users/1.json
-  def destroy
-    @user = current_account.users.find(params[:id])
-    @user.destroy
-
-    respond_to do |format|
-      format.html { redirect_to users_url }
-      format.json { head :no_content }
-    end
-  end
 end

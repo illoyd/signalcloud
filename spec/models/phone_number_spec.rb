@@ -8,52 +8,39 @@ UNAVAILABLE_AREACODE = '533'
 AVAILABLE_AREACODE = '500'
 
 describe PhoneNumber, :vcr do
-  
-  it_behaves_like 'a costable item', :phone_number
 
-  let(:account) { create :account, :test_twilio, :with_sid_and_token }
+  let(:organization) { create :organization, :test_twilio, :with_sid_and_token }
+  let(:comm_gateway) { organization.communication_gateways.first }
   
   # Manage all validations
   describe "validations" do
-    before(:all) { 3.times { create :phone_number } }
+    before { 3.times { create :phone_number, organization: organization, communication_gateway: comm_gateway } }
 
-    # Allow mass assignment
-    [ :number, :twilio_phone_number_sid, :account_id, :our_cost, :provider_cost, :unsolicited_sms_action, :unsolicited_sms_message, :unsolicited_call_action, :unsolicited_call_message, :unsolicited_call_language, :unsolicited_call_voice ].each do |entry|
-      it { should allow_mass_assignment_of(entry) }
-    end
-    
     # Belong-To
-    it { should belong_to(:account) }
+    it { should belong_to(:organization) }
+    it { should belong_to(:communication_gateway) }
 
     # Have-Many
-    [ :phone_directories, :phone_directory_entries ].each do |entry|
+    [ :phone_books, :phone_book_entries ].each do |entry|
       it { should have_many(entry) }
     end
     
     # Validate presence
-    [ :account_id, :twilio_phone_number_sid, :number ].each do |entry|
+    [ :organization, :number, :communication_gateway ].each do |entry|
       it { should validate_presence_of(entry) }
     end
     
     # Validate numericality
-    [ :account_id, :our_cost, :provider_cost ].each do |entry|
-      it { should validate_numericality_of(entry) }
-    end
-        
-    # Uniqueness
-    it { should validate_uniqueness_of(:twilio_phone_number_sid) }
-    
-    # Twilio SID
-    it { should ensure_length_of(:twilio_phone_number_sid).is_equal_to(Twilio::SID_LENGTH) }
+    it { should validate_numericality_of(:cost) }
   end
   
   describe '.find_by_number' do
-    let(:valid_number) { '+15551234567' }
+    let(:valid_number)   { '+15551234567' }
     let(:unknown_number) { '+18001234567' }
-    subject { create :phone_number, number: valid_number }
+    let(:phone_number)   { create :phone_number, number: valid_number, organization: organization, communication_gateway: comm_gateway }
     
     it 'finds valid number' do
-      PhoneNumber.find_by_number(subject.number).first.should be_a( PhoneNumber )
+      PhoneNumber.find_by_number(phone_number.number).first.should be_a( PhoneNumber )
     end
     
     it 'cannot find a number' do
@@ -78,40 +65,72 @@ describe PhoneNumber, :vcr do
     
   end
 
-  # Manage creation
-#   describe ".new" do
-#     it "should save with temporary SID" do
-#       count_of_phone_numbers = account.phone_numbers.count
-#       pn = PhoneNumber.create( { account_id: account.id, number: '+12125551234', twilio_phone_number_sid: 'TEMPORARY1234567890123456789012345' } )
-#       account.phone_numbers.count.should == count_of_phone_numbers + 1
-#     end
-#   end
-  
   # Manage buying
-  describe ".buy" do
-    it "should buy a valid and available number" do
-      count_of_phone_numbers = account.phone_numbers.count
-      pn = account.phone_numbers.build( { number: AVAILABLE_NUMBER } )
-      expect { pn.buy() }.to_not raise_error(Twilio::REST::RequestError)
-      expect { pn.save!() }.to_not raise_error(StandardError)
-      account.phone_numbers.count.should == count_of_phone_numbers + 1
-    end
+  describe "#purchase" do
+  
+    context 'valid number' do
 
-    it "should not buy an invalid number" do
-      count_of_phone_numbers = account.phone_numbers.count
-      pn = account.phone_numbers.build( { number: INVALID_NUMBER } )
-      expect { pn.buy() }.to raise_error(Twilio::REST::RequestError)
-      expect { pn.save!() }.to raise_error( StandardError )
-      account.phone_numbers.count.should == count_of_phone_numbers
-    end
+      context 'when inactive' do
+        subject { create :valid_phone_number, organization: organization, communication_gateway: comm_gateway }
+        its('can_purchase?')   { should be_true }
+        its('can_refresh?')    { should be_false }
+        its('can_unpurchase?') { should be_false }
 
-    it "should not buy an unavailable number" do
-      count_of_phone_numbers = account.phone_numbers.count
-      pn = account.phone_numbers.build( { number: UNAVAILABLE_NUMBER } )
-      expect { pn.buy() }.to raise_error(Twilio::REST::RequestError)
-      expect { pn.save!() }.to raise_error( StandardError )
-      account.phone_numbers.count.should == count_of_phone_numbers
-    end
+        it 'purchases number' do
+          expect { subject.purchase! }.not_to raise_error
+        end
+        it 'transitions to active state after purchasing' do
+          expect { subject.purchase! }.to change(subject, :workflow_state).from('inactive').to('active')
+        end
+      end
+      
+      context 'when active' do
+        subject { create :valid_phone_number, :active, :with_fixed_twilio_sid, organization: organization }
+        its('can_purchase?')   { should be_false }
+        its('can_refresh?')    { should be_true }
+        its('can_unpurchase?') { should be_true }
+
+        it 'unpurchases number' do
+          expect { subject.unpurchase! }.not_to raise_error
+        end
+        it 'refreshes number' do
+          pending { expect { subject.refresh! }.not_to raise_error }
+        end
+        it 'transitions to inactive state after unpurchasing' do
+          expect { subject.unpurchase! }.to change(subject, :workflow_state).from('active').to('inactive')
+        end
+      end
+
+    end # Valid number context
+  
+    context 'invalid number' do
+
+      context 'when inactive (also new)' do
+        subject { create :invalid_phone_number, organization: organization }
+        it 'fails to purchase number' do
+          expect { subject.purchase! }.to raise_error(Twilio::REST::RequestError)
+        end
+        it 'remains in inactivate state' do
+          expect { subject.purchase! rescue subject }.not_to change(subject, :workflow_state).from('inactive')
+        end
+      end
+
+    end # Invalid number context
+
+    context 'unavailable number' do
+
+      context 'when inactive (also new)' do
+        subject { create :unavailable_phone_number, organization: organization }
+        it 'fails to purchase number' do
+          expect { subject.purchase! }.to raise_error(Twilio::REST::RequestError)
+        end
+        it 'remains in inactivate state' do
+          expect { subject.purchase! rescue subject }.not_to change(subject, :workflow_state).from('inactive')
+        end
+      end
+
+    end # Invalid number context
+
   end
   
   describe 'unsolicited call helpers' do
@@ -147,62 +166,5 @@ describe PhoneNumber, :vcr do
       its(:'should_reply_to_unsolicited_sms?') { should be_true }
     end
   end
-  
-  describe '#has_cost?' do
-
-    context 'when both costs are present' do
-      subject { build :phone_number, provider_cost: -1.00, our_cost: -0.50 }
-      its(:'has_cost?') { should be_true }
-    end
-    context 'when only provider_cost is present' do
-      subject { build :phone_number, provider_cost: -1.00, our_cost: nil }
-      its(:'has_cost?') { should be_false }
-    end
-    context 'when only our_cost is present' do
-      subject { build :phone_number, provider_cost: nil, our_cost: -0.50 }
-      its(:'has_cost?') { should be_false }
-    end
-    context 'when both costs are not present' do
-      subject { build :phone_number, provider_cost: nil, our_cost: nil }
-      its(:'has_cost?') { should be_false }
-    end
-
-  end
-  
-  describe '#provider_cost=' do
-
-    context 'when cost is not nil' do
-      let(:provider_cost) { -1.00 }
-      subject { build :phone_number, provider_cost: nil, our_cost: nil }
-      it 'updates provider_cost' do
-        expect{ subject.provider_cost = provider_cost }.to change{ subject.provider_cost }.to(provider_cost)
-      end
-      it 'updates our_cost' do
-        expect{ subject.provider_cost = provider_cost }.to change{ subject.our_cost }
-      end
-    end
-
-    context 'when cost is nil' do
-      let(:provider_cost) { nil }
-      subject { build :phone_number, provider_cost: -1.00, our_cost: -0.50 }
-      it 'updates provider_cost' do
-        expect{ subject.provider_cost = provider_cost }.to change{ subject.provider_cost }.to(nil)
-      end
-      it 'updates our_cost' do
-        expect{ subject.provider_cost = provider_cost }.to change{ subject.our_cost }.to(nil)
-      end
-    end
-
-  end
-  
-#   describe '#cost' do
-#     [ [nil,nil], [nil,1], [1,nil], [1,1], [1,-1], [-1,1], [0.25,-0.32] ].each do |costs|
-#       
-#       it "properly sums provider:#{costs.first} and our:#{costs.second}" do
-#         phone_number = build :phone_number, provider_cost: costs.first, our_cost: costs.second
-#         phone_number.cost.should == costs.reject{ |entry| entry.nil? }.sum
-#       end
-#     end
-#   end
-
+    
 end

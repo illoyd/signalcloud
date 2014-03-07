@@ -1,93 +1,75 @@
 SignalCloud::Application.routes.draw do
 
   # Configure authentication for USERS
-  devise_for :users
+  devise_for :users #, :controllers => { :invitations => 'users/invitations' }
 
   # Global resources
   resources :account_plans
   
-  # All resources should be accessible outside the account scope as well
+  # All resources should be accessible outside the organization scope as well
+  resources :users, only: [ :show, :update, :edit ]
   
-  # Prevent accounts from being deleted
-  resource :account, only: [ :show, :new, :create, :update, :edit ]
-
-  resources :users
-
-  resources :stencils do
-    collection do
-      get 'active', action: :index, defaults: { active_filter: true }, as: 'active'
-      get 'inactive', action: :index, defaults: { active_filter: false }, as: 'inactive'
+  # Nest all underneath organizations
+  resources :organizations, only: [ :index, :new, :show, :create, :update, :edit ] do
+    resources :users, only: [ :index ]
+    resources :user_roles, only: [ :create, :update, :destroy ]
+    
+    resources :boxes do
+      resources :conversations, only: [ :index, :new, :create ] do
+        collection do
+          get 'page/:page', action: :index
+        end
+      end
     end
-    resources :tickets, only: [ :index, :new, :create ] do
+
+    resources :stencils do
+      collection do
+        get 'active', action: :index, defaults: { active_filter: true }, as: 'active'
+        get 'inactive', action: :index, defaults: { active_filter: false }, as: 'inactive'
+      end
+      resources :conversations, only: [ :index, :new, :create ] do
+        collection do
+          get 'page/:page', action: :index
+        end
+      end
+    end
+  
+    resources :conversations, only: [ :index, :show ] do
       member do
         post 'force', action: 'force_status', as: 'force_status'
       end
       collection do
         get 'page/:page', action: :index
-        get 'confirmed', action: :index, defaults: { status: Ticket::CONFIRMED } do
-          get 'page/:page', action: :index
-        end
-        get 'denied', action: :index, defaults: { status: Ticket::DENIED } do
-          get 'page/:page', action: :index, on: :collection
-        end
-        get 'failed', action: :index, defaults: { status: Ticket::FAILED } do
-          get 'page/:page', action: :index, on: :collection
-        end
-        get 'expired', action: :index, defaults: { status: Ticket::EXPIRED } do
-          get 'page/:page', action: :index, on: :collection
-        end
-        get 'open', action: :index, defaults: { status: Ticket::OPEN_STATUSES } do
-          get 'page/:page', action: :index, on: :collection
-        end
       end
     end
-  end
 
-  resources :tickets, only: [ :index, :show ] do
-    collection do
+    resources :ledger_entries, only: [ :index, :show ] do
       get 'page/:page', action: :index
-      get 'confirmed', action: :index, defaults: { status: Ticket::CONFIRMED } do
-        get 'page/:page', action: :index, on: :collection
-      end
-      get 'denied', action: :index, defaults: { status: Ticket::DENIED } do
-        get 'page/:page', action: :index, on: :collection
-      end
-      get 'failed', action: :index, defaults: { status: Ticket::FAILED } do
-        get 'page/:page', action: :index, on: :collection
-      end
-      get 'expired', action: :index, defaults: { status: Ticket::EXPIRED } do
-        get 'page/:page', action: :index, on: :collection
-      end
-      get 'open', action: :index, defaults: { status: [Ticket::QUEUED, Ticket::CHALLENGE_SENT] } do
-        get 'page/:page', action: :index, on: :collection
-      end
     end
-  end
-
-  resources :ledger_entries, only: [ :index, :show ] do
-    get 'page/:page', action: :index
-  end
-
-  resources :phone_numbers, only: [ :index, :show, :edit, :update ] do
-    collection do
-      get 'search/:country', action: 'search', defaults: { country: 'US' }, constraint: { country: /(US|CA|GB)/ }, as: 'search'
-      post 'buy', action: 'buy', as: 'buy'
-    end
-  end
-
-  resources :phone_directories
-  resources :phone_directory_entries, only: [:create, :destroy]
+    
+    get '/invoices/:invoice_id' => 'ledger_entries#index', as: :invoice
   
-  # Nested resources via account
-  # This functionality has been removed in favour of shadowing the current account using the session.
-  #resources :accounts do
+    resources :phone_numbers, only: [ :index, :show, :create, :edit, :update, :destroy ] do
+      collection do
+        get 'search/:country', action: 'search', defaults: { country: 'US' }, constraint: { country: /(US|CA|GB)/ }, as: 'search'
+      end
+    end
+  
+    resources :phone_books
+    resources :phone_book_entries, only: [:create, :destroy]
+
+  end
+
+  # Nested resources via organization
+  # This functionality has been removed in favour of shadowing the current organization using the session.
+  #resources :organizations do
   #  resources :users
   #  resources :stencils
-  #  resources :tickets, only: [ :index, :new, :create, :show ]
+  #  resources :conversations, only: [ :index, :new, :create, :show ]
   #  resources :messages, only: [ :show ]
   #  resources :ledger_entries, only: [ :index, :show ]
   #  resources :phone_numbers, only: [ :index, :create ]
-  #  resources :phone_directories
+  #  resources :phone_books
   #end
   
   # Twilio API extension
@@ -97,12 +79,18 @@ SignalCloud::Application.routes.draw do
     resource :inbound_sms, only: [ :create ], defaults: { format: 'xml' }
     resource :sms_update, only: [ :create ], defaults: { format: 'xml' }
   end
+  
+  # Sidekiq!
+  #   require 'sidekiq/web'
+  #   authenticate :user do #, lambda { |u| u.admin? } do
+  #     mount Sidekiq::Web => '/sidekiq'
+  #   end
 
-  resources :accounts, only: [:index] do
-    member do
-      get 'shadow', action: 'shadow' #, as: 'shadow'
-    end
-  end
+#   resources :organizations, only: [:index] do
+#     member do
+#       get 'shadow', action: 'shadow' #, as: 'shadow'
+#     end
+#   end
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
@@ -153,7 +141,7 @@ SignalCloud::Application.routes.draw do
 
   # You can have the root of your site routed with "root"
   # just remember to delete public/index.html.
-  root :to => 'accounts#show'
+  root :to => 'organizations#index'
 
   # See how all your routes lay out with "rake routes"
 

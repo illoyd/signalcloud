@@ -1,11 +1,11 @@
 / Dropdown list
-- default_options = { 'tabindex' => "-1" }
 - raise 'Oops! Split Dropdown was not an array' unless splitdropdown.is_a? Array
+- default_options = { 'tabindex' => "-1" }
+- default_first_options = { class: ['btn', options.fetch(:class,'btn-small')] }
 - unless splitdropdown.empty?
   .btn-group
-    = link_to splitdropdown.first[:link], class: ['btn', options.fetch(:class,'btn-small')] do
+    = link_to splitdropdown.first[:link], default_first_options.merge( splitdropdown.first.fetch(:options, {}) ) do
       = splitdropdown.first.include?(:icon) ? icon( splitdropdown.first[:icon] ) : 'Manage'
-    / %a{ href: splitdropdown.first[:link], class: ['btn', options.fetch(:class,'btn-small')] }= splitdropdown.first.include?(:icon) ? icon( splitdropdown.first[:icon] ) : 'Manage'
     %button.btn.dropdown-toggle{ class: options.fetch(:class,'btn-small'), "data-toggle" => "dropdown" }
       %span.caret
     %ul.dropdown-menu

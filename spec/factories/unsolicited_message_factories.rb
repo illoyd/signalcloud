@@ -3,7 +3,7 @@ FactoryGirl.define do
   factory :unsolicited_message do
     phone_number
     customer_number     Twilio::VALID_NUMBER
-    twilio_sms_sid      'SM' + SecureRandom.hex(16)
+    provider_sid        'SM' + SecureRandom.hex(16)
     received_at         { DateTime.now }
     
     trait :with_prices do

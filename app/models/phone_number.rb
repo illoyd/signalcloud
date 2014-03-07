@@ -1,8 +1,22 @@
 ##
-# Represents a purchased telephone number which may be used in tickets. Additionally, these numbers are charged per
+# Represents a purchased telephone number which may be used in conversations. Additionally, these numbers are charged per
 # month.
 class PhoneNumber < ActiveRecord::Base
+  include Workflow
 
+  workflow do
+    state :inactive do
+      event :purchase, transitions_to: :active
+    end
+    state :active do
+      event :unpurchase, transitions_to: :inactive
+      event :refresh, transitions_to: :active
+    end
+  end
+
+  alias_method :buy!, :purchase!
+  alias_method :unbuy!, :unpurchase!
+  
   IGNORE = 0
   REJECT = 0
   BUSY = 1
@@ -23,23 +37,19 @@ class PhoneNumber < ActiveRecord::Base
   ITALIAN = 'it'
   LANGUAGES = [ AMERICAN_ENGLISH, BRITISH_ENGLISH, SPANISH, FRENCH, GERMAN, ITALIAN ]
 
-  attr_accessible :number, :twilio_phone_number_sid, :account_id, :our_cost, :provider_cost, :unsolicited_sms_action, :unsolicited_sms_message, :unsolicited_call_action, :unsolicited_call_message, :unsolicited_call_language, :unsolicited_call_voice
-
-  belongs_to :account, inverse_of: :phone_numbers
-  has_many :phone_directory_entries, inverse_of: :phone_number
-  has_many :phone_directories, through: :phone_directory_entries
+  belongs_to :organization, inverse_of: :phone_numbers
+  has_many :phone_book_entries, inverse_of: :phone_number, dependent: :destroy
+  has_many :phone_books, through: :phone_book_entries
   has_many :unsolicited_calls, inverse_of: :phone_number
   has_many :unsolicited_messages, inverse_of: :phone_number
+  belongs_to :communication_gateway, inverse_of: :phone_numbers
 
   ##
   # LedgerEntries for this message - usually one per month
   has_many :ledger_entries, as: :item
 
-  validates_presence_of :account_id, :twilio_phone_number_sid, :number
-  validates_numericality_of :our_cost, :provider_cost, :account_id
-  
-  validates_length_of :twilio_phone_number_sid, is: Twilio::SID_LENGTH
-  validates_uniqueness_of :twilio_phone_number_sid, :case_sensitive => false
+  validates_presence_of :organization, :communication_gateway, :number
+  validates_numericality_of :cost
 
   validates :number, :phone_number => true
   
@@ -54,38 +64,17 @@ class PhoneNumber < ActiveRecord::Base
   validates_inclusion_of :unsolicited_call_voice, allow_nil: true, in: VOICES, if: :'should_reply_to_unsolicited_call?'
   
   before_validation :ensure_normalized_phone_number
-
-  ##
-  # Update provider cost and, by extension, our cost.
-  def provider_cost=(value)
-    super(value)
-    self.our_cost = value.nil? ? nil : self.calculate_our_cost(value)
+  
+  def human_number
+    PhoneTools.humanize( self.number )
   end
   
-  ##
-  # Is a cost defined for this phone number?
-  def has_cost?
-    return !(self.our_cost.nil? or self.provider_cost.nil?)
-  end
-  
-  ##
-  # Cost of this phone number, combining provider and own charges
-  def cost
-    return (self.our_cost || 0) + (self.provider_cost || 0)
+  def country
+    PhoneTools.country( self.number )
   end
 
-  def purchase
-    # If not assigned to an account, cannot buy a number!
-    raise AccountNotAssociatedError.new if self.account.nil?
-    results = self.account.twilio_account.incoming_phone_numbers.create( { phone_number: self.number, application_sid: self.account.twilio_application_sid } )
-    self.twilio_phone_number_sid = results.sid
-    return results
-  end
-  
-  alias :buy :purchase
-  
   def self.normalize_phone_number(pn)
-    return pn.nil? ? nil : '+' + PhoneTools.normalize(pn)
+    return pn.nil? ? nil : PhoneTools.normalize(pn)
   end
   
   def self.find_by_number(pn)
@@ -94,7 +83,7 @@ class PhoneNumber < ActiveRecord::Base
   end
 
   def number=(value)
-    super( PhoneNumber.normalize_phone_number(value) )
+    super( self.class.normalize_phone_number(value) )
   end
   
   def should_ignore_unsolicited_sms?
@@ -118,23 +107,41 @@ class PhoneNumber < ActiveRecord::Base
   end
   
   def send_reply_to_unsolicited_sms( customer_number )
-    sms = self.account.send_sms( customer_number, self.number, self.unsolicited_sms_message )
-    #sms.stac
+    # sms = self.communication_gateway.send_sms!( customer_number, self.number, self.unsolicited_sms_message )
+    # sms.stac
   end
 
-  def calculate_our_cost( value=nil )
-    return nil unless self.account && self.account.account_plan
-    value = self.provider_cost if value.nil?
-    return self.account.account_plan.calculate_phone_number_cost( value )
-  end
-  
   def record_unsolicited_message( options={} )
   end
 
-  # private  
+protected
 
+  ##
+  # Automagically normalise the number.
   def ensure_normalized_phone_number
     self.number = PhoneNumber.normalize_phone_number(self.number)
   end
   
+  ##
+  # Attempt to buy the phone number from the Twilio API. If it receives an error, halt the operation.
+  def purchase
+    raise OrganizationNotAssociatedError.new if self.organization.nil?
+    self.communication_gateway.purchase_number!( self )
+  end
+
+  ##
+  # Using the phone number's Twilio SID, get an instance of it from Twilio's API then perform a 'DELETE' action against it.
+  def unpurchase
+    # If not assigned to an organization, cannot unbuy a number!
+    raise OrganizationNotAssociatedError.new if self.organization.nil?
+    self.communication_gateway.unpurchase_number! self
+  end
+
+  def refresh
+    # If not assigned to an organization, cannot refresh a number!
+    raise OrganizationNotAssociatedError.new if self.organization.nil?
+    self.communication_gateway.update_number! self
+    self.updated_remote_at = Time.now
+  end
+
 end

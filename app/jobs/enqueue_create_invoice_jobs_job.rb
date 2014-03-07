@@ -1,17 +1,18 @@
 ##
-# Prepare jobs to do the heavy lifting of creating new invoices for all accounts requiring invoices.
+# Prepare jobs to do the heavy lifting of creating new invoices for all organizations requiring invoices.
 # Requires the following items
 #   +next_invoice_at+: process all invoices from this date
 #
-# This class is intended for use with Delayed::Job.
+# This class is intended for use with Sidekiq.
 #
-class EnqueueCreateInvoiceJobsJob < Struct.new( :next_invoice_at )
-  include Talkable
+class EnqueueCreateInvoiceJobsJob
+  include Sidekiq::Worker
+  sidekiq_options :queue => :background
 
-  def perform
+  def perform( next_invoice_at )
     next_invoice_at = next_invoice_at.end_of_day
-    Accounts.where( 'next_invoice_at <= ?', next_invoice_at ).pluck( :id ) do |account_id|
-      Delayed::Job::enqueue CreateInvoiceJob.new( account_id, next_invoice_at )
+    Organizations.where( 'next_invoice_at <= ?', next_invoice_at ).pluck( :id ) do |organization_id|
+      CreateInvoiceJob.perform_async organization_id, next_invoice_at
     end
   end
 

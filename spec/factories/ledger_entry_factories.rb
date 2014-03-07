@@ -1,8 +1,8 @@
 FactoryGirl.define do
 
   factory :ledger_entry do
-    account
-    item { |instance| instance.account }
+    organization
+    item { |instance| instance.organization }
     narrative   'Generic'
     
     trait :with_value do

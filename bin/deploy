@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Config
+RAILS_DIR=$(dirname $0)/..
+GOD=/usr/local/rvm/bin/believe_in_god
+
+# Pull source control and recompile all assets
+pushd $RAILS_DIR
+git pull origin master
+bundle install
+rake db:migrate
+rake assets:precompile
+
+# Restart the SignalCloud service
+sudo $GOD restart signalcloud

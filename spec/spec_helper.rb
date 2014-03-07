@@ -10,6 +10,7 @@ require 'rspec/autorun'
 # Requires supporting ruby files with custom matchers and macros, etc,
 # in spec/support/ and its subdirectories.
 Dir[Rails.root.join("spec/support/**/*.rb")].each {|f| require f}
+require 'sidekiq/testing'
 
 RSpec.configure do |config|
   # ## Mock Framework
@@ -39,9 +40,18 @@ RSpec.configure do |config|
   #     --seed 1234
   config.order = "random"
   
+  # Filter
+  config.filter_run :focus => true
+  config.run_all_when_everything_filtered = true
+
   # Include auth digest helper
   config.include AuthSpecHelpers, :type => :controller
 
+  # Include devise helpers
+  config.include Devise::TestHelpers, :type => :controller
+  config.extend ControllerMacros, :type => :controller
+  config.include ValidUserRequestHelper, :type => :request
+  
   # Mix-in the FactoryGirl methods
   config.include FactoryGirl::Syntax::Methods
 
@@ -89,38 +99,11 @@ def build_authenticated_request_url( url, username=nil, password=nil )
   temp_path
 end
 
-def build_twilio_signature( url, account=nil, post_params={} )
-  url = build_authenticated_request_url( url, account.account_sid, account.auth_token )
-  account.twilio_validator.build_signature_for( url, post_params )
+def build_twilio_signature( url, organization=nil, post_params={} )
+  url = build_authenticated_request_url( url, organization.sid, organization.auth_token )
+  organization.communication_gateways.first.twilio_validator.build_signature_for( url, post_params )
 end
 
-def inject_twilio_signature( url, account=nil, post_params={} )
-  request.env['HTTP_X_TWILIO_SIGNATURE'] = build_twilio_signature( url, account, post_params )
-end
-  
-def enqueue_and_work_jobs( jobs, options={} )
-  jobs = [ jobs ] unless jobs.is_a?(Array)
-  #options.reverse_merge! existing_jobs: 0, queued_jobs: jobs.size, remaining_jobs: 0, successes: jobs.size, failures: 0, expected_error: nil
-  enqueue_jobs( jobs, options )
-  work_jobs( jobs.size, options )
-end
-
-def enqueue_jobs( jobs, options={} )
-  jobs = [ jobs ] unless jobs.is_a?(Array)
-  options.reverse_merge! existing_jobs: 0, queued_jobs: jobs.size
-  expect {
-    jobs.each { |job| Delayed::Job.enqueue job }
-  }.to change{Delayed::Job.count}.from(options[:existing_jobs]).to(options[:queued_jobs])
-end
-
-def work_jobs( job_count, options={} )
-  options.reverse_merge! successes: job_count, failures: 0, queued_jobs: job_count, remaining_jobs: 0, expected_error: nil
-  expect {
-    if options[:expected_error].nil?
-      expect { @work_results = Delayed::Worker.new.work_off(job_count) }.to_not raise_error
-    else
-      expect { @work_results = Delayed::Worker.new.work_off(job_count) }.to raise_error(options[:expected_error])
-    end
-    @work_results.should eq( [ options[:successes], options[:failures] ] ) # One success, zero failures
-  }.to change{Delayed::Job.count}.from(options[:queued_jobs]).to(options[:remaining_jobs])
+def inject_twilio_signature( url, organization=nil, post_params={} )
+  request.env['HTTP_X_TWILIO_SIGNATURE'] = build_twilio_signature( url, organization, post_params )
 end

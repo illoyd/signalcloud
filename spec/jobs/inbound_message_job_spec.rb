@@ -1,51 +1,28 @@
 require 'spec_helper'
 
 describe InboundMessageJob, :vcr do
-  
-  let(:account)          { create(:account, :master_twilio) }
-  let(:phone_directory)  { create(:phone_directory, account: account) }
-  let(:stencil)        { create(:stencil, account: account, phone_directory: phone_directory) }
-  let(:phone_number)     { create(:us_phone_number, account: account) }
-  let(:customer_number)  { Twilio::VALID_NUMBER }
+  let(:sms_sid )        { 'SM7104b239862b9006bd360a3d5f285f2e' }
+  let(:organization)    { create(:organization, :master_twilio) }
+  let(:phone_book)      { create(:phone_book, organization: organization) }
+  let(:stencil)         { create(:stencil, organization: organization, phone_book: phone_book) }
+  let(:phone_number)    { create(:phone_number, organization: organization) }
+  let(:customer_number) { Twilio::VALID_NUMBER }
 
-#   before(:each) { Message.destroy_all(twilio_sid: 'SM5e27df39904bc98686355dd7ec98f8a9') }
-  
   def construct_inbound_payload( options={} )
     options.reverse_merge({
-      'SmsSid' => 'SMe7a99c10b98ee37aa680ee0617c76d21',
+      'SmsSid' => sms_sid,
       'AccountSid' => ENV['TWILIO_TEST_ACCOUNT_SID'],
       'From' => Twilio::VALID_NUMBER,
       'To' => Twilio::VALID_NUMBER,
-      'Body' => 'Hello!'
+      'Body' => 'Hello!',
+      'SmsStatus' => 'received'
     })
   end
   
-  describe '#normalize_provider_update' do
-    let(:payload) { construct_inbound_payload( 'To' => Twilio::VALID_NUMBER, 'From' => Twilio::INVALID_NUMBER ) }
-    subject { InboundMessageJob.new(payload) }
-    its(:normalize_provider_update) { should be_a(HashWithIndifferentAccess) }
-    [ :to, :sms_sid, :account_sid, :from, :body ].each do |key|
-      its(:normalize_provider_update) { should have_key key }
-    end
-  end
-  
-  describe '#normalize_provider_update!' do
-    let(:payload) { construct_inbound_payload( 'To' => Twilio::VALID_NUMBER, 'From' => Twilio::INVALID_NUMBER ) }
-    let(:normalized_payload) { subject.normalize_provider_update }
-    subject { InboundMessageJob.new(payload) }
-    it 'replaces existing provider_update' do
-      expect{ subject.normalize_provider_update! }.to change{subject.provider_update}.to(normalized_payload)
-    end
-    it 'makes provider_update indifferent' do
-      subject.normalize_provider_update!
-      subject.provider_update.should be_a HashWithIndifferentAccess
-    end
-  end
-  
   describe '#internal_phone_number' do
-    let(:ticket)        { create(:ticket, :challenge_sent, stencil: stencil, from_number: phone_number.number, to_number: customer_number) }
-    let(:payload) { construct_inbound_payload( 'To' => ticket.from_number, 'From' => ticket.to_number ) }
-    subject { InboundMessageJob.new(payload) }
+    let(:conversation) { create(:conversation, :mock, :challenge_sent, stencil: stencil, internal_number: phone_number.number, customer_number: customer_number) }
+    let(:payload)      { construct_inbound_payload( 'To' => conversation.internal_number, 'From' => conversation.customer_number ) }
+    before             { subject.perform(payload) }
     
     its(:internal_phone_number) { should be_a PhoneNumber }
     its('internal_phone_number.id') { should == phone_number.id }
@@ -54,99 +31,127 @@ describe InboundMessageJob, :vcr do
   
   describe '#perform' do
 
-    context 'when unsolicited (no matching ticket)' do
+    context 'when unsolicited (no matching conversation)' do
       let(:payload) { construct_inbound_payload( 'To' => phone_number.number, 'From' => customer_number ) }
-      subject { InboundMessageJob.new(payload) }
 
-      its(:find_open_tickets) { should be_empty }
-      its(:internal_phone_number) { should_not be_nil }
-      it 'does not raise error' do
-        expect { subject.perform }.to_not raise_error
+      it 'does not raise an error' do
+        expect{ subject.perform(payload) }.not_to raise_error
       end
-#       it 'queues unsolicited message job' do
-#         expect { subject.perform }.to change{Delayed::Job.count}.by(1)
-#       end
-    end
-    
-    context 'when replying to open ticket' do
-      let(:ticket)  { create(:ticket, :challenge_sent, :with_webhook_uri, stencil: stencil, from_number: phone_number.number, to_number: customer_number) }
-      let(:payload) { construct_inbound_payload( 'To' => ticket.from_number, 'From' => ticket.to_number ) }
-      subject { InboundMessageJob.new(payload) }
-
-      its(:find_open_tickets) { should have(1).item }
-      its(:internal_phone_number) { should_not be_nil }
-      it 'does not raise error' do
-        expect { subject.perform }.to_not raise_error
+      it 'does not find an open conversation' do
+        subject.provider_update = payload
+        subject.find_open_conversations.should be_empty
       end
-      it 'queues response message and webhook jobs' do
-        expect { subject.perform }.to change{Delayed::Job.count}.by(2)
+      it 'has an internal phone number' do
+        subject.provider_update = payload
+        subject.internal_phone_number.should_not be_nil        
       end
     end
     
-    context 'when replying to multiple open ticket' do
-      let(:ticketA)  { create(:ticket, :challenge_sent, :with_webhook_uri, stencil: stencil, from_number: phone_number.number, to_number: customer_number) }
-      let(:ticketB)  { create(:ticket, :challenge_sent, :with_webhook_uri, stencil: stencil, from_number: phone_number.number, to_number: customer_number) }
-      let(:ticketC)  { create(:ticket, :challenge_sent, :with_webhook_uri, stencil: stencil, from_number: phone_number.number, to_number: customer_number) }
-      let(:tickets)  { [ ticketC, ticketA, ticketB ] }
-      let(:payload)  { construct_inbound_payload( 'To' => tickets.first.from_number, 'From' => tickets.first.to_number ) }
-      subject { InboundMessageJob.new(payload) }
+    context 'when replying to open conversation' do
+      let(:conversation) { create(:conversation, :mock, :challenge_sent, :with_webhook_uri, stencil: stencil, internal_number: phone_number.number, customer_number: customer_number) }
+      let(:payload)      { construct_inbound_payload( 'To' => conversation.internal_number, 'From' => conversation.customer_number ) }
+      
+      it 'has an internal phone number' do
+        subject.provider_update = payload
+        subject.internal_phone_number.should_not be_nil        
+      end
+      it 'finds an open conversation' do
+        subject.provider_update = payload
+        subject.find_open_conversations.should have(1).item
+      end
 
-      its(:find_open_tickets) { should have(3).items }
-      its(:internal_phone_number) { should_not be_nil }
-      it 'does not raise error' do
-        expect { subject.perform }.to_not raise_error
+      context 'with a confirmed response' do
+        let(:payload)    { construct_inbound_payload( 'To' => conversation.internal_number, 'From' => conversation.customer_number, 'Body' => conversation.expected_confirmed_answer ) }
+        it 'does not raise an error' do
+          expect{ subject.perform(payload) }.not_to raise_error
+        end
+        it 'transitions conversation to confirmed' do
+          expect{ subject.perform(payload) }.to change{ conversation.reload.workflow_state }.to('confirming')
+        end
       end
-      it 'closes one ticket' do
-        expect { subject.perform }.to change{subject.find_open_tickets.count}.by(-1)
+
+      context 'with a denied response' do
+        let(:payload)    { construct_inbound_payload( 'To' => conversation.internal_number, 'From' => conversation.customer_number, 'Body' => conversation.expected_denied_answer ) }
+        it 'does not raise an error' do
+          expect{ subject.perform(payload) }.not_to raise_error
+        end
+        it 'transitions conversation to denied' do
+          expect{ subject.perform(payload) }.to change{ conversation.reload.workflow_state }.to('denying')
+        end
       end
-      it 'queues response message and webhook jobs' do
-        expect { subject.perform }.to change{Delayed::Job.count}.by(2)
+
+      context 'with a failed response' do
+        let(:payload)    { construct_inbound_payload( 'To' => conversation.internal_number, 'From' => conversation.customer_number, 'Body' => 'walrus' ) }
+        it 'does not raise an error' do
+          expect{ subject.perform(payload) }.not_to raise_error
+        end
+        it 'transitions conversation to failed' do
+          expect{ subject.perform(payload) }.to change{ conversation.reload.workflow_state }.to('failing')
+        end
       end
     end
     
-    context 'when replying to expired ticket' do
-      let(:ticket)  { create(:ticket, :challenge_sent, :expired, stencil: stencil, expires_at: 180.seconds.ago, from_number: phone_number.number, to_number: customer_number) }
-      let(:payload) { construct_inbound_payload( 'To' => ticket.from_number, 'From' => ticket.to_number ) }
-      subject { InboundMessageJob.new(payload) }
+    context 'when replying to multiple open conversation' do
+      let(:conversationA)  { create(:conversation, :mock, :challenge_sent, :with_webhook_uri, stencil: stencil, internal_number: phone_number.number, customer_number: customer_number) }
+      let(:conversationB)  { create(:conversation, :mock, :challenge_sent, :with_webhook_uri, stencil: stencil, internal_number: phone_number.number, customer_number: customer_number) }
+      let(:conversationC)  { create(:conversation, :mock, :challenge_sent, :with_webhook_uri, stencil: stencil, internal_number: phone_number.number, customer_number: customer_number) }
+      let(:conversations)  { [ conversationC, conversationA, conversationB ] }
+      let(:payload)  { construct_inbound_payload( 'To' => conversations.first.internal_number, 'From' => conversations.first.customer_number ) }
 
-      its(:find_open_tickets) { should be_empty }
-      its(:internal_phone_number) { should_not be_nil }
-      it 'does not raise error' do
-        expect { subject.perform }.to_not raise_error
+      it 'finds three open conversations' do
+        subject.provider_update = payload
+        subject.find_open_conversations.should have(3).items
       end
-#       it 'queues unsolicited message job' do
-#         expect { subject.perform }.to change{Delayed::Job.count}.by(1)
-#       end
+      it 'has an internal phone number' do
+        subject.provider_update = payload
+        subject.internal_phone_number.should_not be_nil        
+      end
+      it 'does not raise an error' do
+        expect{ subject.perform(payload) }.not_to raise_error
+      end
+      it 'closes one conversation' do
+        subject.provider_update = payload
+        expect { subject.perform(payload) }.to change{subject.find_open_conversations.count}.by(-1)
+      end
+    end
+    
+    context 'when replying to expired conversation' do
+      let(:conversation)  { create(:conversation, :mock, :challenge_sent, :expired, stencil: stencil, expires_at: 180.seconds.ago, internal_number: phone_number.number, customer_number: customer_number) }
+      let(:payload) { construct_inbound_payload( 'To' => conversation.internal_number, 'From' => conversation.customer_number ) }
+
+      it 'does not find an open conversation' do
+        subject.provider_update = payload
+        subject.find_open_conversations.should be_empty
+      end
+      it 'sends unsolicited message' do
+        expect{ subject.perform(payload) }.to change( phone_number.unsolicited_messages, :count ).by(1)
+      end
     end
     
     [ :confirmed, :denied, :failed ].each do |status|
-      context "when replying to #{status.to_s} but not sent ticket" do
-        let(:ticket)  { create(:ticket, :challenge_sent, :response_received, status, stencil: stencil, from_number: phone_number.number, to_number: customer_number) }
-        let(:payload) { construct_inbound_payload( 'To' => ticket.from_number, 'From' => ticket.to_number ) }
-        subject { InboundMessageJob.new(payload) }
+      context "when replying to #{status.to_s} but not sent conversation" do
+        let(:conversation)  { create(:conversation, :mock, :challenge_sent, :response_received, status, stencil: stencil, internal_number: phone_number.number, customer_number: customer_number) }
+        let(:payload) { construct_inbound_payload( 'To' => conversation.internal_number, 'From' => conversation.customer_number ) }
 
-        its(:find_open_tickets) { should be_empty }
-        its(:internal_phone_number) { should_not be_nil }
-        it 'does not raise error' do
-          expect { subject.perform }.to_not raise_error
+        it 'does not find an open conversation' do
+          subject.provider_update = payload
+          subject.find_open_conversations.should be_empty
         end
-#         it 'queues unsolicited message job' do
-#           expect { subject.perform }.to change{Delayed::Job.count}.by(1)
-#         end
+        it 'sends unsolicited message' do
+          expect{ subject.perform(payload) }.to change( phone_number.unsolicited_messages, :count ).by(1)
+        end
       end
-      context "when replying to #{status.to_s} and sent ticket" do
-        let(:ticket)  { create(:ticket, :challenge_sent, :response_received, status, :reply_sent, stencil: stencil, from_number: phone_number.number, to_number: customer_number) }
-        let(:payload) { construct_inbound_payload( 'To' => ticket.from_number, 'From' => ticket.to_number ) }
-        subject { InboundMessageJob.new(payload) }
+      context "when replying to #{status.to_s} and sent conversation" do
+        let(:conversation)  { create(:conversation, :mock, :challenge_sent, :response_received, status, :reply_sent, stencil: stencil, internal_number: phone_number.number, customer_number: customer_number) }
+        let(:payload) { construct_inbound_payload( 'To' => conversation.internal_number, 'From' => conversation.customer_number ) }
 
-        its(:find_open_tickets) { should be_empty }
-        its(:internal_phone_number) { should_not be_nil }
-        it 'does not raise error' do
-          expect { subject.perform }.to_not raise_error
+        it 'does not find an open conversation' do
+          subject.provider_update = payload
+          subject.find_open_conversations.should be_empty
         end
-#         it 'queues unsolicited message job' do
-#           expect { subject.perform }.to change{Delayed::Job.count}.by(1)
-#         end
+        it 'sends unsolicited message' do
+          expect{ subject.perform(payload) }.to change( phone_number.unsolicited_messages, :count ).by(1)
+        end
       end
     end
     

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe 'routing to twilio/inbound_sms' do
-  #fixtures :accounts, :account_plans, :users
+  #fixtures :organizations, :account_plans, :users
 
   it 'routes POST twilio/inbound_sms to twilio::inbound_sms#create' do
     expect( post('twilio/inbound_sms.xml') ).to route_to( controller: 'twilio/inbound_sms', action: 'create', format: 'xml' )

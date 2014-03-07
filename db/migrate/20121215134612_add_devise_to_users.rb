@@ -3,7 +3,7 @@ class AddDeviseToUsers < ActiveRecord::Migration
     change_table(:users) do |t|
       ## Database authenticatable
       t.string :email,              :null => false, :default => ""
-      t.string :encrypted_password, :null => false, :default => ""
+      t.string :encrypted_password, :null => true,  :default => ""
 
       ## Recoverable
       t.string   :reset_password_token
@@ -33,6 +33,13 @@ class AddDeviseToUsers < ActiveRecord::Migration
       ## Token authenticatable
       t.string :authentication_token
 
+      ## Invitable
+      t.string   :invitation_token, :limit => 60
+      t.datetime :invitation_sent_at
+      t.datetime :invitation_accepted_at
+      t.integer  :invitation_limit
+      t.integer  :invited_by_id
+      t.string   :invited_by_type
 
       # Uncomment below if timestamps were not included in your original model.
       # t.timestamps
@@ -43,6 +50,7 @@ class AddDeviseToUsers < ActiveRecord::Migration
     # add_index :users, :confirmation_token,   :unique => true
     add_index :users, :unlock_token,         :unique => true
     add_index :users, :authentication_token, :unique => true
+    add_index :users, :invitation_token,     :unique => true
   end
 
   def self.down

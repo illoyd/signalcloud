@@ -1,3 +1,6 @@
+-# Usage
+  uhhh
+- modal_id    ||= 'modal'
 - header_text ||= 'Modal Header'
 - cancel_text ||= 'Discard changes'
 - accept_text ||= 'Save Changes'
@@ -9,7 +12,7 @@
       %button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} &times;
     %h3= header_text
   .modal-body
-    %p= render partial: body_partial
+    = yield
   .modal-footer
     - if show_cancel_button
       %button.btn{"aria-hidden" => "true", "data-dismiss" => "modal"}= cancel_text

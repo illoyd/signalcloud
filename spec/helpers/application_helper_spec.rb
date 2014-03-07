@@ -11,17 +11,17 @@ describe ApplicationHelper do
     end
     it "uses stencil symbol" do
       output = helper.icon( :stencils )
-      output.should include('icon-hdd')
+      output.should include('icon-edit')
       output.should include("style=''")
     end
     it "uses stencil string" do
       output = helper.icon( 'stencils' )
-      output.should include('icon-hdd')
+      output.should include('icon-edit')
       output.should include("style=''")
     end
     it "adds options" do
       output = helper.icon( :stencils, style: "font-size: bigger" )
-      output.should include('icon-hdd')
+      output.should include('icon-edit')
       output.should include("style='font-size: bigger'")
     end
   end
@@ -35,19 +35,19 @@ describe ApplicationHelper do
     end
     it "uses stencil symbol" do
       output = helper.header_icon( :stencils )
-      output.should include('icon-hdd')
+      output.should include('icon-edit')
       output.should include('header-icon')
       output.should include("style=''")
     end
     it "uses stencil string" do
       output = helper.header_icon( 'stencils' )
-      output.should include('icon-hdd')
+      output.should include('icon-edit')
       output.should include('header-icon')
       output.should include("style=''")
     end
     it "adds options" do
       output = helper.header_icon( :stencils, style: "font-size: bigger" )
-      output.should include('icon-hdd')
+      output.should include('icon-edit')
       output.should include('header-icon')
       output.should include("style='font-size: bigger'")
     end

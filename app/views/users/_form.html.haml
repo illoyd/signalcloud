@@ -1,23 +1,29 @@
-= form_for( @user, html: { class: 'form-horizontal' } ) do |f|
+= twitter_bootstrap_form_for( @user, :html => { class: "form-horizontal" } ) do |f|
   - if @user.errors.any?
-    #error_explanation
+    .error
       %h2
+        = @user.errors.count
         = pluralize(@user.errors.count, "error")
-        prohibited this user from being saved:
+        prohibited this update:
       %ul
         - @user.errors.full_messages.each do |msg|
           %li= msg
-  .control-group
-    = f.label :account, class: 'control-label'
-    .controls= f.text_field :account
-  .control-group
-    = f.label :first_name, class: 'control-label'
-    .controls= f.text_field :first_name
-  .control-group
-    = f.label :last_name, class: 'control-label'
-    .controls= f.text_field :last_name
-  .control-group
-    = f.label :email, class: 'control-label'
-    .controls= f.email_field :email
+
+  = f.text_field :name, 'Name'
+
+  = f.text_field :nickname, 'Nickname'
+
+  = f.email_field :email, add_on: :prepend do
+    %span.add-on @
+
+  -#
+    - if current_user.is_organization_administrator?
+      = f.label "Roles" do
+        - UserRole::ROLES.each do |role|
+          - disabled = cannot?(:edit, @user) || ( ( role == :organization_administrator ) && @user.id == current_user.id )
+          %label.checkbox
+            = check_box_tag 'roles[]', role, @user.roles_for(@organization).roles.include?(role), { id: 'user_role_%s' % role, disabled: disabled }
+            = role.to_s.humanize
+
   .control-group
     .controls= f.submit class: 'btn btn-primary'

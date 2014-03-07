@@ -1,38 +1,81 @@
 / Page header
+- titles 'Users', 'all users', :users
+
 .row
   .span12
-    .page-header
-      %h1
-        = icon( :users )
-        Users
-        %small all users
+    - if current_user.is_organization_administrator_for? @organization
+      .pull-right= link_to 'Invite a user', '#user_role_modal', class: 'btn btn-success btn-small', 'data-toggle' => 'modal'
 
-/ Page controls
--#
-  .row
-    .span12.table-tools
-      = stencil_dropdown_list( @account, @stencil )
-      = status_dropdown_list( @account, @stencil, params[:status] )
-      - if can? :new, Ticket
-        .pull-right= link_to 'Start a new ticket', ticket_path, :class=>'btn btn-success btn-small'
-
-/ Page body
 .row
   .span12
     %table.table.table-condensed
       %thead
         %tr
           %th.span1
-          %th Name
-          %th Email
+          %th.span1
+          %th User
+          %th.centered Administrator
+          %th.centered Developer
+          %th.centered Billing<br />Liaison
+          %th.centered Conversation<br />Manager
       %tbody
         - @users.each do |user|
-          %tr
-            %td= split_dropdown_list([ |
-                { label: 'Details', icon: :show, link: user, if: can?(:show, user) }, |
-              { label: 'Edit', icon: :edit, link: edit_user_path(user), if: can?(:edit, user) }, |
-              { label: 'Delete', icon: :delete, link: user, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, user) } |
-              ], {class: 'btn-mini'} ) |
+          - user_role = user.roles_for(@organization)
+          %tr.middle
+            %td
+              - if can?(:edit, user_role)
+                = render partial: 'edit_roles', locals: { organization: @organization, user_role: user_role }
+              = split_dropdown_list([ |
+                { label: 'Change roles in Organization', icon: :edit, link: "#user_role_modal_#{user.id}", options: { 'data-toggle' => 'modal' }, if: can?(:edit, user_role) }, |
+                { label: 'Remove from Organization', icon: :delete, link: [@organization, user_role], options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, user_role) } |
+                ], {class: 'btn-mini'} ) |
 
-            %td #{user.first_name} #{user.last_name}
-            %td= mail_to user.email
+            %td
+              = gravatar_for user, 40, class: 'img-circle'
+            %td
+              = link_to_if can?(:show, user), "#{user.name} (#{user.nickname})", user
+              %br
+              = mail_to user.email
+              - if user.has_pending_invitation?
+                %br
+                %i Invited to join
+              - if user.owner_of?(@organization)
+                %br
+                %i Organization owner
+            %td.centered= checkmark_for user_role.is_organization_administrator?
+            %td.centered= checkmark_for user_role.is_developer?
+            %td.centered= checkmark_for user_role.is_billing_liaison?
+            %td.centered= checkmark_for user_role.is_conversation_manager?
+
+/ User Role Modal Dialog
+#user_role_modal.modal.hide.fade{ "aria-hidden" => "true", "aria-labelledby" => "myModalLabel", :role => "dialog", :tabindex => "-1"}
+  = twitter_bootstrap_form_for( [@organization, @user_role], :html => { class: "form-horizontal", style: 'margin: 0px;' } ) do |f|
+    .modal-header
+      %button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} &times;
+      %h3
+        = icon(:user)
+        Invite User
+    .modal-body
+      - if @user_role.errors.any?
+        .error
+          %h2
+            = @user_role.errors.count
+            = pluralize(@user_role.errors.count, "error")
+            stopped us from sending this invite:
+          %ul
+            - @user_role.errors.full_messages.each do |msg|
+              %li= msg
+    
+      = f.email_field :email, add_on: :prepend do
+        %span.add-on @
+
+      - if current_user.is_organization_administrator_for?(@organization)
+        = f.label "Roles" do
+          - UserRole::ROLES.each do |role|
+            %label.checkbox
+              = check_box_tag 'user_role[roles][]', role, @user_role.roles.include?(role), { id: 'user_role_%s' % role }
+              = role.to_s.humanize
+
+    .modal-footer
+      = f.submit 'Invite User', class: 'btn btn-primary'
+      %button.btn{"aria-hidden" => "true", "data-dismiss" => "modal"} Cancel Invite

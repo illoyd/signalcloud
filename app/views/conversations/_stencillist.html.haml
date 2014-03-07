@@ -1,0 +1,4 @@
+%p Create a new conversation with a different stencil. Please note that switching your stencil with discard all changes!
+%ul
+  - @organization.stencils( order: :label ).each do |stencil|
+    %li= link_to stencil.label, new_organization_stencil_conversation_path( @organization, stencil ), :class=>'btn btn-link'

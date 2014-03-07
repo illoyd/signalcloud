@@ -1,18 +1,19 @@
 ##
-# Produce a new invoice for the given account.
+# Produce a new invoice for the given organization.
 # Requires the following items
-#   +account_id+: the account ID to process
+#   +organization_id+: the organization ID to process
 #   +next_invoice_at+: process all invoices from this date
 #
-# This class is intended for use with Delayed::Job.
+# This class is intended for use with Sidekiq.
 #
-class CreateInvoiceJob < Struct.new( :account_id, :next_invoice_at )
-  include Talkable
+class CreateInvoiceJob
+  include Sidekiq::Worker
+  sidekiq_options :queue => :background
 
-  def perform
-    account = Accounts.find( account_id )
-    account.create_invoice( next_invoice_at.end_of_day )
-    account.save!
+  def perform( organization_id, next_invoice_at )
+    organization = Organizations.find( organization_id )
+    organization.create_invoice( next_invoice_at.end_of_day )
+    organization.save!
   end
 
   alias :run :perform

@@ -11,66 +11,66 @@ rails generate devise:install
 
 # Scaffolding
 rails destroy scaffold Account
-rails destroy scaffold Ticket
+rails destroy scaffold Conversation
 
 rails generate scaffold AccountPlan label:string month:decimal phone_add:decimal phone_mult:decimal call_in_add:decimal call_in_mult:decimal sms_in_add:decimal sms_in_mult:decimal sms_out_add:decimal sms_out_mult:decimal
 
-rails generate scaffold Account sid:string account_token:string auth_token:string label:string balance:decimal default_stencil:reference account_plan:reference encrypted_twilio_account_sid:string encrypted_twilio_auth_token:string
+rails generate scaffold Account sid:string organization_token:string auth_token:string label:string balance:decimal default_stencil:reference account_plan:reference encrypted_twilio_account_sid:string encrypted_twilio_auth_token:string
 
-rails generate scaffold User account:reference first_name:string last_name:string
+rails generate scaffold User organization:reference first_name:string last_name:string
 rails generate devise User
 
-rails generate scaffold PhoneNumber account:reference encrypted_number:string provider_cost:decimal our_cost:decimal
-rails generate scaffold PhoneDirectory account:reference name:string description:text
-rails generate scaffold PhoneDirectoryEntry directory:reference phone_number:reference country:string
+rails generate scaffold PhoneNumber organization:reference encrypted_number:string provider_cost:decimal our_cost:decimal
+rails generate scaffold PhoneBook organization:reference name:string description:text
+rails generate scaffold PhoneBookEntry directory:reference phone_number:reference country:string
 
-rails generate scaffold Stencil account:reference phone_directory:reference seconds_to_live:integer encrypted_question:string encrypted_expected_confirmed_answer:string encrypted_expected_denied_answer:string encrypted_confirmed_reply:string encrypted_denied_reply:string encrypted_failed_reply:string encrypted_expired_reply:string 
-rails generate scaffold Ticket stencil:reference status:integer encrypted_from_number:string encrypted_to_number:string expires_at:datetime encrypted_question:string encrypted_expected_confirmed_answer:string encrypted_expected_denied_answer:string encrypted_actual_answer:string encrypted_confirmed_reply:string encrypted_denied_reply:string encrypted_failed_reply:string encrypted_expired_reply:string challenge_sent:datetime challenge_sms_sid:string response_received:datetime response_sms_sid:string reply_sent:datetime reply_sms_sid:string
-rails generate scaffold Message ticket:reference provider_cost:decimal our_cost:decimal encrypted_payload:text
+rails generate scaffold Stencil organization:reference phone_book:reference seconds_to_live:integer encrypted_question:string encrypted_expected_confirmed_answer:string encrypted_expected_denied_answer:string encrypted_confirmed_reply:string encrypted_denied_reply:string encrypted_failed_reply:string encrypted_expired_reply:string 
+rails generate scaffold Conversation stencil:reference status:integer encrypted_from_number:string encrypted_to_number:string expires_at:datetime encrypted_question:string encrypted_expected_confirmed_answer:string encrypted_expected_denied_answer:string encrypted_actual_answer:string encrypted_confirmed_reply:string encrypted_denied_reply:string encrypted_failed_reply:string encrypted_expired_reply:string challenge_sent:datetime challenge_sms_sid:string response_received:datetime response_sms_sid:string reply_sent:datetime reply_sms_sid:string
+rails generate scaffold Message conversation:reference provider_cost:decimal our_cost:decimal encrypted_payload:text
 
 rails generate scaffold Transaction narrative:string value:decimal item:reference
 
 rails generate controller apis/twilio inbound_call inbound_sms
 
 # Account Controller
-before_filter :authenticate_account!
+before_filter :authenticate_organization!
 
 # Account
 
 attr_accessor :twilio_client
-has_many :tickets, :templates
+has_many :conversations, :templates
 
 def twilio_client
 	@twilio_client ||= Twilio::REST::Client.new( self.twilio_account_sid, self.twilio_auth_token )
 end
 
 def send_sms( to_number, from_number, message )
-	self.twilio_client.account.sms.messages.create(
+	self.twilio_client.organization.sms.messages.create(
 		from: from_number,
 		to: to_number,
 		body: message
 	)
 end
 
-def new_ticket( attributes )
-	return self.tickets.build( attributes )
+def new_conversation( attributes )
+	return self.conversations.build( attributes )
 end
 
-def new_ticket_by_locale( locale, attributes )
+def new_conversation_by_locale( locale, attributes )
 	challenge = self.challenges.find_by_locale_and_locale_default!( locale, true )
 	attr = attributes.merge challenge.default_attributes
-	return self.new_ticket( attr )
+	return self.new_conversation( attr )
 end
 
-def new_ticket_by_label( label, attributes )
+def new_conversation_by_label( label, attributes )
 	challenge = self.challenges.find_by_label!( label )
 	attr = attributes.merge challenge.default_attributes
-	return self.new_ticket( attr )
+	return self.new_conversation( attr )
 end
 
-# Ticket
+# Conversation
 
-belongs_to :account
+belongs_to :organization
 
 def normalise( response )
 	return response.lower.gsub( /[a-z0-9]/i, '' )
@@ -93,7 +93,7 @@ def expired?()
 end
 
 def open?()
-	return self.status == TicketStatus::OPEN
+	return self.status == ConversationStatus::OPEN
 end
 
 def closed?()
@@ -102,11 +102,11 @@ end
 
 def send_challenge()
 	# Send SMS
-	response = self.account.send_sms( self.to, self.from, self.question )
+	response = self.organization.send_sms( self.to, self.from, self.question )
 	
 	# Update internal state
 	self.challenge_sms_sid = response['sms_message']['sid']
-	self.status = TicketStatus::OPEN
+	self.status = ConversationStatus::OPEN
 	self.challenge_sent = DateTime.now()
 	self.save!
 end
@@ -123,15 +123,15 @@ def process_response( response )
 	
 	# Do a comparison of normalised response to expected positive
 	if normalised_response == self.normalise( self.expected_confirmed_response )
-		self.status = TicketStatus::CONFIRMED
+		self.status = ConversationStatus::CONFIRMED
 	
 	# Compare against expected negative response
 	else if normalised_response == self.normalise( self.expected_denied_response )
-		self.status = TicketStatus::DENIED
+		self.status = ConversationStatus::DENIED
 	
 	# Otherwise, the response failed
 	else
-		self.status = TicketStatus::FAILED
+		self.status = ConversationStatus::FAILED
 	end
 	
 	# Save
@@ -142,14 +142,14 @@ end
 def send_reply()
 	# Select action by current status
 	response = case self.status
-		when TicketStatus::CONFIRMED
-			self.account.send_sms( self.to_number, self.from_number, self.confirmed_reply )
-		when TicketStatus::DENIED
-			self.account.send_sms( self.to_number, self.from_number, self.denied_reply )
-		when TicketStatus::FAILED
-			self.account.send_sms( self.to_number, self.from_number, self.failed_reply )
-		when TicketStatus::EXPIRED
-			self.account.send_sms( self.to_number, self.from_number, self.expired_reply )
+		when ConversationStatus::CONFIRMED
+			self.organization.send_sms( self.to_number, self.from_number, self.confirmed_reply )
+		when ConversationStatus::DENIED
+			self.organization.send_sms( self.to_number, self.from_number, self.denied_reply )
+		when ConversationStatus::FAILED
+			self.organization.send_sms( self.to_number, self.from_number, self.failed_reply )
+		when ConversationStatus::EXPIRED
+			self.organization.send_sms( self.to_number, self.from_number, self.expired_reply )
 		else
 			# Do nothing at the moment
 	end
@@ -164,23 +164,23 @@ end
 
 # Job: SendChallengeJob
 def perform
-	ticket = Ticket.find( self.ticket_id )
+	conversation = Conversation.find( self.conversation_id )
 	# Only send challenge if not already sent
-	ticket.send_challenge if not ticket.challenge_sent?
+	conversation.send_challenge if not conversation.challenge_sent?
 end
 
 # Job: ProcessResponseJob
 def perform
-	account = Account.find_by_twilio_account_sid( self.account_sid )
-	tickets = account.tickets.find_all_by_to_number_and_from_number( self.to_number, self.from_number )
+	organization = Account.find_by_twilio_account_sid( self.account_sid )
+	conversations = organization.conversations.find_all_by_to_number_and_from_number( self.to_number, self.from_number )
 	
-	# Check every ticket to see if it can understand the response
-	tickets.each do |ticket|
+	# Check every conversation to see if it can understand the response
+	conversations.each do |conversation|
 		# Only process if not already processed
-		ticket.process_response( self.response ) if ( not ticket.response_received? and ticket.understands_response(response) )
+		conversation.process_response( self.response ) if ( not conversation.response_received? and conversation.understands_response(response) )
 
 		# Send a reply
-		job = SendReplyJob.new( ticket.id )
+		job = SendReplyJob.new( conversation.id )
 		job.perform()
 	end
 	
@@ -188,18 +188,18 @@ end
 
 # Job: SendReplyJob
 def perform
-	ticket = Ticket.find( self.ticket_id )
+	conversation = Conversation.find( self.conversation_id )
 	# Only send if no reply has been sent
-	ticket.send_reply if not ticket.reply_sent?
+	conversation.send_reply if not conversation.reply_sent?
 end
 
-# Job: ExpireTicketJob
+# Job: ExpireConversationJob
 def perform
-	ticket = Ticket.find( self.ticket_id )
-	# If ticket has expired and it is still open, expire
-	if ticket.open? and ticket.expired?
-		ticket.status = TicketStatus::EXPIRED
-		job = SendReplyJob.new( ticket.id )
+	conversation = Conversation.find( self.conversation_id )
+	# If conversation has expired and it is still open, expire
+	if conversation.open? and conversation.expired?
+		conversation.status = ConversationStatus::EXPIRED
+		job = SendReplyJob.new( conversation.id )
 		job.perform()
 	end
 end
@@ -207,8 +207,8 @@ end
 
 # Routes
 resource :twilio, :defaults => { :format => 'xml' }
-resource :account do
-	resources :tickets
+resource :organization do
+	resources :conversations
 end
 
 # Twilio controller

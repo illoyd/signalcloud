@@ -1,5 +1,7 @@
 - content_for :title, 'Sign Up'
 
+- raise 'Registration Not Allowed' unless ALLOW_USER_REGISTRATION
+
 = form_for( resource, :as => resource_name, :url => session_path(resource_name), :html => { :class => "form-horizontal" } ) do |f|
   .modal.inline-modal
     .modal-header
@@ -22,14 +24,14 @@
       %hr
       %h5 Tell us a bit about you
       .control-group
-        = f.label :first_name, :class => 'control-label'
-        .controls= f.text_field :first_name
+        = f.label :name, :class => 'control-label'
+        .controls= f.text_field :name
       .control-group
-        = f.label :last_name, :class => 'control-label'
-        .controls= f.text_field :last_name
+        = f.label :nickname, :class => 'control-label'
+        .controls= f.text_field :nickname
       -#.control-group
-      -#  = f.label :account, :label, :class => 'control-label'
-      -#  .controls= f.text_field :account, :label
+      -#  = f.label :organization, :label, :class => 'control-label'
+      -#  .controls= f.text_field :organization, :label
 
     .modal-footer
       / %a.btn{:href => "#"} Close
