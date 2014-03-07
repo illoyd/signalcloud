@@ -2,7 +2,7 @@ class PhoneBook < ActiveRecord::Base
   
   belongs_to :organization, inverse_of: :phone_books
   has_many :stencils, inverse_of: :phone_book
-  has_many :phone_book_entries, inverse_of: :phone_book, order: 'country', dependent: :destroy
+  has_many :phone_book_entries, inverse_of: :phone_book, dependent: :destroy
   has_many :phone_numbers, through: :phone_book_entries #, select: 'phone_numbers.*, phone_book_entries.country AS country'
   
   validates_presence_of :organization

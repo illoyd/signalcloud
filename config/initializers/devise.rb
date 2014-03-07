@@ -255,7 +255,7 @@ Devise.setup do |config|
   # so you need to do it manually. For the users scope, it would be:
   # config.omniauth_path_prefix = "/my_engine/users/auth"
   
-  # config.secret_key = '4987358d3fdef39b2695a0cbcae9a461792c471103eea6477f7216ca2c3ca81ee0e40944ddc2571ed547ccf2a9dec11af5572d60e6c6a9631b4654d010900b9f'
+  config.secret_key = '4987358d3fdef39b2695a0cbcae9a461792c471103eea6477f7216ca2c3ca81ee0e40944ddc2571ed547ccf2a9dec11af5572d60e6c6a9631b4654d010900b9f'
 end
 
 # Configure delayed emails

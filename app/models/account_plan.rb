@@ -6,9 +6,6 @@ class AccountPlan < ActiveRecord::Base
   
   attr_accessor :phone_number_pricer, :conversation_pricer
 
-  # Attributes
-  # attr_accessible :plan_kind, :default, :call_in_add, :call_in_mult, :label, :month, :phone_add, :phone_mult, :sms_in_add, :sms_in_mult, :sms_out_add, :sms_out_mult
-  
   # Relationships
   has_many :organizations, inverse_of: :account_plan
   

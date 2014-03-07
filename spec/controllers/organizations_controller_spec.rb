@@ -78,8 +78,7 @@ describe OrganizationsController do
         expect{ post :create, organization: attributes_for(:organization) }.to change( Organization, :count ).by(1)
       end
       it 'raises 400 bad request if no parameters' do
-        post :create
-        response.status.should == 400
+        expect{ post :create }.to raise_error(ActionController::ParameterMissing)
       end
     end
 
@@ -117,8 +116,7 @@ describe OrganizationsController do
         expect{ put :update, update_payload }.to change{ organization.reload.description }.to( new_description )
       end
       it 'raises 400 bad request if no parameters' do
-        put :update, id: organization.id
-        response.status.should == 400
+        expect{ put :update, id: organization.id }.to raise_error(ActionController::ParameterMissing)
       end
     end
 

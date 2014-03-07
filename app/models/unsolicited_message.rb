@@ -4,7 +4,6 @@ class UnsolicitedMessage < ActiveRecord::Base
 
   before_save :update_ledger_entry
 
-  #attr_accessible :twilio_sms_sid, :action_content, :action_taken, :action_taken_at, :customer_number, :message_content, :received_at
   serialize :message_content, JSON
   serialize :action_content, JSON
 

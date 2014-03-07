@@ -1,4 +1,15 @@
 module AuthSpecHelpers
+  def authenticate_with_digest(user = nil, password = nil, realm = nil)
+    credentials = {
+  	  :uri => request.url,
+  	  :realm => "#{realm}",
+  	  :username => "#{user}",
+  	  :nonce => ActionController::HttpAuthentication::Digest.nonce(request.env['action_dispatch.secret_token']),
+  	  :opaque => ActionController::HttpAuthentication::Digest.opaque(request.env['action_dispatch.secret_token'])
+    }
+    request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Digest.encode_credentials(request.request_method, credentials, "#{password}", false)
+  end
+
   def authenticate_with_http_digest(user = nil, password = nil, realm = nil)
     ActionController::Base.class_eval { include ActionController::Testing }
 

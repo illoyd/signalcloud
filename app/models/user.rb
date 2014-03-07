@@ -4,9 +4,6 @@ class User < ActiveRecord::Base
   # :lockable, :timeoutable and :omniauthable
   devise :database_authenticatable, :recoverable, :rememberable, :validatable, :lockable, :timeoutable, :async, :invitable, :registerable
 
-  # Setup accessible (or protected) attributes for your model
-#   attr_accessible :email, :password, :password_confirmation, :remember_me
-  
   has_many :user_roles, inverse_of: :user
   has_many :organizations, through: :user_roles
   has_many :owned_organizations, foreign_key: 'owner_id', class_name: "Organization", inverse_of: :owner

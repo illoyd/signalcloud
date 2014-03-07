@@ -142,8 +142,7 @@ describe StencilsController do
         Stencil.last.description.should == new_description
       end
       it 'raises 400 bad request if no parameters' do
-        post :create, organization_id: organization.id
-        response.status.should == 400
+        expect{ post :create, organization_id: organization.id }.to raise_error(ActionController::ParameterMissing)
       end
     end
 
@@ -174,8 +173,7 @@ describe StencilsController do
         expect{ put :update, update_payload }.to change{ stencil.reload.description }.to( new_description )
       end
       it 'raises 400 bad request if no parameters' do
-        put :update, organization_id: organization.id, id: stencil.id
-        response.status.should == 400
+        expect{ put :update, organization_id: organization.id, id: stencil.id }.to raise_error(ActionController::ParameterMissing)
       end
     end
     

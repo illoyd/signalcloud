@@ -10,7 +10,7 @@ shared_examples 'sends messages' do
   end
 end
 
-describe TwilioCommunicationGateway, :vcr do
+describe TwilioCommunicationGateway, :vcr, :skip do
   
   let(:organization) { build :organization, :with_sid_and_token }
 
