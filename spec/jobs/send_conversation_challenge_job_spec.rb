@@ -21,7 +21,7 @@ describe SendConversationChallengeJob, :vcr do
           expect { subject.perform( conversation.id ) }.to change{conversation.messages(true).count}.by(1)
         end
         it 'does not create a new ledger entry' do
-          expect { subject.perform( conversation.id ) }.to_not change{conversation.stencil.organization.ledger_entries.count}
+          expect { subject.perform( conversation.id ) }.not_to change{conversation.stencil.organization.ledger_entries.count}
         end
         it 'transitions state to asking' do
           expect { subject.perform( conversation.id ) }.to change{conversation.reload.workflow_state}.to('asking')
@@ -30,7 +30,7 @@ describe SendConversationChallengeJob, :vcr do
           expect { subject.perform( conversation.id ) }.to change{conversation.reload.challenge_status}.to('sending')
         end
         it 'does not change conversation reply state' do
-          expect { subject.perform( conversation.id ) }.to_not change{conversation.reload.reply_status}
+          expect { subject.perform( conversation.id ) }.not_to change{conversation.reload.reply_status}
         end
         it 'enqueues an expiration job' do
           expect { subject.perform( conversation.id ) }.to change{ExpireConversationJob.jobs.count}.by(1)
@@ -42,22 +42,22 @@ describe SendConversationChallengeJob, :vcr do
       context "when conversation is #{state} and sent" do
         let(:conversation)  { create(:conversation, state, stencil: stencil, customer_number: Twilio::VALID_NUMBER, internal_number: Twilio::VALID_NUMBER) }
         it 'does not create a new message' do
-          expect { subject.perform( conversation.id ) }.to_not change{conversation.messages(true).count}
+          expect { subject.perform( conversation.id ) }.not_to change{conversation.messages(true).count}
         end
         it 'does not create a new ledger entry' do
-          expect { subject.perform( conversation.id ) }.to_not change{conversation.stencil.organization.ledger_entries.count}
+          expect { subject.perform( conversation.id ) }.not_to change{conversation.stencil.organization.ledger_entries.count}
         end
         it 'does not change conversation state' do
-          expect { subject.perform( conversation.id ) }.to_not change{conversation.reload.workflow_state}
+          expect { subject.perform( conversation.id ) }.not_to change{conversation.reload.workflow_state}
         end
         it 'does not change conversation challenge state' do
-          expect { subject.perform( conversation.id ) }.to_not change{conversation.reload.challenge_status}
+          expect { subject.perform( conversation.id ) }.not_to change{conversation.reload.challenge_status}
         end
         it 'does not change conversation reply state' do
-          expect { subject.perform( conversation.id ) }.to_not change{conversation.reload.reply_status}
+          expect { subject.perform( conversation.id ) }.not_to change{conversation.reload.reply_status}
         end
         it 'does not enqueue an expiration job' do
-          expect { subject.perform( conversation.id ) }.to_not change{ExpireConversationJob.jobs.count}
+          expect { subject.perform( conversation.id ) }.not_to change{ExpireConversationJob.jobs.count}
         end
       end
     end
@@ -76,7 +76,7 @@ describe SendConversationChallengeJob, :vcr do
         conversation.messages(true).order('created_at').last.errored?.should be_true
       end
       it 'does not create a new ledger entry' do
-        expect { subject.perform( conversation.id ) }.to_not change{conversation.stencil.organization.ledger_entries(true).count}
+        expect { subject.perform( conversation.id ) }.not_to change{conversation.stencil.organization.ledger_entries(true).count}
       end
       it 'changes conversation workflow_state to error' do
         expect { subject.perform( conversation.id ) }.to change{conversation.reload.workflow_state}.to('errored')
@@ -88,7 +88,7 @@ describe SendConversationChallengeJob, :vcr do
         expect { subject.perform( conversation.id ) }.not_to change{conversation.reload.reply_status}
       end
       it 'does not enqueue an expiration job' do
-        expect { subject.perform( conversation.id ) }.to_not change{ExpireConversationJob.jobs.count}
+        expect { subject.perform( conversation.id ) }.not_to change{ExpireConversationJob.jobs.count}
       end
 
     end

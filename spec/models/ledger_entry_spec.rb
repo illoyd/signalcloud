@@ -25,7 +25,7 @@ describe LedgerEntry do
         expect{ subject.ensure_organization }.to change{subject.organization}.from(nil)
       end
       it 'does not update organization id' do
-        expect{ subject.ensure_organization }.to_not change{subject.organization_id}.from(nil)
+        expect{ subject.ensure_organization }.not_to change{subject.organization_id}.from(nil)
       end
     end
     

@@ -8,7 +8,7 @@ describe 'routing to twilio/inbound_call' do
   end 
   
   it 'cannout route GET twilio/inbound_call' do
-    expect( get('twilio/inbound_call.xml') ).to_not be_routable
+    expect( get('twilio/inbound_call.xml') ).not_to be_routable
   end
 
 end

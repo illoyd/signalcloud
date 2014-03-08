@@ -81,10 +81,10 @@ describe Message, :vcr do
 #       its(:provider_price) { should_not be_nil }
 #       its(:'has_provider_price?') { should be_true }
 #       it 'does not change .provider_cost' do
-#         expect { subject.update_costs }.to_not change(subject, :provider_cost)
+#         expect { subject.update_costs }.not_to change(subject, :provider_cost)
 #       end
 #       it 'does not change .our_cost' do
-#         expect { subject.update_costs }.to_not change(subject, :our_cost)
+#         expect { subject.update_costs }.not_to change(subject, :our_cost)
 #       end
 #     end
 # 
@@ -135,7 +135,7 @@ describe Message, :vcr do
     context 'when properly configured' do
       subject { create :message, conversation: conversation, to_number: Twilio::VALID_NUMBER, from_number: Twilio::VALID_NUMBER, body: 'Hello!' }
       it 'does not raise error' do
-        expect { subject.deliver! }.to_not raise_error
+        expect { subject.deliver! }.not_to raise_error
       end
       it 'sets twilio sms sid' do
         expect { subject.deliver! }.to change{subject.provider_sid}.from(nil)
@@ -154,7 +154,7 @@ describe Message, :vcr do
         expect{ subject.deliver! }.to raise_error( SignalCloud::InvalidToNumberMessageSendingError )
       end
       it 'does not change provider response' do
-        expect{ subject.deliver! rescue nil }.to_not change{subject.provider_response}
+        expect{ subject.deliver! rescue nil }.not_to change{subject.provider_response}
       end
     end
 
@@ -164,7 +164,7 @@ describe Message, :vcr do
         expect{ subject.deliver! }.to raise_error( SignalCloud::InvalidFromNumberMessageSendingError )
       end
       it 'does not change provider response' do
-        expect{ subject.deliver! rescue nil }.to_not change{subject.provider_response}
+        expect{ subject.deliver! rescue nil }.not_to change{subject.provider_response}
       end
     end
 
@@ -174,7 +174,7 @@ describe Message, :vcr do
         expect{ subject.deliver! }.to raise_error( SignalCloud::InvalidBodyMessageSendingError )
       end
       it 'does not change provider response' do
-        expect{ subject.deliver! rescue nil }.to_not change{subject.provider_response}
+        expect{ subject.deliver! rescue nil }.not_to change{subject.provider_response}
       end
     end
   end
