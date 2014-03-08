@@ -52,6 +52,18 @@ FactoryGirl.define do
       end
     end
     
+    trait :with_mock_comms do
+      with_mock_communication_gateway
+    end
+    
+    trait :with_mock_communication_gateway do
+      after(:build) do |org|
+        unless org.communication_gateway_for? :mock
+          org.communication_gateways << build( :mock_communication_gateway, :test, organization: org )
+        end
+      end
+    end
+    
     trait :with_twilio do
       test_twilio
     end

@@ -16,8 +16,8 @@ describe LedgerEntry do
   
   describe '#ensure_organization' do
     context 'item\'s organization is new' do
-      let(:organization) { build :organization, :test_twilio }
-      let(:comm_gateway) { organization.communication_gateway_for :twilio }
+      let(:organization) { build :organization, :with_mock_comms }
+      let(:comm_gateway) { organization.communication_gateway_for(:mock) }
       let(:item) { build :phone_number, organization: organization, communication_gateway: comm_gateway }
       subject { build :ledger_entry, item: item, organization: nil }
       
@@ -30,8 +30,8 @@ describe LedgerEntry do
     end
     
     context 'item\'s organization is persisted' do
-      let(:organization) { create :organization, :test_twilio }
-      let(:comm_gateway) { organization.communication_gateway_for :twilio }
+      let(:organization) { create :organization, :with_mock_comms }
+      let(:comm_gateway) { organization.communication_gateway_for(:mock) }
       let(:item) { create :phone_number, organization: organization, communication_gateway: comm_gateway }
       subject { build :ledger_entry, item: item, organization: nil }
 
@@ -44,9 +44,9 @@ describe LedgerEntry do
     end
     
     context 'item\'s organization changes' do
-      let(:organization) { create :organization, :test_twilio }
-      let(:comm_gateway) { organization.communication_gateway_for :twilio }
-      let(:other_organization) { create :organization, :test_twilio }
+      let(:organization) { create :organization, :with_mock_comms }
+      let(:comm_gateway) { organization.communication_gateway_for :mock }
+      let(:other_organization) { create :organization, :with_mock_comms }
       let(:item) { create :phone_number, organization: organization, communication_gateway: comm_gateway }
       subject { build :ledger_entry, item: item, organization: organization }
 
@@ -177,7 +177,7 @@ describe LedgerEntry do
   describe '#update_organization_balance' do
     let(:original_value) { BigDecimal.new "-0.8" }
     let(:new_value)      { BigDecimal.new "-1.2" }
-    let(:organization)   { create :organization, :test_twilio }
+    let(:organization)   { create :organization, :with_mock_comms }
     let(:phone_number)   { create :phone_number, organization: organization, communication_gateway: organization.communication_gateway_for(:twilio) }
 
     context 'when entry is new' do

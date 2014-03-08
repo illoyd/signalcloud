@@ -10,7 +10,7 @@ describe CreateOrUpdateTwilioAccountJob, :vcr do
         expect { subject.perform(organization.id) }.not_to raise_error
       end
       it 'adds #communication_gateway' do
-        expect { subject.perform(organization.id) }.to change{organization.communication_gateway_for(:twilio)}.from(nil)
+        expect { subject.perform(organization.id) }.to change{organization.communication_gateway_for(:mock)}.from(nil)
       end
       it 'adds #communication_gateway as TwilioCommunicationGateway' do
         subject.perform(organization.id)
