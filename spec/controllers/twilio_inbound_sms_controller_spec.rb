@@ -24,7 +24,7 @@ describe Twilio::InboundSmsController do
     context 'when passing HTTP DIGEST' do
       context 'when not passing message auth header' do
         it 'responds with forbidden' do
-          authenticate_with_digest organization.sid, organization.auth_token, DIGEST_REALM
+          authenticate_with_http_digest organization.sid, organization.auth_token, :post, :create
           post :create, inbound_post_params
           response.status.should eq( 403 )
         end
@@ -32,7 +32,7 @@ describe Twilio::InboundSmsController do
 
       context 'when passing message auth header' do
         it 'responds with success' do
-          authenticate_with_digest organization.sid, organization.auth_token, DIGEST_REALM
+          authenticate_with_http_digest organization.sid, organization.auth_token, :post, :create
           inject_twilio_signature( twilio_inbound_sms_url, organization, inbound_post_params )
           post :create, inbound_post_params
           response.status.should eq( 200 )
@@ -42,7 +42,7 @@ describe Twilio::InboundSmsController do
     
     context 'when responding to inbound sms' do
       before {
-        authenticate_with_digest organization.sid, organization.auth_token, DIGEST_REALM
+        authenticate_with_http_digest organization.sid, organization.auth_token, :post, :create
         inject_twilio_signature( twilio_inbound_sms_url, organization, inbound_post_params )
       }
       it 'responds with blank TwiML' do
