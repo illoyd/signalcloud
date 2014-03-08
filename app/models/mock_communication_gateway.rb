@@ -1,54 +1,27 @@
-class MockedCommunicationGateway
-  extend  ActiveModel::Naming
-  extend  ActiveModel::Translation
-  include ActiveModel::Validations
-  include ActiveModel::Conversion
-  include Workflow
-  
-  workflow do
-    state :new do
-      event :create_remote, transitions_to: :ready
-    end
-    state :ready do
-      event :update_remote, transitions_to: :ready
-    end
-  end
-  
-  attr_accessor :id, :organization, :remote_sid, :remote_token, :remote_application, :updated_remote_at, :created_at, :updated_at
+class MockCommunicationGateway < CommunicationGateway
+  INVALID_TO_NUMBERS   = [ Twilio::INVALID_NUMBER, Twilio::INVALID_CANNOT_ROUTE_TO_NUMBER, Twilio::INVALID_INTERNATIONAL_NUMBER, Twilio::INVALID_BLACKLISTED_NUMBER ]
+  INVALID_FROM_NUMBERS = [ Twilio::INVALID_NUMBER, Twilio::INVALID_NOT_SMS_CAPABLE_FROM_NUMBER, Twilio::INVALID_FULL_SMS_QUEUE_NUMBER, Twilio::INVALID_INTERNATIONAL_NUMBER, Twilio::INVALID_NOT_SMS_CAPABLE_TO_NUMBER ]
 
-  validates_presence_of :remote_sid, :remote_token, if: :ready?
-  
-  def type
-    @type ||= self.class.name
-  end
-  
-  def organization_id
-    self.organization.id
-  end
-  
-  def remote_instance
-    # TODO
-  end
-  
   def message( sid )
     self.memory[sid]
-  end
-  
-  def phone_number( sid )
-    # TODO
   end
   
   def send_message!( to_number, from_number, body, options={} )
     raise SignalCloud::InvalidToNumberCommunicationGatewayError.new(self) if to_number.blank?
     raise SignalCloud::InvalidFromNumberCommunicationGatewayError.new(self) if from_number.blank?
     raise SignalCloud::InvalidMessageBodyCommunicationGatewayError.new(self) if body.blank?
-    
-    
-    mock = options.fetch(mock, {})
-    mock = {} if mock == true
-    status = mock.fetch(:status, [::Message::PENDING_SZ, ::Message::SENDING_SZ, ::Message::SENT_SZ, ::Message::FAILED_SZ ].sample )
 
-    msg = Message.new(
+    # Normalise and test to number    
+    to_number = self.class.prepend_plus(to_number)
+    raise SignalCloud::InvalidToNumberCommunicationGatewayError.new(self) if INVALID_TO_NUMBERS.include?(to_number)
+
+    # Normalise and test from number
+    from_number = self.class.prepend_plus(from_number)
+    raise SignalCloud::InvalidFromNumberCommunicationGatewayError.new(self) if INVALID_FROM_NUMBERS.include?(from_number)
+
+    status = options.fetch(:status, select_status(to_number, from_number))
+
+    msg = MockMessage.new(
       sid: SecureRandom.hex(4),
       account_sid: self.remote_sid,
       to: to_number,
@@ -59,13 +32,16 @@ class MockedCommunicationGateway
       segments: ( body.length.to_f / 160 ).ceil,
       price: ( status == 'sent' ? '0.01' : nil ),
       price_unit: ( status == 'sent' ? 'USD' : nil ),
-      created_at: mock.fetch(:created_at, Time.now),
-      updated_at: mock.fetch(:updated_at, Time.now),
+      created_at: options.fetch(:created_at, Time.now),
+      updated_at: options.fetch(:updated_at, Time.now),
       sent_at: ( status == 'sent' ? Time.now : nil )
     )
     memorize( msg )
     msg
   end
+  
+  # TODO: Remove this alias
+  alias_method :send_sms!, :send_message!
   
   def purchase_number!( phone_number )
     phone_number = normalize_phone_number( phone_number )
@@ -94,7 +70,7 @@ class MockedCommunicationGateway
     end
   end
 
-  class Message < APISmith::Smash
+  class MockMessage < APISmith::Smash
 
     # Required fields
     property :sid,        required: true
@@ -126,6 +102,14 @@ class MockedCommunicationGateway
   end
 
 protected
+
+  def select_status(to_number, from_number)
+    if INVALID_FROM_NUMBERS.include?(from_number) || INVALID_TO_NUMBERS.include?(to_number)
+      ::Message::FAILED_SZ
+    else
+      ::Message::SENT_SZ
+    end
+  end
   
   def normalize_phone_number( phone_number )
     phone_number = phone_number.number if phone_number.is_a? PhoneNumber

@@ -113,6 +113,8 @@ class Organization < ActiveRecord::Base
     klass = case service.to_sym
       when :twilio
         TwilioCommunicationGateway.name
+      when :mock
+        MockCommunicationGateway.name
       when :nexmo
         raise RuntimeError.new('Nexmo service not yet configured!')
       else
@@ -198,8 +200,6 @@ protected
   def apply_use_same_address
     self.contact_address = self.billing_address if self.use_billing_as_contact_address?
   end
-
-private
 
   def upgrade
     # Update SMS data if needed - this should be created when first needed

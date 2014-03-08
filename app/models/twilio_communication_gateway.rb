@@ -81,10 +81,6 @@ class TwilioCommunicationGateway < CommunicationGateway
     self.twilio_account.incoming_phone_numbers.get( sid )
   end
   
-  def self.prepend_plus( number )
-    number.start_with?('+') ? number : ( '+' + number  )
-  end
-  
   ##
   # Send an SMS using the Twilio API.
   def send_message!( to_number, from_number, body, options={} )
