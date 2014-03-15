@@ -24,9 +24,9 @@ describe UpdateMessageStatusJob, :vcr do
   end
 
   describe '#perform' do
-    let(:organization)    { create :organization, :master_twilio }
+    let(:organization)    { create :organization, :with_mock_comms }
     let(:comm_gateway)    { organization.communication_gateway_for(:mock) }
-    let(:phone_number)    { create :valid_phone_number, organization: organization }
+    let(:phone_number)    { create :valid_phone_number, organization: organization, communication_gateway: comm_gateway }
     let(:phone_book)      { organization.phone_books.first }
     let(:stencil)         { organization.stencils.first }
     let(:phone_book_entry) { create :phone_book_entry, phone_number: phone_number, phone_book: phone_book }

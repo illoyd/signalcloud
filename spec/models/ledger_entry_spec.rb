@@ -178,7 +178,7 @@ describe LedgerEntry do
     let(:original_value) { BigDecimal.new "-0.8" }
     let(:new_value)      { BigDecimal.new "-1.2" }
     let(:organization)   { create :organization, :with_mock_comms }
-    let(:phone_number)   { create :phone_number, organization: organization, communication_gateway: organization.communication_gateway_for(:twilio) }
+    let(:phone_number)   { create :phone_number, organization: organization, communication_gateway: organization.communication_gateway_for(:mock) }
 
     context 'when entry is new' do
       subject { build :ledger_entry, organization: organization, item: phone_number, value: original_value }
