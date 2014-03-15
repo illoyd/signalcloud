@@ -42,24 +42,6 @@ describe PhoneBook do
   let(:ru_number) { '+79111234567' }
   let(:hk_number) { '+85212345678' }
   
-  describe '#country_for_number' do
-    let(:book) { create(:phone_book) }
-    it 'recognises United States' do
-      book.country_for_number(us_number).should == PhoneBookEntry::US
-    end
-    it 'recognises Canadian' do
-      book.country_for_number(ca_number).should == PhoneBookEntry::CA
-    end
-    it 'recognises United Kingdom' do
-      book.country_for_number(gb_number).should == PhoneBookEntry::GB
-    end
-    it "does not recognise other countries" do
-      { Trinidad: tt_number, Malaysia: my_number, Australia: au_number, Russia: ru_number, HongKong: hk_number }.each do |country,number|
-        book.country_for_number(number).should == PhoneBookEntry::DEFAULT
-      end
-    end
-  end
-  
   describe '#default_phone_numbers' do
     subject { create_book(3, 2, 2, 2) }
 

@@ -15,29 +15,20 @@ class PhoneBook < ActiveRecord::Base
     self.phone_number_ids_by_country(nil)
   end
   
-  def country_for_number( number )
-    return case
-      when PhoneTools.united_states?(number)
-        PhoneBookEntry::US
-      when PhoneTools.canadian?(number)
-        PhoneBookEntry::CA
-      when PhoneTools.united_kingdom?(number)
-        PhoneBookEntry::GB
-      else
-        PhoneBookEntry::DEFAULT
-    end
-  end
-  
   def select_internal_number_for( to_number )
     country = PhoneTools.country to_number
     country = country.to_s if country.respond_to? :to_s
 
-    # Return a random entry from the given country set
-    # Tests for requested country, then nil country, then finally the first number available
-    #puts 'country: %s; array: %s' % [ country, components ]
-    phone_number_ids = self.phone_number_ids_by_country country
+    # First, try to find 'From numbers' for the same country as the country for the 'To number'
+    phone_number_ids = self.phone_number_ids_by_country(country)
+    
+    # If no phone numbers found, try the 'global' phone numbers
     phone_number_ids = self.default_phone_number_ids if phone_number_ids.empty?
-    return self.phone_book_entries.first.phone_number if phone_number_ids.empty?
+    
+    # If still no number is found, grab any phone number from the book
+    phone_number_ids = self.phone_book_entries.pluck(:phone_number_id) if phone_number_ids.empty?
+
+    # Finally, randomly select one id from the collection and return that phone number
     return PhoneNumber.find(phone_number_ids.sample)
   end
 
