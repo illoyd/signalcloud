@@ -66,7 +66,7 @@ class PhoneNumber < ActiveRecord::Base
   before_validation :ensure_normalized_phone_number
   
   def human_number
-    PhoneTools.humanize( self.number )
+    Country.format_international_phone_number(number)
   end
   
   def country
@@ -74,7 +74,7 @@ class PhoneNumber < ActiveRecord::Base
   end
 
   def self.normalize_phone_number(pn)
-    return pn.nil? ? nil : PhoneTools.normalize(pn)
+    return pn.nil? ? nil : Country.normalize_phone_number(pn)
   end
   
   def self.find_by_number(pn)

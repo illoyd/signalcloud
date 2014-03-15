@@ -1,15 +1,5 @@
 describe 'PhoneTools' do
 
-  describe ".normalize" do
-    it { PhoneTools.normalize('+41 44 364 35 33').should == '41443643533' }
-  end
-
-  describe ".plausible?" do
-    it { PhoneTools.plausible?('41 44 364 35 33').should be_true }
-    it { PhoneTools.plausible?('+41 44 364 35 33').should be_true }
-    it { PhoneTools.plausible?('+414436435 33').should be_true }
-  end
-  
   describe '.country' do
     let(:us_number) { '12151234567' }
     let(:ca_number) { '14161234567' }

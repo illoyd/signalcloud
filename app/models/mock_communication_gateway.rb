@@ -113,7 +113,7 @@ protected
   
   def normalize_phone_number( phone_number )
     phone_number = phone_number.number if phone_number.is_a? PhoneNumber
-    "+#{PhoneTools.normalize(phone_number)}"
+    "+#{Country.normalize_phone_number(phone_number)}"
   end
   
   def memory
