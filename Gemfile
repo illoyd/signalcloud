@@ -20,7 +20,6 @@ gem 'less-rails'
 gem 'twitter-bootstrap-rails'
 
 gem 'uglifier' #, '>= 1.0.3'
-
 gem 'jquery-rails'
 
 # To use ActiveModel has_secure_password
@@ -41,11 +40,10 @@ gem 'sinatra', '>= 1.3.0', :require => nil
 # To use debugger
 # gem 'debugger'
 
+#
 # Additional gems
 gem 'active_model_serializers'
-gem 'sidekiq'
 gem 'haml'
-gem 'twilio-ruby'
 gem 'devise', '~> 3.2.0'
 gem 'devise-async'
 gem 'devise_invitable'
@@ -53,7 +51,6 @@ gem 'cancancan', '~> 1.7'
 gem 'attr_encryptor', "~> 2.0.0"
 gem 'kaminari'
 gem 'stringex'
-gem 'ruby-freshbooks'
 gem 'httparty'
 gem 'api_smith'
 gem 'twitter_bootstrap_form_for', :git => 'git://github.com/stouset/twitter_bootstrap_form_for.git', :branch => 'bootstrap-2.0'
@@ -63,13 +60,27 @@ gem 'workflow'
 gem 'lograge'
 gem 'countries-phone_numbers'
 
+#
+# Temporary or deprecated gems - these should be removed!
 gem 'protected_attributes'
-#gem 'strong_parameters'
 
+#
+# Internal services (e.g. queues, caches)
+gem 'sidekiq'
+
+#
+# External services (e.g. telephony, accounting)
+gem 'twilio-ruby'
+gem 'ruby-freshbooks'
+
+#
+# Test and development gems
 group :test, :development do
   gem "rspec-rails" #, "~> 2.0"
 end
 
+#
+# Test gems
 group :test do
 	gem 'shoulda-matchers'
 	gem 'rspec-sidekiq'
@@ -81,6 +92,8 @@ group :test do
   gem 'hashdiff'
 end
 
+#
+# Production gems
 group :production do
   gem 'newrelic_rpm'
 end
