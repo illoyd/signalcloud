@@ -24,9 +24,9 @@ describe CreateOrUpdateTwilioAccountJob, :vcr, :skip do
         subject.perform(organization.id)
         organization.communication_gateway_for(:twilio).twilio_auth_token.should_not be_nil
       end
-      it 'sets #communication_gateway.twilio_application_sid' do
+      it 'sets #communication_gateway.remote_application' do
         subject.perform(organization.id)
-        organization.communication_gateway_for(:twilio).twilio_application_sid.should_not be_nil
+        organization.communication_gateway_for(:twilio).remote_application.should_not be_nil
       end
     end
 
