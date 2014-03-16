@@ -47,6 +47,7 @@ class Organization < ActiveRecord::Base
   validates_presence_of :sid, :auth_token, :label, :account_balance, :account_plan
   validates_presence_of :billing_first_name, :billing_last_name, :billing_work_phone, if: Proc.new { |org| org.billing_country.present? }
   validates_presence_of :contact_first_name, :contact_last_name, :contact_work_phone, if: Proc.new { |org| org.contact_country.present? }
+  validates_uniqueness_of :sid
   
   # Callbacks
   before_validation :ensure_sid_and_token
@@ -56,29 +57,12 @@ class Organization < ActiveRecord::Base
   
   # Delegations
   delegate :update_balance!, :balance, :balance=, to: :account_balance
-  # delegate :has_twilio_application?, :twilio_client, :twilio_account, :twilio_account_sid, :twilio_validator, :send_sms!, to: :communication_gateway
   delegate :freshbooks_id, to: :accounting_gateway
 
-  def ensure_sid_and_token
-    self.sid ||= SecureRandom.hex(16)
-    self.auth_token ||= SecureRandom.hex(16)
-  end
-  
-  def ensure_account_balance
-    self.build_account_balance if self.account_balance.nil?
-  end
-  
   def icon
     super || :briefcase
   end
   
-  ##
-  # Create starting 'default' book and stencil for a newly created organization
-  def ensure_initial_resources
-    initial_book = self.phone_books.build( organization: self, label: 'Default Book' ) if self.phone_books.empty?
-    initial_stencil = self.stencils.build( organization: self, label: 'Default Stencil', phone_book: self.phone_books.first ) if self.stencils.empty?
-  end
-
   ##
   # Return the default stencil for this organization, or the first stencil if no default is set.
   def default_stencil
@@ -198,9 +182,33 @@ class Organization < ActiveRecord::Base
 protected
 
   ##
+  # Add SID and Auth Token (for API access) on first create.
+  def ensure_sid_and_token
+    self.sid        ||= SecureRandom.hex(16)
+    self.auth_token ||= SecureRandom.hex(16)
+    true
+  end
+  
+  ##
+  # Build a new account balance if not already defined.
+  def ensure_account_balance
+    self.build_account_balance if self.account_balance.nil?
+    true
+  end
+  
+  ##
+  # Create starting 'default' book and stencil for a newly created organization
+  def ensure_initial_resources
+    initial_book = self.phone_books.build( organization: self, label: 'Default Book' ) if self.phone_books.empty?
+    initial_stencil = self.stencils.build( organization: self, label: 'Default Stencil', phone_book: self.phone_books.first ) if self.stencils.empty?
+    true
+  end
+
+  ##
   # Automatically use the billing address as the contact address if requested.
   def apply_use_same_address
     self.contact_address = self.billing_address if self.use_billing_as_contact_address?
+    true
   end
 
   def upgrade
