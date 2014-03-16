@@ -48,7 +48,8 @@ gem 'devise', '~> 3.2.0'
 gem 'devise-async'
 gem 'devise_invitable'
 gem 'cancancan', '~> 1.7'
-gem 'attr_encryptor', "~> 2.0.0"
+#gem 'attr_encryptor', "~> 2.0.0"
+gem 'attr_encrypted', '~> 1.3.2'
 gem 'kaminari'
 gem 'stringex'
 gem 'httparty'
