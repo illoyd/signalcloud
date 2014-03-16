@@ -157,7 +157,8 @@ class Organization < ActiveRecord::Base
     self.billing_city       = address.city
     self.billing_region     = address.region
     self.billing_postcode   = address.postcode
-    self.billing_country    = address.country    
+    self.billing_country    = address.country
+    address   
   end
   
   ##
@@ -190,7 +191,8 @@ class Organization < ActiveRecord::Base
     self.contact_city       = address.city
     self.contact_region     = address.region
     self.contact_postcode   = address.postcode
-    self.contact_country    = address.country    
+    self.contact_country    = address.country
+    address
   end
   
 protected
