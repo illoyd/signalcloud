@@ -10,8 +10,6 @@ class LedgerEntry < ActiveRecord::Base
   UNSOLICITED_SMS_REPLY_NARRATIVE = 'Reply to Unsolicited Inbound SMS'
   INBOUND_CALL_NARRATIVE = 'Inbound Phone Call'
 
-  attr_accessible :narrative, :value, :settled_at, :organization_id, :item_id, :item_type, :organization, :item, :notes, :invoiced_at
-  
   belongs_to :organization, inverse_of: :ledger_entries
   belongs_to :invoice, inverse_of: :ledger_entries
   belongs_to :item, polymorphic: true
