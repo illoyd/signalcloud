@@ -51,7 +51,7 @@ SignalCloud::Application.routes.draw do
   
     resources :phone_numbers, only: [ :index, :show, :create, :edit, :update, :destroy ] do
       collection do
-        get 'search/:country', action: 'search', defaults: { country: 'US' }, constraint: { country: /(US|CA|GB)/ }, as: 'search'
+        get 'search/:country/:kind', action: 'search', defaults: { country: 'US', kind: 'local' }, as: 'search'
       end
     end
   

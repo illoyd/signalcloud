@@ -52,5 +52,25 @@ module PhoneNumbersHelper
         'other'
     end
   end
+  
+  def supported_countries_navigation_list_fragment
+    local  = supported_countries_local_navigation_list_fragment
+    mobile = supported_countries_mobile_navigation_list_fragment
+    (local + mobile).sort { |a,b| a[:label] <=> b[:label] }
+  end
+
+  def supported_countries_local_navigation_list_fragment
+    build_supported_countries_navigation_list_fragment(supported_countries_local, 'local')
+  end
+
+  def supported_countries_mobile_navigation_list_fragment
+    build_supported_countries_navigation_list_fragment(supported_countries_mobile, 'mobile')
+  end
+
+  def build_supported_countries_navigation_list_fragment(countries, kind)
+    countries.map do |country|
+      { label: "#{ country.name }", icon: :phone_numbers, link: search_organization_phone_numbers_path(@organization, country.alpha2, kind), active: ( params[:country] == country.alpha2 && params[:kind] == kind ) }
+    end
+  end
 
 end

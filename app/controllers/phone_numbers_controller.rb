@@ -83,16 +83,17 @@ class PhoneNumbersController < ApplicationController
     # Number of phone numbers to show
     @numbers_to_show = 10
   
-    # Collection of searchable params
-    allowed_search_params = [ :area_code, :contains, :in_region, :in_postal_code, :near_number, :distance ]
-    search_params = allowed_search_params.each_with_object({}) { |k, h| h[k] = params[k] if params.include?(k) }
+    # Pick the searchable parameters
+    search_params = params.slice( :area_code, :contains, :in_region, :in_postal_code, :near_number, :distance )
+    search_params[:sms_enabled] = true
     
     # Extract country code from params
     country_code = params.fetch(:country, 'US').upcase
+    phone_number_kind = params.fetch(:kind, 'local').downcase
     
     # Search and reply
     begin
-      @available_phone_numbers = @organization.communication_gateway_for(:twilio).remote_instance.available_phone_numbers.get( country_code ).local.list( search_params ).first(@numbers_to_show)
+      @available_phone_numbers = search_for( country_code, phone_number_kind, search_params ).first(@numbers_to_show)
       respond_with @available_phone_numbers
     rescue Twilio::REST::RequestError => ex
       flash.now[:error] = '%s (%s)' % [ ex.message, ex.code ]
@@ -113,5 +114,18 @@ class PhoneNumbersController < ApplicationController
 #       end
 #     end
 #   end
+
+  protected
+  
+  def search_for(country, kind, search_params)
+    searcher = @organization.communication_gateway_for(:twilio).remote_instance.available_phone_numbers.get(country)
+    searcher = case kind
+      when 'mobile'
+        searcher.mobile
+      else
+        searcher.local
+      end
+    searcher.list(search_params)
+  end
 
 end

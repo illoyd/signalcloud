@@ -2,6 +2,11 @@
 # Patch for Twilio::TwiML::Response to support .to_s and .to_xml
 module Twilio
 
+  # Valid Phone Number Countries
+  SUPPORTED_COUNTRIES_LOCAL  = %w( US CA GB ES ).sort
+  SUPPORTED_COUNTRIES_MOBILE = %w( BE FI GB NO PL SE CH AT EE LT HK AU ).sort
+  SUPPORTED_COUNTRIES        = (SUPPORTED_COUNTRIES_LOCAL + SUPPORTED_COUNTRIES_MOBILE).uniq
+
   # 'Magic Numbers' for test cases
   VALID_NUMBER = '+15005550006'  
   INVALID_NUMBER = '+15005550001'
