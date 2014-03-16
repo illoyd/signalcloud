@@ -7,10 +7,6 @@ describe UnsolicitedMessage do
   end
 
   describe 'validations' do
-    [ :twilio_sms_sid, :action_content, :action_taken, :action_taken_at, :customer_number, :message_content, :received_at ].each do |attribute|
-      it { should allow_mass_assignment_of attribute }
-    end
-    
     [ :customer_number, :message_content, :received_at ].each do |attribute|
       it { should validate_presence_of attribute }
     end
