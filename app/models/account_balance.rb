@@ -6,7 +6,7 @@ class AccountBalance < ActiveRecord::Base
   attr_accessor :balance_changed
   
   def update_balance!( delta )
-    self.class.update_all( ['balance = balance + ?', delta ], id: self.id )
+    self.class.where( id: self.id ).update_all( ['balance = balance + ?', delta] )
     self.balance_changed = true
   end
   

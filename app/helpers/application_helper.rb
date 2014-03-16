@@ -40,7 +40,7 @@ module ApplicationHelper
   end
   
   def humanize_phone_number( number )
-    PhoneTools.humanize( number )
+    Country.format_international_phone_number(number)
   end
   
   def flag_icon( country='_global', size='medium' )

@@ -10,8 +10,6 @@ class LedgerEntry < ActiveRecord::Base
   UNSOLICITED_SMS_REPLY_NARRATIVE = 'Reply to Unsolicited Inbound SMS'
   INBOUND_CALL_NARRATIVE = 'Inbound Phone Call'
 
-  attr_accessible :narrative, :value, :settled_at, :organization_id, :item_id, :item_type, :organization, :item, :notes, :invoiced_at
-  
   belongs_to :organization, inverse_of: :ledger_entries
   belongs_to :invoice, inverse_of: :ledger_entries
   belongs_to :item, polymorphic: true
@@ -25,46 +23,46 @@ class LedgerEntry < ActiveRecord::Base
   ##
   # Find all ledger_entries which have not been confirmed.
   # This usually implies that the 'value' may change based upon the provider's response.
-  scope :pending, where( 'settled_at is null' )
+  scope :pending, ->{ where( 'settled_at is null' ) }
   
   ##
   # Find all ledger_entries which have been confirmed.
   # This usually entails the 'value' is set to a permanent figure.
-  scope :settled, where( 'settled_at is not null' )
+  scope :settled, ->{ where( 'settled_at is not null' ) }
   
   ##
   # Find all ledger_entries which have not been invoiced.
-  scope :uninvoiced, where( 'invoice_id is null' )
+  scope :uninvoiced, ->{ where( 'invoice_id is null' ) }
 
   ##
   # Find all ledger_entries which have been invoiced.
-  scope :invoiced, where( 'invoice_id is not null' )
+  scope :invoiced, ->{ where( 'invoice_id is not null' ) }
   
   ##
   # Find all where settled before a given date
-  scope :settled_before, lambda{ |to_date| where( 'settled_at <= ?', to_date )}
+  scope :settled_before, ->( to_date ){ where( 'settled_at <= ?', to_date )}
 
   ##
   # Get all entries created yesterday.
-  scope :in_range, lambda{ |from_date, to_date| where( "ledger_entries.created_at >= ? and ledger_entries.created_at <= ?", from_date, to_date ) }
+  scope :in_range, ->( from_date, to_date ){ where( "ledger_entries.created_at >= ? and ledger_entries.created_at <= ?", from_date, to_date ) }
   
   ##
   # Get all entries created today.
   #scope :today, ->{ where( "ledger_entries.created_at >= ? and ledger_entries.created_at <= ?", DateTime.now.beginning_of_day, DateTime.now.end_of_day ) }
-  scope :today, in_range( DateTime.now.beginning_of_day, DateTime.now.end_of_day )
+  scope :today, ->{ in_range( DateTime.now.beginning_of_day, DateTime.now.end_of_day ) }
   
   ##
   # Get all entries created yesterday.
   #scope :yesterday, ->{ where( "ledger_entries.created_at >= ? and ledger_entries.created_at <= ?", DateTime.yesterday.beginning_of_day, DateTime.yesterday.end_of_day ) }
-  scope :yesterday, in_range( DateTime.yesterday.beginning_of_day, DateTime.yesterday.end_of_day )
+  scope :yesterday, ->{ in_range( DateTime.yesterday.beginning_of_day, DateTime.yesterday.end_of_day ) }
   
   ##
   # Get all debits (negative or zero) charges
-  scope :debits, where( 'value <= 0' )
+  scope :debits, ->{ where( 'value <= 0' ) }
 
   ##
   # Get all credits (positive) charges
-  scope :credits, where( 'value > 0' )
+  scope :credits, ->{ where( 'value > 0' ) }
 
   ##
   # Simple test if status is pending (e.g. has not been confirmed by the provider)

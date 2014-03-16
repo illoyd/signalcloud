@@ -20,8 +20,8 @@ class Stencil < ActiveRecord::Base
   validates_presence_of :organization, :label
   
   # Scopes
-  scope :active,   where( :active => true )
-  scope :inactive, where( :active => false )
+  scope :active,   ->{ where( :active => true ) }
+  scope :inactive, ->{ where( :active => false ) }
   
   ##
   # Parameters passed to newly built conversations

@@ -5,7 +5,7 @@ describe Conversation do
 
   shared_examples 'sends message' do |method|
     it 'does not raise error' do
-      expect{ subject.send(method) }.to_not raise_error
+      expect{ subject.send(method) }.not_to raise_error
     end
     it 'creates a new message' do
       expect{ subject.send(method) }.to change{subject.messages(true).count}.by(1)
@@ -34,7 +34,7 @@ describe Conversation do
   
   shared_examples 'accepts answer' do |answer|
     it 'does not raise error' do
-      expect{ subject.accept_answer!(answer) }.to_not raise_error
+      expect{ subject.accept_answer!(answer) }.not_to raise_error
     end
     it 'creates a new message' do
       expect{ subject.accept_answer!(answer) }.to change{subject.messages(true).count}.by(1)

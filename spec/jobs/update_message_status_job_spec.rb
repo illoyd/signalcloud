@@ -6,7 +6,7 @@ describe UpdateMessageStatusJob, :vcr do
   def create_message_update_payload( message, body=nil, reply=false, others={} )
     body = message.conversation.question if body.nil?
     return {
-      'AccountSid' => message.conversation.organization.communication_gateway_for(:twilio).twilio_account_sid,
+      'AccountSid' => message.conversation.organization.communication_gateway_for(:mock).twilio_account_sid,
       'SmsSid' =>     message.provider_sid,
       'ApiVersion' => '2010-04-01',
       'From' =>       reply ? message.conversation.customer_number : message.conversation.internal_number,
@@ -24,9 +24,9 @@ describe UpdateMessageStatusJob, :vcr do
   end
 
   describe '#perform' do
-    let(:organization)    { create :organization, :master_twilio }
-    let(:comm_gateway)    { organization.communication_gateway_for(:twilio) }
-    let(:phone_number)    { create :valid_phone_number, organization: organization }
+    let(:organization)    { create :organization, :with_mock_comms }
+    let(:comm_gateway)    { organization.communication_gateway_for(:mock) }
+    let(:phone_number)    { create :valid_phone_number, organization: organization, communication_gateway: comm_gateway }
     let(:phone_book)      { organization.phone_books.first }
     let(:stencil)         { organization.stencils.first }
     let(:phone_book_entry) { create :phone_book_entry, phone_number: phone_number, phone_book: phone_book }

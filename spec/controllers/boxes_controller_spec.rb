@@ -145,8 +145,7 @@ describe BoxesController do
         Box.last.label.should == box_label
       end
       it 'raises 400 bad request if no parameters' do
-        post :create, organization_id: organization.id
-        response.status.should == 400
+        expect{ post :create, organization_id: organization.id }.to raise_error(ActionController::ParameterMissing)
       end
     end
 
@@ -177,8 +176,7 @@ describe BoxesController do
         expect{ post :update, update_payload }.to change{ box.reload.label }.to( box_label )
       end
       it 'raises 400 bad request if no parameters' do
-        post :update, organization_id: organization.id, id: box.id
-        response.status.should == 400
+        expect{ post :update, organization_id: organization.id, id: box.id }.to raise_error(ActionController::ParameterMissing)
       end
     end
 

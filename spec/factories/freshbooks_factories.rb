@@ -7,7 +7,7 @@ FactoryGirl.define do
     
     after(:create) do |organization, evaluator|
       # Create basics
-      phone_number    = create(:phone_number, organization: organization, communication_gateway: organization.communication_gateway_for(:twilio))
+      phone_number    = create(:phone_number, organization: organization, communication_gateway: organization.communication_gateway_for(:mock))
       phone_book      = create(:phone_book, organization: organization)
       create(:phone_book_entry, phone_number: phone_number, phone_book: phone_book)
       stencil         = create(:stencil, organization: organization, phone_book: phone_book)

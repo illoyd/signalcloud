@@ -133,8 +133,7 @@ describe PhoneBooksController do
         PhoneBook.last.description.should == new_description
       end
       it 'raises 400 bad request if no parameters' do
-        post :create, organization_id: organization.id
-        response.status.should == 400
+        expect{ post :create, organization_id: organization.id }.to raise_error(ActionController::ParameterMissing)
       end
     end
 
@@ -165,8 +164,7 @@ describe PhoneBooksController do
         expect{ put :update, update_payload }.to change{ phone_book.reload.description }.to( new_description )
       end
       it 'raises 400 bad request if no parameters' do
-        put :update, organization_id: organization.id, id: phone_book.id
-        response.status.should == 400
+        expect{ put :update, organization_id: organization.id, id: phone_book.id }.to raise_error(ActionController::ParameterMissing)
       end
     end
     

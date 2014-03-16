@@ -5,8 +5,6 @@ class PaymentGateway < ActiveRecord::Base
 
   belongs_to :organization, inverse_of: :payment_gateway
 
-  attr_accessible :remote_sid
-
   validates_presence_of :remote_sid, if: :ready?
 
   workflow do
