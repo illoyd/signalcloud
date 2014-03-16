@@ -62,7 +62,7 @@ gem 'countries-phone_numbers'
 
 #
 # Temporary or deprecated gems - these should be removed!
-gem 'protected_attributes'
+# Hooray! Nothing here!
 
 #
 # Internal services (e.g. queues, caches)
