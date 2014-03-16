@@ -16,8 +16,12 @@
           %th.span1
           %th Directory
           %th Description
-          %th Phone numbers
-          %th Stencils
+          %th
+            = icon(:phone_numbers)
+            Phone numbers
+          %th
+            = icon(:stencils)
+            Stencils
       %tbody
         - @phone_books.order('label desc').each do |phone_book|
           %tr

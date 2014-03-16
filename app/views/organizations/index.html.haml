@@ -50,10 +50,19 @@
               (#{organization.account_plan.label})
             %td{'align'=>'right'}= currency_for( organization.balance )
             %td.centered
-              = organization.conversations.today.opened.count
-              \/
-              = organization.conversations.today.count
-            %td.centered= organization.stencils.count
-            %td.centered= organization.phone_books.count
-            %td.centered= organization.phone_numbers.count
-            %td.centered= organization.users.count
+              = link_to [organization, :conversations] do
+                = organization.conversations.today.opened.count
+                \/
+                = organization.conversations.today.count
+            %td.centered
+              = link_to [organization, :stencils] do
+                = organization.stencils.count
+            %td.centered
+              = link_to [organization, :phone_books] do
+                = organization.phone_books.count
+            %td.centered
+              = link_to [organization, :phone_numbers] do
+                = organization.phone_numbers.count
+            %td.centered
+              = link_to [organization, :users] do
+                = organization.users.count
