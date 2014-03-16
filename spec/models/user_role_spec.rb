@@ -9,10 +9,6 @@ end
 describe UserRole do
 
   describe 'validations' do  
-    [ :organization, :user, :roles ].each do |attribute| 
-      it { should allow_mass_assignment_of(attribute) }
-    end
-
     [ :organization, :user, :roles_mask ].each do |attribute| 
       it { should validate_presence_of(attribute) }
     end
