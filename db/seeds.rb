@@ -40,11 +40,15 @@ def rand_datetime(from, to=Time.now)
   Time.at(rand_in_range(from.to_f, to.to_f))
 end
 
-# Create users
-master_user = User.create! nickname: 'Ian', name: 'Ian Lloyd', email: 'ian@signalcloudapp.com', password: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID']
-test_user = User.create! nickname: 'Jane', name: 'Jane Doe', email: 'jane.doe@signalcloudapp.com', password: 'password', password_confirmation: 'password'
-simple_user = User.create! nickname: 'Joe', name: 'Joseph Bloggs', email: 'joe.bloggs@signalcloudapp.com', password: 'password', password_confirmation: 'password'
-perf_user = User.create! nickname: 'Perf', name: 'Performance User', email: 'hello@signalcloudapp.com', password: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID']
+# Create users for all environments
+master_user = User.create_with(nickname: 'Ian', name: 'Ian Lloyd', password: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID']).find_or_create_by(email: 'ian@signalcloudapp.com')
+perf_user = User.create_with(nickname: 'Perf', name: 'Performance User', password: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID']).find_or_create_by(email: 'hello@signalcloudapp.com')
+
+# Create users only for non-production environments
+unless Rails.env.production?
+  simple_user = User.create_with(nickname: 'Joe', name: 'Joseph Bloggs', password: 'password', password_confirmation: 'password').find_or_create_by(email: 'joe.bloggs@signalcloudapp.com')
+  test_user = User.create_with(nickname: 'Jane', name: 'Jane Doe', password: 'password', password_confirmation: 'password').find_or_create_by(email: 'jane.doe@signalcloudapp.com')
+end
 
 # Add plan data
 master_plan = AccountPlan.find_or_create_by_label( label: 'Unmetered' )
