@@ -59,6 +59,7 @@ gem 'country_select'
 gem 'workflow'
 gem 'lograge'
 gem 'countries-phone_numbers'
+gem 'rails_12factor'
 
 #
 # Temporary or deprecated gems - these should be removed!
@@ -66,7 +67,9 @@ gem 'countries-phone_numbers'
 
 #
 # Internal services (e.g. queues, caches)
+gem 'redis'
 gem 'sidekiq'
+gem 'sidetiq'
 
 #
 # External services (e.g. telephony, accounting)
