@@ -5,7 +5,7 @@ class Twilio::TwilioController < ApplicationController
   skip_before_filter :authenticate_user!
   skip_before_filter :verify_authenticity_token
   
-  def index
+  def show
     head :ok
   end
 
