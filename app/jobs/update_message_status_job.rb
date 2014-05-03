@@ -32,7 +32,7 @@ class UpdateMessageStatusJob
     # Shift message state
     case
       when message_status.sent?
-        message.confirm!( sent_at )
+        message.confirm!( sent_at ) if message.can_confirm?
         transition_conversation( message.conversation )
       
       when message_status.sending?
