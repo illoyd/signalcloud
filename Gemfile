@@ -68,7 +68,7 @@ gem 'rails_12factor'
 #
 # Internal services (e.g. queues, caches)
 gem 'redis'
-gem 'sidekiq'
+gem 'sidekiq', '~> 2.17'
 gem 'sidetiq'
 
 #
