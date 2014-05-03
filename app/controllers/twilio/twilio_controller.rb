@@ -33,7 +33,7 @@ class Twilio::TwilioController < ApplicationController
         expected_signature_with_auth = gateway.twilio_validator.build_signature_for( signature_uri_with_auth, signature_params )
         logger.error 'Twilio: Could not auth Twilio ignoring digest! Given %s, expected %s. Using URI %s and POST %s.' % [ signature, expected_signature_without_auth, signature_uri_without_auth, signature_params ]
         logger.error 'Twilio: Could not auth Twilio using digest! Given %s, expected %s. Using URI %s and POST %s.' % [ signature, expected_signature_with_auth, signature_uri_with_auth, signature_params ]
-        head :forbidden
+        # head :forbidden
       end
 
       logger.info { "Twilio: Organisation #{ @organization.id } fully authenticated." }
