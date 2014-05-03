@@ -3,7 +3,7 @@ module ActionDispatch
 
     def original_request_url( username=nil, password=nil )
       # Split fullpath to remove querystring
-      temp_path = url.include?('?') ? url.split('?')[0] : url
+      temp_path = original_url.include?('?') ? original_url.split('?')[0] : original_url
       
       # Add query string
       temp_path += '?' + query_parameters.to_hash unless query_parameters.empty?
