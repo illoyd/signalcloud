@@ -100,7 +100,7 @@ class TwilioCommunicationGateway < CommunicationGateway
     payload[:status_callback] = self.twilio_sms_status_url if options.fetch( :default_callback, false )
 
     begin
-      response = self.twilio_account.sms.messages.create( payload )
+      response = self.twilio_account.messages.create( payload )
       return case options.fetch( :response_format, :smash )
         when :smash
           response.to_property_smash
