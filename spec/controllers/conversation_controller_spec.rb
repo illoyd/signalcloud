@@ -107,8 +107,7 @@ describe ConversationsController do
         Conversation.last.internal_number.should == internal_number.gsub(/^\+/,'')
       end
       it 'raises 400 bad request if no parameters' do
-        post :create, organization_id: organization.id, stencil_id: stencil.id
-        response.status.should == 400
+        expect{ post :create, organization_id: organization.id, stencil_id: stencil.id }.to raise_error(ActionController::ParameterMissing)
       end
     end
 

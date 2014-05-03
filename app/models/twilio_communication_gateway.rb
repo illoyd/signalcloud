@@ -23,7 +23,7 @@ class TwilioCommunicationGateway < CommunicationGateway
   ##
   # Determine if this organization has a configured Twilio application.
   def has_twilio_application?
-    return !self.twilio_application.blank?
+    return !self.remote_application.blank?
   end
   
   ##
@@ -51,6 +51,8 @@ class TwilioCommunicationGateway < CommunicationGateway
     return @twilio_validator
   end
   
+  alias_method :signature_validator, :twilio_validator
+  
   def twilio_voice_url
     raise SignalCloud::MissingTwilioAccountError.new(self) unless self.has_twilio_account?
     self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_inbound_call_url
@@ -77,10 +79,6 @@ class TwilioCommunicationGateway < CommunicationGateway
   
   def phone_number( sid )
     self.twilio_account.incoming_phone_numbers.get( sid )
-  end
-  
-  def self.prepend_plus( number )
-    number.start_with?('+') ? number : ( '+' + number  )
   end
   
   ##
@@ -140,7 +138,7 @@ class TwilioCommunicationGateway < CommunicationGateway
 
   def purchase_number!( phone_number )
     pn = self.class.prepend_plus(phone_number.number)
-    results = self.twilio_account.incoming_phone_numbers.create( { phone_number: pn, application_sid: self.twilio_application_sid } )
+    results = self.twilio_account.incoming_phone_numbers.create( { phone_number: pn, application_sid: self.remote_application } )
     phone_number.provider_sid = results.sid
     results
   end
@@ -179,14 +177,14 @@ class TwilioCommunicationGateway < CommunicationGateway
         ERROR_UNKNOWN
       end
   end
-  
+
 protected
 
   def assemble_phone_number_data( phone_number )
     # Assemble common data
     data = {
-      voice_application_sid: self.twilio_application_sid,
-      sms_application_sid: self.twilio_application_sid
+      voice_application_sid: self.remote_application,
+      sms_application_sid: self.remote_application
     }
     
     # Insert existing record data
@@ -238,7 +236,7 @@ protected
     raise SignalCloud::TwilioApplicationAlreadyExistsError.new(self) if self.has_twilio_application?
 
     response = self.twilio_account.applications.create(self.assemble_twilio_application_data)
-    self.twilio_application_sid = response.sid
+    self.remote_application = response.sid
     return response
   end
   
@@ -248,7 +246,7 @@ protected
     raise SignalCloud::MissingTwilioAccountError.new(self) unless self.has_twilio_account?
     raise SignalCloud::MissingTwilioApplicationError.new(self) unless self.has_twilio_application?
 
-    return self.twilio_account.applications.get(self.twilio_application_sid).update(self.assemble_twilio_application_data)
+    return self.twilio_account.applications.get(self.remote_application).update(self.assemble_twilio_application_data)
   end
 
   def assemble_twilio_account_data( options={} )

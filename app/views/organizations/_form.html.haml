@@ -23,32 +23,34 @@
     = f.fieldset 'VAT Details <small>(optional)</small>'.html_safe do
       = f.text_field :vat_name, 'VAT Registered Name'
       = f.text_field :vat_number, 'VAT Number'
-  
-    = f.fieldset 'Contact Address <small>(optional)</small>'.html_safe do
-      = f.twitter_bootstrap_fields_for :contact_address do |address|
-        = address.text_field :first_name
-        = address.text_field :last_name
-        = address.text_field :email
-        = address.text_field :line1, 'Line 1'
-        = address.text_field :line2, 'Line 2'
-        = address.text_field :city, 'City'
-        = address.text_field :region, 'State/Provinece'
-        = address.text_field :postcode, 'Postal Code'
-        = address.country_select :country
-        
-  
+    
     = f.fieldset 'Billing Address <small>(optional)</small>'.html_safe do
-      = f.twitter_bootstrap_fields_for :billing_address do |address|
-        = address.text_field :first_name
-        = address.text_field :last_name
-        = address.text_field :email
-        = address.text_field :line1, 'Line 1'
-        = address.text_field :line2, 'Line 2'
-        = address.text_field :city, 'City'
-        = address.text_field :region, 'State/Provinece'
-        = address.text_field :postcode, 'Postal Code'
-        = address.country_select :country
+      = f.text_field :billing_first_name, 'First Name'
+      = f.text_field :billing_last_name, 'Last Name'
+      = f.text_field :billing_email, 'Email'
+      = f.text_field :billing_work_phone, 'Work Phone'
+      = f.text_field :billing_line1, 'Line 1'
+      = f.text_field :billing_line2, 'Line 2'
+      = f.text_field :billing_city, 'City'
+      = f.text_field :billing_region, 'State/Provinece'
+      = f.text_field :billing_postcode, 'Postal Code'
+      = f.country_select :billing_country, 'Country', ['Canada', 'United Kingdom', 'United States'], include_blank: true
+      = f.label '' do |controls|
+        = controls.check_box :use_billing_as_contact_address, 'Use billing address as contact address'
+      
 
+    = f.fieldset 'Contact Address <small>(optional)</small>'.html_safe do
+      = f.text_field :contact_first_name, 'First Name'
+      = f.text_field :contact_last_name, 'Last Name'
+      = f.text_field :contact_email, 'Email'
+      = f.text_field :contact_work_phone, 'Work Phone'
+      = f.text_field :contact_line1, 'Line 1'
+      = f.text_field :contact_line2, 'Line 2'
+      = f.text_field :contact_city, 'City'
+      = f.text_field :contact_region, 'State/Provinece'
+      = f.text_field :contact_postcode, 'Postal Code'
+      = f.country_select :contact_country, 'Country', ['Canada', 'United Kingdom', 'United States'], include_blank: true
+        
   = f.actions do
     = f.submit :class => 'btn btn-primary'
     = link_to 'Discard changes', ( @organization.new_record? ? organizations_path : @organization ), :class => 'btn'

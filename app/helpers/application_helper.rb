@@ -40,7 +40,7 @@ module ApplicationHelper
   end
   
   def humanize_phone_number( number )
-    PhoneTools.humanize( number )
+    Country.format_international_phone_number(number)
   end
   
   def flag_icon( country='_global', size='medium' )
@@ -141,4 +141,16 @@ module ApplicationHelper
     html.html_safe
   end
 
+  def supported_countries
+    Twilio::SUPPORTED_COUNTRIES.map { |alpha2| Country[alpha2] }.sort_by(&:name)
+  end
+  
+  def supported_countries_local
+    Twilio::SUPPORTED_COUNTRIES_LOCAL.map { |alpha2| Country[alpha2] }.sort_by(&:name)
+  end
+  
+  def supported_countries_mobile
+    Twilio::SUPPORTED_COUNTRIES_MOBILE.map { |alpha2| Country[alpha2] }.sort_by(&:name)
+  end
+  
 end

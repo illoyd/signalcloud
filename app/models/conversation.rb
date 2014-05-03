@@ -55,7 +55,7 @@ class Conversation < ActiveRecord::Base
   end
 
   before_validation :update_expiry_time_based_on_seconds_to_live
-  before_save :normalize_phone_numbers, :hash_phone_numbers
+  before_save :normalize_phone_numbers, :hash_phone_numbers, :update_ledger_entry
 
   # Status constants
   PENDING = 0
@@ -88,9 +88,12 @@ class Conversation < ActiveRecord::Base
   belongs_to :stencil, inverse_of: :conversations
   belongs_to :box, inverse_of: :conversations
   has_many :messages, inverse_of: :conversation, autosave: true
-  #has_many :ledger_entries, as: :item
+  
+  ##
+  # LedgerEntry for this conversation.
+  has_one :ledger_entry, as: :item, autosave: true
 
-  delegate :organization, to: :stencil #, allow_nil: true
+  delegate :organization, to: :stencil
   #delegate :communication_gateway, to: :internal_number, allow_nil: true
   
   def communication_gateway
@@ -108,14 +111,14 @@ class Conversation < ActiveRecord::Base
   validates_inclusion_of :reply_status, in: Message.workflow_spec.valid_state_names, allow_nil: true
 
   # Scopes
-  scope :opened, where( :workflow_state => OPEN_STATUSES )
-  scope :closed, where( 'workflow_state not in (?)', OPEN_STATUSES )
-  scope :today, lambda{ where( "conversations.created_at >= ? and conversations.created_at <= ?", DateTime.now.beginning_of_day, DateTime.now.end_of_day ) }
-  scope :yesterday, lambda{ where( "conversations.created_at >= ? and conversations.created_at <= ?", DateTime.yesterday.beginning_of_day, DateTime.yesterday.end_of_day ) }
-  scope :last_x_days, lambda{ where( "conversations.created_at >= ? and conversations.created_at <= ?", 7.days.ago.beginning_of_day, DateTime.yesterday.end_of_day ) }
-  scope :created_between, lambda{ |lower,upper| where( "conversations.created_at >= ? and conversations.created_at <= ?", lower.beginning_of_day, upper.end_of_day ) }
-  scope :count_by_status, select('count(conversations.*) as count, conversations.workflow_state').group('conversations.workflow_state')
-  scope :outstanding, where( 'challenge_sent_at is null or response_received_at is null or reply_sent_at is null' )
+  scope :opened, ->{ where( :workflow_state => OPEN_STATUSES ) }
+  scope :closed, ->{ where( 'workflow_state not in (?)', OPEN_STATUSES ) }
+  scope :today, ->{ where( "conversations.created_at >= ? and conversations.created_at <= ?", DateTime.now.beginning_of_day, DateTime.now.end_of_day ) }
+  scope :yesterday, ->{ where( "conversations.created_at >= ? and conversations.created_at <= ?", DateTime.yesterday.beginning_of_day, DateTime.yesterday.end_of_day ) }
+  scope :last_x_days, ->{ where( "conversations.created_at >= ? and conversations.created_at <= ?", 7.days.ago.beginning_of_day, DateTime.yesterday.end_of_day ) }
+  scope :created_between, ->(lower,upper){ where( "conversations.created_at >= ? and conversations.created_at <= ?", lower.beginning_of_day, upper.end_of_day ) }
+  scope :count_by_status, ->{ select('count(conversations.*) as count, conversations.workflow_state').group('conversations.workflow_state') }
+  scope :outstanding, ->{ where( 'challenge_sent_at is null or response_received_at is null or reply_sent_at is null' ) }
   
   ##
   # Standardise all messages for easier comparisons and matching.
@@ -302,6 +305,14 @@ protected
     msg = self.messages.create!( to_number: self.customer_number, from_number: self.internal_number, body: message_body, message_kind: message_kind, direction: :out )
     msg.deliver!
     msg
+  end
+  
+  def update_ledger_entry
+    if self.ledger_entry.nil?
+      country = PhoneTools.country( self.customer_number )
+      self.build_ledger_entry( organization: self.organization, narrative: "#{country.to_s.upcase} Conversation" )
+    end
+    self.ledger_entry.value = -self.organization.account_plan.price_for(self)
   end
   
 protected

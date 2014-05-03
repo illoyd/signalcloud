@@ -21,13 +21,13 @@ class InboundMessageJob
   
   def provider_update=(value)
     @provider_update = value
-    @sms ||= Twilio::InboundSms.new( @provider_update )
+    @sms ||= Twilio::InboundMessage.new( @provider_update )
   end
 
   def perform( provider_update )
     # Save for future use
     @provider_update = provider_update
-    @sms ||= Twilio::InboundSms.new( provider_update )
+    @sms ||= Twilio::InboundMessage.new( provider_update )
     logger.info{ "Received inbound sms: #{@sms}" }
     
     # Find all open conversations

@@ -4,10 +4,10 @@
 / Page body
 .row
   .span3= navigation_list([ |
-    { header: 'Search by Country' }, |
-    { label: 'Canada', icon: :phone_numbers, link: search_organization_phone_numbers_path(@organization, 'CA'), active: ( params[:country] == 'CA' ) }, |
-    { label: 'United Kingdom', icon: :phone_numbers, link: search_organization_phone_numbers_path(@organization, 'GB'), active: ( params[:country] == 'GB' ) }, |
-    { label: 'United States', icon: :phone_numbers, link: search_organization_phone_numbers_path(@organization, 'US'), active: ( params[:country] == 'US' ) }, |
+    { header: 'Search for a Local Number' }, |
+    *supported_countries_local_navigation_list_fragment, |
+    { header: 'Search for a Mobile Number' }, |
+    *supported_countries_mobile_navigation_list_fragment, |
     { header: 'Related' }, |
     { label: 'All Phone Numbers', icon: :phone_numbers, link: organization_phone_numbers_path(@organization) }, |
     ]) |

@@ -16,7 +16,10 @@
         %tr
           %th.span1
           %th Phone Number
-          %th Phone Books
+          %th Country
+          %th
+            = icon(:phone_books)
+            Phone Books
           %th Monthly fee
       %tbody
         - if @phone_numbers.empty?
@@ -30,6 +33,9 @@
                 { label: 'Delete', icon: :delete, link: [@organization, phone_number], options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, phone_number) } |
               ], { class: 'btn-mini' }) |
             %td= link_to humanize_phone_number(phone_number.number), [@organization, phone_number]
+            %td
+              = flag_icon_for_phone_number phone_number
+              = country_name_for_phone_number phone_number
             %td
               = phone_number.phone_books.count
               - if phone_number.phone_book_entries.empty?

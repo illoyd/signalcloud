@@ -1,6 +1,7 @@
 require 'spec_helper'
 
-describe FreshBooksAccountingGateway, :vcr do
+describe FreshBooksAccountingGateway, :vcr, :skio do
+pending 'Block all FreshBooks connections for now' do
   let(:organization_without_contacts) { build :organization, contact_address: nil, billing_address: nil }
 
   context 'when new' do
@@ -15,7 +16,7 @@ describe FreshBooksAccountingGateway, :vcr do
     describe '#create_freshbooks_client!' do
       pending 'Need to work with FreshBooks for testing' do
         it 'creates a freshbooks client' do
-          expect{ subject.create_freshbooks_client! }.to_not raise_error
+          expect{ subject.create_freshbooks_client! }.not_to raise_error
         end
         it 'sets its remote sid' do
           expect{ subject.create_freshbooks_client! }.to change(subject, :remote_sid).from(nil)
@@ -49,7 +50,7 @@ describe FreshBooksAccountingGateway, :vcr do
 
     describe '#freshbooks_client' do
       it 'returns instance of freshbooks account' do
-        expect{ subject.freshbooks_client }.to_not raise_error
+        expect{ subject.freshbooks_client }.not_to raise_error
       end
     end
 
@@ -143,5 +144,5 @@ describe FreshBooksAccountingGateway, :vcr do
 #     end
 #     
 #   end
-  
+end # Freshbooks pending block
 end

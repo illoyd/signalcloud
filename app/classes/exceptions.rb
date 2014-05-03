@@ -11,6 +11,20 @@ class Error < StandardError
   end
 end
 
+class TransformError < Error; end
+
+class UnknownPriceSheetError < Error
+  def initialize( country, original = $! )
+    super( "No price sheet for country '#{country}.'", original )
+  end
+end
+
+class UnpriceableObjectError < Error
+  def initialize( object, original = $! )
+    super( "Can not price a #{object.class}.", original )
+  end
+end
+
 class ProviderCodeError < Error
   def provider_code
     self.original.try(:code)

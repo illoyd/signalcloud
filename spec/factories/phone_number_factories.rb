@@ -25,16 +25,20 @@ FactoryGirl.define do
       sequence(:number)         { |n| '+1416%07d' % n }
     end
     
-    trait :with_twilio_sid do
+    trait :with_provider_sid do
       provider_sid              { 'PN' + SecureRandom.hex(16) }
     end
     
+    trait :with_twilio_sid do
+      with_provider_sid
+    end
+
     trait :with_fixed_twilio_sid do
       provider_sid              { 'PN465138f996b14d147c5fb4143bb30bea' }
     end
     
     trait :active do
-      with_twilio_sid
+      with_provider_sid
       workflow_state            'active'
     end
     
@@ -43,8 +47,7 @@ FactoryGirl.define do
     end
     
     trait :with_costs do
-      provider_cost             { random_cost() }
-      our_cost                  { random_cost() }
+      cost                      { random_cost() }
     end
     
     trait :ignore_unsolicited_sms do

@@ -10,7 +10,8 @@ describe Twilio::SmsUpdatesController do
       From: from_phone_number.number,
       SmsSid: 'SM'+SecureRandom.hex(16),
       AccountSid: organization.communication_gateway_for(:twilio).remote_sid,
-      Body: 'Hello!'
+      Body: 'Hello!',
+      SmsStatus: 'sent'
     } }
 
   describe 'POST create' do
@@ -24,7 +25,7 @@ describe Twilio::SmsUpdatesController do
     context 'when passing HTTP DIGEST' do
       context 'when not passing message auth header' do
         it 'responds with forbidden' do
-          authenticate_with_http_digest organization.sid, organization.auth_token, DIGEST_REALM
+          authenticate_with_http_digest organization.sid, organization.auth_token, :post, :create
           post :create, update_post_params
           response.status.should eq( 403 )
         end
@@ -32,7 +33,7 @@ describe Twilio::SmsUpdatesController do
 
       context 'when passing message auth header' do
         it 'responds with success' do
-          authenticate_with_http_digest organization.sid, organization.auth_token, DIGEST_REALM
+          authenticate_with_http_digest organization.sid, organization.auth_token, :post, :create
           inject_twilio_signature( twilio_sms_update_url, organization, update_post_params )
           post :create, update_post_params
           response.status.should eq( 200 )
@@ -42,7 +43,7 @@ describe Twilio::SmsUpdatesController do
     
     context 'when responding to sms update' do
       before {
-        authenticate_with_http_digest organization.sid, organization.auth_token, DIGEST_REALM
+        authenticate_with_http_digest organization.sid, organization.auth_token, :post, :create
         inject_twilio_signature( twilio_sms_update_url, organization, update_post_params )
       }
       it 'responds with blank TwiML' do

@@ -2,6 +2,11 @@
 # Patch for Twilio::TwiML::Response to support .to_s and .to_xml
 module Twilio
 
+  # Valid Phone Number Countries
+  SUPPORTED_COUNTRIES_LOCAL  = %w( US CA GB ES ).sort
+  SUPPORTED_COUNTRIES_MOBILE = %w( BE FI GB NO PL SE CH AT EE LT HK AU ).sort
+  SUPPORTED_COUNTRIES        = (SUPPORTED_COUNTRIES_LOCAL + SUPPORTED_COUNTRIES_MOBILE).uniq
+
   # 'Magic Numbers' for test cases
   VALID_NUMBER = '+15005550006'  
   INVALID_NUMBER = '+15005550001'
@@ -79,79 +84,6 @@ module Twilio
   end
 
   ##
-  # Inbound SMSs are POST'ed to the application and arrive as a key-value hash.
-  class InboundSms < ::APISmith::Smash
-
-    # Required fields
-    property :sid,          from: :SmsSid,      required: true
-    property :account_sid,  from: :AccountSid,  required: true
-    property :from,         from: :From,        required: true
-    property :to,           from: :To,          required: true
-    property :body,         from: :Body,        required: true
-
-    # Optional STATUS and PRICE fields
-    property :status,       from: :SmsStatus
-    property :price,        from: :Price,       transformer: lambda { |v| BigDecimal.new(v) rescue nil }
-    property :segments,     from: :NumSegments
-
-    # Optional FROM fields
-    property :from_city,    from: :FromCity
-    property :from_state,   from: :FromState
-    property :from_zip,     from: :FromZip
-    property :from_country, from: :FromCountry
-
-    # Optional TO fields
-    property :to_city,      from: :ToCity
-    property :to_state,     from: :ToState
-    property :to_zip,       from: :ToZip
-    property :to_country,   from: :ToCountry
-
-    # Optional DATE fields
-    property :created_at,   from: :DateCreated, transformer: lambda { |v| Time.parse(v) rescue nil }
-    property :updated_at,   from: :DateUpdated, transformer: lambda { |v| Time.parse(v) rescue nil }
-    property :sent_at,      from: :DateSent,    transformer: lambda { |v| Time.parse(v) rescue nil }
-    
-    def sent?
-      self.status == SMS_STATUS_SENT
-    end
-    
-    def sending?
-      self.status == SMS_STATUS_SENDING
-    end
-    
-    def queued?
-      self.status == SMS_STATUS_QUEUED
-    end
-    
-    def received?
-      self.status == SMS_STATUS_RECEIVED
-    end
-    
-    def failed?
-      self.status == SMS_STATUS_FAILED
-    end
-    
-    def message_status
-      self.class.translate_status self.status
-    end
-    
-    # Translation helper methods
-    def self.translate_status( v )
-      return case v
-        when SMS_STATUS_SENT; Message::SENT
-        when SMS_STATUS_SENDING; Message::SENDING
-        when SMS_STATUS_QUEUED; Message::QUEUED
-        when SMS_STATUS_RECEIVED; Message::RECEIVED
-        when SMS_STATUS_FAILED; Message::FAILED
-        else
-          puts "SmsStatus: #{v}"
-          nil
-      end
-    end
-
-  end
-
-  ##
   # REST API interface
   module REST
 
@@ -193,50 +125,33 @@ module Twilio
       class Smash < ::APISmith::Smash
   
         # Required fields
-        property :sid        
+        property :sid,        required: true
         property :account_sid
 
         property :created_at, from: :date_created, transformer: lambda { |v| Time.parse(v) rescue nil }
         property :updated_at, from: :date_updated, transformer: lambda { |v| Time.parse(v) rescue nil }
         property :sent_at,    from: :date_sent,    transformer: lambda { |v| Time.parse(v) rescue nil }
 
-        property :to
+        property :to,         required: true
         alias_method :customer_number, :to
 
-        property :from
+        property :from,       required: true
         alias_method :internal_number, :from
 
-        property :body
+        property :body,       required: true
         
-        property :status
-        property :direction
+        property :status,     required: true, transformer: lambda { |v| ActiveSupport::StringInquirer.new Twilio::StatusTransformer.transform(v) }
+        property :direction,  required: true, transformer: lambda { |v| ActiveSupport::StringInquirer.new Twilio::DirectionTransformer.transform(v) }
 
-        property :price, transformer: lambda { |v| BigDecimal.new v rescue nil }
+        property :price,      transformer: lambda { |v| BigDecimal.new v rescue nil }
         property :price_unit
 
         property :segments,   from: :num_segments
 
         property :api_version
 
-        def sent?
-          self.status == SMS_STATUS_SENT
-        end
-        
-        def sending?
-          self.status == SMS_STATUS_SENDING
-        end
-        
-        def queued?
-          self.status == SMS_STATUS_QUEUED
-        end
-        
-        def received?
-          self.status == SMS_STATUS_RECEIVED
-        end
-        
-        def failed?
-          self.status == SMS_STATUS_FAILED
-        end
+        delegate :sent?, :sending?, :queued?, :received?, :failed?, to: :status
+        delegate :inbound?, :outbound?, to: :direction
         
       end
     end

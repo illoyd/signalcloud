@@ -15,7 +15,7 @@ describe InboundMessageJob, :vcr do
       'From' => Twilio::VALID_NUMBER,
       'To' => Twilio::VALID_NUMBER,
       'Body' => 'Hello!',
-      'Status' => 'received'
+      'SmsStatus' => 'received'
     })
   end
   

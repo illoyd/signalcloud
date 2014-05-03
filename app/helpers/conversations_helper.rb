@@ -5,7 +5,7 @@ module ConversationsHelper
     title = 'Stencil: ' + ( current_stencil.nil? ? 'All' : current_stencil.label )
     
     # Assemble the entries based upon the current
-    entries = [] # [ { label: 'Show all conversations', icon: 'ok-circle', link: conversations_path } ]
+    entries = [ { label: 'Show all conversations', icon: :conversations, link: organization_conversations_path(@organization) } ]
     current_organization.stencils.order(:label).each do |stencil|
       entries << { label: 'Show ' + stencil.label, icon: :stencils, link: organization_stencil_conversations_path( @organization, stencil ) }
     end

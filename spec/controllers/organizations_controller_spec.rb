@@ -67,14 +67,6 @@ describe OrganizationsController do
         get :new, complete: true
         assigns(:organization).should be_a_new Organization
       end
-      it 'sets billing address' do
-        get :new, complete: true
-        assigns(:organization).billing_address.should be_a_new Address
-      end
-      it 'sets contact address' do
-        get :new, complete: true
-        assigns(:organization).contact_address.should be_a_new Address
-      end
     end
 
     describe 'POST create' do
@@ -86,8 +78,7 @@ describe OrganizationsController do
         expect{ post :create, organization: attributes_for(:organization) }.to change( Organization, :count ).by(1)
       end
       it 'raises 400 bad request if no parameters' do
-        post :create
-        response.status.should == 400
+        expect{ post :create }.to raise_error(ActionController::ParameterMissing)
       end
     end
 
@@ -104,18 +95,6 @@ describe OrganizationsController do
       it 'presents a complete organization' do
         get :edit, id: organization.id, complete: true
         assigns(:organization).should == organization
-      end
-
-      context 'when addresses are undefined' do
-        let(:organization) { create :organization, account_plan: plan, contact_address: nil, billing_address: nil }
-        it 'provides new billing address' do
-          get :edit, id: organization.id, complete: true
-          assigns(:organization).billing_address.should be_a_new Address
-        end
-        it 'provides new contact address' do
-          get :edit, id: organization.id, complete: true
-          assigns(:organization).contact_address.should be_a_new Address
-        end
       end
     end
 
@@ -137,8 +116,7 @@ describe OrganizationsController do
         expect{ put :update, update_payload }.to change{ organization.reload.description }.to( new_description )
       end
       it 'raises 400 bad request if no parameters' do
-        put :update, id: organization.id
-        response.status.should == 400
+        expect{ put :update, id: organization.id }.to raise_error(ActionController::ParameterMissing)
       end
     end
 

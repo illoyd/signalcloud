@@ -10,8 +10,7 @@ FactoryGirl.define do
 #     end
 #     
     trait :with_costs do
-      provider_cost    { random_cost() }
-      our_cost         { random_cost() }
+      cost                { random_cost() }
     end
     
     trait :with_twilio_sid do
@@ -88,8 +87,13 @@ FactoryGirl.define do
     
     trait :settled do
       sent
-      provider_cost { random_price() }
-      our_cost      { random_price() }
+      cost { random_price() }
+    end
+    
+    after(:create, :build, :stub) do |instance|
+      unless instance.body.blank?
+        instance.segments = (instance.body.length.to_f / 160).ceil
+      end
     end
 
   end

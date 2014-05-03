@@ -8,7 +8,7 @@ describe 'routing to twilio/inbound_sms' do
   end 
   
   it 'cannout route GET twilio/inbound_sms' do
-    expect( get('twilio/inbound_sms.xml') ).to_not be_routable
+    expect( get('twilio/inbound_sms.xml') ).not_to be_routable
   end
 
 end

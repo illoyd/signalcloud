@@ -23,6 +23,8 @@ RSpec.configure do |config|
   
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   # config.fixture_path = "#{::Rails.root}/spec/fixtures"
+  
+  config.treat_symbols_as_metadata_keys_with_true_values = true
 
   # If you're not using ActiveRecord, or you'd prefer not to run each of your
   # examples within a transaction, remove the following line or assign false
@@ -42,6 +44,7 @@ RSpec.configure do |config|
   
   # Filter
   config.filter_run :focus => true
+  config.filter_run_excluding :skip
   config.run_all_when_everything_filtered = true
 
   # Include auth digest helper
@@ -61,33 +64,33 @@ end
 
 FactoryGirl.find_definitions
 
-##
-# Authenticate helper
-class ActionController::TestCase
- require 'digest/md5'
- #include Devise::TestHelpers
-
-  def authenticate_with_http_digest(user = nil, password = nil, realm = nil)
-    ActionController::Base.class_eval { include ActionController::Testing }
-
-    @controller.instance_eval %Q(
-      alias real_process_with_new_base_test process_with_new_base_test
-
-      def process_with_new_base_test(request, response)
-        credentials = {
-      	  :uri => request.url,
-      	  :realm => "#{realm}",
-      	  :username => "#{user}",
-      	  :nonce => ActionController::HttpAuthentication::Digest.nonce(request.env['action_dispatch.secret_token']),
-      	  :opaque => ActionController::HttpAuthentication::Digest.opaque(request.env['action_dispatch.secret_token'])
-        }
-        request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Digest.encode_credentials(request.request_method, credentials, "#{password}", false)
-
-        real_process_with_new_base_test(request, response)
-      end
-    )
-  end
-end
+# ##
+# # Authenticate helper
+# class ActionController::TestCase
+#  require 'digest/md5'
+#  #include Devise::TestHelpers
+# 
+#   def authenticate_with_http_digest(user = nil, password = nil, realm = nil)
+#     ActionController::Base.class_eval { include ActionController::Testing }
+# 
+#     @controller.instance_eval %Q(
+#       alias real_process_with_new_base_test process_with_new_base_test
+# 
+#       def process_with_new_base_test(request, response)
+#         credentials = {
+#       	  :uri => request.url,
+#       	  :realm => "#{realm}",
+#       	  :username => "#{user}",
+#       	  :nonce => ActionController::HttpAuthentication::Digest.nonce(request.env['action_dispatch.secret_token']),
+#       	  :opaque => ActionController::HttpAuthentication::Digest.opaque(request.env['action_dispatch.secret_token'])
+#         }
+#         request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Digest.encode_credentials(request.request_method, credentials, "#{password}", false)
+# 
+#         real_process_with_new_base_test(request, response)
+#       end
+#     )
+#   end
+# end
 
 def build_authenticated_request_url( url, username=nil, password=nil )
   temp_path = url.dup # twilio_inbound_sms_url

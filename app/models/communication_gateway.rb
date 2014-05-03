@@ -26,9 +26,14 @@ class CommunicationGateway < ActiveRecord::Base
   alias_method :twilio_auth_token,  :remote_token
   alias_method :twilio_auth_token=, :remote_token=
 
-  alias_method :twilio_application,  :remote_application
-  alias_method :twilio_application=, :remote_application=
+  # A communication gateway MUST implement the following functions
+  # send_message!
+  # purchase_number!
+  # unpurchase_number!
+  # update_number!
+
+  def self.prepend_plus( number )
+    number.start_with?('+') ? number : ( '+' + number  )
+  end
   
-  alias_method :twilio_application_sid,  :remote_application
-  alias_method :twilio_application_sid=, :remote_application=
 end

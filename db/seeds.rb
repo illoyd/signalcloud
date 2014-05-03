@@ -176,7 +176,7 @@ unless Rails.env.production? || Organization.exists?( sid: '00000000000000000000
   date_from = 2.weeks.ago
   date_to   = DateTime.now
   outbound_cost = -0.03
-  inbound_code  = -0.02
+  inbound_cost  = -0.02
   
   customer_numbers.shuffle.each do |customer_number|
     conversation = example_stencil.open_conversation( customer_number: customer_number, expected_confirmed_answer: random_answer() )
@@ -185,31 +185,31 @@ unless Rails.env.production? || Organization.exists?( sid: '00000000000000000000
     conversation.save!
     if [ Conversation::CHALLENGE_SENT, Conversation::CONFIRMED, Conversation::DENIED, Conversation::FAILED, Conversation::EXPIRED ].include? conversation.workflow_state
       conversation.challenge_sent_at = conversation.created_at
-      conversation.messages.build( to_number: conversation.customer_number, from_number: conversation.internal_number, body: conversation.question, message_kind: Message::CHALLENGE, direction: Message::OUT, provider_cost: outbound_cost, sent_at: conversation.challenge_sent_at, workflow_state: :sent )
+      conversation.messages.build( to_number: conversation.customer_number, from_number: conversation.internal_number, body: conversation.question, message_kind: Message::CHALLENGE, direction: Message::OUT, cost: outbound_cost, sent_at: conversation.challenge_sent_at, workflow_state: :sent )
     end
 
     case conversation.workflow_state
       when Conversation::CONFIRMED
         conversation.response_received_at = conversation.challenge_sent_at + rand_in_range( 1, conversation.stencil.seconds_to_live )
         conversation.reply_sent_at        = conversation.response_received_at + rand_in_range( 1, 5 )
-        conversation.messages.build( to_number: conversation.internal_number, from_number: conversation.customer_number, body: conversation.expected_confirmed_answer, direction: Message::IN, provider_cost: inbound_code, sent_at: conversation.response_received_at, workflow_state: :received )
-        conversation.messages.build( to_number: conversation.customer_number, from_number: conversation.internal_number, body: conversation.confirmed_reply, message_kind: Message::REPLY, direction: Message::OUT, provider_cost: outbound_cost, sent_at: conversation.reply_sent_at, workflow_state: :sent )
+        conversation.messages.build( to_number: conversation.internal_number, from_number: conversation.customer_number, body: conversation.expected_confirmed_answer, direction: Message::IN, cost: inbound_cost, sent_at: conversation.response_received_at, workflow_state: :received )
+        conversation.messages.build( to_number: conversation.customer_number, from_number: conversation.internal_number, body: conversation.confirmed_reply, message_kind: Message::REPLY, direction: Message::OUT, cost: outbound_cost, sent_at: conversation.reply_sent_at, workflow_state: :sent )
 
       when Conversation::DENIED
         conversation.response_received_at = conversation.challenge_sent_at + rand_in_range( 1, conversation.stencil.seconds_to_live )
         conversation.reply_sent_at        = conversation.response_received_at + rand_in_range( 1, 5 )
-        conversation.messages.build( to_number: conversation.internal_number, from_number: conversation.customer_number, body: conversation.expected_denied_answer, direction: Message::IN, provider_cost: inbound_code, sent_at: conversation.response_received_at, workflow_state: :received )
-        conversation.messages.build( to_number: conversation.customer_number, from_number: conversation.internal_number, body: conversation.denied_reply, message_kind: Message::REPLY, direction: Message::OUT, provider_cost: outbound_cost, sent_at: conversation.reply_sent_at, workflow_state: :sent )
+        conversation.messages.build( to_number: conversation.internal_number, from_number: conversation.customer_number, body: conversation.expected_denied_answer, direction: Message::IN, cost: inbound_cost, sent_at: conversation.response_received_at, workflow_state: :received )
+        conversation.messages.build( to_number: conversation.customer_number, from_number: conversation.internal_number, body: conversation.denied_reply, message_kind: Message::REPLY, direction: Message::OUT, cost: outbound_cost, sent_at: conversation.reply_sent_at, workflow_state: :sent )
 
       when Conversation::FAILED
         conversation.response_received_at = conversation.challenge_sent_at + rand_in_range( 1, conversation.stencil.seconds_to_live )
         conversation.reply_sent_at        = conversation.response_received_at + rand_in_range( 1, 5 )
-        conversation.messages.build( to_number: conversation.internal_number, from_number: conversation.customer_number, body: random_answer(), direction: Message::IN, provider_cost: inbound_code, sent_at: conversation.response_received_at, workflow_state: :received )
-        conversation.messages.build( to_number: conversation.customer_number, from_number: conversation.internal_number, body: conversation.failed_reply, message_kind: Message::REPLY, direction: Message::OUT, provider_cost: outbound_cost, sent_at: conversation.reply_sent_at, workflow_state: :sent )
+        conversation.messages.build( to_number: conversation.internal_number, from_number: conversation.customer_number, body: random_answer(), direction: Message::IN, cost: inbound_cost, sent_at: conversation.response_received_at, workflow_state: :received )
+        conversation.messages.build( to_number: conversation.customer_number, from_number: conversation.internal_number, body: conversation.failed_reply, message_kind: Message::REPLY, direction: Message::OUT, cost: outbound_cost, sent_at: conversation.reply_sent_at, workflow_state: :sent )
 
       when Conversation::EXPIRED
         conversation.reply_sent_at        = conversation.challenge_sent_at + conversation.stencil.seconds_to_live + rand_in_range( 1, 5 )
-        conversation.messages.build( to_number: conversation.customer_number, from_number: conversation.internal_number, body: conversation.expired_reply, message_kind: Message::REPLY, direction: Message::OUT, provider_cost: outbound_cost, sent_at: conversation.reply_sent_at, workflow_state: :sent )
+        conversation.messages.build( to_number: conversation.customer_number, from_number: conversation.internal_number, body: conversation.expired_reply, message_kind: Message::REPLY, direction: Message::OUT, cost: outbound_cost, sent_at: conversation.reply_sent_at, workflow_state: :sent )
     end
     #conversation.updated_at = [ conversation.created_at, conversation.challenge_sent_at, conversation.response_received_at, conversation.reply_sent_at ].reject_imax
     conversation.save!

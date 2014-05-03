@@ -4,7 +4,6 @@ class UnsolicitedCall < ActiveRecord::Base
 
   before_save :update_ledger_entry
 
-  #attr_accessible :twilio_call_sid, :action_content, :action_taken, :action_taken_at, :customer_number, :call_content, :received_at, :provider_price, :our_price
   serialize :call_content, JSON
   serialize :action_content, JSON
   
