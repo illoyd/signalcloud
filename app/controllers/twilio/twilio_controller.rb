@@ -4,6 +4,10 @@ class Twilio::TwilioController < ApplicationController
   before_filter :authenticate_organization!, :authenticate_twilio!
   skip_before_filter :authenticate_user!
   skip_before_filter :verify_authenticity_token
+  
+  def index
+    head :ok
+  end
 
   def authenticate_twilio!
     # If no organization given, kill immediately    
