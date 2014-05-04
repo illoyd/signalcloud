@@ -51,9 +51,9 @@ unless Rails.env.production?
 end
 
 # Add plan data
-master_plan = AccountPlan.find_or_create_by_label( label: 'Unmetered' )
-payg_plan = AccountPlan.find_or_create_by_label( label:'PAYG', month: 0, phone_add: -1, call_in_add: -0.02, sms_in_add: -0.02, sms_out_add: -0.02, default: true )
-dedicated_plan = AccountPlan.find_or_create_by_label( label:'Dedicated', month: -250, phone_add: 0, call_in_add: -0.01, sms_in_add: -0.01, sms_out_add: -0.01 )
+master_plan = AccountPlan.find_or_create_by( label: 'Unmetered' )
+payg_plan = AccountPlan.create_with( month: 0, phone_add: -1, call_in_add: -0.02, sms_in_add: -0.02, sms_out_add: -0.02, default: true ).find_or_create_by( label:'PAYG' )
+dedicated_plan = AccountPlan.create_with( month: -250, phone_add: 0, call_in_add: -0.01, sms_in_add: -0.01, sms_out_add: -0.01 ).find_or_create_by( label:'Dedicated' )
 
 # Master organization tools
 unless Organization.exists?( sid: '76f78f836d4563bf4824da02b506346d' )
