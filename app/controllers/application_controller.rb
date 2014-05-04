@@ -19,8 +19,11 @@ class ApplicationController < ActionController::Base
     # Validate digest authentication
     logger.info { "HTTP_AUTHORIZATION: #{request.headers['HTTP_AUTHORIZATION'].inspect}" }
 
-    results = authenticate_or_request_with_http_digest do |sid|
-      (@organization = Organization.where( sid: sid ).first).try( :auth_token ) || false
+    #results = authenticate_or_request_with_http_digest do |sid|
+    #  (@organization = Organization.where( sid: sid ).first).try( :auth_token ) || false
+    #end
+    results = authenticate_or_request_with_http_digest do |sid, token|
+      (@organization = Organization.where( sid: sid ).first).try( :auth_token ) == token
     end
     Rails.logger.flush if Rails.logger.respond_to?(:flush)
     results
