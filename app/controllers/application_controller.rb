@@ -2,8 +2,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery
   
   before_filter :authenticate_user!
-  
-  # helper_method :current_organization
+
   helper_method :current_stencil
   
   rescue_from CanCan::AccessDenied do |exception|
@@ -15,44 +14,24 @@ class ApplicationController < ActionController::Base
     authorize! :show, @organization
   end
   
+  ##
+  # Authenticate the organisation using HTTP Basic.
   def authenticate_organization_using_basic!
-    # Validate digest authentication
-    logger.info { "HTTP_AUTHORIZATION: #{request.headers['HTTP_AUTHORIZATION']}" }
     authenticate_or_request_with_http_basic do |sid, token|
       (@organization = Organization.find_by( sid: sid )).try( :auth_token ) == token
     end
   end
 
+  ##
+  # Authenticate the organisation using HTTP Digest.
   def authenticate_organization_using_digest!
-    # Validate digest authentication
-    logger.info { "HTTP_AUTHORIZATION: #{request.headers['HTTP_AUTHORIZATION']}" }
     authenticate_or_request_with_http_digest do |sid|
       (@organization = Organization.find_by( sid: sid )).try( :auth_token )
     end
   end
-
-  def authenticate_organization!
-    # Validate digest authentication
-    logger.info { "HTTP_AUTHORIZATION: #{request.headers['HTTP_AUTHORIZATION'].inspect}" }
-
-    #results = authenticate_or_request_with_http_digest do |sid|
-    #  (@organization = Organization.where( sid: sid ).first).try( :auth_token ) || false
-    #end
-    results = authenticate_or_request_with_http_digest do |sid, token|
-      (@organization = Organization.where( sid: sid ).first).try( :auth_token ) == token
-    end
-    Rails.logger.flush if Rails.logger.respond_to?(:flush)
-    results
-  end
   
-  ##
-  # Return the organization of the current request, based upon the request as well as user privileges.
-  # Will default to the +current_user+ parent organization.
-#   def current_organization
-#     return Organization.find( session[:shadow_organization_id] ) if can?( :shadow, Organization ) && session.include?(:shadow_organization_id)
-#     return current_user.organizations.first
-#   end
-  
+  alias_method :authenticate_organization!, :authenticate_organization_using_basic!
+
   ##
   # Return the stencil of the current request, based upon the request and filtered to the current organization.
   # Will return nil if no stencil is specified in the request. This method is primarily intended to be used for 
