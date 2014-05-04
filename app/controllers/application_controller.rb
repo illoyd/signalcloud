@@ -17,8 +17,8 @@ class ApplicationController < ActionController::Base
 
   def authenticate_organization!
     # Validate digest authentication
-    results = authenticate_or_request_with_http_digest( DIGEST_REALM ) do |sid|
       (@organization = Organization.find_by_sid( sid )).try( :auth_token ) || false
+    results = authenticate_or_request_with_http_digest do |sid|
     end
   end
   
