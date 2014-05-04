@@ -2,7 +2,6 @@ module ActionDispatch
   class Request
 
     def original_request_url( username=nil, password=nil )
-      logger.info { "Original URL was <#{ original_url }>." }
       # Split fullpath to remove querystring
       temp_path = original_url.include?('?') ? original_url.split('?')[0] : original_url
       
