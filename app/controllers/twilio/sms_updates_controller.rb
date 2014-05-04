@@ -8,7 +8,7 @@ class Twilio::SmsUpdatesController < Twilio::TwilioController
     UpdateMessageStatusJob.perform_async sms.sid, sms.status, nil
     
     # Return a blank response
-    render :xml => Twilio::TwiML::Response.new
+    render xml: Twilio::TwiML::Response.new, content_type: 'application/xml'
   end
 
 end

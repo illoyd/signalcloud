@@ -6,7 +6,7 @@ class Twilio::TwilioController < ApplicationController
   skip_before_filter :verify_authenticity_token
   
   def show
-    render xml: Twilio::TwiML::Response.new
+    render xml: Twilio::TwiML::Response.new, content_type: 'application/xml'
   end
 
   def authenticate_twilio!
