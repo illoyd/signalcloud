@@ -17,9 +17,7 @@ class ApplicationController < ActionController::Base
 
   def authenticate_organization!
     # Validate digest authentication
-    http_request_header_keys = request.headers.keys.select{|header_name| header_name.match("^HTTP.*")}
-    http_request_headers = request.headers.select{|header_name, header_value| http_request_header_keys.index(header_name)}
-    logger.info { "HEADERS: #{http_request_headers.inspect}" }
+    logger.info { "HEADERS: #{request.headers.inspect}" }
 
     results = authenticate_or_request_with_http_digest do |sid|
       (@organization = Organization.where( sid: sid ).first).try( :auth_token ) || false
