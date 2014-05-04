@@ -37,6 +37,7 @@ class Twilio::TwilioController < ApplicationController
       end
 
       logger.info { "Twilio: Organisation #{ @organization.id } fully authenticated." }
+      Rails.logger.flush if Rails.logger.respond_to?(:flush)
     end
   end
 

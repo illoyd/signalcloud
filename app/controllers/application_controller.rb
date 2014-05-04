@@ -17,9 +17,11 @@ class ApplicationController < ActionController::Base
 
   def authenticate_organization!
     # Validate digest authentication
-      (@organization = Organization.find_by_sid( sid )).try( :auth_token ) || false
     results = authenticate_or_request_with_http_digest do |sid|
+      (@organization = Organization.where( sid: sid ).first).try( :auth_token ) || false
     end
+    Rails.logger.flush if Rails.logger.respond_to?(:flush)
+    results
   end
   
   ##
