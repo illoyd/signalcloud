@@ -14,6 +14,22 @@ class ApplicationController < ActionController::Base
     @organization = Organization.find(params[:organization_id])
     authorize! :show, @organization
   end
+  
+  def authenticate_organization_using_basic!
+    # Validate digest authentication
+    logger.info { "HTTP_AUTHORIZATION: #{request.headers['HTTP_AUTHORIZATION']}" }
+    authenticate_or_request_with_http_basic do |sid, token|
+      (@organization = Organization.find_by( sid: sid )).try( :auth_token ) == token
+    end
+  end
+
+  def authenticate_organization_using_digest!
+    # Validate digest authentication
+    logger.info { "HTTP_AUTHORIZATION: #{request.headers['HTTP_AUTHORIZATION']}" }
+    authenticate_or_request_with_http_digest do |sid|
+      (@organization = Organization.find_by( sid: sid )).try( :auth_token )
+    end
+  end
 
   def authenticate_organization!
     # Validate digest authentication
