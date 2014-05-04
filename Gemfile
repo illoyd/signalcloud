@@ -59,7 +59,6 @@ gem 'country_select'
 gem 'workflow'
 gem 'lograge'
 gem 'countries-phone_numbers'
-gem 'rails_12factor'
 
 #
 # Temporary or deprecated gems - these should be removed!
@@ -75,6 +74,12 @@ gem 'sidetiq'
 # External services (e.g. telephony, accounting)
 gem 'twilio-ruby'
 gem 'ruby-freshbooks'
+
+#
+# Development gems
+group :development do
+  gem 'rails_12factor'
+end
 
 #
 # Test and development gems
@@ -99,4 +104,5 @@ end
 # Production gems
 group :production do
   gem 'newrelic_rpm'
+  gem 'rails_12factor'
 end
