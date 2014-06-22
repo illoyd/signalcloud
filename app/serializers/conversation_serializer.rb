@@ -7,5 +7,13 @@ class ConversationSerializer < ActiveModel::Serializer
   def stencil_label
     object.stencil.label
   end
+  
+  def customer_number
+    "+#{ object.customer_number }"
+  end
+
+  def internal_number
+    "+#{ object.internal_number }"
+  end
 
 end
