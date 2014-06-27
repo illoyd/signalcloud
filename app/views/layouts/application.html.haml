@@ -6,6 +6,7 @@
       = ' — ' if content_for?(:title)
       SignalCloud
     = stylesheet_link_tag "application", :media => "all"
+    %link{href: "//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css", rel: "stylesheet"}/
     - if content_for?( :stylesheets )
       %style{:type => 'text/css'}= yield :stylesheets
     = javascript_include_tag "application"
