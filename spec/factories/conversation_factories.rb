@@ -102,7 +102,7 @@ FactoryGirl.define do
     end
     
     trait :with_webhook_uri do
-      webhook_uri             'https://us.signalcloudapp.com/bucket'
+      webhook_uri             'https://eu.signalcloudapp.com/bucket'
     end
     
     trait :real do

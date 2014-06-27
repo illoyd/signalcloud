@@ -10,16 +10,20 @@ describe 'routing to phone numbers' do
     expect( :get => 'organizations/1/phone_numbers/2' ).to route_to( controller: 'phone_numbers', action: 'show', id: '2', organization_id: '1' )
   end
   
-  it 'allows searching US' do
-    expect( :get => 'organizations/1/phone_numbers/search/US' ).to route_to( 'phone_numbers#search', country: 'US', organization_id: '1', constraint: { 'country' => /(US|CA|GB)/ } )
-  end
-
-  it 'allows searching CA' do
-    expect( :get => 'organizations/1/phone_numbers/search/CA' ).to route_to( 'phone_numbers#search', country: 'CA', organization_id: '1', constraint: { 'country' => /(US|CA|GB)/ } )
-  end
-
-  it 'allows searching GB' do
-    expect( :get => 'organizations/1/phone_numbers/search/GB' ).to route_to( 'phone_numbers#search', country: 'GB', organization_id: '1', constraint: { 'country' => /(US|CA|GB)/ } )
+  describe 'locals' do
+  
+    it 'allows searching US' do
+      expect( :get => 'organizations/1/phone_numbers/search/US/local' ).to route_to( 'phone_numbers#search', country: 'US', kind: 'local', organization_id: '1' )
+    end
+  
+    it 'allows searching CA' do
+      expect( :get => 'organizations/1/phone_numbers/search/CA/local' ).to route_to( 'phone_numbers#search', country: 'CA', kind: 'local', organization_id: '1' )
+    end
+  
+    it 'allows searching GB' do
+      expect( :get => 'organizations/1/phone_numbers/search/GB/local' ).to route_to( 'phone_numbers#search', country: 'GB', kind: 'local', organization_id: '1' )
+    end
+  
   end
   
 #   it 'does not allow new' do

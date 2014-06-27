@@ -75,9 +75,9 @@ SignalCloud::Application.routes.draw do
   # Twilio API extension
   namespace :twilio do
     resource :inbound_call, only: [ :create ], defaults: { format: 'xml' }
-    resource :call_update, only: [ :create ], defaults: { format: 'xml' }
-    resource :inbound_sms, only: [ :create ], defaults: { format: 'xml' }
-    resource :sms_update, only: [ :create ], defaults: { format: 'xml' }
+    resource :call_update,  only: [ :create ], defaults: { format: 'xml' }
+    resource :inbound_sms,  only: [ :create ], defaults: { format: 'xml' }
+    resource :sms_update,   only: [ :create ], defaults: { format: 'xml' }
   end
   
   # Sidekiq!

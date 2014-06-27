@@ -2,8 +2,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery
   
   before_filter :authenticate_user!
-  
-  # helper_method :current_organization
+
   helper_method :current_stencil
   
   rescue_from CanCan::AccessDenied do |exception|
@@ -14,22 +13,25 @@ class ApplicationController < ActionController::Base
     @organization = Organization.find(params[:organization_id])
     authorize! :show, @organization
   end
+  
+  ##
+  # Authenticate the organisation using HTTP Basic.
+  def authenticate_organization_using_basic!
+    authenticate_or_request_with_http_basic do |sid, token|
+      (@organization = Organization.find_by( sid: sid )).try( :auth_token ) == token
+    end
+  end
 
-  def authenticate_organization!
-    # Validate digest authentication
-    results = authenticate_or_request_with_http_digest( DIGEST_REALM ) do |sid|
-      (@organization = Organization.find_by_sid( sid )).try( :auth_token ) || false
+  ##
+  # Authenticate the organisation using HTTP Digest.
+  def authenticate_organization_using_digest!
+    authenticate_or_request_with_http_digest do |sid|
+      (@organization = Organization.find_by( sid: sid )).try( :auth_token )
     end
   end
   
-  ##
-  # Return the organization of the current request, based upon the request as well as user privileges.
-  # Will default to the +current_user+ parent organization.
-#   def current_organization
-#     return Organization.find( session[:shadow_organization_id] ) if can?( :shadow, Organization ) && session.include?(:shadow_organization_id)
-#     return current_user.organizations.first
-#   end
-  
+  alias_method :authenticate_organization!, :authenticate_organization_using_basic!
+
   ##
   # Return the stencil of the current request, based upon the request and filtered to the current organization.
   # Will return nil if no stencil is specified in the request. This method is primarily intended to be used for 
