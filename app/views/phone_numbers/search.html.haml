@@ -1,9 +1,9 @@
-/ Page header
+-# Page header
 - titles 'Phone Numbers', 'search', :phone_numbers
 
-/ Page body
-.row
-  .span3= navigation_list([ |
+-# Sidebar
+- content_for :sidebar do
+  = navigation_list([ |
     { header: 'Search for a Local Number' }, |
     *supported_countries_local_navigation_list_fragment, |
     { header: 'Search for a Mobile Number' }, |
@@ -12,44 +12,44 @@
     { label: 'All Phone Numbers', icon: :phone_numbers, link: organization_phone_numbers_path(@organization) }, |
     ]) |
 
-  .span9
-    = form_tag( search_organization_phone_numbers_path(@organization, params[:country]), method: :get, class:'form-inline' ) do
-      - if ['US', 'CA'].include? params[:country]
-        .input-prepend
-          %span.add-on Area Code
-          = text_field_tag :area_code, params[:area_code], placeholder: 'Area Code', class: 'input-small'
-      .input-prepend
-        %span.add-on Contains
-        = text_field_tag :contains, params[:contains], placeholder: 'Contains', class: 'input-medium'
-      = submit_tag 'Search', class: 'btn'
-      = link_to 'Reset', search_organization_phone_numbers_path(@organization, params[:country]), class: 'btn'
-  
-    %table.table.table-striped
-      %thead
-        %tr
-          %th.span1
-          %th Phone Number
-          %th Country
-          %th Monthly fee
-      %tbody
-        - if @available_phone_numbers.empty?
-          %tr
-            %td{'colspan'=>4}
-              %em No phone numbers were found matching your search.
-        - @available_phone_numbers.first(@numbers_to_show).each do |phone_number|
-          - modal_id = phone_number.phone_number.to_s.gsub(/\D/,'')
-          %tr
-            %td
-              = form_tag( organization_phone_numbers_path(@organization), method: :post, style:'margin:0px; padding:0px' ) do
-                = hidden_field_tag :phone_number, phone_number.phone_number
-                = submit_tag 'Buy', class: 'btn btn-primary btn-mini'
-            %td= link_to humanize_phone_number(phone_number.phone_number), "#info#{modal_id}", 'data-toggle' => 'modal'
-            %td
-              #{flag_icon(phone_number.iso_country)} #{phone_number.iso_country}
-              - unless phone_number.region.blank?
-                \- #{phone_number.region}
-            %td
-              = currency_for Twilio.assumed_phone_number_price( phone_number.iso_country )
+-# Page body
+= form_tag( search_organization_phone_numbers_path(@organization, params[:country]), method: :get, class:'form-inline' ) do
+  - if ['US', 'CA'].include? params[:country]
+    .input-prepend
+      %span.add-on Area Code
+      = text_field_tag :area_code, params[:area_code], placeholder: 'Area Code', class: 'input-small'
+  .input-prepend
+    %span.add-on Contains
+    = text_field_tag :contains, params[:contains], placeholder: 'Contains', class: 'input-medium'
+  = submit_tag 'Search', class: 'btn'
+  = link_to 'Reset', search_organization_phone_numbers_path(@organization, params[:country]), class: 'btn'
 
-    -# @available_phone_numbers.first(5).each_with_index do |phone_number, index|
-    = render partial: 'info_modal', collection: @available_phone_numbers.first(@numbers_to_show), as: :phone_number
+%table.table.table-striped
+  %thead
+    %tr
+      %th.span1
+      %th Phone Number
+      %th Country
+      %th Monthly fee
+  %tbody
+    - if @available_phone_numbers.empty?
+      %tr
+        %td{'colspan'=>4}
+          %em No phone numbers were found matching your search.
+    - @available_phone_numbers.first(@numbers_to_show).each do |phone_number|
+      - modal_id = phone_number.phone_number.to_s.gsub(/\D/,'')
+      %tr
+        %td
+          = form_tag( organization_phone_numbers_path(@organization), method: :post, style:'margin:0px; padding:0px' ) do
+            = hidden_field_tag :phone_number, phone_number.phone_number
+            = submit_tag 'Buy', class: 'btn btn-primary btn-xs'
+        %td= link_to humanize_phone_number(phone_number.phone_number), "#info#{modal_id}", 'data-toggle' => 'modal'
+        %td
+          #{flag_icon(phone_number.iso_country)} #{phone_number.iso_country}
+          - unless phone_number.region.blank?
+            \- #{phone_number.region}
+        %td
+          = currency_for Twilio.assumed_phone_number_price( phone_number.iso_country )
+
+-# @available_phone_numbers.first(5).each_with_index do |phone_number, index|
+= render partial: 'info_modal', collection: @available_phone_numbers.first(@numbers_to_show), as: :phone_number

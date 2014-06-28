@@ -1,50 +1,51 @@
-/ Page Header
+-# Page Header
 - titles 'Phone Number', humanize_phone_number(@phone_number.number), :phone_numbers
 
+-# Sidebar controls
+- content_for :sidebar do
+  = render 'navlist'
+
+%p
+  %b Number:
+  = humanize_phone_number @phone_number.number
+
+%p
+  %b Country:
+  = flag_icon_for_phone_number @phone_number
+  = country_name_for_phone_number @phone_number
+  
+%p
+  %b Monthly fee:
+  = currency_for @phone_number.cost
+
+%h3 Actions
 .row
-  .span3= render 'navlist'
-  .span9
-    %p
-      %b Number:
-      = humanize_phone_number @phone_number.number
-
-    %p
-      %b Country:
-      = flag_icon_for_phone_number @phone_number
-      = country_name_for_phone_number @phone_number
-      
-    %p
-      %b Monthly fee:
-      = currency_for @phone_number.cost
-
-    %h3 Actions
-    .row
-      .span4 When receiving an unsolicited SMS...
-      .span5
-        - case @phone_number.unsolicited_sms_action
-          - when PhoneNumber::IGNORE
-            %p Ignore the message.
-            %p
-              %small (Note: This does not incur a fee. However, your account will still be charged for the inbound message.)
-          - when PhoneNumber::REPLY
-            %p Reply with the following message:
-            %p.well= @phone_number.unsolicited_sms_message
-            %p
-              %small (Note: This will incur a fee for each inbound message as well as each reply message sent.)
-    .row
-      .span4 When receiving an unsolicited call...
-      .span5
-        - case @phone_number.unsolicited_call_action
-          - when PhoneNumber::REJECT
-            %p Do not answer and play an out-of-service message.
-            %p
-              %small (Note: This does not incur a fee.)
-          - when PhoneNumber::BUSY
-            %p Do not answer and play a line-is-busy message.
-            %p
-              %small (Note: This does not incur a fee.)
-          - when PhoneNumber::REPLY
-            %p Answer with the following #{call_language(@phone_number.unsolicited_call_language)} message using a #{call_voice(@phone_number.unsolicited_call_voice)} voice:
-            %p.well= @phone_number.unsolicited_call_message
-            %p
-              %small (Note: This will incur a fee for each call answered.)
+  .col-sm-4 When receiving an unsolicited SMS...
+  .col-sm-8
+    - case @phone_number.unsolicited_sms_action
+      - when PhoneNumber::IGNORE
+        %p Ignore the message.
+        %p
+          %small (Note: This does not incur a fee. However, your account will still be charged for the inbound message.)
+      - when PhoneNumber::REPLY
+        %p Reply with the following message:
+        %p.well= @phone_number.unsolicited_sms_message
+        %p
+          %small (Note: This will incur a fee for each inbound message as well as each reply message sent.)
+.row
+  .col-sm-4 When receiving an unsolicited call...
+  .col-sm-8
+    - case @phone_number.unsolicited_call_action
+      - when PhoneNumber::REJECT
+        %p Do not answer and play an out-of-service message.
+        %p
+          %small (Note: This does not incur a fee.)
+      - when PhoneNumber::BUSY
+        %p Do not answer and play a line-is-busy message.
+        %p
+          %small (Note: This does not incur a fee.)
+      - when PhoneNumber::REPLY
+        %p Answer with the following #{call_language(@phone_number.unsolicited_call_language)} message using a #{call_voice(@phone_number.unsolicited_call_voice)} voice:
+        %p.well= @phone_number.unsolicited_call_message
+        %p
+          %small (Note: This will incur a fee for each call answered.)

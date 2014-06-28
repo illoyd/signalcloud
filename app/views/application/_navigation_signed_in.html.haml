@@ -1,0 +1,71 @@
+/ Primary navigation
+- unless @organization.nil? || @organization.new_record?
+  %ul.primary-nav.pull-left
+    %li.dashboards{ class: (yield(:page_section) == 'dashboards' ? 'active' : '') }
+      %a{ :href => organization_path(@organization) }
+        = icon( :dashboard )
+        %span.label Dashboard
+
+    - if can? :index, Conversation
+      %li.conversations{ class: (yield(:page_section) == 'conversations' ? 'active' : '') }
+        %a{ :href => organization_conversations_path(@organization) }
+          = icon( :conversations )
+          %span.label Conversations
+
+    - if can? :index, Stencil
+      %li.stencils{ class: (yield(:page_section) == 'stencils' ? 'active' : '') }
+        %a{ :href => organization_stencils_path(@organization) }
+          = icon( :stencils )
+          %span.label Stencils
+
+    - if can? :index, PhoneBook
+      %li.phone_books{ class: (yield(:page_section) == 'phone_books' ? 'active' : '') }
+        %a{ :href => organization_phone_books_path(@organization) }
+          = icon( :phone_books )
+          %span.label Phone Books
+
+    - if can? :index, PhoneNumber
+      %li.phone_numbers{ class: (yield(:page_section) == 'phone_numbers' ? 'active' : '') }
+        %a{ :href => organization_phone_numbers_path(@organization) }
+          = icon( :phone_numbers )
+          %span.label Phone Numbers
+
+    - if can?(:index, LedgerEntry) and current_user.is_billing_liaison_for?(@organization)
+      %li.ledger_entries{ class: (yield(:page_section) == 'ledger_entries' ? 'active' : '') }
+        %a{ :href => organization_ledger_entries_path(@organization) }
+          = icon( :ledger_entries )
+          %span.label Ledger
+
+    - if can?(:index, User) and current_user.is_organization_administrator_for?(@organization)
+      %li.users{ class: (yield(:page_section) == 'users' ? 'active' : '') }
+        %a{ :href => organization_users_path(@organization) }
+          = icon( :users )
+          %span.label Users
+
+
+/ Right navigation
+%ul.control-nav.pull-right
+  / User details
+  - if can?(:edit, current_user) || can?(:change_password, current_user)
+    %li.dropdown
+      %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#" }
+        = icon( :wrench )
+        %span.label Options
+        %b.caret
+      %ul.dropdown-menu
+        - if can? :edit, current_user
+          %li
+            = link_to current_user do
+              = icon( :user )
+              Change profile
+        - if can? :change_password, current_user
+          %li
+            = link_to edit_user_registration_path do
+              = icon( :key )
+              Change password
+  
+  / Sign-out
+  %li
+    = link_to destroy_user_session_path, :method => :delete do
+      = icon( 'sign-out' )
+      %span.label Sign out

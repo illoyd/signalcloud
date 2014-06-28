@@ -1,74 +1,71 @@
-/ Page Header
+-# Page Header
 - titles 'Phone Books', @phone_book.label, :phone_books
 
-.row
-  .span3
-    = render 'navlist'
-  .span9
-    %p.well
-      - if @phone_book.description.nil?
-        %em No description configured.
-      - else
-        = @phone_book.description
+-# Sidebar
+- content_for :sidebar do
+  = render 'navlist'
 
-    .pull-right= link_to 'Add Phone Number', '#phone_book_entry_modal', class: 'btn btn-success btn-small', 'data-toggle' => 'modal'
-    %h4 Phone numbers
-    %table.table.table-striped
-      %thead
-        %tr
-          %th.span1
-          %th Number
-          %th Country
-      %tbody
-        - if @phone_book.phone_book_entries.empty?
-          %tr
-            %td{colspan: 3}
-              %em No phone numbers are used by this book.
-        
-        - @phone_book.phone_book_entries( order: 'number, country' ).each do |entry|
-          %tr
-            %td= split_dropdown_list([ |
-              { label: 'Details', icon: :show, link: [@organization, entry.phone_number], if: can?(:show, entry.phone_number) }, |
-              { label: 'Remove from book', icon: :delete, link: [@organization, entry], options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, entry) } |
-              ], {class:'btn-mini'}) |
-            %td
-              - if can?(:show, entry.phone_number)
-                = link_to [@organization, entry.phone_number] do
-                  = flag_icon(entry.phone_number.country)
-                  = humanize_phone_number(entry.phone_number.number)
-              - else
-                = flag_icon(entry.phone_number.country)
-                = humanize_phone_number(entry.phone_number.number)
+- unless @phone_book.description.blank?
+  %p.well= @phone_book.description
 
-            %td
-              - if entry.country.blank?
-                = flag_icon()
-                %em Any
-              - else
-                = flag_icon(entry.country)
-                = Country[entry.country].name rescue entry.country
+.pull-right= link_to 'Add Phone Number', '#phone_book_entry_modal', class: 'btn btn-primary btn-sm', 'data-toggle' => 'modal'
+%h4 Phone numbers
+%table.table.table-striped
+  %thead
+    %tr
+      %th.span1
+      %th Number
+      %th Country
+  %tbody
+    - if @phone_book.phone_book_entries.empty?
+      %tr
+        %td{colspan: 3}
+          %em No phone numbers are used by this book.
+    
+    - @phone_book.phone_book_entries( order: 'number, country' ).each do |entry|
+      %tr
+        %td= split_dropdown_list([ |
+          { label: 'Details', icon: :show, link: [@organization, entry.phone_number], if: can?(:show, entry.phone_number) }, |
+          { label: 'Remove from book', icon: :delete, link: [@organization, entry], options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, entry) } |
+          ], {class:'btn-xs'}) |
+        %td
+          - if can?(:show, entry.phone_number)
+            = link_to [@organization, entry.phone_number] do
+              = flag_icon(entry.phone_number.country)
+              = humanize_phone_number(entry.phone_number.number)
+          - else
+            = flag_icon(entry.phone_number.country)
+            = humanize_phone_number(entry.phone_number.number)
 
-    %h4 Stencils using this book
-    %table.table.table-striped
-      %thead
-        %tr
-          %th.span1
-          %th Stencil
-      %tbody
-        - if @phone_book.stencils.empty?
-          %tr
-            %td{colspan: 2}
-              %em No stencils use this book.
+        %td
+          - if entry.country.blank?
+            = flag_icon()
+            %em Any
+          - else
+            = flag_icon(entry.country)
+            = Country[entry.country].name rescue entry.country
 
-        - @phone_book.stencils.each do |stencil|
-          %tr
-            %td= split_dropdown_list([ |
-                { label: 'Details', icon: :show, link: [@organization, stencil], if: can?(:show, stencil) }, |
-                { label: 'Edit', icon: :edit, link: edit_organization_stencil_path(@organization, stencil), if: can?(:edit, stencil) }, |
-                { label: 'Delete', icon: :delete, link: [@organization, stencil], options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, stencil) }, |
-                { label: 'Conversations', icon: :conversations, link: organization_stencil_conversations_path(@organization, stencil), if: can?(:show, Conversation) } |
-                ], { class: "btn-mini"} ) |
-            %td= link_to_if can?(:show, stencil), stencil.label, [@organization, stencil]
+%h4 Stencils using this book
+%table.table.table-striped
+  %thead
+    %tr
+      %th.span1
+      %th Stencil
+  %tbody
+    - if @phone_book.stencils.empty?
+      %tr
+        %td{colspan: 2}
+          %em No stencils use this book.
+
+    - @phone_book.stencils.each do |stencil|
+      %tr
+        %td= split_dropdown_list([ |
+            { label: 'Details', icon: :show, link: [@organization, stencil], if: can?(:show, stencil) }, |
+            { label: 'Edit', icon: :edit, link: edit_organization_stencil_path(@organization, stencil), if: can?(:edit, stencil) }, |
+            { label: 'Delete', icon: :delete, link: [@organization, stencil], options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, stencil) }, |
+            { label: 'Conversations', icon: :conversations, link: organization_stencil_conversations_path(@organization, stencil), if: can?(:show, Conversation) } |
+            ], { class: "btn-xs"} ) |
+        %td= link_to_if can?(:show, stencil), stencil.label, [@organization, stencil]
 
 
 #phone_book_entry_modal.modal.hide.fade{ "aria-hidden" => "true", "aria-labelledby" => "PhoneBookEntryModal", :role => "dialog", :tabindex => "-1"}

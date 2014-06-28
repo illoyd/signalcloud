@@ -14,7 +14,7 @@ ICONS = {
   # Common actions
   show: 'search',
   edit: 'pencil',
-  delete: 'trash',
+  delete: 'trash-o',
   
   # Conversation statuses
   confirmed: 'ok-sign',
@@ -29,4 +29,5 @@ ICONS = {
   draft: 'file-text',
 
   error: 'warning-sign'
+  
 }.with_indifferent_access.freeze

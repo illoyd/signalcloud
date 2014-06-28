@@ -4,7 +4,7 @@
 .row
   .span12
     - if current_user.is_organization_administrator_for? @organization
-      .pull-right= link_to 'Invite a user', '#user_role_modal', class: 'btn btn-success btn-small', 'data-toggle' => 'modal'
+      .pull-right= link_to 'Invite a user', '#user_role_modal', class: 'btn btn-primary btn-sm', 'data-toggle' => 'modal'
 
 .row
   .span12
@@ -28,7 +28,7 @@
               = split_dropdown_list([ |
                 { label: 'Change roles in Organization', icon: :edit, link: "#user_role_modal_#{user.id}", options: { 'data-toggle' => 'modal' }, if: can?(:edit, user_role) }, |
                 { label: 'Remove from Organization', icon: :delete, link: [@organization, user_role], options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, user_role) } |
-                ], {class: 'btn-mini'} ) |
+                ], {class: 'btn-xs'} ) |
 
             %td
               = gravatar_for user, 40, class: 'img-circle'

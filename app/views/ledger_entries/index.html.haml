@@ -11,7 +11,7 @@
       / Controls
       .row
         .span9.table-tools
-          = link_to 'View Invoice', @invoice.public_link, :class => 'btn btn-success btn-small pull-right', target: '_blank'
+          = link_to 'View Invoice', @invoice.public_link, :class => 'btn btn-primary btn-sm pull-right', target: '_blank'
 
     / Ledger entries
     %table.table.table-striped.table-condensed
@@ -33,7 +33,7 @@
               %td= split_dropdown_list([ |
                 { label: 'Details', icon: :show, link: [ @organization, ledger_entry ], if: can?(:show, ledger_entry) }, |
                 { label: 'View ' + item_label(ledger_entry.item), icon: item_icon(ledger_entry.item), link: [@organization, ledger_entry.item], if: can?(:show, ledger_entry.item) } |
-                ], {class: 'btn-mini'}) |
+                ], {class: 'btn-xs'}) |
               %td
                 = ledger_entry.narrative
                 - unless ledger_entry.blank?

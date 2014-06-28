@@ -5,7 +5,7 @@
 .row
   .span12.table-tools
     - if can? :new, Organization      
-      %div.pull-right= link_to 'New Organization', new_organization_path, :class => 'btn btn-success btn-small'
+      %div.pull-right= link_to 'New Organization', new_organization_path, :class => 'btn btn-primary btn-sm'
 
 / Page body
 .row
@@ -40,7 +40,7 @@
                 { label: 'Details', icon: :show, link: organization, if: can?(:show, organization) }, |
                 { label: 'Edit', icon: :edit, link: edit_organization_path(organization) }, |
                 { label: 'Delete', icon: :delete, link: organization, options: { method: :delete, data: { confirm: 'Are you sure?' } } } |
-                ], {class: 'btn-mini'} ) |
+                ], {class: 'btn-xs'} ) |
             %td
               = link_to organization do
                 = icon(organization.icon || :organizations )

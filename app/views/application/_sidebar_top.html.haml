@@ -1,0 +1,28 @@
+/ Top sidebar component
+.top
+  = gravatar_for current_user, 120
+  %p.name= current_user.nickname
+  %p.email= current_user.email
+
+  / Organization selector
+  - if @organization && !@organization.new_record?
+    .block-center.center-block{ style: 'text-align: center;' }
+      .organization-picker
+        %button{"data-toggle" => "dropdown", type: 'button'}
+          = icon( @organization.icon || :organizations )
+          = @organization.label
+          %span.caret
+  
+        %ul{role: "menu"}
+          - if can? :shadow, Organization
+            %li
+              = link_to organizations_path do
+                = icon( :exchange )
+                Switch organizations
+            %li.divider
+  
+          - current_user.organizations.each do |org|
+            %li{ class: ('active' if @organization == org) }
+              = link_to org do
+                = icon( org.icon || :organizations )
+                = org.label

@@ -10,7 +10,7 @@ module ConversationsHelper
       entries << { label: 'Show ' + stencil.label, icon: :stencils, link: organization_stencil_conversations_path( @organization, stencil ) }
     end
     
-    dropdown_list( title, entries, {class: 'btn-mini'} )
+    dropdown_list( title, entries, {class: 'btn-xs'} )
   end
   
   def status_dropdown_list( current_organization, current_stencil, current_status )
@@ -27,7 +27,7 @@ module ConversationsHelper
 #       { label: 'Show Expired', icon: :time, link: current_stencil.nil? ? expired_conversations_path : expired_stencil_conversations_path( current_stencil ) }
     ]
 
-    dropdown_list( title, entries, {class: 'btn-mini'} )
+    dropdown_list( title, entries, {class: 'btn-xs'} )
   end
   
   def css_class_for( status )

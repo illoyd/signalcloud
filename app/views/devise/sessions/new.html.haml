@@ -18,27 +18,29 @@
     %div= f.submit "Sign in"
   = render "devise/shared/links"
 
-= form_for( resource, :as => resource_name, :url => session_path(resource_name), :html => { :class => "form-horizontal" } ) do |f|
-  .modal.inline-modal
-    .modal-header
-      / %button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} &times;
+= form_for( resource, :as => resource_name, :url => session_path(resource_name), :html => { :class => "sign-in" } ) do |f|
+  %div.panel-sign-in
+    .panel-heading
       %h3 Sign in
-    .modal-body
-      .control-group
-        = f.label :email, :class => 'control-label'
-        .controls= f.email_field :email
-      .control-group
-        = f.label :password, :class => 'control-label'
-        .controls= f.password_field :password
+
+    .panel-body
+      .form-group
+        = f.label :email, :class => 'key'
+        .value= f.email_field :email, :class => 'form-control'
+
+      .form-group
+        = f.label :password, :class => 'key'
+        .value= f.password_field :password, :class => 'form-control'
+
       - if devise_mapping.rememberable?
-        .control-group
-          = f.label :remember_me, :class => 'control-label'
-          .controls= f.check_box :remember_me
-    .modal-footer
-      / %a.btn{:href => "#"} Close
-      %div
-        = f.submit "Sign in", class: 'btn btn-primary'
-        - if devise_mapping.recoverable? && controller_name != 'passwords'
-          = link_to "Forgot your password?", new_password_path(resource_name), :class => 'btn'
+        .form-group
+          .value.col-sm-offset-2
+            = f.check_box :remember_me
+            = f.label :remember_me
+
+    .panel-footer
+      = f.submit "Sign in", class: 'btn btn-primary'
+      - if devise_mapping.recoverable? && controller_name != 'passwords'
+        = link_to "Forgot your password?", new_password_path(resource_name), :class => 'btn'
 
 = render "devise/shared/links"

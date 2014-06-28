@@ -31,7 +31,7 @@ module ApplicationHelper
     i_style = options.fetch(:style, '')
     i_style = i_style.concat(' ') if i_style.is_a?(Array)
 
-    return "<i class='icon-#{kind.to_s} #{i_class}' style='#{i_style}'></i>".html_safe
+    return "<i class='fa fa-#{kind.to_s} #{i_class}' style='#{i_style}'></i>".html_safe
   end
 
   def header_icon( kind = :blank, options = {} )
@@ -122,8 +122,8 @@ module ApplicationHelper
   # Returns the Gravatar (http://gravatar.com/) for the given user.
   def gravatar_for(user, size = nil, options={} )
     gravatar_id = Digest::MD5::hexdigest(user.email.chomp.downcase)
-    gravatar_url = "https://secure.gravatar.com/avatar/#{gravatar_id}"
-    gravatar_url += "?size=#{size}" unless size.nil?
+    gravatar_url = "https://secure.gravatar.com/avatar/#{gravatar_id}?d=retro"
+    gravatar_url += "&size=#{size}" unless size.nil?
 
     options = { alt: user.nickname, class: "gravatar" }.merge options
     options[:height] = size unless size.nil?
