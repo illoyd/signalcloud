@@ -11,10 +11,10 @@
     = csrf_meta_tags
 
   %body{ id: yield(:page_section) }
-    / Navigation
-    #header
-      .row= render 'navigation'
   
+    / Masthead
+    = render 'masthead'
+
     / Body
     #main
       .row

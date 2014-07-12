@@ -1,8 +1,9 @@
 / Top sidebar component
 .top
-  = gravatar_for current_user, 120
-  %p.name= current_user.nickname
-  %p.email= current_user.email
+  - if signed_in?
+    = gravatar_for current_user, 120
+    %p.name= current_user.nickname
+    %p.email= current_user.email
 
   / Organization selector
   - if @organization && !@organization.new_record?

@@ -1,51 +1,41 @@
 / Primary navigation
 - unless @organization.nil? || @organization.new_record?
-  %ul.primary-nav.pull-left
+  %ul.nav.navbar-nav.tiles
     %li.dashboards{ class: (yield(:page_section) == 'dashboards' ? 'active' : '') }
-      %a{ :href => organization_path(@organization) }
-        = icon( :dashboard )
-        %span.label Dashboard
+      = link_to icon( :dashboard, class: 'fa-3x' ), organization_path(@organization)
 
     - if can? :index, Conversation
       %li.conversations{ class: (yield(:page_section) == 'conversations' ? 'active' : '') }
-        %a{ :href => organization_conversations_path(@organization) }
-          = icon( :conversations )
-          %span.label Conversations
+        = link_to icon( :conversations, class: 'fa-3x' ), organization_conversations_path(@organization)
 
     - if can? :index, Stencil
       %li.stencils{ class: (yield(:page_section) == 'stencils' ? 'active' : '') }
-        %a{ :href => organization_stencils_path(@organization) }
-          = icon( :stencils )
-          %span.label Stencils
+        = link_to icon( :stencils, class: 'fa-3x' ), organization_stencils_path(@organization)
 
     - if can? :index, PhoneBook
       %li.phone_books{ class: (yield(:page_section) == 'phone_books' ? 'active' : '') }
-        %a{ :href => organization_phone_books_path(@organization) }
-          = icon( :phone_books )
-          %span.label Phone Books
+        = link_to icon( :phone_books, class: 'fa-3x' ), organization_phone_books_path(@organization)
 
     - if can? :index, PhoneNumber
       %li.phone_numbers{ class: (yield(:page_section) == 'phone_numbers' ? 'active' : '') }
-        %a{ :href => organization_phone_numbers_path(@organization) }
-          = icon( :phone_numbers )
-          %span.label Phone Numbers
+        = link_to icon( :phone_numbers, class: 'fa-3x' ), organization_phone_numbers_path(@organization)
 
     - if can?(:index, LedgerEntry) and current_user.is_billing_liaison_for?(@organization)
       %li.ledger_entries{ class: (yield(:page_section) == 'ledger_entries' ? 'active' : '') }
-        %a{ :href => organization_ledger_entries_path(@organization) }
-          = icon( :ledger_entries )
-          %span.label Ledger
+        = link_to icon( :ledger_entries, class: 'fa-3x' ), organization_ledger_entries_path(@organization)
 
     - if can?(:index, User) and current_user.is_organization_administrator_for?(@organization)
       %li.users{ class: (yield(:page_section) == 'users' ? 'active' : '') }
-        %a{ :href => organization_users_path(@organization) }
-          = icon( :users )
-          %span.label Users
+        = link_to icon( :users, class: 'fa-3x' ), organization_users_path(@organization)
 
 
 / Right navigation
-%ul.control-nav.pull-right
+%ul.nav.navbar-nav.navbar-right.tiles
   / User details
+  - if can?(:edit, current_user) || can?(:change_password, current_user)
+    %li
+      = link_to current_user do
+        = gravatar_for current_user, 60, class: 'img-circle'
   - if can?(:edit, current_user) || can?(:change_password, current_user)
     %li.dropdown
       %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#" }
@@ -65,7 +55,4 @@
               Change password
   
   / Sign-out
-  %li
-    = link_to destroy_user_session_path, :method => :delete do
-      = icon( 'sign-out' )
-      %span.label Sign out
+  %li= link_to icon( 'sign-out', class: 'fa-3x' ), destroy_user_session_path, :method => :delete

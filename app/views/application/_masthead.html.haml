@@ -1,0 +1,65 @@
+#masthead
+  %ul.navigation
+    / Logo
+    %li.logo= link_to image_tag('marker-white-lg.png'), root_path
+
+    - unless @organization.nil? || @organization.new_record?
+      
+      / Dashboard
+      %li.dashboard{ class: ('active' if dashboard_page?) }
+        = link_to icon( :dashboard ), organization_path(@organization)
+
+      - if can? :index, Conversation
+        / Conversations
+        %li.conversations{ class: ('active' if conversation_page?) }
+          %a.conversations{ :href => organization_conversations_path(@organization) }= icon( :conversations )
+
+      - if can? :index, Stencil
+        / Stencils
+        %li.stencils{ class: ('active' if stencil_page?) }
+          %a.stencils{ :href => organization_stencils_path(@organization) }= icon( :stencils )
+
+      - if can? :index, PhoneBook
+        / Phone Books
+        %li.phone-books{ class: ('active' if phone_book_page?) }
+          %a.phone_books{ :href => organization_phone_books_path(@organization) }= icon( :phone_books )
+
+      - if can? :index, PhoneNumber
+        / Phone Numbers
+        %li.phone-numbers{{ class: ('active' if phone_number_page?) }}
+          %a.phone_numbers{ :href => organization_phone_numbers_path(@organization) }= icon( :phone_numbers )
+
+      - if can?(:index, LedgerEntry) and current_user.is_billing_liaison_for?(@organization)
+        / Ledger Entries
+        %li.ledger-entries{ class: ('active' if ledger_entry_page?) }
+          %a.ledger_entries{ :href => organization_ledger_entries_path(@organization) }= icon( :ledger_entries )
+
+      - if can?(:index, User) and current_user.is_organization_administrator_for?(@organization)
+        / Users
+        %li.users{ class: ('active' if user_page?) }
+          %a.users{ :href => organization_users_path(@organization) }= icon( :users )
+
+    %li.divider
+    
+    - if can?(:show, current_user)
+      / Current user's profile
+      %li.profile= link_to gravatar_for(current_user, 71), current_user
+
+    - if can?(:edit, current_user) || can?(:change_password, current_user)
+      / Edit current user
+      %li.config= link_to icon(:cog), edit_user_registration_path
+
+    - if user_signed_in?
+      / Sign-out
+      %li.sign-out= link_to icon('sign-out'), destroy_user_session_path, :method => :delete
+
+    - unless user_signed_in?
+      / Sign-in
+      %li.sign-in= link_to icon('sign-in'), new_user_session_path
+      / Sign-up
+      %li.sign-up= link_to icon('sign-up'), new_user_registration_path
+
+:javascript
+  var styles = [ "cusco", "machupicchu", "playablanca", "sevensisters", "stockholm", "varanasi" ]
+  var style = styles[Math.floor(Math.random()*styles.length)];
+  $('div#masthead').addClass(style);

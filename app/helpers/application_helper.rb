@@ -63,6 +63,38 @@ module ApplicationHelper
     Country[country].name
   end
   
+  def section_page?(section)
+    content_for(:page_section) == section
+  end
+  
+  def dashboard_page?
+    section_page?('dashboard')
+  end
+  
+  def stencil_page?
+    section_page?('stencils')
+  end
+  
+  def conversation_page?
+    section_page?('conversations')
+  end
+  
+  def phone_book_page?
+    section_page?('phone_numbers')
+  end
+  
+  def ledger_entry_page?
+    section_page?('ledger_entries')
+  end
+  
+  def phone_number_page?
+    section_page?('phone_books')
+  end
+  
+  def user_page?
+    section_page?('users')
+  end
+  
   def conversation_state_tag( state )
     state = state.workflow_state if state.respond_to? :workflow_state
     label = state.to_s
