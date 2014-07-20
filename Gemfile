@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 ruby "2.1.1"
-gem 'rails', '4.1.0'
+gem 'rails', '4.1.4'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
@@ -54,7 +54,7 @@ gem 'haml'
 gem 'devise', '~> 3.2.0'
 gem 'devise-async'
 gem 'devise_invitable'
-gem 'cancancan', '~> 1.7'
+gem 'cancancan', '~> 1.8'
 gem 'attr_encrypted', '~> 1.3.2'
 gem 'kaminari'
 gem 'stringex'
@@ -76,7 +76,7 @@ gem 'rails_12factor', group: [:development, :production]
 #
 # Internal services (e.g. queues, caches)
 gem 'redis'
-gem 'sidekiq', '~> 2.17'
+gem 'sidekiq', '~> 3.2'
 gem 'sidetiq'
 
 #
@@ -95,6 +95,7 @@ end
 group :test do
 	gem 'shoulda-matchers'
 	gem 'rspec-sidekiq'
+	gem 'rspec-its'
 	gem 'vcr'
 	gem 'webmock', "~> 1.11.0"
 	gem 'factory_girl'
