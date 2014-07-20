@@ -19,7 +19,6 @@ class ConversationsController < ApplicationController
   # GET /conversations
   # GET /conversations.json
   def index
-    
     @multistencil = @stencil.nil?
     unless @multistencil
       @conversations = @conversations.where( stencil_id: @stencil.id )

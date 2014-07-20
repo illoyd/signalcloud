@@ -103,6 +103,13 @@ $navbar-default-toggle-border-color:       #ddd !default;
       background-color: $color;
     }
   }
+  
+  div#breadcrumbs {
+    background-color: $color;
+    
+    a { color: $darkColor; }
+    a:hover { color: $darkerColor; }
+  }
 
   div#header {
     color: white;

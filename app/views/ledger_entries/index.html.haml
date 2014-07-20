@@ -1,6 +1,7 @@
 / Page header
 - subtitle = @invoice ? "for invoice #{@invoice.date_to.to_date.to_formatted_s}" : 'all entries'
 - titles 'Ledger', subtitle, :ledger_entries
+- breadcrumb :organization_ledger_entries, @organization
 
 / Page body
 .row

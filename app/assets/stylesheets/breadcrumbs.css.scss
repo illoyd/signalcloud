@@ -1,0 +1,23 @@
+// Navbar styles
+@import "theme";
+
+div#breadcrumbs {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  
+  color: #DDD;
+  
+  ol.breadcrumb {
+    margin: 0px;
+    padding: 0px;
+    background-color: transparent;
+  }
+  
+  a {
+    color: #EEE;
+    
+    &:hover {
+     color: white;
+    }
+  }
+}

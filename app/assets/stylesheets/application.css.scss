@@ -12,6 +12,7 @@
  *= require organizations
  *= require navbar
  *= require masthead
+ *= require breadcrumbs
  * //require_tree .
  */
 
@@ -191,6 +192,10 @@ div.organization-picker {
 
 body {
   @include body-section(lighten(black, 33%));
+}
+
+body#organizations {
+  @include body-section($dashboardsColor);
 }
 
 body#dashboards {

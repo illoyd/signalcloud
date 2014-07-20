@@ -33,6 +33,10 @@ module ApplicationHelper
 
     return "<i class='fa fa-#{kind.to_s} #{i_class}' style='#{i_style}'></i>".html_safe
   end
+  
+  def iconify(label, icon, options = {})
+    "#{ icon(icon, options) } #{ label }".html_safe
+  end
 
   def header_icon( kind = :blank, options = {} )
     options = { class: 'header-icon' }.merge options
@@ -80,7 +84,7 @@ module ApplicationHelper
   end
   
   def phone_book_page?
-    section_page?('phone_numbers')
+    section_page?('phone_books')
   end
   
   def ledger_entry_page?
@@ -88,7 +92,7 @@ module ApplicationHelper
   end
   
   def phone_number_page?
-    section_page?('phone_books')
+    section_page?('phone_numbers')
   end
   
   def user_page?

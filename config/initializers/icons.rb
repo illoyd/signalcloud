@@ -6,7 +6,7 @@ ICONS = {
   phone_books: 'book',
   phone_numbers: 'phone',
   conversations: 'comments',
-  organizations: 'briefcase',
+  organizations: 'th-large',
   users: 'group',
   ledger_entries: 'list-alt',
   boxes: 'archive',

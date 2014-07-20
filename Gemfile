@@ -65,6 +65,7 @@ gem 'country_select'
 #gem 'countries'
 gem 'workflow'
 gem 'countries-phone_numbers'
+gem 'gretel'
 
 gem 'rails_12factor', group: [:development, :production]
 
