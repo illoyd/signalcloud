@@ -26,11 +26,9 @@
           = render 'messages'
           = yield
   
-        #sidebar
-          = render 'sidebar_top'
-          = yield(:sidebar) if content_for?(:sidebar)
-          = render 'sidebar_calendar'
-          = render 'sidebar_notices'
+        - if content_for?(:sidebar)
+          #sidebar
+            = yield(:sidebar)
 
     / Footer
     #footer

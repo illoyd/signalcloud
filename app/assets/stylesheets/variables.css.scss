@@ -82,11 +82,6 @@ $navbar-default-toggle-border-color:       #ddd !default;
   $darkColor: darken($color, 43%);
   $darkerColor: darken($color, 62%);
 
-  // Masthead and navigation
-  div#masthead {
-    border-bottom-color: $color;
-  }
-
   // General overrides for section colours
   div#content a {
     color: $darkColor;
