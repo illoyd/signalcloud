@@ -5,11 +5,11 @@ class UsersController < ApplicationController
   # before_filter :cannot_manage_organization_owner_roles, only: [:index]
 
   # Index authorisations
-  load_and_authorize_resource :organization, only: :index
-  load_and_authorize_resource through: :organization, only: :index
+  load_and_authorize_resource :organization
+  load_and_authorize_resource through: :organization
   
   # Other authorisations
-  load_and_authorize_resource except: [:index]
+  # load_and_authorize_resource except: [:index]
 
   # GET /organization/1/users
   def index
