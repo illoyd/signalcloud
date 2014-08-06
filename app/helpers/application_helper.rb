@@ -41,11 +41,6 @@ module ApplicationHelper
     content_tag(:span, count, class: [ 'label', "label-#{ kind }" ].compact)
   end
 
-  def header_icon( kind = :blank, options = {} )
-    options = { class: 'header-icon' }.merge options
-    icon( kind, options )
-  end
-  
   def humanize_phone_number( number )
     Country.format_international_phone_number(number)
   end
