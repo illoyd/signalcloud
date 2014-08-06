@@ -1,5 +1,6 @@
-/ Page header
+-# Page header
 - titles 'Users', 'all users', :users
+- breadcrumb :organization_users, @organization
 
 .row
   .span12
@@ -33,7 +34,7 @@
             %td
               = gravatar_for user, 40, class: 'img-circle'
             %td
-              = link_to_if can?(:show, user), "#{user.name} (#{user.nickname})", user
+              = link_to_if can?(:show, user), "#{user.name} (#{user.nickname})", [@organization, user]
               %br
               = mail_to user.email
               - if user.has_pending_invitation?

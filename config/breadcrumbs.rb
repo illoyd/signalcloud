@@ -105,11 +105,11 @@ crumb :organization_users do |organization|
   parent :organization, organization
 end
 
-crumb :user do |user|
+crumb :user do |organization, user|
   if user.new_record?
     link 'New', nil
   else
-    link user.id, organization_user_path(user.organization, user)
+    link user.name, organization_user_path(organization, user)
   end
-  parent :organization_users, user.organization
+  parent :organization_users, organization
 end
