@@ -2,11 +2,7 @@
 
 - raise 'Registration Not Allowed' unless ALLOW_USER_REGISTRATION
 
-= form_for( resource, :as => resource_name, :url => session_path(resource_name), :html => { :class => "form-horizontal" } ) do |f|
-  .modal.inline-modal
-    .modal-header
-      / %button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} &times;
-      %h3 Sign up
+= form_for( resource, :as => resource_name, :url => session_path(resource_name) ) do |f|
 
     .modal-body
     

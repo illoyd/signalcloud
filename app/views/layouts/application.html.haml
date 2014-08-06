@@ -6,30 +6,44 @@
       = ' — ' if content_for?(:title)
       SignalCloud
     = stylesheet_link_tag "application", :media => "all"
-    %link{href: "//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css", rel: "stylesheet"}/
     = javascript_include_tag "application"
+    = javascript_include_tag "//www.google.com/jsapi", "chartkick"
+    %link{href: "//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.css", rel: "stylesheet"}/
     = csrf_meta_tags
+    = viewport_meta_tag(:maximum_scale => "1.0")
 
   %body{ id: yield(:page_section) }
   
-    / Masthead
-    = render 'masthead'
+    %nav#navbar
+      .header= render partial: 'navbar'
 
-    / Breadcrumbs
-    = render 'breadcrumbs'
+    .content
+      = render partial: 'heading'
+      = render partial: 'flash'
+      = yield
 
-    / Body
-    #main
-      .row
-        #content
-          = render 'header'
-          = render 'messages'
-          = yield
-  
-        - if content_for?(:sidebar)
-          #sidebar
-            = yield(:sidebar)
+    .footer
 
-    / Footer
-    #footer
-      .row= render 'footer'
+
+-#
+  / Masthead
+  = render 'masthead'
+
+  / Breadcrumbs
+  = render 'breadcrumbs'
+
+  / Body
+  #main
+    .row
+      #content
+        = render 'header'
+        = render 'messages'
+        = yield
+
+      - if content_for?(:sidebar)
+        #sidebar
+          = yield(:sidebar)
+
+  / Footer
+  #footer
+    .row= render 'footer'

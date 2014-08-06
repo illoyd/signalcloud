@@ -9,382 +9,187 @@
  * compiled file, but it's generally better to create a new file per style scope.
  *
  *= require_self
- *= require organizations
- *= require navbar
- *= require masthead
- *= require breadcrumbs
+ * // require organizations
+ * // require navbar
+ * // require masthead
+ * // require breadcrumbs
  * //require_tree .
  */
 
 @import 'theme';
 @import "bootstrap-sprockets";
 @import "bootstrap";
+@import 'yeti-bootswatch';
 
-// Import fonts!
-@import url("//fonts.googleapis.com/css?family=Raleway:400,200,100,700");
 
-// General
-div.hexagon {
-  width: 100px;
-  height: 120px;
-  overflow: hidden;
-  visibility: hidden;
-  transform: rotate(120deg);
-  font-size: 50px;
-  color: white;
+// Body
+body { padding-top: 30px; }
+
+
+// General purpose
+div.flash-flash, div.flash-info {
+  @extend .alert;
+  @extend .alert-info;
+}
+
+div.flash-notice, div.flash-success {
+  @extend .alert;
+  @extend .alert-success;
+}
+
+div.flash-alert, div.flash-warning {
+  @extend .alert;
+  @extend .alert-warning;
+}
+
+div.flash-error, div.flash-danger {
+  @extend .alert;
+  @extend .alert-danger;
+}
+
+
+// Header container
+div.header {
+  @extend .container;
   
-  div.outer {
-    overflow: hidden;
-    width: 100%;
+  
+}
+
+// Navbar
+nav#navbar {
+  @extend .navbar;
+  @extend .navbar-default;
+  @extend .navbar-fixed-top;
+  
+  #collapsable {
+    @extend .collapse;
+    @extend .navbar-collapse;
+  }
+  
+  .navbar-brand img {
     height: 100%;
-    transform: rotate(-60deg);
-
-    div.inner {
-      width: 100%;
-      height: 100%;
-      visibility: visible;
-      transform: rotate(-60deg);
-      background: gray no-repeat center center;
-      
-      text-align: center;
-      line-height: 120px;
-      padding-left: 3px;
-
-      &:hover {
-/*         background: url('http://lorempixel.com/250/350/people'); */
-        background: red;
-      }
-
+  }
+  
+  li.my > a {
+    background-color: $gray;
+    &:hover {
+      background-color: darken($gray, 50%);
     }
-
-  }  
-}
-
-
-// Honeycomb
-div.honeycomb {
-  margin-left: 20px;
-  margin-right: 20px;
-  margin-bottom: 25px;
-  
-  div.hexagon {
-    margin-bottom: -25px;
   }
   
-  div.hexagon:nth-child(even) {
-    margin-top: -25px;
-    margin-left: 55px;
+  ul.signed-in, ul.signed-out {
+    @extend .nav;
+    @extend .navbar-nav;
+    @extend .navbar-right;
+  }
+  
+  p.welcome {
+    @extend .navbar-text;
   }
 }
 
 
-// Container-ise everything in one shot
-div#header, div#main, div#footer {
-  @extend .container-fluid;
-}
-
-div#header {
-  @extend .equal;
-
-  div#brand {
-    @extend .col-md-3;
-    @extend .col-lg-2;
-    @extend .equal;
-    
-    font-size: $font-size-h4;
-    text-align: center;
+// Content Container
+div.content {
+  @extend .container;
+  
+  div.toolbar {
+    text-align: right;
+    margin-bottom: 12px;
     
     a {
-      @extend .btn-block;
-      color: white;
-      text-decoration: none;
+      @extend .btn;
+      @extend .btn-success;
+      @extend .btn-xs;
     }
   }
   
-  div#navigation {
-    @extend .col-md-9;
-    @extend .col-lg-10;
-    @extend .equal;
+  div.performance {
+    @extend .row;
+
+    div.quarter {
+      @extend .col-sm-8;
+    }
     
-    ul.primary-nav, ul.control-nav {
-      @extend .nav;
-      @extend .nav-pills;
-      
-      a { color: white; }
-      
-      li {
-        span.label { display: none !important; }
-        &:hover {
-          span.label { display: inline !important; }
-        }
-      }
-
-      li.dashboards {
-        a:hover { background-color: $dashboardsColor; }
-      }
-
-      li.conversations {
-        a:hover { background-color: $conversationsColor; }
-      }
-
-      li.stencils {
-        a:hover { background-color: $stencilsColor; }
-      }
-
-      li.phone_books {
-        a:hover { background-color: $phoneBooksColor; }
-      }
-
-      li.phone_numbers {
-        a:hover { background-color: $phoneNumbersColor; }
-      }
-
-      li.ledger_entries {
-        a:hover { background-color: $ledgerEntriesColor; }
-      }
-
-      li.users {
-        a:hover { background-color: $usersColor; }
-      }
-
+    div.day {
+      @extend .col-sm-4;
     }
   }
-}
-
-div#main {
-
-  div#sidebar {
-    @extend .col-md-3;
-    @extend .col-lg-2;
-    @extend .col-md-pull-9;
-    @extend .col-lg-pull-10;
+  
+  div.summary {
+    @extend .row;
     
-    .heading {
-      font-size: $font-size-h4;
-      font-weight: bold;
-      margin-left:  -($grid-gutter-width / 2);
-      margin-right: -($grid-gutter-width / 2);
-      padding-top: 0.2em;
-      padding-bottom: 0.2em;
-      padding-left:  ($grid-gutter-width / 2);
-      padding-right: ($grid-gutter-width / 2);
+    div.description {
+      @extend .col-sm-8;
     }
     
-    a { color: white; }
-
-    div.top {
-      margin-top: 1.5em;
-      margin-bottom: 2.5em;
+    div.details {
+      @extend .col-sm-4;
       
-      img.gravatar {
-        @extend .img-circle;
-        @extend .center-block;
-      }
-      
-      p {
-        text-align: center;
+      div.details-panel {
+        @extend .panel;
+        @extend .panel-default;
         
-        &.name {
-          font-size: $font-size-h4;
-          font-weight: bold;
-          margin-bottom: 0px;
-        }
-
-        &.email {
-          font-size: $font-size-h5;
-          font-weight: lighter;
+        h3 { @extend .panel-title; }
+        
+        ul {
+          //@extend .list-group;
+          //li { @extend .list-group-item; }
         }
       }
     }
+  }
+  
+  form.general {
+    @extend .form-horizontal;
     
-    div.calendar {
-      margin-bottom: 2.5em;
-    }
-    
-    div.notices {
-      margin-bottom: 2.5em;
-    }
-    
-    div.manage {
-      margin-bottom: 2.5em;
-    }
-  }
-  
-  div#content {
-    @extend .col-md-9;
-    @extend .col-lg-10;
-    @extend .col-md-push-3;
-    @extend .col-lg-push-2;
-  }
-
-}
-
-div#footer {
-  padding-top: 3em;
-  background-color: $gray-lighter;
-  
-  div.notices, div.details {
-    @extend .col-sm-6;
-  }
-}
-
-div.organization-picker {
-  @extend .dropdown;
-  @extend .center-block;
-  @extend .clear-fix;
-  
-  > button {
-    @extend .btn;
-    @extend .btn-default;
-    @extend .btn-sm;
-    @extend .dropdown-toggle;
-  }
-  
-  > ul {
-    @extend .dropdown-menu;
-  }
-}
-
-body {
-  @include body-section(lighten(black, 33%));
-}
-
-body#organizations {
-  @include body-section($dashboardsColor);
-}
-
-body#dashboards {
-  @include body-section($dashboardsColor);
-}
-
-body#conversations {
-  @include body-section($conversationsColor);
-}
-
-body#stencils {
-  @include body-section($stencilsColor);
-}
-
-body#phone_books {
-  @include body-section($phoneBooksColor);
-}
-
-body#phone_numbers {
-  @include body-section($phoneNumbersColor);
-}
-
-body#ledger_entries {
-  @include body-section($ledgerEntriesColor);
-}
-
-body#users {
-  @include body-section($usersColor);
-}
-
-
-form.default, form.sign-in {
-  @extend .form-horizontal;
-  
-  .form-group {
-    label.key {
-      @extend .col-sm-2;
-      @extend .control-label;
-    }
-    
-    .value {
-      @extend .col-sm-10;
-    }    
-
-    .buttons {
-      @extend .col-sm-10;
-      @extend .col-sm-offset-2;
-    }
-  }
-}
-
-form.default-wide {
-  @extend .form-horizontal;
-  
-  .form-group {
-    label.key {
-      @extend .col-sm-3;
-      @extend .control-label;
-    }
-    
-    .value {
-      @extend .col-sm-9;
+    .field {
+      @extend .form-group;
       
-      textarea, select {
-        @extend .form-control;
+      & > label {
+        @extend .col-sm-3;
+        @extend .control-label;
       }
-    }
-
-    .buttons {
-      @extend .col-sm-9;
-      @extend .col-sm-offset-3;
       
-      input[type=submit] {
+      div.inputs {
+        @extend .col-sm-9;
+        
+        input[type="text"], input[type="password"], input[type="email"], textarea {
+          @extend .form-control;
+        }
+      }
+      
+      input[type="submit"] {
         @extend .btn;
-        @extend .btn-primary;
+        @extend .btn-success;
       }
       
-      a {
+      a.cancel {
         @extend .btn;
         @extend .btn-default;
+        
+        &:hover {
+          @extend .btn-warning;
+        }
+      }
+
+      .actions {
+        @extend .col-sm-9;
+        @extend .col-sm-offset-3;
       }
     }
   }
 }
 
-div.panel-sign-in {
-  @extend .panel;
-  @extend .panel-default;
-  
-  width: 66%;
-  margin-left: auto;
-  margin-right: auto;
-  
-  h1, h2, h3, h4, h5, h6 {
-    @extend .panel-title;
-  }
+
+// Footer container
+div.footer {
+  @extend .container;
+
 }
 
 
-div.inline-modal {
-  position: relative;
-  top: auto;
-  left: auto;
-  right: auto;
-  margin: 0 auto 20px;
-  z-index: 1;
-  max-width: 100%;
-}
-
-div.page-header h1 i {
-  color: #999999;
-}
-
-div.table-tools {
-  margin-bottom: 10px;
-}
-
-div.navbar {
-  margin-top: 10px;
-}
-
-.table tr.middle td { vertical-align: middle; }
-.table .centered { text-align: center; }
-
-
-
-div.tiles {}
-div.tiles a.tile {
-  height: 70px;
-  text-align: center;
-  vertical-align: middle;
-  display: block;
-  color: white;
-  text-decoration: none;
-  font-size: 50px;
-  line-height: 70px;
+// Form extensions
+form.new_user, form.new_phone_book, form.edit_phone_book, form.edit_user {
+  @extend form.general;
 }

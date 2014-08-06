@@ -1,44 +1,22 @@
-- content_for :title, 'Sign In'
+- headings('Sign in', 'and get started')
 
--#
-  %h2 Sign in
-  = form_for( resource, :as => resource_name, :url => session_path(resource_name) ) do |f|
-    %div
-      = f.label :email
-      %br/
-      = f.email_field :email
-    %div
-      = f.label :password
-      %br/
-      = f.password_field :password
-    - if devise_mapping.rememberable?
-      %div
+= form_for( resource, :as => resource_name, :url => session_path(resource_name) ) do |f|
+  .field
+    = f.label :email
+    .inputs= f.email_field :email
+
+  .field
+    = f.label :password
+    .inputs= f.password_field :password
+
+  - if devise_mapping.rememberable?
+    .field
+      .actions
         = f.check_box :remember_me
         = f.label :remember_me
-    %div= f.submit "Sign in"
-  = render "devise/shared/links"
 
-= form_for( resource, :as => resource_name, :url => session_path(resource_name), :html => { :class => "sign-in" } ) do |f|
-  %div.panel-sign-in
-    .panel-heading
-      %h3 Sign in
-
-    .panel-body
-      .form-group
-        = f.label :email, :class => 'key'
-        .value= f.email_field :email, :class => 'form-control'
-
-      .form-group
-        = f.label :password, :class => 'key'
-        .value= f.password_field :password, :class => 'form-control'
-
-      - if devise_mapping.rememberable?
-        .form-group
-          .value.col-sm-offset-2
-            = f.check_box :remember_me
-            = f.label :remember_me
-
-    .panel-footer
+  .field
+    .actions
       = f.submit "Sign in", class: 'btn btn-primary'
       - if devise_mapping.recoverable? && controller_name != 'passwords'
         = link_to "Forgot your password?", new_password_path(resource_name), :class => 'btn'

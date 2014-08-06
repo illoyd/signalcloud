@@ -1,0 +1,65 @@
+/ Brand and toggle get grouped for better mobile display
+.navbar-header
+  %button.navbar-toggle{"data-target" => "#collapsable", "data-toggle" => "collapse", type: "button"}
+    %span.sr-only Toggle navigation
+    %span.icon-bar
+    %span.icon-bar
+    %span.icon-bar
+  = link_to root_path, class: 'navbar-brand' do
+    = image_tag('marker-white-lg.png')
+    SignalCloud
+
+/ Collect the nav links, forms, and other content for toggling
+#collapsable
+  %ul.nav.navbar-nav
+
+    -# Do not show navbar if no organization or organization is not saved (is new)
+    - unless @organization.nil? || @organization.new_record?
+
+      / Dashboard
+      - if can? :show, @organization
+        %li{ class: ('active' if dashboard_page?) }
+          = link_to icon( :dashboard ), organization_path(@organization)
+  
+      - if can? :index, Conversation
+        / Conversations
+        %li{ class: ('active' if conversation_page?) }
+          %a.conversations{ :href => organization_conversations_path(@organization) }= icon( :conversations )
+  
+      - if can? :index, Stencil
+        / Stencils
+        %li{ class: ('active' if stencil_page?) }
+          %a.stencils{ :href => organization_stencils_path(@organization) }= icon( :stencils )
+  
+      - if can? :index, PhoneBook
+        / Phone Books
+        %li{ class: ('active' if phone_book_page?) }
+          %a.phone_books{ :href => organization_phone_books_path(@organization) }= icon( :phone_books )
+  
+      - if can? :index, PhoneNumber
+        / Phone Numbers
+        %li{ class: ('active' if phone_number_page?) }
+          %a.phone_numbers{ :href => organization_phone_numbers_path(@organization) }= icon( :phone_numbers )
+  
+      - if can?(:index, LedgerEntry) and current_user.is_billing_liaison_for?(@organization)
+        / Ledger Entries
+        %li{ class: ('active' if ledger_entry_page?) }
+          %a.ledger_entries{ :href => organization_ledger_entries_path(@organization) }= icon( :ledger_entries )
+  
+      - if can?(:index, User) and current_user.is_organization_administrator_for?(@organization)
+        / Users
+        %li{ class: ('active' if user_page?) }
+          %a.users{ :href => organization_users_path(@organization) }= icon( :users )
+
+  - if signed_in?
+    / Signed-in controls
+    %ul.signed-in
+      %p.welcome Hi, #{current_user.name}
+      - if can?(:show, current_user)
+        %li= link_to gravatar_for(current_user, 24, class: 'img-circle'), current_user
+      %li= link_to icon(:sign_out), destroy_user_session_path
+
+  - else
+    / Not signed-in controls
+    %ul.signed-out
+      %li= link_to icon(:sign_in), new_user_session_path

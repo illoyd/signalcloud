@@ -1,10 +1,10 @@
 module ApplicationHelper
 
-  def titles( title, subtitle, icon, page_section=nil )
-    content_for :page_title, title
-    content_for :page_subtitle, subtitle
-    content_for :page_icon, icon
-    content_for :page_section, page_section || icon.to_s
+  def headings(heading, subheading = nil, icon = nil)
+    content_for :title, heading
+    content_for :heading, heading
+    content_for :subheading, subheading
+    content_for :heading_icon, icon
   end
 
   def navigation_list( entries = [], options = {} )
@@ -21,21 +21,24 @@ module ApplicationHelper
     render partial: 'layouts/splitdropdown', object: entries, locals: { options: options } unless entries.empty?
   end
   
+  ##
+  # Create a font-awesome icon
   def icon( kind = :blank, options = {} )
-    #render partial: 'layouts/icon', object: ICONS.fetch( kind, kind ).to_s, locals: { options: options }
-    kind = ICONS.fetch( kind, kind ).to_s
-
-    i_class = options.fetch(:class, '')
-    i_class = i_class.concat(' ') if i_class.is_a?(Array)
-
-    i_style = options.fetch(:style, '')
-    i_style = i_style.concat(' ') if i_style.is_a?(Array)
-
-    return "<i class='fa fa-#{kind.to_s} #{i_class}' style='#{i_style}'></i>".html_safe
+    kind = ICONS.fetch(kind, kind.to_s.gsub(/_/, '-'))
+    options[:class] = [ 'fa', "fa-#{kind}", options[:class] ].compact
+    content_tag(:i, '', options)
   end
   
+  ##
+  # Prefix a string with an icon
   def iconify(label, icon, options = {})
-    "#{ icon(icon, options) } #{ label }".html_safe
+    "#{ icon(icon, options) } #{ label }".strip.html_safe
+  end
+
+  ##
+  # Create a label
+  def llabel(text, kind = 'default')
+    content_tag(:span, count, class: [ 'label', "label-#{ kind }" ].compact)
   end
 
   def header_icon( kind = :blank, options = {} )
