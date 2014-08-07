@@ -94,15 +94,54 @@ div.content {
   @extend .container;
   
   div.toolbar {
-    text-align: right;
-    margin-bottom: 12px;
+    margin-bottom: 28px;
+    @extend .btn-toolbar;
     
     a {
       @extend .btn;
-      @extend .btn-success;
-      @extend .btn-xs;
+      @extend .btn-default;
+      
+      &.delete:hover { @extend .btn-danger:hover; }
+    }
+    
+    .actions {
+      @extend .btn-group;
+      @extend .btn-group-xs;
+      
+      a { @extend .btn-primary; }
+    }
+    
+    .related {
+      @extend .btn-group;
+      @extend .btn-group-xs;
+      @extend .pull-right;
+      
+      span.tag {
+        @extend .btn;
+        @extend .disabled;
+      }
     }
   }
+  
+  div.modal {
+    
+    a.delete {
+      @extend .btn;
+      @extend .btn-danger;
+      @extend .btn-block;
+    }
+
+    a.cancel {
+      @extend .btn;
+      @extend .btn-success;
+      @extend .btn-block;
+    }
+    
+    a + a {
+      margin-top: 0.5em;
+    }
+  }
+  
   
   div.performance {
     @extend .row;
@@ -140,6 +179,41 @@ div.content {
     }
   }
   
+  .modal form {
+    margin: 0px;
+    
+    .icon-field {
+      @extend .row;
+
+      .icon { @extend .col-sm-2; }
+
+      .field {
+        @extend .form-group;
+        @extend .col-sm-10;
+
+        input[type="text"], input[type="password"], input[type="email"], select, textarea {
+          @extend .form-control;
+        }
+      }
+    }
+    
+    .icon-field + .icon-field {
+      margin-top: 1.5em;
+    }
+    
+    button {
+      @extend .btn;
+      @extend .btn-sm;
+      @extend .btn-default;
+    }
+    
+    input[type="submit"] {
+      @extend .btn;
+      @extend .btn-sm;
+      @extend .btn-primary;
+    }
+  }
+  
   form.general {
     @extend .form-horizontal;
     
@@ -147,14 +221,14 @@ div.content {
       @extend .form-group;
       
       & > label {
-        @extend .col-sm-3;
+        @extend .col-sm-2;
         @extend .control-label;
       }
       
       div.inputs {
-        @extend .col-sm-9;
+        @extend .col-sm-10;
         
-        input[type="text"], input[type="password"], input[type="email"], textarea {
+        input[type="text"], input[type="password"], input[type="email"], select, textarea {
           @extend .form-control;
         }
       }
@@ -174,8 +248,8 @@ div.content {
       }
 
       .actions {
-        @extend .col-sm-9;
-        @extend .col-sm-offset-3;
+        @extend .col-sm-10;
+        @extend .col-sm-offset-2;
       }
     }
   }

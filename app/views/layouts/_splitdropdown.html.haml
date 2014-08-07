@@ -3,10 +3,10 @@
 - default_options = { 'tabindex' => "-1" }
 - default_first_options = { class: ['btn', 'btn-default', options.fetch(:class,'btn-sm')] }
 - unless splitdropdown.empty?
-  .btn-group
+  .btn-group.btn-group-xs
     = link_to splitdropdown.first[:link], default_first_options.merge( splitdropdown.first.fetch(:options, {}) ) do
       = splitdropdown.first.include?(:icon) ? icon( splitdropdown.first[:icon] ) : 'Manage'
-    %button.btn.btn-default.dropdown-toggle{ class: options.fetch(:class,'btn-sm'), "data-toggle" => "dropdown" }
+    %button.btn.btn-default.btn-sm.dropdown-toggle{ class: options.fetch(:class,'btn-sm'), "data-toggle" => "dropdown" }
       %span.caret
     %ul.dropdown-menu
       - splitdropdown.each do |entry|
