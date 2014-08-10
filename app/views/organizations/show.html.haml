@@ -2,85 +2,99 @@
 - headings 'Organization', @organization.label, @organization.icon || :organizations
 - breadcrumb @organization
 
-/ Page body
-.row
-  .span3
-    = render :partial => 'navlist'
-  .span9
-    %ul.thumbnails
-      / Current Balance
-      %li.span3
-        .thumbnail.tile
-          %p.information= "%0.2f" % @organization.balance
-          %p.information-label Current credits
-      / Balance Used Today
-      %li.span3
-        .thumbnail.tile
-          %p.information= "%0.2f" % @organization.ledger_entries.today.sum(:value)
-          %p.information-label Used today
-      / Balance Used Today
-      %li.span3
-        .thumbnail.tile
-          %p.information= "%0.2f" % @organization.ledger_entries.yesterday.sum(:value)
-          %p.information-label Used yesterday
-      / Open Conversations
-      %li.span3
-        .thumbnail.tile
-          %p.information= "%i" % @organization.conversations.today.opened.count
-          %p.information-label Open conversations
-      / Conversations Today
-      %li.span3
-        .thumbnail.tile
-          %p.information= "%i" % @organization.conversations.today.count
-          %p.information-label Conversations today
-      / Conversations Yesterday
-      %li.span3
-        .thumbnail.tile
-          %p.information= "%i" % @organization.conversations.yesterday.count
-          %p.information-label Conversations yesterday
-      / Organization Plan
-      /
-        %li.span3
-          .thumbnail.tile
-            %p.information= @organization.account_plan.label
-            %p.information-label Plan
+/ Balance board
+.status-board
+
+  / Current balance
+  .board
+    .thumbnail
+      .caption
+        .status= currency_for( @organization.balance )
+        .tag Current balance
+
+  / Balance used today
+  .board
+    .thumbnail
+      .caption
+        .status= currency_for( @organization.ledger_entries.today.sum(:value) )
+        .tag Used today
+        
+  / Balance used yesterday
+  .board
+    .thumbnail
+      .caption
+        .status= currency_for( @organization.ledger_entries.yesterday.sum(:value) )
+        .tag Used yesterday
+        
+  / Balance used this week
+  .board
+    .thumbnail
+      .caption
+        .status= currency_for( @organization.ledger_entries.last_x_days(7).sum(:value) )
+        .tag Used last 7 days
     
-    %h4 Conversation breakdown
-    %div.tabbable    
-      %ul.nav.nav-pills
-        %li.active= link_to 'today', '#today', {'data-toggle'=>'pill'}
-        %li= link_to 'yesterday', '#yesterday', {'data-toggle'=>'pill'}
-        %li= link_to 'last 7 days', '#lastweek', {'data-toggle'=>'pill'}
-      %div.tab-content.fade.in
-        %div#today.tab-pane.fade.in.active= conversation_status_breakdown( @organization.conversations.today.count_by_status )
-        %div#yesterday.tab-pane.fade= conversation_status_breakdown( @organization.conversations.yesterday.count_by_status )
-        %div#lastweek.tab-pane.fade= conversation_status_breakdown( @organization.conversations.last_x_days.count_by_status )
+/ Conversation board
+.status-board
+  / Open conversations
+  .board
+    .thumbnail
+      .caption
+        .status= @organization.conversations.today.opened.count || 0
+        .tag Open conversations
     
-    %h4 Tokens
-    %p Tokens are used to authenticate with the SignalCloud API.
-    %table.table
-      %thead
-        %tr
-          %th Provider
-          %th SID
-          %th Token
-      %tbody
-        %tr
-          %td SignalCloud
-          %td= @organization.sid
-          %td= @organization.auth_token
-        - if current_user.system_admin?
-          %tr
-            %td Braintree
-            %td= @organization.braintree_id
-            %td
-              %i None
-          %tr
-            %td FreshBooks
-            %td= @organization.freshbooks_id
-            %td
-              %i None
-          %tr
-            %td Twilio
-            %td= @organization.twilio_account_sid
-            %td= @organization.twilio_auth_token
+  / Total conversations today
+  .board
+    .thumbnail
+      .caption
+        .status= @organization.conversations.today.count || 0
+        .tag Conversations today
+    
+  / Total conversations yesterady
+  .board
+    .thumbnail
+      .caption
+        .status= @organization.conversations.yesterday.count || 0
+        .tag Conversations yesterday
+
+  / Total conversations last 7 days
+  .board
+    .thumbnail
+      .caption
+        .status= @organization.conversations.last_x_days(7).count || 0
+        .tag Conversations last 7 days
+
+  / Organization Plan
+  /
+    %li.span3
+      .thumbnail.tile
+        %p.information= @organization.account_plan.label
+        %p.information-label Plan
+
+%h4 Advanced
+%p Tokens are used to authenticate with the SignalCloud API.
+%table.table
+  %thead
+    %tr
+      %th Provider
+      %th SID
+      %th Token
+  %tbody
+    %tr
+      %td SignalCloud
+      %td= @organization.sid
+      %td= @organization.auth_token
+    - if current_user.system_admin?
+      %tr
+        %td Braintree
+        %td= @organization.braintree_id
+        %td
+          %i None
+      %tr
+        %td FreshBooks
+        %td= @organization.freshbooks_id
+        %td
+          %i None
+      %tr
+        %td Twilio
+        %td= @organization.twilio_account_sid
+        %td= @organization.twilio_auth_token
