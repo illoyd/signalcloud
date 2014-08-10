@@ -93,6 +93,8 @@ nav#navbar {
 table.list {
 	@extend .table;
 	@extend .table-hover;
+	
+	th.controls, td.controls { width: 1%; white-space: nowrap; }
 }
 
 
@@ -130,6 +132,24 @@ div.content {
     }
   }
   
+  div.status-board {
+    @extend .row;
+    
+    div.board {
+      @extend .col-sm-3;
+      @extend .text-center;
+      
+      div.status {
+        font-size: 150%;
+        font-weight: bold;
+      }
+      
+      div.tag {
+        font-size: 85%;
+      }
+    }
+  }
+  
   div.modal {
     
     a.delete {
@@ -153,11 +173,11 @@ div.content {
   div.performance {
     @extend .row;
 
-    div.quarter {
+    div.overview {
       @extend .col-sm-8;
     }
     
-    div.day {
+    div.today {
       @extend .col-sm-4;
     }
   }

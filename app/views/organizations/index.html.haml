@@ -1,71 +1,54 @@
--# Breadcrumb config
+-# Page header
+- headings( 'Organizations', 'all organizations', :organizations )
 - breadcrumb :root
 
-/ Page header
-- headings( 'Organizations', 'all organizations', :organizations )
-
-/ Table tools
-.row
-  .span12.table-tools
-    - if can? :new, Organization      
-      %div.pull-right= link_to 'New Organization', new_organization_path, :class => 'btn btn-primary btn-sm'
-
 / Page body
-.row
-  .span12
-    %table.table.table-striped
-      %thead
-        %tr
-          %th.span1
-          %th Name
-          %th Plan
-          %th Balance
-          %th.centered
-            %span{ rel: 'tooltip', :title => 'Conversations (Active / Today)' }
-              = icon(:conversations)
-          %th.centered
-            %span{ rel: 'tooltip', :title => 'Stencils' }
-              = icon(:stencils)
-          %th.centered
-            %span{ rel: 'tooltip', :title => 'Phone Books' }
-              = icon(:phone_books)
-          %th.centered
-            %span{ rel: 'tooltip', :title => 'Phone Numbers' }
-              = icon(:phone_numbers)
-          %th.centered
-            %span{ rel: 'tooltip', :title => 'Users' }
-              = icon(:users)
-      %tbody
-        - @organizations.each do |organization|
-          %tr
-            %td
-              = split_dropdown_list([ |
-                { label: 'Details', icon: :show, link: organization, if: can?(:show, organization) }, |
-                { label: 'Edit', icon: :edit, link: edit_organization_path(organization) }, |
-                { label: 'Delete', icon: :delete, link: organization, options: { method: :delete, data: { confirm: 'Are you sure?' } } } |
-                ], {class: 'btn-xs'} ) |
-            %td
-              = link_to organization do
-                = icon(organization.icon || :organizations )
-                = organization.label
-            %td
-              #{organization.status rescue 'TODO'}
-              (#{organization.account_plan.label})
-            %td{'align'=>'right'}= currency_for( organization.balance )
-            %td.centered
-              = link_to [organization, :conversations] do
-                = organization.conversations.today.opened.count
-                \/
-                = organization.conversations.today.count
-            %td.centered
-              = link_to [organization, :stencils] do
-                = organization.stencils.count
-            %td.centered
-              = link_to [organization, :phone_books] do
-                = organization.phone_books.count
-            %td.centered
-              = link_to [organization, :phone_numbers] do
-                = organization.phone_numbers.count
-            %td.centered
-              = link_to [organization, :users] do
-                = organization.users.count
+%table.list
+  %thead
+    %tr
+      %th.controls
+      %th Name
+      %th Plan
+      %th.text-right Balance
+      %th.text-center
+        %span{ rel: 'tooltip', :title => 'Conversations (Active / Today)' }
+          = icon(:conversations)
+      %th.text-center
+        %span{ rel: 'tooltip', :title => 'Stencils' }
+          = icon(:stencils)
+      %th.text-center
+        %span{ rel: 'tooltip', :title => 'Phone Books' }
+          = icon(:phone_books)
+      %th.text-center
+        %span{ rel: 'tooltip', :title => 'Phone Numbers' }
+          = icon(:phone_numbers)
+      %th.text-center
+        %span{ rel: 'tooltip', :title => 'Users' }
+          = icon(:users)
+  %tbody
+    - @organizations.each do |organization|
+      %tr
+        %td.controls
+          = split_dropdown_list([ |
+            { label: 'Details', icon: :show, link: organization, if: can?(:show, organization) }, |
+            { label: 'Edit', icon: :edit, link: edit_organization_path(organization), if: can?(:edit, organization) }, |
+            { label: 'Delete', icon: :delete, link: organization, options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:delete, organization) } |
+            ], {class: 'btn-xs'} ) |
+        %td
+          = link_to organization do
+            = icon(organization.icon || :organizations )
+            = organization.label
+        %td
+          #{organization.status rescue 'TODO'}
+          (#{organization.account_plan.label})
+        %td.text-right= currency_for( organization.balance )
+        %td.text-center
+          = link_to [organization, :conversations] do
+            = icon(:conversations)
+            = organization.conversations.today.opened.count
+            \/
+            = organization.conversations.today.count
+        %td.text-center= link_to iconify(organization.stencils.count, :stencils), [organization, :stencils]
+        %td.text-center= link_to iconify(organization.phone_books.count, :phone_books), [organization, :phone_books]
+        %td.text-center= link_to iconify(organization.phone_numbers.count, :phone_numbers), [organization, :phone_numbers]
+        %td.text-center= link_to iconify(organization.users.count, :users), [organization, :users]
