@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-ruby "2.1.1"
+ruby "2.1.2"
 gem 'rails', '4.1.4'
 
 # Bundle edge Rails instead:
@@ -68,6 +68,10 @@ gem 'country_select'
 gem 'workflow'
 gem 'countries-phone_numbers'
 gem 'gretel'
+gem 'chartkick'
+gem 'hightop'
+gem 'groupdate'
+gem 'active_median'
 
 gem 'rails_12factor', group: [:development, :production]
 

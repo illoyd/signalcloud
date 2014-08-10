@@ -33,6 +33,19 @@
         .status= currency_for( @organization.ledger_entries.last_x_days(7).sum(:value) )
         .tag Used last 7 days
     
+
+/ Performance overview
+.performance
+  .overview
+    .panel.panel-default
+      .panel-heading Last 7 Days
+      .panel-body= column_chart @organization.conversations.last_x_days(7).group(:workflow_state).group_by_day('conversations.updated_at').count
+  .today
+    .panel.panel-default
+      .panel-heading Last 24 Hours
+      .panel-body= bar_chart @organization.conversations.last_x_hours(24).group(:workflow_state).count
+
+
 / Conversation board
 .status-board
   / Open conversations
