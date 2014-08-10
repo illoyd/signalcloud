@@ -94,7 +94,7 @@ table.list {
 	@extend .table;
 	@extend .table-hover;
 	
-	th.controls, td.controls { width: 1%; white-space: nowrap; }
+	th.controls, td.controls { white-space: nowrap; }
 }
 
 
@@ -258,6 +258,11 @@ div.content {
         input[type="text"], input[type="password"], input[type="email"], select, textarea {
           @extend .form-control;
         }
+      }
+      
+      div.split {
+        & > label { @extend .col-sm-3; }
+        div.inputs { @extend .col-sm-9; }
       }
       
       input[type="submit"] {
