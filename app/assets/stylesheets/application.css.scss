@@ -89,6 +89,13 @@ nav#navbar {
 }
 
 
+// Tables
+table.list {
+	@extend .table;
+	@extend .table-hover;
+}
+
+
 // Content Container
 div.content {
   @extend .container;
