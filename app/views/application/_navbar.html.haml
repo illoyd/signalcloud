@@ -12,12 +12,16 @@
 / Collect the nav links, forms, and other content for toggling
 #collapsable
   %ul.nav.navbar-nav
+  
+    - if can? :index, Organization
+      %li= link_to icon(:organizations), organizations_path
+    
 
     -# Do not show navbar if no organization or organization is not saved (is new)
     - unless @organization.nil? || @organization.new_record?
 
-      / Dashboard
       - if can? :show, @organization
+        / Dashboard
         %li{ class: ('active' if dashboard_page?) }
           = link_to icon( :dashboard ), organization_path(@organization)
   

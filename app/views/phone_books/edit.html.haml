@@ -2,9 +2,6 @@
 - headings 'Phone Books', @phone_book.label, :phone_books
 - breadcrumb @phone_book
 
-.toolbar
-  = render partial: 'toolbar'
-
 %h3 Update #{ @phone_book.label }
 %p Update #{ @phone_book.label } name and description. You can add numbers and countries later.
 = render 'form'
