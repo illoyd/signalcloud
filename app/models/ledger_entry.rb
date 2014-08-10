@@ -57,6 +57,10 @@ class LedgerEntry < ActiveRecord::Base
   scope :yesterday, ->{ in_range( DateTime.yesterday.beginning_of_day, DateTime.yesterday.end_of_day ) }
   
   ##
+  # Get all entries created in last x days
+  scope :last_x_days, ->(x) { in_range(x.days.ago, DateTime.now) }
+  
+  ##
   # Get all debits (negative or zero) charges
   scope :debits, ->{ where( 'value <= 0' ) }
 
