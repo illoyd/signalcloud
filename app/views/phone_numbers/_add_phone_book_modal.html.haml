@@ -1,0 +1,26 @@
+#phone_book_entry_modal.modal.fade{ "aria-hidden" => "true", "aria-labelledby" => "PhoneNumberEntryModal", :role => "dialog", :tabindex => "-1"}
+  .modal-dialog
+    .modal-content
+      = form_for( [phone_number.organization, phone_number.phone_book_entries.build] ) do |f|
+        .modal-header
+          / %button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} &times;
+          %h3
+            = icon(:plus)
+            Add Phone Book
+        .modal-body
+          = f.hidden_field :phone_number_id      
+          .icon-field
+            .icon= icon(:phone_books, class: 'fa-4x')
+            .field
+              = f.label :phone_book_id, "Add #{ humanize_phone_number phone_number.number } to this phone book..."
+              = f.collection_select :phone_book_id, phone_number.organization.phone_books, :id, :label
+    
+          .icon-field
+            .icon= icon(:globe, class: 'fa-4x')
+            .field
+              = f.label :country, '...when conversing with phone numbers in this country'
+              = f.country_select :country, nil, iso_codes: true, include_blank: 'Anywhere'
+    
+        .modal-footer
+          = f.submit 'Add Phone Book'
+          %button{"aria-hidden" => "true", "data-dismiss" => "modal", class: 'cancel'} Cancel

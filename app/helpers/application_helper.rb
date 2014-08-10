@@ -190,4 +190,18 @@ module ApplicationHelper
     Twilio::SUPPORTED_COUNTRIES_MOBILE.map { |alpha2| Country[alpha2] }.sort_by(&:name)
   end
   
+  def map_for_coordinates(lat, lon, options = {})
+    default_options = {
+      src:         URI::HTTPS.build(
+                     host: "www.google.com",
+                     path: "/maps/embed/v1/view",
+                     query: { center: "#{ lat },#{ lon }", maptype: 'satellite', zoom: 12, key: ENV['GOOGLE_MAPS_KEY'] }.to_query ),
+      width:       '100%',
+      height:      '250',
+      frameborder: 0,
+      style:       'border: 0'
+    }
+    content_tag(:iframe, '', options.merge(default_options))
+  end
+  
 end

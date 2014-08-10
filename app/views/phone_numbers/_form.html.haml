@@ -1,4 +1,4 @@
-= form_for( [@organization, @phone_number], :html => { :class => 'default-wide' } ) do |f|
+= form_for( [@organization, @phone_number], :html => { :class => 'general wide' } ) do |f|
   - if @phone_number.errors.any?
     #error_explanation
       %h2
@@ -8,53 +8,45 @@
         - @phone_number.errors.full_messages.each do |msg|
           %li= msg
 
-  %h4 Unsolicited SMS actions
-  .form-group
-    = f.label :unsolicited_sms_action, :class => 'key' do
-      When receiving an unsolicited SMS...
-    .value
-      = f.select :unsolicited_sms_action, sms_actions, { required: true }
+  %fieldset
+    %legend Unsolicited SMS actions
+    .field
+      = f.label :unsolicited_sms_action, 'When receiving an unsolicited SMS...'
+      .inputs= f.select :unsolicited_sms_action, sms_actions, { required: true }
+  
+    .field
+      = f.label :unsolicited_sms_message, 'Reply to an unsolicited SMS with this message'
+      .inputs
+        = f.text_area :unsolicited_sms_message, :rows=>3
+        %span.help-block
+          = icon( :help )
+          Only used when replying to messages
+  
+  %fieldset
+    %legend Unsolicited call actions
+    .field
+      = f.label :unsolicited_call_action, 'When receiving an unsolicited call...'
+      .inputs= f.select :unsolicited_call_action, call_actions, { required: true }
+  
+    .field
+      = f.label :unsolicited_call_message, 'Reply to an unsolicited call with this message'
+      .inputs
+        = f.text_area :unsolicited_call_message, :rows=>3
+        %span.help-block Only used when replying to calls
+    
+    .field
+      = f.label :unsolicited_call_voice, 'Voice'
+      .inputs
+        = f.select :unsolicited_call_voice, call_voices, {}
+        %span.help-block Only used when replying to calls
+    
+    .field
+      = f.label :unsolicited_call_language, 'Language'
+      .inputs
+        = f.select :unsolicited_call_language, call_languages, {}
+        %span.help-block Only used when replying to calls
 
-  .form-group
-    = f.label :unsolicited_sms_message, :class => 'key' do
-      Reply to an unsolicited SMS with this message
-    .value
-      = f.text_area :unsolicited_sms_message, :rows=>3
-      %span.help-block
-        = icon( :help )
-        Only used when replying to messages
-  
-  %h4 Unsolicited call actions
-  .form-group
-    = f.label :unsolicited_call_action, :class => 'key' do
-      When receiving an unsolicited call...
-    .value
-      = f.select :unsolicited_call_action, call_actions, { required: true }
-
-  .form-group
-    = f.label :unsolicited_call_message, :class => 'key' do
-      Reply to an unsolicited call with this message
-    .value
-      = f.text_area :unsolicited_call_message, :rows=>3
-      %span.help-block Only used when replying to calls
-  
-  .form-group
-    = f.label :unsolicited_call_voice, :class => 'key' do
-      Voice
-    .value
-      = f.select :unsolicited_call_voice, call_voices, {}
-      %span.help-block Only used when replying to calls
-  
-  .form-group
-    = f.label :unsolicited_call_language, :class => 'key' do
-      Language
-    .value
-      = f.select :unsolicited_call_language, call_languages, {}
-      %span.help-block Only used when replying to calls
-  
-  %hr
-
-  .form-group
-    .buttons
+  .field
+    .actions
       = f.submit
-      = link_to 'Discard changes', [@organization, @phone_number]
+      = link_to 'Discard changes', [@organization, @phone_number], class: 'cancel'

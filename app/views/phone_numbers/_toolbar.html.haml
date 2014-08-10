@@ -9,6 +9,12 @@
     
 - if @phone_number.try(:persisted?)
   .actions
+    - if can?(:edit, @phone_number)
+      = link_to iconify('Add phone book', :plus), '#phone_book_entry_modal', data: { toggle: 'modal' }
+      = render partial: 'add_phone_book_modal', object: @phone_number, as: 'phone_number'
+      
+
+  .actions
     -# Allow viewing
     - if can?(:show, @phone_number)
       = link_to iconify('Details', :show), [@organization, @phone_number]
@@ -22,8 +28,7 @@
       = link_to iconify('Delete', :delete), '#delete_phone_number_modal', class: 'delete', 'data-toggle' => 'modal'
       = render partial: 'delete_modal'
 
-- if @phone_number
+- if @phone_number.try(:persisted?)
   .related
     %span.tag Related
-    -# = link_to icon(:conversations), organization_phone_number_conversations_path(@organization, @phone_number)
     = link_to icon(:phone_books),   organization_phone_books_path(@organization)

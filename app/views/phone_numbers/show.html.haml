@@ -5,8 +5,6 @@
 - if @phone_number.phone_books.empty?
   .flash-warning Head's up! This Phone Number is not used in any Stencils.
 
-.toolbar= render partial: 'toolbar'
-
 -# Sidebar controls
 - content_for :sidebar do
   = render 'navlist'

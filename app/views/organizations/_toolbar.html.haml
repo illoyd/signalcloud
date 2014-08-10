@@ -22,7 +22,7 @@
       = link_to iconify('Delete', :delete), '#delete_organization_modal', class: 'delete', 'data-toggle' => 'modal'
       = render partial: 'delete_modal'
 
-- if @organization
+- if @organization.try(:persisted?)
   .related
     %span.tag Related
     = link_to icon(:conversations),  organization_conversations_path(@organization)  if can?(:index, Conversation)

@@ -95,6 +95,8 @@ table.list {
 	@extend .table-hover;
 	
 	th.controls, td.controls { white-space: nowrap; }
+	
+	& > tbody > tr > td { vertical-align: middle; }
 }
 
 
@@ -252,17 +254,12 @@ div.content {
         @extend .control-label;
       }
       
-      div.inputs {
+      & > div.inputs {
         @extend .col-sm-10;
         
         input[type="text"], input[type="password"], input[type="email"], select, textarea {
           @extend .form-control;
         }
-      }
-      
-      div.split {
-        & > label { @extend .col-sm-3; }
-        div.inputs { @extend .col-sm-9; }
       }
       
       input[type="submit"] {
@@ -284,6 +281,12 @@ div.content {
         @extend .col-sm-offset-2;
       }
     }
+  }
+  
+  form.general.wide {
+    @extend form.general;
+    .field > label { @extend .col-sm-4; }
+    .field > div.inputs { @extend .col-sm-8; }
   }
 }
 
