@@ -125,8 +125,11 @@ module ApplicationHelper
   end
   
   def warning_label( msg )
-    icon = icon(:error)
-    "<span class='label label-warning' rel='tooltip' data-toggle='tooltip' data-title='#{msg}'>#{icon} Warning!</span>".html_safe
+    content_tag(
+      :span,
+      iconify('Hey!', :warning),
+      class: 'label label-warning has-tooltip', rel: 'tooltip', data: { toggle: 'tooltip', title: msg }
+    )
   end
 
   # A simple way to show error messages for the current devise resource. If you need

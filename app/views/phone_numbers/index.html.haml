@@ -2,15 +2,8 @@
 - headings 'Phone Numbers', 'all phone numbers', :phone_numbers
 - breadcrumb :organization_phone_numbers, @organization
 
--# Sidebar
--# None
-
--# Page body
-.table-tools
-  - if can? :create, PhoneNumber
-    = link_to 'Search for a new Phone Number', search_organization_phone_numbers_path(@organization), :class => 'btn btn-primary btn-sm pull-right'
-  - else
-    = link_to 'Search for a new Phone Number', '#', :class => 'btn btn-disabled btn-sm pull-right'
+/ Toolbar
+.toolbar= render partial: 'toolbar'
 
 %table.table.table-striped
   %thead

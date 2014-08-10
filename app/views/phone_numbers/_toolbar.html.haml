@@ -1,0 +1,29 @@
+.actions
+  -# If can view all phone books
+  - if can?(:index, PhoneNumber)
+    = link_to iconify('Phone numbers', :phone_numbers), organization_phone_numbers_path(@organization)
+
+  -# If no book present, allow creating a new one
+  - if can?(:new, PhoneNumber) && !@phone_number.present?
+    = link_to iconify('Add phone number', :plus), search_organization_phone_numbers_path(@organization)
+    
+- if @phone_number.try(:persisted?)
+  .actions
+    -# Allow viewing
+    - if can?(:show, @phone_number)
+      = link_to iconify('Details', :show), [@organization, @phone_number]
+      
+    -# Allow editing
+    - if can?(:edit, @phone_number)
+      = link_to iconify('Edit', :edit), edit_organization_phone_number_path(@organization, @phone_number)
+  
+    -# Allow deleting
+    - if can?(:destroy, @phone_number)
+      = link_to iconify('Delete', :delete), '#delete_phone_number_modal', class: 'delete', 'data-toggle' => 'modal'
+      = render partial: 'delete_modal'
+
+- if @phone_number
+  .related
+    %span.tag Related
+    -# = link_to icon(:conversations), organization_phone_number_conversations_path(@organization, @phone_number)
+    = link_to icon(:phone_books),   organization_phone_books_path(@organization)
