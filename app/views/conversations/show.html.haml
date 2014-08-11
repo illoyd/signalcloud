@@ -1,0 +1,29 @@
+-# Page header
+- headings 'Conversations', "conversation ##{@conversation.id}", :conversations
+- breadcrumb @conversation
+
+%p
+  %b Stencil:
+  = link_to @conversation.stencil.label, [@conversation.stencil.organization, @conversation.stencil]
+%p
+  %b Status:
+  = conversation_state_tag( @conversation )
+%p
+  %b Conversation Expires:
+  = l @conversation.expires_at
+
+
+/ Conversation flow
+%table.list
+  %thead
+    %tr
+      %th{ width: '50%' }
+        %span{ rel: 'tooltip', title: 'Message sent to person' }
+          = icon( 'map-marker' )
+          = humanize_phone_number @conversation.internal_number
+      %th{ width: '50%' }
+        %span{ rel: 'tooltip', title: 'Message received from person' }
+          = icon( :user )
+          = humanize_phone_number @conversation.customer_number
+  %tbody
+    = render(partial: 'message', collection: @conversation.messages.order('coalesce(messages.sent_at, messages.created_at)')) || render(partial: 'no_messages')
