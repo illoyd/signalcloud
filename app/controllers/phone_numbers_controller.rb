@@ -1,23 +1,22 @@
 class PhoneNumbersController < ApplicationController
 
-  before_filter :assign_organization
-  load_and_authorize_resource
-  skip_load_and_authorize_resource only: [ :index, :create, :search ]
-
-  respond_to :html
+  respond_to :html, :json, :xml
+  load_and_authorize_resource :organization
+  load_and_authorize_resource through: :organization
+  # skip_load_and_authorize_resource only: [ :index, :create, :search ]
 
   # GET /phone_numbers
   # GET /phone_numbers.json
   def index
-    @phone_numbers = @organization.phone_numbers
-    authorize! :index, PhoneNumber
-    respond_with @phone_numbers
+    #@phone_numbers = @organization.phone_numbers
+    #authorize! :index, PhoneNumber
+    respond_with @organization, @phone_numbers
   end
 
   # GET /phone_numbers/1
   # GET /phone_numbers/1.json
   def show
-    respond_with @phone_number
+    respond_with @organization, @phone_number
   end
 
   # GET /phone_numbers/new
@@ -32,16 +31,17 @@ class PhoneNumbersController < ApplicationController
   #end
 
   # GET /phone_numbers/1/edit
-  #def edit
-  #  @phone_number = PhoneNumber.find(params[:id])
-  #end
+  def edit
+    # @phone_number = PhoneNumber.find(params[:id])
+    respond_with @organization, @phone_number
+  end
 
   # POST /phone_numbers
   # POST /phone_numbers.json
   def create
 
     # Construct and authorise the phone number
-    @phone_number = @organization.phone_numbers.build( params )
+    @phone_number = @organization.phone_numbers.build( phone_number_params )
     authorize! :create, @phone_number
 
     begin
@@ -63,8 +63,8 @@ class PhoneNumbersController < ApplicationController
   # PUT /phone_numbers/1
   # PUT /phone_numbers/1.json
   def update
-    flash[:success] = 'Phone number was successfully updated.' if @phone_number.update_attributes(params[:phone_number])
-    respond_with [@organization, @phone_number]
+    flash[:success] = 'Phone number was successfully updated.' if @phone_number.update_attributes(phone_number_params)
+    respond_with @organization, @phone_number
   end
 
   # DELETE /phone_numbers/1
@@ -76,6 +76,7 @@ class PhoneNumbersController < ApplicationController
     respond_to do |format|
       format.html { redirect_to organization_phone_numbers_url(@organization) }
       format.json { head :no_content }
+      format.xml  { head :no_content }
     end
   end
   
@@ -94,10 +95,11 @@ class PhoneNumbersController < ApplicationController
     # Search and reply
     begin
       @available_phone_numbers = search_for( country_code, phone_number_kind, search_params ).first(@numbers_to_show)
-      respond_with @available_phone_numbers
     rescue Twilio::REST::RequestError => ex
       flash.now[:error] = '%s (%s)' % [ ex.message, ex.code ]
       @available_phone_numbers = []
+    ensure
+      respond_with @available_phone_numbers
     end
   end
 

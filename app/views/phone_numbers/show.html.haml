@@ -53,3 +53,13 @@
         %p.well= @phone_number.unsolicited_call_message
         %p
           %small (Note: This will incur a fee for each call answered.)
+
+%h3 Phone Books using this Phone Number
+%table.list
+  %thead
+    %tr
+      %th
+      %th Phone Book
+      %th Region
+      %th Last Used
+  %tbody= render(partial: 'phone_book_entry', collection: @phone_number.phone_book_entries) || "<tr><td colspan=\"4\" class=\"text-muted text-center\">No phone books use this phone number! #{ link_to 'Add this phone number', '#phone_book_entry_modal', data: { toggle: 'modal' } } to a phone book to get started.</td></tr>".html_safe

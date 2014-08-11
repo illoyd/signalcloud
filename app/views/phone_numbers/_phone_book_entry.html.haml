@@ -1,0 +1,13 @@
+%tr
+  %td= split_dropdown_list([ |
+    { label: 'Details', icon: :show, link: [phone_book_entry.phone_book.organization, phone_book_entry.phone_book], if: can?(:show, phone_book_entry.phone_book) }, |
+    { label: 'Remove from book', icon: :delete, link: [phone_book_entry.phone_book.organization, phone_book_entry], options: { method: :delete }, if: can?(:destroy, phone_book_entry) } |
+    ], {class:'btn-xs'}) |
+  %td= link_to phone_book_entry.phone_book.label, [phone_book_entry.phone_book.organization, phone_book_entry.phone_book]
+  %td
+    - if phone_book_entry.country.blank?
+      %em #{ flag_icon() } Any
+    - else
+      = flag_icon(phone_book_entry.country)
+      = Country[phone_book_entry.country].try(:name) || phone_book_entry.country
+  %td= phone_book_entry.phone_book.updated_at

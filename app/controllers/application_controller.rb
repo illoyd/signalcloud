@@ -55,6 +55,10 @@ class ApplicationController < ActionController::Base
   def phone_book_params
     params.require(:phone_book).permit( :description, :label )
   end
+  
+  def phone_number_params
+    params.require(:phone_number).permit(:unsolicited_sms_action, :unsolicited_sms_message, :unsolicited_call_action, :unsolicited_call_message, :unsolicited_call_voice, :unsolicited_call_language)
+  end
 
   def conversation_params
     params.require(:conversation).permit( :seconds_to_live, :stencil_id, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :internal_number, :question, :customer_number, :expires_at, :webhook_uri )
