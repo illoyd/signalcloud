@@ -1,10 +1,5 @@
--# Breadcrumb config
+-# Page header
+- headings 'Conversations', 'new', :conversations
 - breadcrumb @conversation
 
-/ Page header
-- headings 'Conversations', 'new', :conversations
-
-/ Page body
-.row
-  .span3= render :partial => 'navlist'
-  .span9= render 'form'
+= render 'form'

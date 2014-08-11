@@ -65,6 +65,18 @@ module ApplicationHelper
     Country[country].name
   end
   
+  def progress_bar(percentage, kind=nil, label=nil)
+    style = kind.present? ? "progress-bar-#{ kind }" : nil
+    content_tag :div, '', {
+      class: [ "progress-bar", style ].compact,
+      role: "progressbar",
+      'aria-valuenow' => percentage.to_i,
+      'aria-valuemin' => "0",
+      'aria-valuemax' => "100",
+      style: "width: #{ percentage.to_i }%"
+    }
+  end
+  
   def section_page?(section)
     content_for(:page_section) == section
   end

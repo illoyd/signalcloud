@@ -210,13 +210,13 @@ div.content {
   
   .modal form {
     margin: 0px;
-    
+
     .icon-field {
       @extend .row;
 
-      .icon { @extend .col-sm-2; }
+      & > .icon { @extend .col-sm-2; }
 
-      .field {
+      & > .field {
         @extend .form-group;
         @extend .col-sm-10;
 
@@ -230,16 +230,8 @@ div.content {
       margin-top: 1.5em;
     }
     
-    button {
-      @extend .btn;
+    button, input[type="submit"] {
       @extend .btn-sm;
-      @extend .btn-default;
-    }
-    
-    input[type="submit"] {
-      @extend .btn;
-      @extend .btn-sm;
-      @extend .btn-primary;
     }
   }
   
@@ -254,32 +246,54 @@ div.content {
         @extend .control-label;
       }
       
-      & > div.inputs {
+      & > .inputs {
         @extend .col-sm-10;
-        
-        input[type="text"], input[type="password"], input[type="email"], select, textarea {
-          @extend .form-control;
-        }
-      }
-      
-      input[type="submit"] {
-        @extend .btn;
-        @extend .btn-success;
-      }
-      
-      a.cancel {
-        @extend .btn;
-        @extend .btn-default;
-        
-        &:hover {
-          @extend .btn-warning;
-        }
+      }      
+    }
+
+    input[type="text"], input[type="password"], input[type="email"], select, textarea {
+      @extend .form-control;
+    }
+
+  }
+  
+  form {
+    .icon-field {
+      @extend .row;
+
+      & > .icon { @extend .col-sm-2; @extend .text-center; }
+
+      & > .field {
+        @extend .form-group;
+        @extend .col-sm-10;
       }
 
-      .actions {
-        @extend .col-sm-10;
-        @extend .col-sm-offset-2;
+      & label {
+        @extend .control-label;
       }
+
+      input[type="text"], input[type="password"], input[type="email"], select, textarea {
+        @extend .form-control;
+      }
+    }
+    
+    .icon-field + .icon-field {
+      margin-top: 1.5em;
+    }
+
+    .actions {
+      @extend .text-right;
+    }
+
+    input[type="submit"] {
+      @extend .btn;
+      @extend .btn-success;
+    }
+      
+    button.cancel, a.cancel {
+      @extend .btn;
+      @extend .btn-default;
+      &:hover { @extend .btn-warning; }
     }
   }
   
@@ -289,6 +303,19 @@ div.content {
     .field > div.inputs { @extend .col-sm-8; }
   }
 }
+
+
+// Labels
+.label-draft     { @extend .label-default; }
+.label-asking    { @extend .label-default; }
+.label-asked     { @extend .label-info; }
+.label-received  { @extend .label-info; }
+.label-confirmed { @extend .label-success; }
+.label-denied    { @extend .label-danger; }
+.label-failed    { @extend .label-warning; }
+.label-expired   { @extend .label-danger; }
+.label-error     { @extend .label-danger; }
+
 
 
 // Footer container

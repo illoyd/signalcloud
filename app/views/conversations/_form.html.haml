@@ -4,7 +4,7 @@
 = render( layout: 'layouts/modal', locals: { modal_id: 'change_stencil_modal', header_text: 'Change Stencil', show_accept_button: false, cancel_text: 'Cancel and go back to conversation' }) do
   - render 'stencillist'
 
-= form_for( [@organization, @stencil, @conversation], :html => { :class => 'form-horizontal' } ) do |f|
+= form_for( [@organization, @stencil, @conversation], :html => { :class => '' } ) do |f|
   - if @conversation.errors.any?
     #error_explanation
       %h2
@@ -14,112 +14,99 @@
         - @conversation.errors.full_messages.each do |msg|
           %li= msg
 
-  %h4 Stencil
-  %p
-    = @stencil.label
-    %a.btn.btn-xs{"data-toggle" => "modal", :href => '#change_stencil_modal', :role => "button"} Change Stencil
-  %hr
+  %fieldset
+    %legend Stencil
+    %p
+      = @stencil.label
+      %a.btn.btn-xs{"data-toggle" => "modal", :href => '#change_stencil_modal', :role => "button"} Change Stencil
+
+  %fieldset
+    %legend Ask...
+    .icon-field
+      .icon= icon(:user, class: 'fa-4x')
+      .field
+        = f.label :customer_number, 'Ask this person...'
+        = f.text_field :customer_number
+      
+    .icon-field
+      .icon= icon('question-circle', class: 'fa-4x')
+      .field
+        = f.label :question, '...this question...'
+        = f.text_area :question, rows: 3
+      
+    .icon-field
+      .icon= icon(:phone_numbers, class: 'fa-4x')
+      .field
+        = f.label :internal_number, '...from this phone number...'
+        = f.collection_select :internal_number, @stencil.phone_book.phone_numbers.uniq, :number, :human_number, include_blank: 'Auto-select'
+      
+    .icon-field
+      .icon= icon(:globe, class: 'fa-4x')
+      .field
+        = f.label :webhook_uri, '...and send conversation updates to this URI'
+        = f.text_field :webhook_uri
+        %span.help-block
+          %span.label.label-info Tip
+          Leave blank to not send updates
+
+  %fieldset
+    %legend ...Answer
+
+    / Confirmed Reply
+    .icon-field
+      .icon= icon(:confirmed, class: 'fa-4x')
+      .col-sm-4
+        = f.label :expected_confirmed_answer, 'When receiving this answer...'
+        = f.text_area :expected_confirmed_answer, rows: 3
+      .col-sm-1= icon('arrow-right', class: 'fa-2x', style: 'margin-left: .5em' )
+      .col-sm-5
+        = f.label :confirmed_reply, '...reply with this message'
+        =f.text_area :confirmed_reply, rows: 3
+        %p{ style: 'margin-top: 8px' }
+          \...and mark the conversation as
+          = conversation_state_tag(:confirmed)
   
-  %h4 Ask...
-  .row-fluid{style: 'margin-top: 1.0em;'}
-    .span1= icon('user', class: 'icon-3x')
-    .span11
-      = f.label :customer_number do
-        Ask this person...
-      = f.text_field :customer_number
-    
-  .row-fluid{style: 'margin-top: 3.0em;'}
-    .span1= icon('question-sign', class: 'icon-3x')
-    .span11
-      = f.label :question do
-        \...this question...
-      = f.text_area :question, rows: 3, style: 'width: 100%'
-    
-  .row-fluid{style: 'margin-top: 3.0em;'}
-    .span1= icon(:phone_numbers, class: 'icon-3x')
-    .span11
-      = f.label :internal_number do
-        \...from this phone number...
-      = f.collection_select :internal_number, @stencil.phone_book.phone_numbers.uniq, :number, :human_number, include_blank: 'Auto-select'
-    
-  .row-fluid{style: 'margin-top: 3.0em;'}
-    .span1= icon(:globe, class: 'icon-3x')
-    .span11
-      = f.label :webhook_uri do
-        \...and send conversation updates to this URI
-      = f.text_field :webhook_uri, style: 'width: 100%;'
-      %p.tip{ style: 'margin-top: .5em' }
-        %span.label.label-info Tip
-        Leave blank to not send updates
+    / Denied Reply
+    .icon-field
+      .icon= icon(:denied, class: 'fa-4x')
+      .col-sm-4
+        = f.label :expected_denied_answer, 'When receiving this answer...'
+        = f.text_area :expected_denied_answer, rows: 3
+      .col-sm-1= icon('arrow-right', class: 'fa-2x', style: 'margin-left: .5em' )
+      .col-sm-5
+        = f.label :denied_reply, '...reply with this message'
+        =f.text_area :denied_reply, rows: 3
+        %p{ style: 'margin-top: 8px' }
+          \...and mark the conversation as
+          = conversation_state_tag(:denied)
+  
+    / Failed Reply
+    .icon-field
+      .icon= icon(:failed, class: 'fa-4x')
+      .col-sm-4 When receiving any other answer...
+      .col-sm-1= icon('arrow-right', class: 'fa-2x', style: 'margin-left: .5em' )
+      .col-sm-5
+        = f.label :failed_reply, '...reply with this message'
+        =f.text_area :failed_reply, rows: 3
+        %p{ style: 'margin-top: 8px' }
+          \...and mark the conversation as
+          = conversation_state_tag(:failed)
+  
+    / Expired Reply
+    .icon-field
+      .icon= icon(:expired, class: 'fa-4x')
+      .col-sm-4
+        = f.label :seconds_to_live, 'If no answer is received in...'
+        = f.number_field :seconds_to_live
+        seconds
+      .col-sm-1= icon('arrow-right', class: 'fa-2x', style: 'margin-left: .5em' )
+      .col-sm-5
+        = f.label :expired_reply, '...send this message'
+        =f.text_area :expired_reply, rows: 3
+        %p{ style: 'margin-top: 8px' }
+          \...and mark the conversation as
+          = conversation_state_tag(:expired)
 
-  %h4{ style: 'margin-top: 2em;'} ...Answer
-
-  / Confirmed Reply
-  .row-fluid
-    .span1= icon(:confirmed, class: 'icon-3x')
-    .span5
-      = f.label :expected_confirmed_answer do
-        When receiving this answer...
-      = f.text_area :expected_confirmed_answer, rows: 3, style: 'width: 100%'
-    .span1{style: 'text-align: center' }= icon('arrow-right', class: 'icon-2x', style: 'margin-left: .5em' )
-    .span5
-      = f.label :confirmed_reply do
-        \...reply with this message
-      =f.text_area :confirmed_reply, :rows=>3, style: 'width: 100%'
-      %p{ style: 'margin-top: 8px' }
-        \...and mark the conversation as
-        = conversation_state_tag(:confirmed)
-  %hr
-
-  / Denied Reply
-  .row-fluid
-    .span1= icon(:denied, class: 'icon-3x')
-    .span5
-      = f.label :expected_denied_answer do
-        When receiving this answer...
-      = f.text_area :expected_denied_answer, rows: 3, style: 'width: 100%'
-    .span1{style: 'text-align: center' }= icon('arrow-right', class: 'icon-2x', style: 'margin-left: .5em' )
-    .span5
-      = f.label :denied_reply do
-        \...reply with this message
-      =f.text_area :denied_reply, :rows=>3, style: 'width: 100%'
-      %p{ style: 'margin-top: 8px' }
-        \...and mark the conversation as
-        = conversation_state_tag(:denied)
-  %hr
-    
-  / Failed Reply
-  .row-fluid
-    .span1= icon(:failed, class: 'icon-3x')
-    .span5 When receiving any other answer...
-    .span1{style: 'text-align: center' }= icon('arrow-right', class: 'icon-2x', style: 'margin-left: .5em' )
-    .span5
-      = f.label :failed_reply do
-        \...reply with this message
-      =f.text_area :failed_reply, :rows=>3, style: 'width: 100%'
-      %p{ style: 'margin-top: 8px' }
-        \...and mark the conversation as
-        = conversation_state_tag(:failed)
-  %hr
-
-  / Expired Reply
-  .row-fluid
-    .span1= icon(:expired, class: 'icon-3x')
-    .span5
-      = f.label :seconds_to_live do
-        If no answer is received in...
-      = f.number_field :seconds_to_live
-      seconds
-    .span1{style: 'text-align: center' }= icon('arrow-right', class: 'icon-2x', style: 'margin-left: .5em' )
-    .span5
-      = f.label :expired_reply do
-        \...send this message
-      =f.text_area :expired_reply, :rows=>3, style: 'width: 100%'
-      %p{ style: 'margin-top: 8px' }
-        \...and mark the conversation as
-        = conversation_state_tag(:expired)
-
-  .control-group.actions
-    .controls
-      = f.submit :class => 'btn btn-primary'
-      = link_to 'Discard changes', discard_link, :class => 'btn'
+  .actions
+    = f.submit
+    = link_to 'Discard changes', discard_link, :class => 'cancel'

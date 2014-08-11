@@ -29,7 +29,7 @@ class ConversationsController < ApplicationController
     end
 
     # Add pagination
-    @conversations = @conversations.order( 'updated_at desc' ).page( params[:page] )
+    @conversations = @conversations.order( 'conversations.updated_at desc' ).page( params[:page] )
 
     respond_with @organization, @conversations
   end

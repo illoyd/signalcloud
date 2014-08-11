@@ -17,15 +17,15 @@ ICONS = {
   delete: 'trash-o',
   
   # Conversation statuses
-  confirmed: 'ok-sign',
-  denied: 'minus-sign',
-  failed: 'remove-sign',
-  expired: 'time',
-  pending: 'plus-sign',
-  asking: 'question-sign',
-  asked: 'question-sign',
-  received: 'exclamation-sign',
-  challenge_sent: 'plus-sign',
+  confirmed: 'check-circle',
+  denied: 'minus-circle',
+  failed: 'times-circle',
+  expired: 'clock-o',
+  pending: 'plus-circle',
+  asking: 'question-circle',
+  asked: 'question-circle',
+  received: 'exclamation-circle',
+  challenge_sent: 'plus-circle',
   draft: 'file-text',
 
   error: 'warning-sign'

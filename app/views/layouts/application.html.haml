@@ -22,28 +22,4 @@
       = render partial: 'flash'
       = yield
 
-    .footer
-
-
--#
-  / Masthead
-  = render 'masthead'
-
-  / Breadcrumbs
-  = render 'breadcrumbs'
-
-  / Body
-  #main
-    .row
-      #content
-        = render 'header'
-        = render 'messages'
-        = yield
-
-      - if content_for?(:sidebar)
-        #sidebar
-          = yield(:sidebar)
-
-  / Footer
-  #footer
-    .row= render 'footer'
+    .footer= render 'footer'

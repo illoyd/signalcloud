@@ -1,0 +1,26 @@
+%tr
+  -# Do OUTBOUND
+  %td
+    - if message.direction == Message::OUT
+      %p
+        %small
+          Sent
+          = l (message.sent_at || message.created_at)
+      %p= message.body
+  -# Do INBOUND
+  %td
+    - if message.direction == Message::IN
+      %p
+        %small
+          Received
+          = l (message.sent_at || message.created_at)
+      %p
+        - case message.conversation.compare_answer( message.body )
+          - when Conversation::CONFIRMED
+            %i Confirmed message received. (Message hidden for security.)
+          - when Conversation::DENIED
+            %i Denied message received. (Message hidden for security.)
+          - when Conversation::FAILED
+            %i Unrecognised message received. (Message hidden for security.)
+          - else
+            message.body

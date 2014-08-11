@@ -147,7 +147,8 @@ class Ability
   
   def grant_force_conversation_privileges(user, organization_id)
     # Allow forcing conversations
-    can [:force], Conversation, { stencil: { organization_id: organization_id } }
+    # FIXME: Removed temporarily
+    # can [:force], Conversation, { stencil: { organization_id: organization_id } }
   end
   
   def grant_start_conversation_privileges(user, organization_id)
