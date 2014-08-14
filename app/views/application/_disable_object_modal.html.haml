@@ -1,0 +1,18 @@
+- if can? :edit, object
+  .modal.fade[object, :disable]{ "aria-hidden" => "true", role: "dialog", tabindex: "-1"}
+    .modal-dialog.modal-sm
+      .modal-content
+        .modal-header
+          / %button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} &times;
+          %h3.modal-title
+            = icon(:delete)
+            Disable #{ object.class.name.humanize }
+        .modal-body
+          %p Are you sure you want to disable <i>#{ object.try(:label) || "this " + object.class.name.humanize }</i>?
+          %p Disabling will mean this #{ object.class.name.humanize } cannot be used, but all data is saved and you can enable it later.
+          = form_for( [object.organization, object] ) do |f|
+            = f.hidden_field :active, value: false
+            = f.button type: 'submit', class: 'disable' do
+              = icon(:ban)
+              I'm sure, disable it!
+            %a.cancel{"aria-hidden" => "true", "data-dismiss" => "modal"}= iconify('Wait, keep it active!', :enable)

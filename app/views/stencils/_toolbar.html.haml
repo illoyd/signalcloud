@@ -1,0 +1,37 @@
+.actions
+  -# If can view all phone books
+  - if can?(:index, Stencil)
+    = link_to iconify('Stencils', :stencils), organization_stencils_path(@organization)
+
+  -# If no book present, allow creating a new one
+  - if can?(:new, Stencil) && !@stencil.present?
+    = link_to iconify('Add stencil', :plus), new_organization_stencil_path(@organization)
+    
+- if @stencil.try(:persisted?)
+  .actions
+    -# Allow viewing
+    - if can?(:show, @stencil)
+      = link_to iconify('Details', :show), [@organization, @stencil]
+      
+    -# Allow editing
+    - if can?(:edit, @stencil)
+      = link_to iconify('Edit', :edit), edit_organization_stencil_path(@organization, @stencil)
+        
+      - #Disable
+      - if @stencil.active?
+        = link_to iconify('Disable', :disable), "#disable_stencil_#{ @stencil.id }", 'data-toggle' => 'modal'
+        = render partial: 'disable_object_modal', object: @stencil, as: :object
+      - else
+        = link_to iconify('Enable', :enable), "#enable_stencil_#{ @stencil.id }", 'data-toggle' => 'modal'
+        = render partial: 'enable_object_modal', object: @stencil, as: :object
+  
+    -# Allow deleting
+    - if can?(:destroy, @stencil) && @stencil.conversations.none?
+      = link_to iconify('Delete', :delete), "#delete_stencil_#{ @stencil.id }", class: 'delete', 'data-toggle' => 'modal'
+      = render partial: 'delete_object_modal', object: @stencil, as: :object
+
+- if @stencil.try(:persisted?)
+  .related
+    %span.tag Related
+    = link_to icon(:phone_books),     organization_phone_book_path(@organization, @stencil.phone_book)
+    = link_to icon(:conversations),   organization_stencil_conversations_path(@organization, @stencil)

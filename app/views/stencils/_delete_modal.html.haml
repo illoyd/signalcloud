@@ -1,0 +1,13 @@
+#delete_stencil_modal.modal.fade{ "aria-hidden" => "true", "aria-labelledby" => "DeleteStencilModal", :role => "dialog", :tabindex => "-1"}
+  .modal-dialog
+    .modal-content
+      .modal-header
+        / %button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} &times;
+        %h3.modal-title
+          = icon(:delete)
+          Delete Stencil
+      .modal-body
+        %p Are you sure you want to delete this Stencil? This action cannot be undone!
+        =link_to iconify('I\'m sure, delete this Stencil!', :delete), [stencil.organization, stencil], { class: 'delete', method: :delete }
+        %a.cancel{"aria-hidden" => "true", "data-dismiss" => "modal"}= iconify('I\'ve changed my mind, keep this Stencil!', :check)
+        

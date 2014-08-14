@@ -28,6 +28,9 @@ ICONS = {
   challenge_sent: 'plus-circle',
   draft: 'file-text',
 
-  error: 'warning-sign'
+  error: 'warning-sign',
+  
+  disable: 'ban',
+  enable:  'check-circle-o'
   
 }.with_indifferent_access.freeze

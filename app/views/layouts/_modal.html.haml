@@ -17,6 +17,6 @@
         = yield
       .modal-footer
         - if show_cancel_button
-          %button.btn{"aria-hidden" => "true", "data-dismiss" => "modal"}= cancel_text
+          %button.btn.btn-default{"aria-hidden" => "true", "data-dismiss" => "modal"}= cancel_text
         - if show_accept_button
           %button.btn.btn-primary= accept_text

@@ -1,0 +1,19 @@
+%tr
+  %td= split_dropdown_list([ |
+      { label: 'Details', icon: :show, link: [@organization, conversation], if: can?(:show, conversation) }, |
+      { label: 'Force status to Confirmed', icon: 'ok-sign', link: [@organization, conversation], if: can?(:force, conversation) }, |
+      { label: 'Force status to Denied', icon: 'minus-sign', link: [@organization, conversation], if: can?(:force, conversation) }, |
+      { label: 'Force status to Failed', icon: 'remove-sign', link: [@organization, conversation], if: can?(:force, conversation) }, |
+      { label: 'Force status to Expired', icon: :time, link: [@organization, conversation] , if: can?(:force, conversation) } |
+    ], {class: 'btn-xs'} ) |
+  - if @multistencil
+    %td= link_to conversation.stencil.label, [@organization, conversation.stencil]
+  %td
+    = link_to [@organization, conversation] do
+      = conversation_state_tag( conversation )
+  %td= humanize_phone_number Phony.normalize conversation.internal_number
+  %td= humanize_phone_number Phony.normalize conversation.customer_number
+  %td= l conversation.expires_at, format: :short
+  %td.text-center= checkmark_for conversation.challenge_sent_at
+  %td.text-center= checkmark_for conversation.response_received_at
+  %td.text-center= checkmark_for conversation.reply_sent_at

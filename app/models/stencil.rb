@@ -15,7 +15,7 @@ class Stencil < ActiveRecord::Base
   # Relationships
   belongs_to :organization, inverse_of: :stencils
   belongs_to :phone_book, inverse_of: :stencils
-  has_many :conversations, inverse_of: :stencil
+  has_many :conversations, inverse_of: :stencil, dependent: :restrict_with_error
   
   validates_presence_of :organization, :label
   

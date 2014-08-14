@@ -10,7 +10,7 @@
   = conversation_state_tag( @conversation )
 %p
   %b Conversation Expires:
-  = l @conversation.expires_at
+  = l @conversation.expires_at, format: :short
 
 
 / Conversation flow

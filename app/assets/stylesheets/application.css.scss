@@ -92,6 +92,7 @@ nav#navbar {
 // Tables
 table.list {
 	@extend .table;
+	@extend .table-striped;
 	@extend .table-hover;
 	
 	th.controls, td.controls { white-space: nowrap; }
@@ -157,6 +158,18 @@ div.content {
     a.delete {
       @extend .btn;
       @extend .btn-danger;
+      @extend .btn-block;
+    }
+
+    a.enable, input.enable, button.enable {
+      @extend .btn;
+      @extend .btn-primary;
+      @extend .btn-block;
+    }
+
+    a.disable, input.disable, button.disable {
+      @extend .btn;
+      @extend .btn-warning;
       @extend .btn-block;
     }
 
@@ -229,10 +242,7 @@ div.content {
     .icon-field + .icon-field {
       margin-top: 1.5em;
     }
-    
-    button, input[type="submit"] {
-      @extend .btn-sm;
-    }
+
   }
   
   form {
@@ -246,7 +256,10 @@ div.content {
 
     .actions {
       @extend .text-right;
+      margin-top: 2em;
     }
+    
+    fieldset + fieldset { margin-top: 2.5em; }
 
     input[type="submit"] {
       @extend .btn;
@@ -300,7 +313,7 @@ div.content {
 .label-confirmed { @extend .label-success; }
 .label-denied    { @extend .label-danger; }
 .label-failed    { @extend .label-warning; }
-.label-expired   { @extend .label-danger; }
+.label-expired   { @extend .label-primary; }
 .label-error     { @extend .label-danger; }
 
 

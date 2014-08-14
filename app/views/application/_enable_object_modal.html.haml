@@ -1,0 +1,17 @@
+- if can? :edit, object
+  .modal.fade[object, :enable]{ "aria-hidden" => "true", role: "dialog", tabindex: "-1"}
+    .modal-dialog.modal-sm
+      .modal-content
+        .modal-header
+          / %button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} &times;
+          %h3.modal-title
+            = icon(:enable)
+            Enable #{ object.class.name.humanize }
+        .modal-body
+          %p Are you sure you want to enable <i>#{ object.try(:label) || "this " + object.class.name.humanize }</i>?
+          = form_for( [object.organization, object] ) do |f|
+            = f.hidden_field :active, value: true
+            = f.button type: 'submit', class: 'enable' do
+              = icon(:enable)
+              I'm sure, enable it!
+            %a.cancel{"aria-hidden" => "true", "data-dismiss" => "modal"}= iconify('Wait, keep it disabled!', :disable)

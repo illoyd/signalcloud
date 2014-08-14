@@ -43,8 +43,8 @@ module ApplicationHelper
 
   ##
   # Create a label
-  def llabel(text, kind = 'default')
-    content_tag(:span, count, class: [ 'label', "label-#{ kind }" ].compact)
+  def llabel(text, kind = :default)
+    content_tag(:span, text, class: [ 'label', "label-#{ kind }" ].compact)
   end
 
   def humanize_phone_number( number )
@@ -188,7 +188,7 @@ module ApplicationHelper
   end
   
   def checkmark_for( value, options={} )
-    icon( 'ok', options ) if value
+    icon( 'check', options ) if value
   end
   
   def currency_for( value, country='US', symbol='$' )
