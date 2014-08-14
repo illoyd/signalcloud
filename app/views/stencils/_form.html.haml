@@ -1,12 +1,5 @@
 = form_for( [@organization, @stencil], :html => { :class => 'form-horizontal' } ) do |f|
-  - if @stencil.errors.any?
-    #error_explanation
-      %h2
-        = pluralize(@stencil.errors.count, "error")
-        prohibited this stencil from being saved:
-      %ul
-        - @stencil.errors.full_messages.each do |msg|
-          %li= msg
+  = render partial: 'alert_errors', object: @stencil.errors
 
   %h4 General Details
   .control-group

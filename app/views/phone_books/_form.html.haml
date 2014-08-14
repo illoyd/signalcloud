@@ -1,12 +1,5 @@
 = form_for( [@organization, @phone_book], :html => { :class => 'general' } ) do |f|
-  - if @phone_book.errors.any?
-    #error_explanation
-      %h2
-        = pluralize(@phone_book.errors.count, "error")
-        prohibited this phone_book from being saved:
-      %ul
-        - @phone_book.errors.full_messages.each do |msg|
-          %li= msg
+  = render partial: 'alert_errors', object: @phone_book.errors
 
   .field
     = f.label :label

@@ -1,15 +1,7 @@
 - available_icons = %w( rocket briefcase beaker beer bell anchor bolt briefcase bullhorn bullseye camera camera-retro coffee credit-card desktop envelope fire-extinguisher fire flag flag-alt flag-checkered food folder folder-open gamepad gift glass globe headphones heart inbox keyboard laptop leaf legal lemon lightbulb magic magnet microphone money music pencil picture plane print pushpin puzzle-piece road rocket shield shopping-cart signal sitemap star tablet tag ticket tint trophy truck umbrella wrench ambulance hospital medkit ).sort.uniq
 
 = form_for( @organization, :html => { :class => 'general' } ) do |f|
-  - if @organization.errors.any?
-    .alert.alert-warning.alert-block.fade.in
-      %h4
-        Oops!
-        = pluralize(@organization.errors.count, "error")
-        stopped us from saving this organization
-      %ul
-        - @organization.errors.full_messages.each do |msg|
-          %li= msg
+  = render partial: 'alert_errors', object: @organization.errors
 
   %fieldset
     %legend Details

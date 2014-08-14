@@ -5,14 +5,7 @@
   - render 'stencillist'
 
 = form_for( [@organization, @stencil, @conversation], :html => { :class => '' } ) do |f|
-  - if @conversation.errors.any?
-    #error_explanation
-      %h2
-        = pluralize(@conversation.errors.count, "error")
-        prohibited this conversation from being saved:
-      %ul
-        - @conversation.errors.full_messages.each do |msg|
-          %li= msg
+  = render partial: 'alert_errors', object: @conversation.errors
 
   %fieldset
     %legend Stencil

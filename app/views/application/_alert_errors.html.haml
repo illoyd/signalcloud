@@ -1,0 +1,9 @@
+- if alert_errors.any?
+  #error_explanation.alert.alert-danger
+    %h4
+      Oops!
+      = pluralize(@phone_number.errors.count, "error was")
+      were found.
+    %ul
+      - alert_errors.full_messages.each do |msg|
+        %li= msg
