@@ -235,50 +235,13 @@ div.content {
     }
   }
   
-  form.general {
-    @extend .form-horizontal;
-    
-    .field {
-      @extend .form-group;
-      
-      & > label {
-        @extend .col-sm-2;
-        @extend .control-label;
-      }
-      
-      & > .inputs {
-        @extend .col-sm-10;
-      }      
+  form {
+    label {
+      @extend .control-label;
     }
 
     input[type="text"], input[type="password"], input[type="email"], select, textarea {
       @extend .form-control;
-    }
-
-  }
-  
-  form {
-    .icon-field {
-      @extend .row;
-
-      & > .icon { @extend .col-sm-2; @extend .text-center; }
-
-      & > .field {
-        @extend .form-group;
-        @extend .col-sm-10;
-      }
-
-      & label {
-        @extend .control-label;
-      }
-
-      input[type="text"], input[type="password"], input[type="email"], select, textarea {
-        @extend .form-control;
-      }
-    }
-    
-    .icon-field + .icon-field {
-      margin-top: 1.5em;
     }
 
     .actions {
@@ -295,13 +258,37 @@ div.content {
       @extend .btn-default;
       &:hover { @extend .btn-warning; }
     }
+
+    // General horizontal form
+    &.general {
+      @extend .form-horizontal;
+
+      .field {
+        @extend .form-group;
+        & > label   { @extend .col-sm-2; }
+        & > .inputs { @extend .col-sm-10; }
+      }      
+
+      // Wider horizontal form
+      &.wide {
+        .field > label   { @extend .col-sm-4; }
+        .field > .inputs { @extend .col-sm-8; }
+      }
+
+    } // form.general
+    
+    // Horizontal with wider labels
+    &.with-icons {
+      .field-with-icon {
+        @extend .row;
+        .icon  { @extend .col-sm-2; text-align: center; }
+        .field { @extend .col-sm-10; }
+      }      
+
+      .field-with-icon + .field-with-icon { margin-top: 1.5em; }
+    } // form.with-icons
   }
-  
-  form.general.wide {
-    @extend form.general;
-    .field > label { @extend .col-sm-4; }
-    .field > div.inputs { @extend .col-sm-8; }
-  }
+
 }
 
 
