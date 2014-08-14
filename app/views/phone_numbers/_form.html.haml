@@ -3,11 +3,11 @@
 
   %fieldset
     %legend Unsolicited SMS actions
-    .field
+    .field{ has_error(@phone_number, :unsolicited_sms_action) }
       = f.label :unsolicited_sms_action, 'When receiving an unsolicited SMS...'
       .inputs= f.select :unsolicited_sms_action, sms_actions, { required: true }
   
-    .field
+    .field{ has_error(@phone_number, :unsolicited_sms_message) }
       = f.label :unsolicited_sms_message, 'Reply to an unsolicited SMS with this message'
       .inputs
         = f.text_area :unsolicited_sms_message, :rows=>3
@@ -17,23 +17,23 @@
   
   %fieldset
     %legend Unsolicited call actions
-    .field
+    .field{ has_error(@phone_number, :unsolicited_call_action) }
       = f.label :unsolicited_call_action, 'When receiving an unsolicited call...'
       .inputs= f.select :unsolicited_call_action, call_actions, { required: true }
   
-    .field
+    .field{ has_error(@phone_number, :unsolicited_call_message) }
       = f.label :unsolicited_call_message, 'Reply to an unsolicited call with this message'
       .inputs
         = f.text_area :unsolicited_call_message, :rows=>3
         %span.help-block Only used when replying to calls
     
-    .field
+    .field{ has_error(@phone_number, :unsolicited_call_voice) }
       = f.label :unsolicited_call_voice, 'Voice'
       .inputs
         = f.select :unsolicited_call_voice, call_voices, {}
         %span.help-block Only used when replying to calls
     
-    .field
+    .field{ has_error(@phone_number, :unsolicited_call_language) }
       = f.label :unsolicited_call_language, 'Language'
       .inputs
         = f.select :unsolicited_call_language, call_languages, {}

@@ -1,13 +1,13 @@
 = form_for( [@organization, @phone_book], :html => { :class => 'general' } ) do |f|
   = render partial: 'alert_errors', object: @phone_book.errors
 
-  .field
+  .field{ has_error(@phone_book, :label) }
     = f.label :label
     .inputs
       = f.text_field :label, { required: true }
       %span.help-block Required
 
-  .field
+  .field{ has_error(@phone_book, :description) }
     = f.label :description
     .inputs= f.text_area :description, :rows => 3
 

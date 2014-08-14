@@ -22,6 +22,12 @@ module ApplicationHelper
   end
   
   ##
+  # Form helper for detecting if an error has occured with a field
+  def has_error(object, attribute)
+    object.try(:errors).try(:[], attribute).try(:empty?) ? {} : { class: 'has-error' }
+  end
+  
+  ##
   # Create a font-awesome icon
   def icon( kind = :blank, options = {} )
     kind = ICONS.fetch(kind, kind.to_s.gsub(/_/, '-'))

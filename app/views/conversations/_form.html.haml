@@ -17,25 +17,25 @@
     %legend Ask...
     .icon-field
       .icon= icon(:user, class: 'fa-4x')
-      .field
+      .field{ has_error(@stencil, :label) }
         = f.label :customer_number, 'Ask this person...'
         = f.text_field :customer_number
       
     .icon-field
       .icon= icon('question-circle', class: 'fa-4x')
-      .field
+      .field{ has_error(@stencil, :question) }
         = f.label :question, '...this question...'
         = f.text_area :question, rows: 3
       
     .icon-field
       .icon= icon(:phone_numbers, class: 'fa-4x')
-      .field
+      .field{ has_error(@stencil, :internal_number) }
         = f.label :internal_number, '...from this phone number...'
         = f.collection_select :internal_number, @stencil.phone_book.phone_numbers.uniq, :number, :human_number, include_blank: 'Auto-select'
       
     .icon-field
       .icon= icon(:globe, class: 'fa-4x')
-      .field
+      .field{ has_error(@stencil, :webhook_uri) }
         = f.label :webhook_uri, '...and send conversation updates to this URI'
         = f.text_field :webhook_uri
         %span.help-block
@@ -48,11 +48,11 @@
     / Confirmed Reply
     .icon-field
       .icon= icon(:confirmed, class: 'fa-4x')
-      .col-sm-4
+      .col-sm-4{ has_error(@stencil, :expected_confirmed_answer) }
         = f.label :expected_confirmed_answer, 'When receiving this answer...'
         = f.text_area :expected_confirmed_answer, rows: 3
       .col-sm-1= icon('arrow-right', class: 'fa-2x', style: 'margin-left: .5em' )
-      .col-sm-5
+      .col-sm-5{ has_error(@stencil, :confirmed_reply) }
         = f.label :confirmed_reply, '...reply with this message'
         =f.text_area :confirmed_reply, rows: 3
         %p{ style: 'margin-top: 8px' }
@@ -62,11 +62,11 @@
     / Denied Reply
     .icon-field
       .icon= icon(:denied, class: 'fa-4x')
-      .col-sm-4
+      .col-sm-4{ has_error(@stencil, :expected_denied_answer) }
         = f.label :expected_denied_answer, 'When receiving this answer...'
         = f.text_area :expected_denied_answer, rows: 3
       .col-sm-1= icon('arrow-right', class: 'fa-2x', style: 'margin-left: .5em' )
-      .col-sm-5
+      .col-sm-5{ has_error(@stencil, :denied_reply) }
         = f.label :denied_reply, '...reply with this message'
         =f.text_area :denied_reply, rows: 3
         %p{ style: 'margin-top: 8px' }
@@ -78,7 +78,7 @@
       .icon= icon(:failed, class: 'fa-4x')
       .col-sm-4 When receiving any other answer...
       .col-sm-1= icon('arrow-right', class: 'fa-2x', style: 'margin-left: .5em' )
-      .col-sm-5
+      .col-sm-5{ has_error(@stencil, :failed_reply) }
         = f.label :failed_reply, '...reply with this message'
         =f.text_area :failed_reply, rows: 3
         %p{ style: 'margin-top: 8px' }
@@ -88,12 +88,12 @@
     / Expired Reply
     .icon-field
       .icon= icon(:expired, class: 'fa-4x')
-      .col-sm-4
+      .col-sm-4{ has_error(@stencil, :seconds_to_live) }
         = f.label :seconds_to_live, 'If no answer is received in...'
         = f.number_field :seconds_to_live
         seconds
       .col-sm-1= icon('arrow-right', class: 'fa-2x', style: 'margin-left: .5em' )
-      .col-sm-5
+      .col-sm-5{ has_error(@stencil, :expired_reply) }
         = f.label :expired_reply, '...send this message'
         =f.text_area :expired_reply, rows: 3
         %p{ style: 'margin-top: 8px' }
