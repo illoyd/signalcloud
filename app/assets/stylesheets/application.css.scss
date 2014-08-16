@@ -98,6 +98,11 @@ table.list {
 	th.controls, td.controls { white-space: nowrap; }
 	
 	& > tbody > tr > td { vertical-align: middle; }
+	
+	td.no-items {
+  	@extend .text-center;
+  	@extend .text-muted;
+	}
 }
 
 
@@ -109,18 +114,30 @@ div.content {
     margin-bottom: 28px;
     @extend .btn-toolbar;
     
-    a {
-      @extend .btn;
-      @extend .btn-default;
-      
-      &.delete:hover { @extend .btn-danger:hover; }
-    }
-    
     .actions {
       @extend .btn-group;
       @extend .btn-group-xs;
       
-      a { @extend .btn-primary; }
+      & > a {
+        @extend .btn;
+        @extend .btn-primary;
+        &.delete:hover { @extend .btn-danger:hover; }
+      }
+      
+      & > .dropdown {
+        @extend .btn-group;
+        @extend .btn-group-xs;
+        
+        & > button {
+          @extend .btn;
+          @extend .btn-primary;
+          @extend .dropdown-toggle;
+        }
+        
+        & > ul {
+          @extend .dropdown-menu;
+        }
+      }
     }
     
     .related {
@@ -128,6 +145,11 @@ div.content {
       @extend .btn-group-xs;
       @extend .pull-right;
       
+      & > a {
+        @extend .btn;
+        @extend .btn-default;
+      }
+
       span.tag {
         @extend .btn;
         @extend .disabled;
