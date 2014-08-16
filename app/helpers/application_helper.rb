@@ -195,6 +195,32 @@ module ApplicationHelper
     html = '<small>%s%s</small> %0.4f' % [ country, symbol, value ]
     html.html_safe
   end
+  
+  def display_name_for(item)
+    return case item
+      when Conversation
+        "Conversation ##{ item.id } (#{ humanize_phone_number(item.customer_number) })"
+      when PhoneNumber
+        humanize_phone_number(item.number)
+      when Message
+        display_name_for(item.conversation)
+      else
+        item.class.name
+    end
+  end
+  
+  def display_icon_for(item)
+    return case item
+      when Message
+        display_icon_for(item.conversation)
+      else
+        item.class.name.pluralize.underscore
+    end
+  end
+  
+  def display_name_and_icon_for(item)
+    iconify( display_name_for(item), display_icon_for(item) )
+  end
 
   def supported_countries
     Twilio::SUPPORTED_COUNTRIES.map { |alpha2| Country[alpha2] }.sort_by(&:name)

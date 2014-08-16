@@ -1,0 +1,10 @@
+%tr
+  %td= split_dropdown_list([ |
+    { label: 'Details', icon: :show, link: [ invoice.organization, invoice ], if: can?(:show, invoice) }, |
+    { label: 'Invoice', icon: :show, link: invoice.public_link, if: can?(:show, invoice) && invoice.public_link.present? }, |
+    ], {class: 'btn-xs'}) |
+  %td
+  %td= l(invoice.date_from, format: :short) if invoice.date_from?
+  %td= l(invoice.date_to, format: :short) if invoice.date_to?
+  %td.text-right= currency_for invoice.ledger_entries.sum(:value)
+  %td.text-center= status_tag_for(invoice)

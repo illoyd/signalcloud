@@ -1,0 +1,13 @@
+%tr
+  %td= split_dropdown_list([ |
+    { label: 'Details', icon: :show, link: [ @organization, ledger_entry ], if: can?(:show, ledger_entry) }, |
+    { label: 'View ' + display_name_for(ledger_entry.item), icon: display_icon_for(ledger_entry.item), link: [@organization, ledger_entry.item], if: can?(:show, ledger_entry.item) } |
+    ], {class: 'btn-xs'}) |
+  %td
+    = link_to_if can?(:show, ledger_entry), ledger_entry.narrative, [@organization, ledger_entry]
+    - unless ledger_entry.blank?
+      %small= ledger_entry.notes
+  %td= link_to_if can?(:show, ledger_entry.item), display_name_and_icon_for(ledger_entry.item), [@organization, ledger_entry.item] 
+  %td= l ledger_entry.updated_at, format: :short
+  %td.text-right= currency_for ledger_entry.value
+  %td.text-center= checkmark_for ledger_entry.settled?

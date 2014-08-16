@@ -85,7 +85,7 @@ end
 
 # Ledger Entry crumbs
 crumb :organization_ledger_entries do |organization|
-  link "Ledger Entries", organization_ledger_entries_path(organization)
+  link "Invoices", organization_ledger_entries_path(organization)
   parent :organization, organization
 end
 
@@ -96,6 +96,18 @@ crumb :ledger_entry do |ledger_entry|
     link ledger_entry.id, organization_ledger_entry_path(ledger_entry.organization, ledger_entry)
   end
   parent :organization_ledger_entries, ledger_entry.organization
+end
+
+
+# Invoice crumbs
+crumb :organization_invoices do |organization|
+  link "Invoices", organization_invoices_path(organization)
+  parent :organization, organization
+end
+
+crumb :invoice do |invoice|
+  link ledger_entry.id, organization_invoice_path(invoice.organization, invoice)
+  parent :organization_invoices, invoice.organization
 end
 
 

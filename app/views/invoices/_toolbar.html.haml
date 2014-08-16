@@ -1,0 +1,24 @@
+-# If can view all phone books
+- if can?(:index, Invoice)
+  .actions
+    = link_to iconify('Invoices', :invoices), organization_invoices_path(@organization)
+
+.actions
+  -# If can view all phone books
+  - if can?(:show, Invoice)
+    = link_to iconify("Pending Transactions (#{ currency_for @organization.ledger_entries.uninvoiced.sum(:value) })", :ledger_entries), pending_organization_invoices_path(@organization)
+
+  -# If can view all phone books
+  - if can?(:show, Invoice) && @organization.invoices.any?
+    .dropdown
+      %button{ data: {toggle: 'dropdown'} }
+        Ready Invoices
+        %span.caret
+      %ul{ role: 'menu' }
+        - @organization.invoices.each do |invoice|
+          %li= link_to iconify( l(invoice.date_to, format: :short), :invoices ), organization_invoice_path(@organization, invoice)
+
+- if @invoice.try(:persisted?)
+  .related
+    %span.tag Related
+    = link_to('PDF', @invoice.public_link) if @invoice.public_link

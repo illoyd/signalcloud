@@ -1,0 +1,18 @@
+-# Page header
+- headings 'Invoice', "all invoices", :invoices
+- breadcrumb :organization_invoices, @organization
+
+/ Page body
+%table.list
+  %thead
+    %tr
+      %th
+      %th From
+      %th To
+      %th Raised
+      %th.text-right Billed
+      %th.text-center Settled
+    %tbody
+      = render(partial: 'invoice', collection: @invoices) || render(partial: 'no_invoices')
+
+= paginate @invoices, theme: 'twitter-bootstrap-3'
