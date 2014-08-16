@@ -29,5 +29,5 @@
     = link_to icon(:stencils),       organization_stencils_path(@organization)       if can?(:index, Stencil)
     = link_to icon(:phone_books),    organization_phone_books_path(@organization)    if can?(:index, PhoneBook)
     = link_to icon(:phone_numbers),  organization_phone_numbers_path(@organization)  if can?(:index, PhoneNumber)
-    = link_to icon(:ledger_entries), organization_ledger_entries_path(@organization) if can?(:index, LedgerEntry) and current_user.is_billing_liaison_for?(@organization)
+    = link_to icon(:invoices),       organization_invoices_path(@organization)       if can?(:index, Invoice) and current_user.is_billing_liaison_for?(@organization)
     = link_to icon(:users),          organization_users_path(@organization)          if can?(:index, User) and current_user.is_organization_administrator_for?(@organization)

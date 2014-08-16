@@ -45,10 +45,10 @@
         %li{ class: ('active' if phone_number_page?) }
           %a.phone_numbers{ :href => organization_phone_numbers_path(@organization) }= icon( :phone_numbers )
   
-      - if can?(:index, LedgerEntry) and current_user.is_billing_liaison_for?(@organization)
+      - if can?(:index, Invoice) and current_user.is_billing_liaison_for?(@organization)
         / Ledger Entries
         %li{ class: ('active' if ledger_entry_page?) }
-          %a.ledger_entries{ :href => organization_ledger_entries_path(@organization) }= icon( :ledger_entries )
+          %a.invoices{ :href => organization_invoices_path(@organization) }= icon( :invoices )
   
       - if can?(:index, User) and current_user.is_organization_administrator_for?(@organization)
         / Users

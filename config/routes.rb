@@ -43,12 +43,18 @@ SignalCloud::Application.routes.draw do
       end
     end
 
-    resources :ledger_entries, only: [ :index, :show ] do
-      get 'page/:page', action: :index
+    resources :invoices, only: [ :index, :show, :pending ] do
+      member do
+        get 'page/:page', action: :index
+      end
+      collection do
+        get 'pending', action: :pending
+        get 'page/:page', action: :index
+      end
     end
     
-    get '/invoices/:invoice_id' => 'ledger_entries#index', as: :invoice
-  
+    resources :ledger_entries, only: :show
+    
     resources :phone_numbers, only: [ :index, :show, :create, :edit, :update, :destroy ] do
       collection do
         get 'search/:country/:kind', action: 'search', defaults: { country: 'US', kind: 'local' }, as: 'search'
