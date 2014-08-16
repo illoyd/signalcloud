@@ -281,7 +281,7 @@ div.content {
       margin-top: 2em;
     }
     
-    fieldset + fieldset { margin-top: 2.5em; }
+    fieldset + fieldset, .tab-content > fieldset:first-child { margin-top: 2.5em; }
 
     input[type="submit"] {
       @extend .btn;
