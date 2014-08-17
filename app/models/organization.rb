@@ -77,14 +77,6 @@ class Organization < ActiveRecord::Base
     statuses = Conversation.count_by_status_hash( self.conversations.today )
   end
   
-  def has_accounting_gateway?
-    !self.accounting_gateway.nil?
-  end
-
-  def has_payment_gateway?
-    !self.payment_gateway.nil?
-  end
-
   ##
   # Return the date of the last invoice, or the first ledger_entry
   def last_invoice_date
