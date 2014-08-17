@@ -1,5 +1,5 @@
 require 'spec_helper'
-describe OrganizationsController do
+describe OrganizationsController, :type => :controller do
 
   it_behaves_like 'a protected resource'
   
@@ -13,7 +13,7 @@ describe OrganizationsController do
     end
 
     it 'ensures user is unprivileged' do
-      user.is_billing_liaison_for?(organization).should be_false
+      expect(user.is_billing_liaison_for?(organization)).to be_falsey
     end
 
     describe 'GET index' do
@@ -23,7 +23,7 @@ describe OrganizationsController do
       end
       it 'loads all organizations for signed-in user' do
         get :index
-        assigns(:organizations).should =~ user.reload.organizations
+        expect(assigns(:organizations)).to match(user.reload.organizations)
       end
     end
 
@@ -34,7 +34,7 @@ describe OrganizationsController do
       end
       it 'assigns organization' do
         get :show, id: organization.id
-        assigns(:organization).should == organization
+        expect(assigns(:organization)).to eq(organization)
       end
     end
 
@@ -50,7 +50,7 @@ describe OrganizationsController do
     end
     
     it 'grants organization administrator' do
-      user.is_billing_liaison_for?(organization).should be_true
+      expect(user.is_billing_liaison_for?(organization)).to be_truthy
     end
 
     describe 'GET new' do
@@ -60,12 +60,12 @@ describe OrganizationsController do
       end
       it 'assigns organization' do
         get :new
-        assigns(:organization).should be_a_new Organization
+        expect(assigns(:organization)).to be_a_new Organization
       end
       
       it 'presents a complete organization' do
         get :new, complete: true
-        assigns(:organization).should be_a_new Organization
+        expect(assigns(:organization)).to be_a_new Organization
       end
     end
 
@@ -89,12 +89,12 @@ describe OrganizationsController do
       end
       it 'assigns organization' do
         get :edit, id: organization.id
-        assigns(:organization).should == organization
+        expect(assigns(:organization)).to eq(organization)
       end
 
       it 'presents a complete organization' do
         get :edit, id: organization.id, complete: true
-        assigns(:organization).should == organization
+        expect(assigns(:organization)).to eq(organization)
       end
     end
 

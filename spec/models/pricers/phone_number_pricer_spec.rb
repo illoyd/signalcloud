@@ -1,5 +1,5 @@
 require 'spec_helper'
-describe PhoneNumberPricer do
+describe PhoneNumberPricer, :type => :model do
   it_behaves_like 'a pricer'
   
   describe '#price_for' do
@@ -17,11 +17,11 @@ describe PhoneNumberPricer do
     end
 
     it 'calculates a US number' do
-      subject.price_for( us_phone_number ).should == us_price_sheet.base_phone_number_price
+      expect(subject.price_for( us_phone_number )).to eq(us_price_sheet.base_phone_number_price)
     end
 
     it 'calculates a UK number' do
-      subject.price_for( gb_phone_number ).should == gb_price_sheet.base_phone_number_price
+      expect(subject.price_for( gb_phone_number )).to eq(gb_price_sheet.base_phone_number_price)
     end
 
   end #price_for

@@ -1,7 +1,7 @@
 # encoding: UTF-8
 require 'spec_helper'
 
-describe Conversation do
+describe Conversation, :type => :model do
 
   shared_examples 'sends message' do |method|
     it 'does not raise error' do
@@ -13,17 +13,17 @@ describe Conversation do
     it 'assigns body' do
       subject.send(method)
       msg = subject.messages(true).last
-      msg.body.should == expected_body
+      expect(msg.body).to eq(expected_body)
     end
     it 'assigns to_number' do
       subject.send(method)
       msg = subject.messages(true).last
-      msg.to_number.should == subject.customer_number
+      expect(msg.to_number).to eq(subject.customer_number)
     end
     it 'assigns from_number' do
       subject.send(method)
       msg = subject.messages(true).last
-      msg.from_number.should == subject.internal_number
+      expect(msg.from_number).to eq(subject.internal_number)
     end
     it 'can get communication gateway' do
       subject.send(method)
@@ -42,17 +42,17 @@ describe Conversation do
     it 'assigns body' do
       subject.accept_answer!(answer)
       msg = subject.messages(true).last
-      msg.body.should == expected_body
+      expect(msg.body).to eq(expected_body)
     end
     it 'assigns to_number' do
       subject.accept_answer!(answer)
       msg = subject.messages(true).last
-      msg.to_number.should == subject.customer_number
+      expect(msg.to_number).to eq(subject.customer_number)
     end
     it 'assigns from_number' do
       subject.accept_answer!(answer)
       msg = subject.messages(true).last
-      msg.from_number.should == subject.internal_number
+      expect(msg.from_number).to eq(subject.internal_number)
     end
     it 'can get communication gateway' do
       subject.accept_answer!(answer)
@@ -62,12 +62,12 @@ describe Conversation do
   end
 
   describe 'validations' do  
-    it { should belong_to :stencil }
-    it { should have_many :messages }
-    it { should have_one  :ledger_entry }
+    it { is_expected.to belong_to :stencil }
+    it { is_expected.to have_many :messages }
+    it { is_expected.to have_one  :ledger_entry }
 
     [:stencil, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :internal_number, :question, :customer_number, :expires_at].each do |attribute| 
-      it { should validate_presence_of(attribute) }
+      it { is_expected.to validate_presence_of(attribute) }
     end
   end
   
@@ -82,18 +82,42 @@ describe Conversation do
     [ :asking, :asked ].each do |status|
       context "when status is #{status}" do
         subject { build :conversation, workflow_state: status }
-        its('is_open?') { should be_true }
-        its('is_closed?') { should be_false }
-        its('errored?') { should be_false }
+
+        describe '#is_open?' do
+          subject { super().is_open? }
+          it { is_expected.to be_truthy }
+        end
+
+        describe '#is_closed?' do
+          subject { super().is_closed? }
+          it { is_expected.to be_falsey }
+        end
+
+        describe '#errored?' do
+          subject { super().errored? }
+          it { is_expected.to be_falsey }
+        end
       end
     end
     
     [ :draft, :receiving, :received, :confirming, :confirmed, :denying, :denied, :failing, :failed, :expiring, :expired ].each do |status|
       context "when status is #{status}" do
         subject { build :conversation, workflow_state: status }
-        its('is_open?') { should be_false }
-        its('is_closed?') { should be_true }
-        its('errored?') { should be_false }
+
+        describe '#is_open?' do
+          subject { super().is_open? }
+          it { is_expected.to be_falsey }
+        end
+
+        describe '#is_closed?' do
+          subject { super().is_closed? }
+          it { is_expected.to be_truthy }
+        end
+
+        describe '#errored?' do
+          subject { super().errored? }
+          it { is_expected.to be_falsey }
+        end
       end
     end
     
@@ -101,9 +125,21 @@ describe Conversation do
     #[ Conversation::ERROR_INVALID_TO, Conversation::ERROR_INVALID_FROM, Conversation::ERROR_BLACKLISTED_TO, Conversation::ERROR_NOT_SMS_CAPABLE, Conversation::ERROR_CANNOT_ROUTE, Conversation::ERROR_SMS_QUEUE_FULL ].each do |status|
       context "when status is #{status}" do
         subject { build :conversation, workflow_state: status }
-        its('is_open?') { should be_false }
-        its('is_closed?') { should be_true }
-        its('errored?') { should be_true }
+
+        describe '#is_open?' do
+          subject { super().is_open? }
+          it { is_expected.to be_falsey }
+        end
+
+        describe '#is_closed?' do
+          subject { super().is_closed? }
+          it { is_expected.to be_truthy }
+        end
+
+        describe '#errored?' do
+          subject { super().errored? }
+          it { is_expected.to be_truthy }
+        end
       end
     end
   end
@@ -111,33 +147,57 @@ describe Conversation do
   describe "#has_challenge_been_sent?" do
     context 'when challenge not sent' do
       subject { build :conversation }
-      its('has_challenge_been_sent?') { should be_false }
+
+      describe '#has_challenge_been_sent?' do
+        subject { super().has_challenge_been_sent? }
+        it { is_expected.to be_falsey }
+      end
     end
     context 'when challenge sent' do
       subject { build :conversation, :challenge_sent }
-      its('has_challenge_been_sent?') { should be_true }
+
+      describe '#has_challenge_been_sent?' do
+        subject { super().has_challenge_been_sent? }
+        it { is_expected.to be_truthy }
+      end
     end
   end
 
   describe "#has_response_been_received?" do
     context 'when response has not been received' do
       subject { build :conversation }
-      its('has_response_been_received?') { should be_false }
+
+      describe '#has_response_been_received?' do
+        subject { super().has_response_been_received? }
+        it { is_expected.to be_falsey }
+      end
     end
     context 'when response has been received' do
       subject { build :conversation, :response_received }
-      its('has_response_been_received?') { should be_true }
+
+      describe '#has_response_been_received?' do
+        subject { super().has_response_been_received? }
+        it { is_expected.to be_truthy }
+      end
     end
   end
 
   describe "#has_reply_been_sent?" do
     context 'when reply not sent' do
       subject { build :conversation }
-      its('has_reply_been_sent?') { should be_false }
+
+      describe '#has_reply_been_sent?' do
+        subject { super().has_reply_been_sent? }
+        it { is_expected.to be_falsey }
+      end
     end
     context 'when reply sent' do
       subject { build :conversation, :reply_sent }
-      its('has_reply_been_sent?') { should be_true }
+
+      describe '#has_reply_been_sent?' do
+        subject { super().has_reply_been_sent? }
+        it { is_expected.to be_truthy }
+      end
     end
   end
 
@@ -150,19 +210,19 @@ describe Conversation do
       subject.expires_at = original_expiry
       subject.seconds_to_live = seconds_to_live
       expect { subject.update_expiry_time_based_on_seconds_to_live }.to change{subject.expires_at}.from(original_expiry)
-      subject.expires_at.should be_within(0.5).of( seconds_to_live.seconds.from_now )
+      expect(subject.expires_at).to be_within(0.5).of( seconds_to_live.seconds.from_now )
     end
 
     it "updates expires_at manually" do
       subject.seconds_to_live = seconds_to_live
       expect { subject.update_expiry_time_based_on_seconds_to_live }.to change{subject.expires_at}.from(nil)
-      subject.expires_at.should be_within(0.5).of( seconds_to_live.seconds.from_now )
+      expect(subject.expires_at).to be_within(0.5).of( seconds_to_live.seconds.from_now )
     end
 
     it "updates expires_at on save" do
       subject.seconds_to_live = seconds_to_live
       expect { subject.save }.to change{subject.expires_at}.from(nil)
-      subject.expires_at.should be_within(0.5).of( seconds_to_live.seconds.from_now )
+      expect(subject.expires_at).to be_within(0.5).of( seconds_to_live.seconds.from_now )
     end
   end
   
@@ -173,39 +233,39 @@ describe Conversation do
     subject { build(:conversation, expected_confirmed_answer: positive, expected_denied_answer: negative) }
 
     it 'recognises positive answer' do
-      subject.compare_answer( positive ).should == :confirmed
+      expect(subject.compare_answer( positive )).to eq(:confirmed)
     end
 
     it 'recognises uppercase positive answer' do
-      subject.compare_answer( positive.upcase ).should == :confirmed
+      expect(subject.compare_answer( positive.upcase )).to eq(:confirmed)
     end
 
     it 'recognises padded positive answer' do
-      subject.compare_answer( "   #{positive}   " ).should == :confirmed
+      expect(subject.compare_answer( "   #{positive}   " )).to eq(:confirmed)
     end
 
     it 'recognises negative answer' do
-      subject.compare_answer( negative ).should == :denied
+      expect(subject.compare_answer( negative )).to eq(:denied)
     end
     
     it 'recognises uppercase negative answer' do
-      subject.compare_answer( negative.upcase ).should == :denied
+      expect(subject.compare_answer( negative.upcase )).to eq(:denied)
     end
     
     it 'recognises padded negative answer' do
-      subject.compare_answer( "   #{negative}   " ).should == :denied
+      expect(subject.compare_answer( "   #{negative}   " )).to eq(:denied)
     end
     
     it 'ignores invalid answer' do
-      subject.compare_answer( failed ).should == :failed
+      expect(subject.compare_answer( failed )).to eq(:failed)
     end
     
     it 'ignores uppercase invalid answer' do
-      subject.compare_answer( failed.upcase ).should == :failed
+      expect(subject.compare_answer( failed.upcase )).to eq(:failed)
     end
     
     it 'ignores padded invalid answer' do
-      subject.compare_answer( "   #{failed}   " ).should == :failed
+      expect(subject.compare_answer( "   #{failed}   " )).to eq(:failed)
     end
 
   end
@@ -217,39 +277,39 @@ describe Conversation do
     subject { build(:conversation, expected_confirmed_answer: positive, expected_denied_answer: negative) }
 
     it 'recognises positive answer' do
-      subject.answer_applies?( positive ).should be_true
+      expect(subject.answer_applies?( positive )).to be_truthy
     end
 
     it 'recognises uppercase positive answer' do
-      subject.answer_applies?( positive.upcase ).should be_true
+      expect(subject.answer_applies?( positive.upcase )).to be_truthy
     end
 
     it 'recognises padded positive answer' do
-      subject.answer_applies?( "   #{positive}   " ).should be_true
+      expect(subject.answer_applies?( "   #{positive}   " )).to be_truthy
     end
 
     it 'recognises negative answer' do
-      subject.answer_applies?( negative ).should be_true
+      expect(subject.answer_applies?( negative )).to be_truthy
     end
     
     it 'recognises uppercase negative answer' do
-      subject.answer_applies?( negative.upcase ).should be_true
+      expect(subject.answer_applies?( negative.upcase )).to be_truthy
     end
     
     it 'recognises padded negative answer' do
-      subject.answer_applies?( "   #{negative}   " ).should be_true
+      expect(subject.answer_applies?( "   #{negative}   " )).to be_truthy
     end
     
     it 'ignores invalid answer' do
-      subject.answer_applies?( failed ).should be_false
+      expect(subject.answer_applies?( failed )).to be_falsey
     end
     
     it 'ignores uppercase invalid answer' do
-      subject.answer_applies?( failed.upcase ).should be_false
+      expect(subject.answer_applies?( failed.upcase )).to be_falsey
     end
     
     it 'ignores padded invalid answer' do
-      subject.answer_applies?( "   #{failed}   " ).should be_false
+      expect(subject.answer_applies?( "   #{failed}   " )).to be_falsey
     end
     
   end
@@ -323,7 +383,10 @@ describe Conversation do
     before(:each)          { phone_book_entry }
     subject { create :conversation, stencil: stencil, internal_number: phone_number.number }
     
-    its(:internal_number)       { should eq(phone_number.number) }
+    describe '#internal_number' do
+      subject { super().internal_number }
+      it { is_expected.to eq(phone_number.number) }
+    end
     it 'does not error' do
       expect{ subject.communication_gateway }.not_to raise_error
     end
@@ -340,7 +403,11 @@ describe Conversation do
     describe '#ask!' do
       let(:expected_body) { subject.question }
       subject { create(:conversation, stencil: stencil, internal_number: phone_number.number) }
-      its('can_ask?') { should be_true }
+
+      describe '#can_ask?' do
+        subject { super().can_ask? }
+        it { is_expected.to be_truthy }
+      end
       include_examples 'sends message', :ask!
     end
     
@@ -354,7 +421,11 @@ describe Conversation do
     describe '#confirm!' do
       let(:expected_body) { subject.confirmed_reply }
       subject { create(:conversation, :challenge_sent, :response_received, stencil: stencil, internal_number: phone_number.number) }
-      its('can_confirm?') { should be_true }
+
+      describe '#can_confirm?' do
+        subject { super().can_confirm? }
+        it { is_expected.to be_truthy }
+      end
       include_examples 'sends message', :confirm!
     end
   
@@ -368,7 +439,11 @@ describe Conversation do
     describe '#deny!' do
       let(:expected_body) { subject.denied_reply }
       subject { create(:conversation, :challenge_sent, :response_received, stencil: stencil, internal_number: phone_number.number) }
-      its('can_deny?') { should be_true }
+
+      describe '#can_deny?' do
+        subject { super().can_deny? }
+        it { is_expected.to be_truthy }
+      end
       include_examples 'sends message', :deny!
     end
   
@@ -382,7 +457,11 @@ describe Conversation do
     describe '#fail!' do
       let(:expected_body) { subject.failed_reply }
       subject { create(:conversation, :challenge_sent, :response_received, stencil: stencil, internal_number: phone_number.number) }
-      its('can_fail?') { should be_true }
+
+      describe '#can_fail?' do
+        subject { super().can_fail? }
+        it { is_expected.to be_truthy }
+      end
       include_examples 'sends message', :fail!
     end
   
@@ -396,7 +475,11 @@ describe Conversation do
     describe '#expire!' do
       let(:expected_body) { subject.expired_reply }
       subject { create(:conversation, :challenge_sent, stencil: stencil, internal_number: phone_number.number) }
-      its('can_expire?') { should be_true }
+
+      describe '#can_expire?' do
+        subject { super().can_expire? }
+        it { is_expected.to be_truthy }
+      end
       include_examples 'sends message', :expire!
     end
 

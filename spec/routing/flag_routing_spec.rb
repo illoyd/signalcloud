@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'routing to flag icons' do
+describe 'routing to flag icons', :type => :routing do
   #fixtures :organizations, :account_plans, :users
 
 #   it 'routes /organizations/:id to organizations#show for id' do
@@ -17,7 +17,7 @@ describe 'routing to flag icons' do
       size = 'medium'
       icon_url = './assets/images/flags/%s/%s.png' % [size.downcase, country.downcase]
       # expect( get: icon_url ).to be_routable
-      expect{ File.exist? icon_url }.to be_true
+      expect{ File.exist? icon_url }.to be_truthy
     end
   end
 

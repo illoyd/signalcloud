@@ -1,17 +1,17 @@
 require 'spec_helper'
 
-describe LedgerEntry do
+describe LedgerEntry, :type => :model do
   #fixtures :organizations, :stencils, :conversations, :messages, :ledger_entries
   
   describe "validations" do
     before(:all) { 3.times { create :ledger_entry } }
     [:organization, :narrative].each do |attribute|
-      it { should validate_presence_of(attribute) }
+      it { is_expected.to validate_presence_of(attribute) }
     end
 
-    it { should validate_numericality_of( :value ) }
-    it { should belong_to :organization }
-    it { should belong_to :item }
+    it { is_expected.to validate_numericality_of( :value ) }
+    it { is_expected.to belong_to :organization }
+    it { is_expected.to belong_to :item }
   end
   
   describe '#ensure_organization' do
@@ -62,14 +62,30 @@ describe LedgerEntry do
   describe "#is_pending? and #is_settled?" do
     context 'when pending' do
       subject { create :ledger_entry, :pending }
-      its(:'is_pending?') { should be_true }
-      its(:'is_settled?') { should be_false }
+
+      describe '#is_pending?' do
+        subject { super().is_pending? }
+        it { is_expected.to be_truthy }
+      end
+
+      describe '#is_settled?' do
+        subject { super().is_settled? }
+        it { is_expected.to be_falsey }
+      end
     end
 
     context 'when settled' do
       subject { create :ledger_entry, :settled }
-      its(:'is_pending?') { should be_false }
-      its(:'is_settled?') { should be_true }
+
+      describe '#is_pending?' do
+        subject { super().is_pending? }
+        it { is_expected.to be_falsey }
+      end
+
+      describe '#is_settled?' do
+        subject { super().is_settled? }
+        it { is_expected.to be_truthy }
+      end
     end
   end
   
@@ -97,17 +113,17 @@ describe LedgerEntry do
     context 'when global' do
       it "returns pending entries" do
         LedgerEntry.pending.each do |ledger_entry|
-          ledger_entry.settled_at.should be_nil
-          ledger_entry.is_pending?.should == true
-          ledger_entry.is_settled?.should == false
+          expect(ledger_entry.settled_at).to be_nil
+          expect(ledger_entry.is_pending?).to eq(true)
+          expect(ledger_entry.is_settled?).to eq(false)
         end
       end
       it "does not miss any pending entries" do
         # Loop over all remaining ledger_entries - they should NOT be pending
         (LedgerEntry.all - LedgerEntry.pending).each do |ledger_entry|
-          ledger_entry.settled_at.should_not be_nil
-          ledger_entry.is_pending?.should == false
-          ledger_entry.is_settled?.should == true
+          expect(ledger_entry.settled_at).not_to be_nil
+          expect(ledger_entry.is_pending?).to eq(false)
+          expect(ledger_entry.is_settled?).to eq(true)
         end
       end
     end
@@ -115,9 +131,9 @@ describe LedgerEntry do
     context 'when scoped to organization' do
       it "return pending entries for organization" do
         organization.ledger_entries.pending.each do |ledger_entry|
-          ledger_entry.settled_at.should be_nil
-          ledger_entry.is_pending?.should == true
-          ledger_entry.is_settled?.should == false
+          expect(ledger_entry.settled_at).to be_nil
+          expect(ledger_entry.is_pending?).to eq(true)
+          expect(ledger_entry.is_settled?).to eq(false)
         end
       end
     end
@@ -147,17 +163,17 @@ describe LedgerEntry do
     context 'when global' do
       it "returns settled entries" do
         LedgerEntry.settled.each do |ledger_entry|
-          ledger_entry.settled_at.should_not be_nil
-          ledger_entry.is_pending?.should == false
-          ledger_entry.is_settled?.should == true
+          expect(ledger_entry.settled_at).not_to be_nil
+          expect(ledger_entry.is_pending?).to eq(false)
+          expect(ledger_entry.is_settled?).to eq(true)
         end
       end
       it "does not miss any settled entries" do
         # Loop over all remaining ledger_entries - they SHOULD be pending
         (LedgerEntry.all - LedgerEntry.settled).each do |ledger_entry|
-          ledger_entry.settled_at.should be_nil
-          ledger_entry.is_pending?.should == true
-          ledger_entry.is_settled?.should == false
+          expect(ledger_entry.settled_at).to be_nil
+          expect(ledger_entry.is_pending?).to eq(true)
+          expect(ledger_entry.is_settled?).to eq(false)
         end
       end
     end
@@ -165,10 +181,10 @@ describe LedgerEntry do
     context 'when scoped to organization' do
       it "returns settled entries for organization" do
         organization.ledger_entries.settled.each do |ledger_entry|
-          ledger_entry.organization.should eq(organization)
-          ledger_entry.settled_at.should_not be_nil
-          ledger_entry.is_pending?.should == false
-          ledger_entry.is_settled?.should == true
+          expect(ledger_entry.organization).to eq(organization)
+          expect(ledger_entry.settled_at).not_to be_nil
+          expect(ledger_entry.is_pending?).to eq(false)
+          expect(ledger_entry.is_settled?).to eq(true)
         end
       end
     end

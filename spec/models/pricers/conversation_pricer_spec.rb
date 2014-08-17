@@ -1,5 +1,5 @@
 require 'spec_helper'
-describe ConversationPricer do
+describe ConversationPricer, :type => :model do
   it_behaves_like 'a pricer'
   
   describe '#price_for' do
@@ -20,14 +20,14 @@ describe ConversationPricer do
       let(:conversation) { build_stubbed :conversation, :asked, customer_number: phone_number.number }
       
       it 'returns a BigDecimal' do
-        subject.price_for(conversation).should be_a BigDecimal
+        expect(subject.price_for(conversation)).to be_a BigDecimal
       end
       
       [ :draft, :asking, :asked, :receiving, :received, :confirming, :confirmed, :denying, :denied, :failing, :failed, :expiring, :expired ].each do |state|
         context "with #{state} conversation" do
           let(:conversation) { create :conversation, state, :with_messages, customer_number: phone_number.number }
           it 'calculates price' do
-            subject.price_for( conversation ).should == us_price_sheet.base_conversation_price
+            expect(subject.price_for( conversation )).to eq(us_price_sheet.base_conversation_price)
           end
         end
       end
@@ -36,7 +36,7 @@ describe ConversationPricer do
         context "with long challenge #{state} conversation" do
           let(:conversation) { create :conversation, state, :with_messages, customer_number: phone_number.number, question: 'q'*170 }
           it 'calculates price' do
-            subject.price_for( conversation ).should == ( us_price_sheet.base_conversation_price * 1.5 )
+            expect(subject.price_for( conversation )).to eq( us_price_sheet.base_conversation_price * 1.5 )
           end
         end
       end
@@ -45,7 +45,7 @@ describe ConversationPricer do
         context "with long reply #{state} conversation" do
           let(:conversation) { create :conversation, state, :with_messages, customer_number: phone_number.number, confirmed_reply: 'c'*170, denied_reply: 'd'*170, failed_reply: 'f'*170, expired_reply: 'e'*170 }
           it 'calculates price' do
-            subject.price_for( conversation ).should == ( us_price_sheet.base_conversation_price * 1.5 )
+            expect(subject.price_for( conversation )).to eq( us_price_sheet.base_conversation_price * 1.5 )
           end
         end
       end
@@ -54,7 +54,7 @@ describe ConversationPricer do
         context "with long challenge and reply #{state} conversation" do
           let(:conversation) { create :conversation, state, :with_messages, customer_number: phone_number.number, question: 'q'*170, confirmed_reply: 'c'*170, denied_reply: 'd'*170, failed_reply: 'f'*170, expired_reply: 'e'*170 }
           it 'calculates price' do
-            subject.price_for( conversation ).should == ( us_price_sheet.base_conversation_price * 2.0 )
+            expect(subject.price_for( conversation )).to eq( us_price_sheet.base_conversation_price * 2.0 )
           end
         end
       end

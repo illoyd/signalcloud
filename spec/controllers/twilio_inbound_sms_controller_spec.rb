@@ -1,5 +1,5 @@
 require 'spec_helper'
-describe Twilio::InboundSmsController do
+describe Twilio::InboundSmsController, :type => :controller do
   #render_views
   let(:organization) { create(:test_organization, :with_sid_and_token) }
   let(:comm_gateway) { organization.communication_gateway_for(:twilio) }
@@ -17,7 +17,7 @@ describe Twilio::InboundSmsController do
     context 'when not passing HTTP DIGEST' do
       it 'responds with unauthorised' do
         post :create, inbound_post_params
-        response.status.should eq( 401 )
+        expect(response.status).to eq( 401 )
       end
     end
     
@@ -26,7 +26,7 @@ describe Twilio::InboundSmsController do
         it 'responds with forbidden' do
           authenticate_with_http_digest organization.sid, organization.auth_token, :post, :create
           post :create, inbound_post_params
-          response.status.should eq( 403 )
+          expect(response.status).to eq( 403 )
         end
       end
 
@@ -35,7 +35,7 @@ describe Twilio::InboundSmsController do
           authenticate_with_http_digest organization.sid, organization.auth_token, :post, :create
           inject_twilio_signature( twilio_inbound_sms_url, organization, inbound_post_params )
           post :create, inbound_post_params
-          response.status.should eq( 200 )
+          expect(response.status).to eq( 200 )
         end
       end
     end
@@ -47,14 +47,14 @@ describe Twilio::InboundSmsController do
       }
       it 'responds with blank TwiML' do
         post :create, inbound_post_params
-        response.body.should include('<Response/>')
+        expect(response.body).to include('<Response/>')
       end
       it 'adds a job to process request' do
         expect { post :create, inbound_post_params }.to change{InboundMessageJob.jobs.count}.by(1)
       end
       it 'responds with xml' do
         post :create, inbound_post_params
-        response.should have_content_type('application/xml')
+        expect(response).to have_content_type('application/xml')
       end
     end
   end

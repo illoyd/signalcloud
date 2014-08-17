@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe Invoice, :vcr do
-pending 'Need to revisit invoicing system' do
+describe Invoice, :vcr, :type => :model do
+skip 'Need to revisit invoicing system' do
   
   let(:organization)     { create :freshbooks_account, :with_january_data }
 
@@ -12,10 +12,10 @@ pending 'Need to revisit invoicing system' do
   let(:freshbooks_invoice_id) { 431652 }
 
   [ :organization, :date_to ].each do |attribute|
-    it { should validate_presence_of( attribute ) }
+    it { is_expected.to validate_presence_of( attribute ) }
   end
 
-  describe '#capture_uninvoiced_ledger_entries' do
+  describe '#capture_uninvoiced_ledger_entries', :type => :model do
     let(:organization)     { create :freshbooks_account, :with_data }
     let(:november_invoice) { create(:invoice, organization: organization, date_to: november) }
     let(:december_invoice) { create(:invoice, organization: organization, date_to: december) }
@@ -49,7 +49,7 @@ pending 'Need to revisit invoicing system' do
 
   end
   
-  describe '#prepare!' do
+  describe '#prepare!', :type => :model do
     subject { create :invoice, organization: organization }
 
     it 'prepares an invoice' do
@@ -63,7 +63,7 @@ pending 'Need to revisit invoicing system' do
     end
   end
   
-  describe '#settle!' do
+  describe '#settle!', :type => :model do
     subject { create :invoice, organization: organization }
     before(:each) { subject.prepare! }
 
@@ -72,7 +72,7 @@ pending 'Need to revisit invoicing system' do
     end
   end
   
-  describe '#freshbooks_invoice' do
+  describe '#freshbooks_invoice', :type => :model do
     context 'when invoice has not been created' do
       subject { build(:invoice, organization: organization) }
       it 'raises error if requested' do
@@ -83,31 +83,31 @@ pending 'Need to revisit invoicing system' do
     context 'when invoice has been created' do
       subject { build(:invoice, freshbooks_invoice_id: freshbooks_invoice_id, organization: organization) }
       it 'returns a hash' do
-        subject.freshbooks_invoice.should be_a Hash
+        expect(subject.freshbooks_invoice).to be_a Hash
       end
       it 'includes certain keys' do
-        subject.freshbooks_invoice.should include( 'invoice_id', 'client_id', 'amount' )
+        expect(subject.freshbooks_invoice).to include( 'invoice_id', 'client_id', 'amount' )
       end
       it 'includes the invoice_id' do
-        subject.freshbooks_invoice['invoice_id'].sub(/\A0+/, '').should == freshbooks_invoice_id.to_s
+        expect(subject.freshbooks_invoice['invoice_id'].sub(/\A0+/, '')).to eq(freshbooks_invoice_id.to_s)
       end
     end
   end
   
-  describe '#construct_freshbooks_invoice_data' do
+  describe '#construct_freshbooks_invoice_data', :type => :model do
     subject { create(:invoice, organization: organization, date_from: november ) }
     before(:each) { subject.capture_uninvoiced_ledger_entries! }
     
     it 'includes necessary data' do
-      subject.construct_freshbooks_invoice_data.should include( :client_id, :lines )
+      expect(subject.construct_freshbooks_invoice_data).to include( :client_id, :lines )
     end
     
     it 'includes the freshbooks id' do
-      subject.construct_freshbooks_invoice_data[:client_id].should == organization.freshbooks_id
+      expect(subject.construct_freshbooks_invoice_data[:client_id]).to eq(organization.freshbooks_id)
     end
     
     it 'includes ledger entry lines' do
-      subject.construct_freshbooks_invoice_data[:lines].should have(2).lines
+      expect(subject.construct_freshbooks_invoice_data[:lines].size).to eq(2)
     end
   end
 

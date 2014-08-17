@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "Sign-in" do
+describe "Sign-in", :type => :request do
   let(:user)         { create(:user, user_roles: [ UserRole.create(organization: organization, roles: []) ]) }
   let(:organization) { create(:organization) }
 
@@ -8,7 +8,7 @@ describe "Sign-in" do
     describe "GET /" do
       it 'raises forbidden' do
         get '/'
-        response.status.should eq(302)
+        expect(response.status).to eq(302)
       end
     end
   end
@@ -19,7 +19,7 @@ describe "Sign-in" do
     describe "GET /" do
       it 'passes auth' do
         get '/'
-        response.status.should eq(200)
+        expect(response.status).to eq(200)
       end
     end
 

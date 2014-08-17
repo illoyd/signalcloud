@@ -5,7 +5,7 @@ shared_examples 'a costable item' do |factory|
       costs.map!{ |cost| cost.nil? ? nil : BigDecimal.new(cost.to_s) }
       it "properly sums provider:#{costs.first} and our:#{costs.second}" do
         msg = build factory, provider_cost: costs.first, our_cost: costs.second
-        msg.cost.should == costs.reject{ |entry| entry.nil? }.sum
+        expect(msg.cost).to eq(costs.reject{ |entry| entry.nil? }.sum)
       end
     end
   end
@@ -13,19 +13,35 @@ shared_examples 'a costable item' do |factory|
   describe '#has_cost?' do
     context 'when both costs are present' do
       subject { build factory, provider_cost: -1.00, our_cost: -0.50 }
-      its(:'has_cost?') { should be_true }
+
+      describe '#has_cost?' do
+        subject { super().has_cost? }
+        it { is_expected.to be_truthy }
+      end
     end
     context 'when only provider_cost is present' do
       subject { build factory, provider_cost: -1.00, our_cost: nil }
-      its(:'has_cost?') { should be_false }
+
+      describe '#has_cost?' do
+        subject { super().has_cost? }
+        it { is_expected.to be_falsey }
+      end
     end
     context 'when only our_cost is present' do
       subject { build factory, provider_cost: nil, our_cost: -0.50 }
-      its(:'has_cost?') { should be_false }
+
+      describe '#has_cost?' do
+        subject { super().has_cost? }
+        it { is_expected.to be_falsey }
+      end
     end
     context 'when both costs are not present' do
       subject { build factory, provider_cost: nil, our_cost: nil }
-      its(:'has_cost?') { should be_false }
+
+      describe '#has_cost?' do
+        subject { super().has_cost? }
+        it { is_expected.to be_falsey }
+      end
     end
   end
   

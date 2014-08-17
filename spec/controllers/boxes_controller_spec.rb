@@ -18,7 +18,7 @@ require 'spec_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe BoxesController do
+describe BoxesController, :type => :controller do
   let(:user)            { create :user }
   let(:plan)            { create :account_plan, :default }
   let(:organization)    { create :organization, account_plan: plan }
@@ -41,7 +41,7 @@ describe BoxesController do
     end
 
     it 'ensures user is unprivileged' do
-      user.is_conversation_manager_for?(organization).should be_false
+      expect(user.is_conversation_manager_for?(organization)).to be_falsey
     end
 
     describe "GET index" do
@@ -51,7 +51,7 @@ describe BoxesController do
       end
       it "assigns all boxes as @boxes" do
         get :index, organization_id: organization.id
-        assigns(:boxes).should =~ [box]
+        expect(assigns(:boxes)).to match_array([box])
       end
     end
 
@@ -62,11 +62,11 @@ describe BoxesController do
       end
       it 'assigns organization' do
         get :show, organization_id: organization.id, id: box.id
-        assigns(:organization).should == organization
+        expect(assigns(:organization)).to eq(organization)
       end
       it 'assigns box' do
         get :show, organization_id: organization.id, id: box.id
-        assigns(:box).should == box
+        expect(assigns(:box)).to eq(box)
       end
     end
 
@@ -114,7 +114,7 @@ describe BoxesController do
     end
 
     it 'grants conversation manager' do
-      user.is_conversation_manager_for?(organization).should be_true
+      expect(user.is_conversation_manager_for?(organization)).to be_truthy
     end
 
     describe 'GET new' do
@@ -124,11 +124,11 @@ describe BoxesController do
       end
       it 'assigns organization' do
         get :new, organization_id: organization.id
-        assigns(:organization).should == organization
+        expect(assigns(:organization)).to eq(organization)
       end
       it 'assigns a new box' do
         get :new, organization_id: organization.id
-        assigns(:box).should be_a_new Box
+        expect(assigns(:box)).to be_a_new Box
       end
     end
 
@@ -142,7 +142,7 @@ describe BoxesController do
       end
       it 'sets box\'s label' do
         post :create, create_payload
-        Box.last.label.should == box_label
+        expect(Box.last.label).to eq(box_label)
       end
       it 'raises 400 bad request if no parameters' do
         expect{ post :create, organization_id: organization.id }.to raise_error(ActionController::ParameterMissing)
@@ -156,11 +156,11 @@ describe BoxesController do
       end
       it 'assigns organization' do
         get :edit, organization_id: organization.id, id: box.id
-        assigns(:organization).should == organization
+        expect(assigns(:organization)).to eq(organization)
       end
       it 'assigns box' do
         get :edit, organization_id: organization.id, id: box.id
-        assigns(:box).should == box
+        expect(assigns(:box)).to eq(box)
       end
     end
 
@@ -190,7 +190,7 @@ describe BoxesController do
       end
       it "redirects to the boxes list" do
         delete :destroy, organization_id: organization.id, id: box.id
-        response.should redirect_to( organization_boxes_url( organization ) )
+        expect(response).to redirect_to( organization_boxes_url( organization ) )
       end
     end
 

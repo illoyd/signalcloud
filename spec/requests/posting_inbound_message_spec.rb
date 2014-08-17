@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "Inbound Message for Open Conversation" do
+describe "Inbound Message for Open Conversation", :type => :request do
   def build_twilio_signature( post_params )
     organization.twilio_validator.build_signature_for( twilio_inbound_sms_url, post_params )
   end

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'routing to phone numbers' do
+describe 'routing to phone numbers', :type => :routing do
 
   it 'allows indexing' do
     expect( :get => 'organizations/1/phone_numbers' ).to route_to( controller: 'phone_numbers', action: 'index', organization_id: '1' )

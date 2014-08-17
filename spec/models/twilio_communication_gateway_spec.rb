@@ -6,19 +6,26 @@ shared_examples 'sends messages' do
     expect{ subject.send_sms!( to_number, from_number, body ) }.not_to raise_error
   end
   it 'returns a provider ID' do
-    subject.send_sms!( to_number, from_number, body, response_format: :smash ).sid.should_not be_nil
+    expect(subject.send_sms!( to_number, from_number, body, response_format: :smash ).sid).not_to be_nil
   end
 end
 
-describe TwilioCommunicationGateway, :vcr, :skip do
+describe TwilioCommunicationGateway, :vcr, :skip, :type => :model do
   
   let(:organization) { build :organization, :with_sid_and_token }
 
   context 'when new' do
     subject { build :twilio_communication_gateway }
     
-    its(:new?)   { should be_true  }
-    its(:ready?) { should be_false }
+    describe '#new?' do
+      subject { super().new? }
+      it { is_expected.to be_truthy  }
+    end
+
+    describe '#ready?' do
+      subject { super().ready? }
+      it { is_expected.to be_falsey }
+    end
 
     describe '#create_remote!' do
       subject { create :twilio_communication_gateway, organization: organization }
@@ -76,11 +83,17 @@ describe TwilioCommunicationGateway, :vcr, :skip do
     end
     
     describe '#has_twilio_account?' do
-      its(:'has_twilio_account?') { should be_false }
+      describe '#has_twilio_account?' do
+        subject { super().has_twilio_account? }
+        it { is_expected.to be_falsey }
+      end
     end
 
     describe '#has_twilio_application?' do
-      its(:'has_twilio_application?') { should be_false }
+      describe '#has_twilio_application?' do
+        subject { super().has_twilio_application? }
+        it { is_expected.to be_falsey }
+      end
     end
 
     describe '#twilio_*_url' do
@@ -103,8 +116,15 @@ describe TwilioCommunicationGateway, :vcr, :skip do
   context 'when ready' do
     subject { create :twilio_communication_gateway, :test, organization: organization }
 
-    its(:new?)   { should be_false }
-    its(:ready?) { should be_true  }
+    describe '#new?' do
+      subject { super().new? }
+      it { is_expected.to be_falsey }
+    end
+
+    describe '#ready?' do
+      subject { super().ready? }
+      it { is_expected.to be_truthy  }
+    end
 
     describe '#create_remote!' do
       it 'throws an error' do
@@ -139,7 +159,7 @@ describe TwilioCommunicationGateway, :vcr, :skip do
         expect { subject.twilio_client }.not_to raise_error
       end
       it 'returns instance of twilio client with expected SID' do
-        subject.twilio_client.account_sid.should == ENV['TWILIO_TEST_ACCOUNT_SID']
+        expect(subject.twilio_client.account_sid).to eq(ENV['TWILIO_TEST_ACCOUNT_SID'])
       end
     end
 
@@ -156,19 +176,41 @@ describe TwilioCommunicationGateway, :vcr, :skip do
     end
 
     describe '#has_twilio_account?' do
-      its(:'has_twilio_account?') { should be_true }
+      describe '#has_twilio_account?' do
+        subject { super().has_twilio_account? }
+        it { is_expected.to be_truthy }
+      end
     end
 
     describe '#has_twilio_application?' do
-      its(:'has_twilio_application?') { should be_true }
+      describe '#has_twilio_application?' do
+        subject { super().has_twilio_application? }
+        it { is_expected.to be_truthy }
+      end
     end
 
     describe '#twilio_*_url' do
       let(:digest_auth)             { "https://#{organization.sid}:#{organization.auth_token}" }
-      its(:twilio_voice_url)        { should start_with(digest_auth) }
-      its(:twilio_voice_status_url) { should start_with(digest_auth) }
-      its(:twilio_sms_url)          { should start_with(digest_auth) }
-      its(:twilio_sms_status_url)   { should start_with(digest_auth) }
+
+      describe '#twilio_voice_url' do
+        subject { super().twilio_voice_url }
+        it { is_expected.to start_with(digest_auth) }
+      end
+
+      describe '#twilio_voice_status_url' do
+        subject { super().twilio_voice_status_url }
+        it { is_expected.to start_with(digest_auth) }
+      end
+
+      describe '#twilio_sms_url' do
+        subject { super().twilio_sms_url }
+        it { is_expected.to start_with(digest_auth) }
+      end
+
+      describe '#twilio_sms_status_url' do
+        subject { super().twilio_sms_status_url }
+        it { is_expected.to start_with(digest_auth) }
+      end
     end
 
     describe '#send_sms!', :vcr do
@@ -179,7 +221,7 @@ describe TwilioCommunicationGateway, :vcr, :skip do
       
       context 'when requesting default response' do
         it 'returns a smash resource' do
-          subject.send_sms!( to_number, from_number, body ).should be_a APISmith::Smash
+          expect(subject.send_sms!( to_number, from_number, body )).to be_a APISmith::Smash
         end
       end
       
@@ -187,16 +229,16 @@ describe TwilioCommunicationGateway, :vcr, :skip do
         let(:query) { subject.send_sms!( to_number, from_number, body, response_format: :raw ) }
 
         it 'returns a RESTful resource' do
-          query.should be_a Twilio::REST::InstanceResource
+          expect(query).to be_a Twilio::REST::InstanceResource
         end
         it 'returns the TO' do
-          query.to.should == to_number
+          expect(query.to).to eq(to_number)
         end
         it 'returns the FROM' do
-          query.from.should == from_number
+          expect(query.from).to eq(from_number)
         end
         it 'returns the BODY' do
-          query.body.should == body
+          expect(query.body).to eq(body)
         end
 
         it 'errors with #[:to]' do
@@ -214,16 +256,16 @@ describe TwilioCommunicationGateway, :vcr, :skip do
         let(:query) { subject.send_sms!( to_number, from_number, body, response_format: :raw, default_callback: true ) }
 
         it 'returns a RESTful resource' do
-          query.should be_a Twilio::REST::InstanceResource
+          expect(query).to be_a Twilio::REST::InstanceResource
         end
         it 'returns the TO' do
-          query.to.should == to_number
+          expect(query.to).to eq(to_number)
         end
         it 'returns the FROM' do
-          query.from.should == from_number
+          expect(query.from).to eq(from_number)
         end
         it 'returns the BODY' do
-          query.body.should == body
+          expect(query.body).to eq(body)
         end
       end
       
@@ -231,25 +273,25 @@ describe TwilioCommunicationGateway, :vcr, :skip do
         let(:query) { subject.send_sms!( to_number, from_number, body, response_format: :hash ) }
 
         it 'returns a Hash resource' do
-          query.should be_a Hash
+          expect(query).to be_a Hash
         end
         it 'returns the :TO' do
-          query[:to].should == to_number
+          expect(query[:to]).to eq(to_number)
         end
         it 'returns the :FROM' do
-          query[:from].should == from_number
+          expect(query[:from]).to eq(from_number)
         end
         it 'returns the :BODY' do
-          query[:body].should == body
+          expect(query[:body]).to eq(body)
         end
         it 'returns the string TO' do
-          query['to'].should == to_number
+          expect(query['to']).to eq(to_number)
         end
         it 'returns the string FROM' do
-          query['from'].should == from_number
+          expect(query['from']).to eq(from_number)
         end
         it 'returns the string BODY' do
-          query['body'].should == body
+          expect(query['body']).to eq(body)
         end
         it 'errors with #to' do
           expect { query.to }.to raise_error
@@ -266,36 +308,36 @@ describe TwilioCommunicationGateway, :vcr, :skip do
         let(:query) { subject.send_sms!( to_number, from_number, body, response_format: :smash ) }
 
         it 'returns a Smash resource' do
-          query.should be_a APISmith::Smash
+          expect(query).to be_a APISmith::Smash
         end
         it 'returns the TO' do
-          query.to.should == to_number
+          expect(query.to).to eq(to_number)
         end
         it 'returns the FROM' do
-          query.from.should == from_number
+          expect(query.from).to eq(from_number)
         end
         it 'returns the BODY' do
-          query.body.should == body
+          expect(query.body).to eq(body)
         end
         it 'returns the :TO' do
-          query[:to].should == to_number
+          expect(query[:to]).to eq(to_number)
         end
         it 'returns the :FROM' do
-          query[:from].should == from_number
+          expect(query[:from]).to eq(from_number)
         end
         it 'returns the :BODY' do
-          query[:body].should == body
+          expect(query[:body]).to eq(body)
         end
   
         it 'returns the customer number' do
-          query.customer_number.should == to_number
+          expect(query.customer_number).to eq(to_number)
         end
         it 'returns the internal number' do
-          query.internal_number.should == from_number
+          expect(query.internal_number).to eq(from_number)
         end
         
         it 'returns the created at' do
-          query.created_at.should_not be_nil
+          expect(query.created_at).not_to be_nil
         end
       end
       
@@ -353,11 +395,11 @@ describe TwilioCommunicationGateway, :vcr, :skip do
       subject { build :twilio_communication_gateway, :test, organization: organization }
 
       it 'returns a hash' do
-        subject.send(:assemble_twilio_account_data).should be_a Hash
+        expect(subject.send(:assemble_twilio_account_data)).to be_a Hash
       end
       
       it 'includes all expected keys' do
-        subject.send(:assemble_twilio_account_data).should include( 'FriendlyName' )
+        expect(subject.send(:assemble_twilio_account_data)).to include( 'FriendlyName' )
       end
 
     end
@@ -378,24 +420,24 @@ describe TwilioCommunicationGateway, :vcr, :skip do
       let(:digest_auth) { "https://#{organization.sid}:#{organization.auth_token}" }
 
       it 'returns a hash' do
-        subject.send(:assemble_twilio_application_data).should be_a Hash
+        expect(subject.send(:assemble_twilio_application_data)).to be_a Hash
       end
 
       [ 'VoiceUrl', 'VoiceFallbackUrl', 'StatusCallback', 'SmsUrl', 'SmsFallbackUrl', 'SmsStatusCallback' ].each do |key|
         it "includes #{key}" do
-          subject.send(:assemble_twilio_application_data).should include(key)
+          expect(subject.send(:assemble_twilio_application_data)).to include(key)
         end
         it "embeds auth tokens in #{key}" do
-          subject.send(:assemble_twilio_application_data)[key].should start_with(digest_auth)
+          expect(subject.send(:assemble_twilio_application_data)[key]).to start_with(digest_auth)
         end
       end
       
       [ 'VoiceMethod', 'VoiceFallbackMethod', 'StatusCallbackMethod', 'SmsMethod', 'SmsFallbackMethod' ].each do |key|
         it "includes #{key}" do
-          subject.send(:assemble_twilio_application_data).should include(key)
+          expect(subject.send(:assemble_twilio_application_data)).to include(key)
         end
         it "uses POST for #{key}" do
-          subject.send(:assemble_twilio_application_data)[key].should == 'POST'
+          expect(subject.send(:assemble_twilio_application_data)[key]).to eq('POST')
         end
       end
 

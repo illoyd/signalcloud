@@ -1,15 +1,15 @@
 require 'spec_helper'
 
-describe PhoneBookEntry do
+describe PhoneBookEntry, :type => :model do
 
-  it { should belong_to :phone_book }
-  it { should belong_to :phone_number }
+  it { is_expected.to belong_to :phone_book }
+  it { is_expected.to belong_to :phone_number }
 
   [ :phone_book, :phone_number ].each do |attribute|
-    it { should validate_presence_of attribute }
+    it { is_expected.to validate_presence_of attribute }
   end
   
-  it { should ensure_inclusion_of(:country).in_array(PhoneBookEntry::COUNTRIES) }
+  it { is_expected.to ensure_inclusion_of(:country).in_array(PhoneBookEntry::COUNTRIES) }
   
   describe '#standardise_country' do
     let(:valid_country)   { 'Malaysia' }

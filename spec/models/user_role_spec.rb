@@ -6,15 +6,15 @@ def role_combinations
   return roles
 end
 
-describe UserRole do
+describe UserRole, :type => :model do
 
   describe 'validations' do  
     [ :organization, :user, :roles_mask ].each do |attribute| 
-      it { should validate_presence_of(attribute) }
+      it { is_expected.to validate_presence_of(attribute) }
     end
 
-    it { should belong_to(:organization) }
-    it { should belong_to(:user) }
+    it { is_expected.to belong_to(:organization) }
+    it { is_expected.to belong_to(:user) }
   end
   
   # Roles and bitmask
@@ -26,14 +26,26 @@ describe UserRole do
       describe (role_set.sort.to_s) do
         subject { UserRole.new roles: role_set.shuffle }
 
-        its('roles.sort') { should == role_set.sort }
+        describe '#roles' do
+          subject { super().roles }
+          describe '#sort' do
+            subject { super().sort }
+            it { is_expected.to eq(role_set.sort) }
+          end
+        end
         
         role_set.each do |role|
-          its("is_#{role}?") { should be_true }
+          describe "is_#{role}?" do
+            subject { super().send("is_#{role}?") }
+            it { is_expected.to be_truthy }
+          end
         end
         
         (UserRole::ROLES - role_set).each do |role|
-          its("is_#{role}?") { should be_false }
+          describe "is_#{role}?" do
+            subject { super().send("is_#{role}?") }
+            it { is_expected.to be_falsey }
+          end
         end
         
       end

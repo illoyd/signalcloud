@@ -1,4 +1,4 @@
-describe 'PhoneTools' do
+describe 'PhoneTools', :type => :model do
 
   describe '.country' do
     let(:us_number) { '12151234567' }
@@ -12,31 +12,31 @@ describe 'PhoneTools' do
     let(:hk_number) { '85212345678' }
     
     it 'recognises US number' do
-      PhoneTools.country( us_number ).should == :US
+      expect(PhoneTools.country( us_number )).to eq(:US)
     end
     it 'recognises CA number' do
-      PhoneTools.country( ca_number ).should == :CA
+      expect(PhoneTools.country( ca_number )).to eq(:CA)
     end
     it 'recognises CH number' do
-      PhoneTools.country( ch_number ).should == :CH
+      expect(PhoneTools.country( ch_number )).to eq(:CH)
     end
     it 'recognises UK number' do
-      PhoneTools.country( uk_number ).should == :GB
+      expect(PhoneTools.country( uk_number )).to eq(:GB)
     end
     it 'recognises TT number' do
-      PhoneTools.country( tt_number ).should == :TT
+      expect(PhoneTools.country( tt_number )).to eq(:TT)
     end
     it 'recognises MY number' do
-      PhoneTools.country( my_number ).should == :MY
+      expect(PhoneTools.country( my_number )).to eq(:MY)
     end
     it 'recognises AU number' do
-      PhoneTools.country( au_number ).should == :AU
+      expect(PhoneTools.country( au_number )).to eq(:AU)
     end
     it 'recognises RU number' do
-      PhoneTools.country( ru_number ).should == :RU
+      expect(PhoneTools.country( ru_number )).to eq(:RU)
     end
     it 'recognises HK number' do
-      PhoneTools.country( hk_number ).should == :HK
+      expect(PhoneTools.country( hk_number )).to eq(:HK)
     end
   end
   

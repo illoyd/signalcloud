@@ -1,5 +1,5 @@
 require 'spec_helper'
-describe ConversationsController do
+describe ConversationsController, :type => :controller do
   let(:user)            { create :user }
   let(:plan)            { create :account_plan, :default }
   let(:organization)    { create :organization, account_plan: plan }
@@ -20,7 +20,7 @@ describe ConversationsController do
     end
 
     it 'ensures user is unprivileged' do
-      user.is_conversation_manager_for?(organization).should be_false
+      expect(user.is_conversation_manager_for?(organization)).to be_falsey
     end
 
     describe 'GET index' do
@@ -35,7 +35,7 @@ describe ConversationsController do
       end
       it 'loads all conversations for organization' do
         get :index, organization_id: organization.id
-        assigns(:conversations).should =~ organization.conversations
+        expect(assigns(:conversations)).to match(organization.conversations)
       end
     end
 
@@ -46,7 +46,7 @@ describe ConversationsController do
       end
       it 'assigns organization' do
         get :show, organization_id: organization.id, id: conversation.id
-        assigns(:conversation).should == conversation
+        expect(assigns(:conversation)).to eq(conversation)
       end
     end
     
@@ -76,7 +76,7 @@ describe ConversationsController do
     end
 
     it 'grants conversation manager' do
-      user.is_conversation_manager_for?(organization).should be_true
+      expect(user.is_conversation_manager_for?(organization)).to be_truthy
     end
 
     describe 'GET new' do
@@ -86,7 +86,7 @@ describe ConversationsController do
       end
       it 'assigns conversation' do
         get :new, organization_id: organization.id, stencil_id: stencil.id
-        assigns(:conversation).should be_a_new Conversation
+        expect(assigns(:conversation)).to be_a_new Conversation
       end
     end
 
@@ -100,11 +100,11 @@ describe ConversationsController do
       end
       it 'sets conversation\'s customer_number' do
         post :create, create_payload
-        Conversation.last.customer_number.should == customer_number.gsub(/^\+/,'')
+        expect(Conversation.last.customer_number).to eq(customer_number.gsub(/^\+/,''))
       end
       it 'sets conversation\'s internal_number' do
         post :create, create_payload
-        Conversation.last.internal_number.should == internal_number.gsub(/^\+/,'')
+        expect(Conversation.last.internal_number).to eq(internal_number.gsub(/^\+/,''))
       end
       it 'raises 400 bad request if no parameters' do
         expect{ post :create, organization_id: organization.id, stencil_id: stencil.id }.to raise_error(ActionController::ParameterMissing)

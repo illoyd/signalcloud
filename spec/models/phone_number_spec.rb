@@ -7,7 +7,7 @@ AVAILABLE_NUMBER = '+15005550006'
 UNAVAILABLE_AREACODE = '533'
 AVAILABLE_AREACODE = '500'
 
-describe PhoneNumber, :vcr do
+describe PhoneNumber, :vcr, :type => :model do
 
   let(:organization) { create :organization, :test_twilio, :with_sid_and_token }
   let(:comm_gateway) { organization.communication_gateways.first }
@@ -17,21 +17,21 @@ describe PhoneNumber, :vcr do
     before { 3.times { create :phone_number, organization: organization, communication_gateway: comm_gateway } }
 
     # Belong-To
-    it { should belong_to(:organization) }
-    it { should belong_to(:communication_gateway) }
+    it { is_expected.to belong_to(:organization) }
+    it { is_expected.to belong_to(:communication_gateway) }
 
     # Have-Many
     [ :phone_books, :phone_book_entries ].each do |entry|
-      it { should have_many(entry) }
+      it { is_expected.to have_many(entry) }
     end
     
     # Validate presence
     [ :organization, :number, :communication_gateway ].each do |entry|
-      it { should validate_presence_of(entry) }
+      it { is_expected.to validate_presence_of(entry) }
     end
     
     # Validate numericality
-    it { should validate_numericality_of(:cost) }
+    it { is_expected.to validate_numericality_of(:cost) }
   end
   
   describe '.find_by_number' do
@@ -40,11 +40,11 @@ describe PhoneNumber, :vcr do
     let(:phone_number)   { create :phone_number, number: valid_number, organization: organization, communication_gateway: comm_gateway }
     
     it 'finds valid number' do
-      PhoneNumber.find_by_number(phone_number.number).first.should be_a( PhoneNumber )
+      expect(PhoneNumber.find_by_number(phone_number.number).first).to be_a( PhoneNumber )
     end
     
     it 'cannot find a number' do
-      PhoneNumber.find_by_number(unknown_number).should be_empty
+      expect(PhoneNumber.find_by_number(unknown_number)).to be_empty
     end
     
     it 'throws error on inappropriate number' do
@@ -72,9 +72,21 @@ describe PhoneNumber, :vcr do
 
       context 'when inactive' do
         subject { create :valid_phone_number, organization: organization, communication_gateway: comm_gateway }
-        its('can_purchase?')   { should be_true }
-        its('can_refresh?')    { should be_false }
-        its('can_unpurchase?') { should be_false }
+
+        describe '#can_purchase?' do
+          subject { super().can_purchase? }
+          it { is_expected.to be_truthy }
+        end
+
+        describe '#can_refresh?' do
+          subject { super().can_refresh? }
+          it { is_expected.to be_falsey }
+        end
+
+        describe '#can_unpurchase?' do
+          subject { super().can_unpurchase? }
+          it { is_expected.to be_falsey }
+        end
 
         it 'purchases number' do
           expect { subject.purchase! }.not_to raise_error
@@ -86,15 +98,28 @@ describe PhoneNumber, :vcr do
       
       context 'when active' do
         subject { create :valid_phone_number, :active, :with_fixed_twilio_sid, organization: organization }
-        its('can_purchase?')   { should be_false }
-        its('can_refresh?')    { should be_true }
-        its('can_unpurchase?') { should be_true }
+
+        describe '#can_purchase?' do
+          subject { super().can_purchase? }
+          it { is_expected.to be_falsey }
+        end
+
+        describe '#can_refresh?' do
+          subject { super().can_refresh? }
+          it { is_expected.to be_truthy }
+        end
+
+        describe '#can_unpurchase?' do
+          subject { super().can_unpurchase? }
+          it { is_expected.to be_truthy }
+        end
 
         it 'unpurchases number' do
           expect { subject.unpurchase! }.not_to raise_error
         end
         it 'refreshes number' do
-          pending { expect { subject.refresh! }.not_to raise_error }
+          pending
+          expect { subject.refresh! }.not_to raise_error
         end
         it 'transitions to inactive state after unpurchasing' do
           expect { subject.unpurchase! }.to change(subject, :workflow_state).from('active').to('inactive')
@@ -136,34 +161,86 @@ describe PhoneNumber, :vcr do
   describe 'unsolicited call helpers' do
     context 'when action is REJECT' do
       subject { build(:phone_number, unsolicited_call_action: PhoneNumber::REJECT) }
-      its(:'should_reject_unsolicited_call?') { should be_true }
-      its(:'should_play_busy_for_unsolicited_call?') { should be_false }
-      its(:'should_reply_to_unsolicited_call?') { should be_false }
+
+      describe '#should_reject_unsolicited_call?' do
+        subject { super().should_reject_unsolicited_call? }
+        it { is_expected.to be_truthy }
+      end
+
+      describe '#should_play_busy_for_unsolicited_call?' do
+        subject { super().should_play_busy_for_unsolicited_call? }
+        it { is_expected.to be_falsey }
+      end
+
+      describe '#should_reply_to_unsolicited_call?' do
+        subject { super().should_reply_to_unsolicited_call? }
+        it { is_expected.to be_falsey }
+      end
     end
     context 'when action is BUSY' do
       subject { build(:phone_number, unsolicited_call_action: PhoneNumber::BUSY) }
-      its(:'should_reject_unsolicited_call?') { should be_false }
-      its(:'should_play_busy_for_unsolicited_call?') { should be_true }
-      its(:'should_reply_to_unsolicited_call?') { should be_false }
+
+      describe '#should_reject_unsolicited_call?' do
+        subject { super().should_reject_unsolicited_call? }
+        it { is_expected.to be_falsey }
+      end
+
+      describe '#should_play_busy_for_unsolicited_call?' do
+        subject { super().should_play_busy_for_unsolicited_call? }
+        it { is_expected.to be_truthy }
+      end
+
+      describe '#should_reply_to_unsolicited_call?' do
+        subject { super().should_reply_to_unsolicited_call? }
+        it { is_expected.to be_falsey }
+      end
     end
     context 'when action is REPLY' do
       subject { build(:phone_number, unsolicited_call_action: PhoneNumber::REPLY) }
-      its(:'should_reject_unsolicited_call?') { should be_false }
-      its(:'should_play_busy_for_unsolicited_call?') { should be_false }
-      its(:'should_reply_to_unsolicited_call?') { should be_true }
+
+      describe '#should_reject_unsolicited_call?' do
+        subject { super().should_reject_unsolicited_call? }
+        it { is_expected.to be_falsey }
+      end
+
+      describe '#should_play_busy_for_unsolicited_call?' do
+        subject { super().should_play_busy_for_unsolicited_call? }
+        it { is_expected.to be_falsey }
+      end
+
+      describe '#should_reply_to_unsolicited_call?' do
+        subject { super().should_reply_to_unsolicited_call? }
+        it { is_expected.to be_truthy }
+      end
     end
   end
   
   describe 'unsolicited sms helpers' do
     context 'when action is IGNORE' do
       subject { build(:phone_number, unsolicited_sms_action: PhoneNumber::IGNORE) }
-      its(:'should_ignore_unsolicited_sms?') { should be_true }
-      its(:'should_reply_to_unsolicited_sms?') { should be_false }
+
+      describe '#should_ignore_unsolicited_sms?' do
+        subject { super().should_ignore_unsolicited_sms? }
+        it { is_expected.to be_truthy }
+      end
+
+      describe '#should_reply_to_unsolicited_sms?' do
+        subject { super().should_reply_to_unsolicited_sms? }
+        it { is_expected.to be_falsey }
+      end
     end
     context 'when action is REPLY' do
       subject { build(:phone_number, unsolicited_sms_action: PhoneNumber::REPLY) }
-      its(:'should_ignore_unsolicited_sms?') { should be_false }
-      its(:'should_reply_to_unsolicited_sms?') { should be_true }
+
+      describe '#should_ignore_unsolicited_sms?' do
+        subject { super().should_ignore_unsolicited_sms? }
+        it { is_expected.to be_falsey }
+      end
+
+      describe '#should_reply_to_unsolicited_sms?' do
+        subject { super().should_reply_to_unsolicited_sms? }
+        it { is_expected.to be_truthy }
+      end
     end
   end
     

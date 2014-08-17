@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe FreshBooksAccountingGateway, :vcr, :skio do
-pending 'Block all FreshBooks connections for now' do
+describe FreshBooksAccountingGateway, :vcr, :skio, :type => :model do
+skip 'Block all FreshBooks connections for now' do
   let(:organization_without_contacts) { build :organization, contact_address: nil, billing_address: nil }
 
   context 'when new' do
@@ -14,7 +14,7 @@ pending 'Block all FreshBooks connections for now' do
     end
 
     describe '#create_freshbooks_client!' do
-      pending 'Need to work with FreshBooks for testing' do
+      skip 'Need to work with FreshBooks for testing' do
         it 'creates a freshbooks client' do
           expect{ subject.create_freshbooks_client! }.not_to raise_error
         end
@@ -80,23 +80,34 @@ pending 'Block all FreshBooks connections for now' do
       let(:amount)      { 5.43 }
       subject           { client.send(:assemble_freshbooks_payment_data, amount).fetch(:payment) }
   
-      its([:client_id]) { should == client.remote_sid }
-      its([:amount])    { should == amount }
-      its([:type])      { should == 'Credit' }
+      describe '[:client_id]' do
+        subject { super()[:client_id] }
+        it { is_expected.to eq(client.remote_sid) }
+      end
+
+      describe '[:amount]' do
+        subject { super()[:amount] }
+        it { is_expected.to eq(amount) }
+      end
+
+      describe '[:type]' do
+        subject { super()[:type] }
+        it { is_expected.to eq('Credit') }
+      end
     end
 
     describe '#freshbooks_credits' do
       it 'is an indifferent hash' do
-        subject.freshbooks_credits.should be_a HashWithIndifferentAccess
+        expect(subject.freshbooks_credits).to be_a HashWithIndifferentAccess
       end
       it 'has only one item' do
-        subject.freshbooks_credits.should have(1).item
+        expect(subject.freshbooks_credits.size).to eq(1)
       end
       it 'includes USD' do
-        subject.freshbooks_credits.should include('USD')
+        expect(subject.freshbooks_credits).to include('USD')
       end
       it 'has a decimal value for USD' do
-        subject.freshbooks_credits[:USD].should be_a BigDecimal
+        expect(subject.freshbooks_credits[:USD]).to be_a BigDecimal
       end
     end
   

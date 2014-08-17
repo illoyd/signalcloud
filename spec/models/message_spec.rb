@@ -1,7 +1,7 @@
 # encoding: UTF-8
 require 'spec_helper'
 
-describe Message, :vcr do
+describe Message, :vcr, :type => :model do
   
   # Helper: Build a random string for standard SMS
   def random_sms_string(length)
@@ -12,22 +12,22 @@ describe Message, :vcr do
   # Validations
   describe 'validations' do
     before(:each) { 3.times { create :message, :with_random_twilio_sid, :with_provider_response } }
-    it { should belong_to(:conversation) }
-    it { should validate_numericality_of(:cost) }
+    it { is_expected.to belong_to(:conversation) }
+    it { is_expected.to validate_numericality_of(:cost) }
   end
   
   describe '.is_sms_charset?' do
     context 'when in SMS charset' do
       [ 1, 8, 65, 150, 500 ].each do |length|
         it "recognises #{length}-sized message" do
-          Message.is_sms_charset?(random_sms_string(length)).should be_true
+          expect(Message.is_sms_charset?(random_sms_string(length))).to be_truthy
         end
       end
     end
     context 'when using unicode charset' do
       [ 1, 8, 65, 150, 500 ].each do |length|
         it "does not recognise #{length}-sized message" do
-          Message.is_sms_charset?(random_unicode_string(length)).should be_false
+          expect(Message.is_sms_charset?(random_unicode_string(length))).to be_falsey
         end
       end
     end
@@ -37,14 +37,14 @@ describe Message, :vcr do
     context 'when in SMS charset' do
       [ 1, 8, 65, 159, 160, 161, 500 ].each do |length|
         it "recognises #{length}-sized message chunk size is 160" do
-          Message.select_message_chunk_size(random_sms_string(length)).should == 160
+          expect(Message.select_message_chunk_size(random_sms_string(length))).to eq(160)
         end
       end
     end
     context 'when using unicode charset' do
       [ 1, 8, 69, 70, 71, 150, 500 ].each do |length|
         it "does not recognise #{length}-sized chunk size is 70" do
-          Message.select_message_chunk_size(random_unicode_string(length)).should == 70
+          expect(Message.select_message_chunk_size(random_unicode_string(length))).to eq(70)
         end
       end
     end
@@ -93,18 +93,42 @@ describe Message, :vcr do
   describe '#is_challenge? and #is_reply?' do
     context 'when challenge message' do
       subject { build :challenge_message }
-      its(:'is_challenge?') { should be_true }
-      its(:'is_reply?') { should be_false }
+
+      describe '#is_challenge?' do
+        subject { super().is_challenge? }
+        it { is_expected.to be_truthy }
+      end
+
+      describe '#is_reply?' do
+        subject { super().is_reply? }
+        it { is_expected.to be_falsey }
+      end
     end
     context 'when reply message' do
       subject { build :reply_message }
-      its(:'is_challenge?') { should be_false }
-      its(:'is_reply?') { should be_true }
+
+      describe '#is_challenge?' do
+        subject { super().is_challenge? }
+        it { is_expected.to be_falsey }
+      end
+
+      describe '#is_reply?' do
+        subject { super().is_reply? }
+        it { is_expected.to be_truthy }
+      end
     end
     context 'when neither challenge nor reply message' do
       subject { build :message, message_kind: nil }
-      its(:'is_challenge?') { should be_false }
-      its(:'is_reply?') { should be_false }
+
+      describe '#is_challenge?' do
+        subject { super().is_challenge? }
+        it { is_expected.to be_falsey }
+      end
+
+      describe '#is_reply?' do
+        subject { super().is_reply? }
+        it { is_expected.to be_falsey }
+      end
     end
   end
 
@@ -112,14 +136,34 @@ describe Message, :vcr do
     let(:provider_response) { { body: 'Hello!', to: '+12121234567', from: '+4561237890' }.with_indifferent_access }
     context 'when provider_response is set' do
       subject { build :message, provider_response: provider_response }
-      its(:encrypted_provider_response) { should_not be_nil }
-      its(:provider_response) { should_not be_nil }
-      its(:provider_response) { should eq(provider_response) }
+
+      describe '#encrypted_provider_response' do
+        subject { super().encrypted_provider_response }
+        it { is_expected.not_to be_nil }
+      end
+
+      describe '#provider_response' do
+        subject { super().provider_response }
+        it { is_expected.not_to be_nil }
+      end
+
+      describe '#provider_response' do
+        subject { super().provider_response }
+        it { is_expected.to eq(provider_response) }
+      end
     end
     context 'when provider_response is not set' do
       subject { build :message, provider_response: nil }
-      its(:encrypted_provider_response) { should be_nil }
-      its(:provider_response) { should be_nil }
+
+      describe '#encrypted_provider_response' do
+        subject { super().encrypted_provider_response }
+        it { is_expected.to be_nil }
+      end
+
+      describe '#provider_response' do
+        subject { super().provider_response }
+        it { is_expected.to be_nil }
+      end
     end
   end
   

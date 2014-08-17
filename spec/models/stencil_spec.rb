@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Stencil do
+describe Stencil, :type => :model do
   #fixtures :account_plans, :organizations, :stencils, :phone_books, :phone_book_entries, :phone_numbers, :conversations
 
 #   describe '.open_conversation' do

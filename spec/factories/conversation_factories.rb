@@ -12,7 +12,7 @@ FactoryGirl.define do
     denied_reply              'The other right answer!'
     failed_reply              'Wrong answer!'
     expired_reply             'Took too long!'
-    mock                      true
+    double                      true
     
     trait :challenge_sent do
       workflow_state          'asked'
@@ -106,11 +106,11 @@ FactoryGirl.define do
     end
     
     trait :real do
-      mock false
+      double false
     end
     
     trait :mock do
-      mock true
+      double true
     end
     
     ##

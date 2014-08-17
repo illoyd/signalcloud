@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'routing to ledger_entries' do
+describe 'routing to ledger_entries', :type => :routing do
 
   it 'allows indexing' do
     expect( :get => 'organizations/1/ledger_entries' ).to route_to( controller: 'ledger_entries', action: 'index', organization_id: '1' )

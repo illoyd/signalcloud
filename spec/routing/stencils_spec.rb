@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'routing to users' do
+describe 'routing to users', :type => :routing do
   #fixtures :organizations, :account_plans, :users
 
 #   it 'routes /organizations/:id to organizations#show for id' do

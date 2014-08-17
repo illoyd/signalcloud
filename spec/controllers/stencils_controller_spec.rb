@@ -1,5 +1,5 @@
 require 'spec_helper'
-describe StencilsController do
+describe StencilsController, :type => :controller do
   let(:user)         { create :user }
   let(:plan)         { create :account_plan, :default }
   let(:organization) { create :organization, account_plan: plan }
@@ -19,7 +19,7 @@ describe StencilsController do
     end
 
     it 'ensures user is unprivileged' do
-      user.is_developer_for?(organization).should be_false
+      expect(user.is_developer_for?(organization)).to be_falsey
     end
 
     describe 'GET index' do
@@ -34,15 +34,15 @@ describe StencilsController do
       end
       it 'loads all stencils for organization' do
         get :index, organization_id: organization.id
-        assigns(:stencils).should =~ organization.stencils
+        expect(assigns(:stencils)).to match(organization.stencils)
       end
       it 'filters active stencils' do
         get :index, organization_id: organization.id, active_filter: true
-        assigns(:stencils).should =~ organization.reload.stencils.active
+        expect(assigns(:stencils)).to match(organization.reload.stencils.active)
       end
       it 'filters inactive stencils' do
         get :index, organization_id: organization.id, active_filter: false
-        assigns(:stencils).should =~ organization.reload.stencils.inactive
+        expect(assigns(:stencils)).to match(organization.reload.stencils.inactive)
       end
     end
 
@@ -53,7 +53,7 @@ describe StencilsController do
       end
       it 'assigns organization' do
         get :show, organization_id: organization.id, id: stencil.id
-        assigns(:stencil).should == stencil
+        expect(assigns(:stencil)).to eq(stencil)
       end
     end
     
@@ -111,7 +111,7 @@ describe StencilsController do
     end
 
     it 'grants developer' do
-      user.is_developer_for?(organization).should be_true
+      expect(user.is_developer_for?(organization)).to be_truthy
     end
 
     describe 'GET new' do
@@ -121,7 +121,7 @@ describe StencilsController do
       end
       it 'assigns stencil' do
         get :new, organization_id: organization.id
-        assigns(:stencil).should be_a_new Stencil
+        expect(assigns(:stencil)).to be_a_new Stencil
       end
     end
 
@@ -135,11 +135,11 @@ describe StencilsController do
       end
       it 'sets stencil\'s label' do
         post :create, create_payload
-        Stencil.last.label.should == new_label
+        expect(Stencil.last.label).to eq(new_label)
       end
       it 'sets stencil\'s description' do
         post :create, create_payload
-        Stencil.last.description.should == new_description
+        expect(Stencil.last.description).to eq(new_description)
       end
       it 'raises 400 bad request if no parameters' do
         expect{ post :create, organization_id: organization.id }.to raise_error(ActionController::ParameterMissing)
@@ -153,7 +153,7 @@ describe StencilsController do
       end
       it 'assigns stencil' do
         get :edit, organization_id: organization.id, id: stencil.id
-        assigns(:stencil).should == stencil
+        expect(assigns(:stencil)).to eq(stencil)
       end
     end
 

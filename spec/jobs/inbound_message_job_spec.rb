@@ -24,9 +24,26 @@ describe InboundMessageJob, :vcr do
     let(:payload)      { construct_inbound_payload( 'To' => conversation.internal_number, 'From' => conversation.customer_number ) }
     before             { subject.perform(payload) }
     
-    its(:internal_phone_number) { should be_a PhoneNumber }
-    its('internal_phone_number.id') { should == phone_number.id }
-    its('internal_phone_number.number') { should == phone_number.number }
+    describe '#internal_phone_number' do
+      subject { super().internal_phone_number }
+      it { is_expected.to be_a PhoneNumber }
+    end
+
+    describe '#internal_phone_number' do
+      subject { super().internal_phone_number }
+      describe '#id' do
+        subject { super().id }
+        it { is_expected.to eq(phone_number.id) }
+      end
+    end
+
+    describe '#internal_phone_number' do
+      subject { super().internal_phone_number }
+      describe '#number' do
+        subject { super().number }
+        it { is_expected.to eq(phone_number.number) }
+      end
+    end
   end
   
   describe '#perform' do
@@ -39,11 +56,11 @@ describe InboundMessageJob, :vcr do
       end
       it 'does not find an open conversation' do
         subject.provider_update = payload
-        subject.find_open_conversations.should be_empty
+        expect(subject.find_open_conversations).to be_empty
       end
       it 'has an internal phone number' do
         subject.provider_update = payload
-        subject.internal_phone_number.should_not be_nil        
+        expect(subject.internal_phone_number).not_to be_nil        
       end
     end
     
@@ -53,11 +70,11 @@ describe InboundMessageJob, :vcr do
       
       it 'has an internal phone number' do
         subject.provider_update = payload
-        subject.internal_phone_number.should_not be_nil        
+        expect(subject.internal_phone_number).not_to be_nil        
       end
       it 'finds an open conversation' do
         subject.provider_update = payload
-        subject.find_open_conversations.should have(1).item
+        expect(subject.find_open_conversations.size).to eq(1)
       end
 
       context 'with a confirmed response' do
@@ -100,11 +117,11 @@ describe InboundMessageJob, :vcr do
 
       it 'finds three open conversations' do
         subject.provider_update = payload
-        subject.find_open_conversations.should have(3).items
+        expect(subject.find_open_conversations.size).to eq(3)
       end
       it 'has an internal phone number' do
         subject.provider_update = payload
-        subject.internal_phone_number.should_not be_nil        
+        expect(subject.internal_phone_number).not_to be_nil        
       end
       it 'does not raise an error' do
         expect{ subject.perform(payload) }.not_to raise_error
@@ -121,7 +138,7 @@ describe InboundMessageJob, :vcr do
 
       it 'does not find an open conversation' do
         subject.provider_update = payload
-        subject.find_open_conversations.should be_empty
+        expect(subject.find_open_conversations).to be_empty
       end
       it 'sends unsolicited message' do
         expect{ subject.perform(payload) }.to change( phone_number.unsolicited_messages, :count ).by(1)
@@ -135,7 +152,7 @@ describe InboundMessageJob, :vcr do
 
         it 'does not find an open conversation' do
           subject.provider_update = payload
-          subject.find_open_conversations.should be_empty
+          expect(subject.find_open_conversations).to be_empty
         end
         it 'sends unsolicited message' do
           expect{ subject.perform(payload) }.to change( phone_number.unsolicited_messages, :count ).by(1)
@@ -147,7 +164,7 @@ describe InboundMessageJob, :vcr do
 
         it 'does not find an open conversation' do
           subject.provider_update = payload
-          subject.find_open_conversations.should be_empty
+          expect(subject.find_open_conversations).to be_empty
         end
         it 'sends unsolicited message' do
           expect{ subject.perform(payload) }.to change( phone_number.unsolicited_messages, :count ).by(1)

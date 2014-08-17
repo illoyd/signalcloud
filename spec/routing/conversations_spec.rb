@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'routing to conversations' do
+describe 'routing to conversations', :type => :routing do
 
   # Shallow routes
   it 'allows indexing' do

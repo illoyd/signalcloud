@@ -10,6 +10,6 @@ require 'spec_helper'
 #     end
 #   end
 # end
-describe BoxesHelper do
-  pending "add some examples to (or delete) #{__FILE__}"
+describe BoxesHelper, :type => :helper do
+  skip "add some examples to (or delete) #{__FILE__}"
 end

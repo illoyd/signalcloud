@@ -14,19 +14,19 @@ describe CreateOrUpdateTwilioAccountJob, :vcr, :skip do
       end
       it 'adds #communication_gateway as TwilioCommunicationGateway' do
         subject.perform(organization.id)
-        organization.communication_gateway_for(:twilio).should be_a TwilioCommunicationGateway
+        expect(organization.communication_gateway_for(:twilio)).to be_a TwilioCommunicationGateway
       end
       it 'sets #communication_gateway.twilio_account_sid' do
         subject.perform(organization.id)
-        organization.communication_gateway_for(:twilio).twilio_account_sid.should_not be_nil
+        expect(organization.communication_gateway_for(:twilio).twilio_account_sid).not_to be_nil
       end
       it 'sets #communication_gateway.twilio_auth_token' do
         subject.perform(organization.id)
-        organization.communication_gateway_for(:twilio).twilio_auth_token.should_not be_nil
+        expect(organization.communication_gateway_for(:twilio).twilio_auth_token).not_to be_nil
       end
       it 'sets #communication_gateway.remote_application' do
         subject.perform(organization.id)
-        organization.communication_gateway_for(:twilio).remote_application.should_not be_nil
+        expect(organization.communication_gateway_for(:twilio).remote_application).not_to be_nil
       end
     end
 

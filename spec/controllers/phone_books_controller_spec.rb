@@ -1,5 +1,5 @@
 require 'spec_helper'
-describe PhoneBooksController do
+describe PhoneBooksController, :type => :controller do
   let(:user)         { create :user }
   let(:plan)         { create :account_plan, :default }
   let(:organization) { create :organization, account_plan: plan }
@@ -19,7 +19,7 @@ describe PhoneBooksController do
     end
 
     it 'ensures user is unprivileged' do
-      user.is_developer_for?(organization).should be_false
+      expect(user.is_developer_for?(organization)).to be_falsey
     end
 
     describe 'GET index' do
@@ -33,7 +33,7 @@ describe PhoneBooksController do
       end
       it 'assigns phone books' do
         get :index, organization_id: organization.id
-        assigns(:phone_books).should =~ organization.reload.phone_books
+        expect(assigns(:phone_books)).to match(organization.reload.phone_books)
       end
     end
 
@@ -44,7 +44,7 @@ describe PhoneBooksController do
       end
       it 'assigns phone book' do
         get :show, organization_id: organization.id, id: phone_book.id
-        assigns(:phone_book).should == phone_book
+        expect(assigns(:phone_book)).to eq(phone_book)
       end
     end
     
@@ -102,7 +102,7 @@ describe PhoneBooksController do
     end
 
     it 'grants developer' do
-      user.is_developer_for?(organization).should be_true
+      expect(user.is_developer_for?(organization)).to be_truthy
     end
 
     describe 'GET new' do
@@ -112,7 +112,7 @@ describe PhoneBooksController do
       end
       it 'assigns phone_book' do
         get :new, organization_id: organization.id
-        assigns(:phone_book).should be_a_new PhoneBook
+        expect(assigns(:phone_book)).to be_a_new PhoneBook
       end
     end
 
@@ -126,11 +126,11 @@ describe PhoneBooksController do
       end
       it 'sets phone_book\'s label' do
         post :create, create_payload
-        PhoneBook.last.label.should == new_label
+        expect(PhoneBook.last.label).to eq(new_label)
       end
       it 'sets phone_book\'s description' do
         post :create, create_payload
-        PhoneBook.last.description.should == new_description
+        expect(PhoneBook.last.description).to eq(new_description)
       end
       it 'raises 400 bad request if no parameters' do
         expect{ post :create, organization_id: organization.id }.to raise_error(ActionController::ParameterMissing)
@@ -144,7 +144,7 @@ describe PhoneBooksController do
       end
       it 'assigns phone_book' do
         get :edit, organization_id: organization.id, id: phone_book.id
-        assigns(:phone_book).should == phone_book
+        expect(assigns(:phone_book)).to eq(phone_book)
       end
     end
 

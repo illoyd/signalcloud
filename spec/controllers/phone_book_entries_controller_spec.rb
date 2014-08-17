@@ -1,5 +1,5 @@
 require 'spec_helper'
-describe PhoneBookEntriesController do
+describe PhoneBookEntriesController, :type => :controller do
   let(:user)         { create :user }
   let(:plan)         { create :account_plan, :default }
   let(:organization) { create :organization, :with_mock_comms, account_plan: plan }
@@ -21,7 +21,7 @@ describe PhoneBookEntriesController do
     end
 
     it 'ensures user is unprivileged' do
-      user.is_developer_for?(organization).should be_false
+      expect(user.is_developer_for?(organization)).to be_falsey
     end
 
     describe 'POST create' do
@@ -54,7 +54,7 @@ describe PhoneBookEntriesController do
     end
 
     it 'grants developer' do
-      user.is_developer_for?(organization).should be_true
+      expect(user.is_developer_for?(organization)).to be_truthy
     end
 
     describe 'POST create' do
@@ -67,15 +67,15 @@ describe PhoneBookEntriesController do
       end
       it 'sets phone_book\'s country' do
         post :create, create_payload
-        PhoneBookEntry.last.country.should == country
+        expect(PhoneBookEntry.last.country).to eq(country)
       end
       it 'sets phone_book\'s phone_number_id' do
         post :create, create_payload
-        PhoneBookEntry.last.phone_number_id.should == phone_number.id
+        expect(PhoneBookEntry.last.phone_number_id).to eq(phone_number.id)
       end
       it 'redirect if no parameters' do
         post :create, organization_id: organization.id
-        response.status.should == 302
+        expect(response.status).to eq(302)
       end
     end
 

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'routing to twilio/sms_update' do
+describe 'routing to twilio/sms_update', :type => :routing do
 
   it 'routes POST twilio/sms_update to twilio::sms_callback#create' do
     expect( post('twilio/sms_update.xml') ).to route_to( controller: 'twilio/sms_updates', action: 'create', format: 'xml' )

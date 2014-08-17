@@ -1,5 +1,5 @@
 require 'spec_helper'
-describe Pricer do
+describe Pricer, :type => :model do
   it_behaves_like 'a pricer'
   
   describe '#price_for' do
@@ -10,7 +10,7 @@ describe Pricer do
 
   describe '#price_sheet_library' do
     it 'provides a default library' do
-      subject.price_sheet_library.respond_to?(:price_sheet_for).should be_true
+      expect(subject.price_sheet_library.respond_to?(:price_sheet_for)).to be_truthy
     end
   end
 

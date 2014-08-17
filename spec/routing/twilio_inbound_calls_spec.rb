@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'routing to twilio/inbound_call' do
+describe 'routing to twilio/inbound_call', :type => :routing do
   #fixtures :organizations, :account_plans, :users
 
   it 'routes POST twilio/inbound_call to twilio::inbound_call#create' do

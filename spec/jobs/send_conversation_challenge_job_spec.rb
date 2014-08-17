@@ -16,7 +16,7 @@ describe SendConversationChallengeJob, :vcr do
     end
     it 'fails newly created message' do
       subject.perform( conversation.id )
-      conversation.messages(true).order('created_at').last.errored?.should be_true
+      expect(conversation.messages(true).order('created_at').last.errored?).to be_truthy
     end
     it 'does not create a new ledger entry' do
       expect { subject.perform( conversation.id ) }.not_to change{conversation.stencil.organization.ledger_entries(true).count}
@@ -38,7 +38,7 @@ describe SendConversationChallengeJob, :vcr do
 
   # Verifies that all states are tested
   it 'tests all possible workflow states' do
-    ( Conversation.workflow_spec.state_names - SendConversationChallengeJob_OPEN_STATES - SendConversationChallengeJob_CLOSED_STATES ).should be_empty
+    expect( Conversation.workflow_spec.state_names - SendConversationChallengeJob_OPEN_STATES - SendConversationChallengeJob_CLOSED_STATES ).to be_empty
   end
 
   describe '#perform' do

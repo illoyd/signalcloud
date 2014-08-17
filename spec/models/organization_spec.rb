@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Organization, :vcr do
+describe Organization, :vcr, :type => :model do
   subject { create(:organization) }
 
   describe '#primary_stencil' do
@@ -11,16 +11,16 @@ describe Organization, :vcr do
       let(:nonprimary_stencil) { organization.stencils.where(primary: false).first }
 
       it 'has at least one primary stencil' do
-        stencil.should_not be_nil
-        organization.stencils.size.should >= 2
-        organization.stencils.where( primary: true ).empty?.should be_false
+        expect(stencil).not_to be_nil
+        expect(organization.stencils.size).to be >= 2
+        expect(organization.stencils.where( primary: true ).empty?).to be_falsey
       end
 
       it 'returns primary stencil' do
-        stencil.should_not be_nil
-        organization.reload.default_stencil.id.should eq(stencil.id)
-        organization.reload.default_stencil.primary.should be_true
-        organization.reload.default_stencil.id.should_not == nonprimary_stencil.id
+        expect(stencil).not_to be_nil
+        expect(organization.reload.default_stencil.id).to eq(stencil.id)
+        expect(organization.reload.default_stencil.primary).to be_truthy
+        expect(organization.reload.default_stencil.id).not_to eq(nonprimary_stencil.id)
       end
     end
     
@@ -30,14 +30,14 @@ describe Organization, :vcr do
       let(:nonprimary_stencil) { organization.stencils.where(primary: false).first }
       
       it 'has no stencil set to primary' do
-        stencil.should_not be_nil
-        organization.stencils.size.should >= 2
-        organization.stencils.where( primary: true ).empty?.should be_true
+        expect(stencil).not_to be_nil
+        expect(organization.stencils.size).to be >= 2
+        expect(organization.stencils.where( primary: true ).empty?).to be_truthy
       end
 
       it 'returns first non-primary stencil' do
-        organization.default_stencil.id.should_not eq(stencil.id)
-        organization.default_stencil.id.should eq(nonprimary_stencil.id)
+        expect(organization.default_stencil.id).not_to eq(stencil.id)
+        expect(organization.default_stencil.id).to eq(nonprimary_stencil.id)
       end
     end
 
@@ -63,12 +63,12 @@ describe Organization, :vcr do
       end
       it 'returns the date of the last invoice' do
         invoice
-        subject.last_invoice_date.should be_within(1).of(date_to)
+        expect(subject.last_invoice_date).to be_within(1).of(date_to)
       end
     end
 
     it 'returns nil when no past invoices available' do
-      subject.last_invoice_date.should be_nil
+      expect(subject.last_invoice_date).to be_nil
     end
   end
   
@@ -259,7 +259,11 @@ describe Organization, :vcr do
   
   describe '#conversation_count_by_status' do
     subject { build :organization }
-    its(:conversation_count_by_status) { should be_a Hash }
+
+    describe '#conversation_count_by_status' do
+      subject { super().conversation_count_by_status }
+      it { is_expected.to be_a Hash }
+    end
   end
   
   describe '#billing_address' do
@@ -268,7 +272,7 @@ describe Organization, :vcr do
     [ :first_name, :last_name, :email, :work_phone, :line1, :line2, :city, :region, :postcode, :country ].each do |attribute|
       it "retrieves #{attribute}" do
         organization_attribute = "billing_#{attribute}".to_sym
-        subject.billing_address.send(attribute).should eq(subject.send(organization_attribute))
+        expect(subject.billing_address.send(attribute)).to eq(subject.send(organization_attribute))
       end
     end
   end
@@ -301,7 +305,7 @@ describe Organization, :vcr do
     [ :first_name, :last_name, :email, :work_phone, :line1, :line2, :city, :region, :postcode, :country ].each do |attribute|
       it "retrieves #{attribute}" do
         organization_attribute = "contact_#{attribute}".to_sym
-        subject.contact_address.send(attribute).should eq(subject.send(organization_attribute))
+        expect(subject.contact_address.send(attribute)).to eq(subject.send(organization_attribute))
       end
     end
   end

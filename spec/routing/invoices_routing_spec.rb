@@ -1,7 +1,7 @@
 require "spec_helper"
 
 RSpec.describe InvoicesController, :type => :routing do
-  describe "routing" do
+  describe "routing", :type => :routing do
 
     it "routes to #index" do
       expect(:get => "/invoices").to route_to("invoices#index")

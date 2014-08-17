@@ -8,7 +8,7 @@ describe ExpireConversationJob, :vcr do
   
   # Verifies that all states are tested
   it 'tests all possible workflow states' do
-    ( Conversation.workflow_spec.state_names - ExpireConversationJob_OPEN_STATES - ExpireConversationJob_CLOSED_STATES ).should be_empty
+    expect( Conversation.workflow_spec.state_names - ExpireConversationJob_OPEN_STATES - ExpireConversationJob_CLOSED_STATES ).to be_empty
   end
 
   describe '#perform' do
@@ -22,11 +22,11 @@ describe ExpireConversationJob, :vcr do
           let(:conversation)      { create :conversation, state, stencil: stencil, expires_at: 900.seconds.from_now }
           
           it 'assigns the correct state' do
-            conversation.workflow_state.should == state.to_s
+            expect(conversation.workflow_state).to eq(state.to_s)
           end
 
           it 'finds the open conversation' do
-            subject.send(:find_conversation, conversation.id).should be_a Conversation
+            expect(subject.send(:find_conversation, conversation.id)).to be_a Conversation
           end
   
           it 'does not raise error' do
@@ -54,11 +54,11 @@ describe ExpireConversationJob, :vcr do
           let(:conversation)      { create :conversation, state, stencil: stencil, expires_at: 900.seconds.ago }
 
           it 'assigns the correct state' do
-            conversation.workflow_state.should == state.to_s
+            expect(conversation.workflow_state).to eq(state.to_s)
           end
 
           it 'finds the open conversation' do
-            subject.send(:find_conversation, conversation.id).should be_a Conversation
+            expect(subject.send(:find_conversation, conversation.id)).to be_a Conversation
           end
   
           it 'does not raise error' do
@@ -74,7 +74,8 @@ describe ExpireConversationJob, :vcr do
           end
   
           it 'creates a new ledger entry' do
-            pending { expect { subject.perform( conversation.id ) }.to change{conversation.stencil.organization.ledger_entries(true).count} }
+            pending
+            expect { subject.perform( conversation.id ) }.to change{conversation.stencil.organization.ledger_entries(true).count}
           end
   
           it 'creates a new message' do
@@ -90,11 +91,11 @@ describe ExpireConversationJob, :vcr do
         let(:conversation) { create :conversation, state, stencil: stencil, expires_at: 900.seconds.ago }
         
         it 'assigns the correct state' do
-          conversation.workflow_state.should == state.to_s
+          expect(conversation.workflow_state).to eq(state.to_s)
         end
 
         it 'cannot find an open conversation' do
-          subject.send(:find_conversation, conversation.id).should be_nil
+          expect(subject.send(:find_conversation, conversation.id)).to be_nil
         end
   
         it 'does not raise error' do

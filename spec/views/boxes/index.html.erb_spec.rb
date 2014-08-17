@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "boxes/index" do
+describe "boxes/index", :type => :view do
   before(:each) do
     @organization = assign(:organization, stub_model(Organization))
     assign(:boxes, [
