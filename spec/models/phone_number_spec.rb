@@ -118,7 +118,7 @@ describe PhoneNumber, :vcr, :type => :model do
           expect { subject.unpurchase! }.not_to raise_error
         end
         it 'refreshes number' do
-          pending
+          skip
           expect { subject.refresh! }.not_to raise_error
         end
         it 'transitions to inactive state after unpurchasing' do

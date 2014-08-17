@@ -74,7 +74,7 @@ describe ExpireConversationJob, :vcr do
           end
   
           it 'creates a new ledger entry' do
-            pending
+            skip
             expect { subject.perform( conversation.id ) }.to change{conversation.stencil.organization.ledger_entries(true).count}
           end
   
