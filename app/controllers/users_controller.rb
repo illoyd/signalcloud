@@ -6,14 +6,15 @@ class UsersController < ApplicationController
 
   # Index authorisations
   load_and_authorize_resource :organization
-  load_and_authorize_resource through: :organization
+  before_action :assign_default_user_id, only: :show
+  load_and_authorize_resource through: :organization, shallow: true
   
   # Other authorisations
   # load_and_authorize_resource except: [:index]
 
   # GET /organization/1/users
   def index
-    @user_role = UserRole.new( organization: @organization )
+    # @user_role = UserRole.new( organization: @organization )
     respond_with @organization, @users
   end
 
@@ -47,6 +48,10 @@ class UsersController < ApplicationController
   def update
     flash[:notice] = 'User was successfully updated.' if @user.update_attributes(user_params)
     respond_with @user
+  end
+  
+  def assign_default_user_id
+    params[:id] = current_user.id if params[:id].blank?
   end
 
 end

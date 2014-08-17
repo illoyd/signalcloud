@@ -35,6 +35,9 @@ ICONS = {
   delete:         'trash-o',
   disable:        'ban',
   enable:         'check-circle-o',
+  invite:         'envelope-o',
+  roles:          'check-circle-o',
+  change_password: 'key',
   
   # Conversation statuses
   draft:          'file-file-o',

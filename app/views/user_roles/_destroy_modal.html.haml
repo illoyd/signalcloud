@@ -1,0 +1,14 @@
+- if can? :delete, user_role
+  .modal.fade[user_role, :destroy]{ "aria-hidden" => "true", role: "dialog", tabindex: "-1"}
+    .modal-dialog.modal-sm
+      .modal-content
+        .modal-header
+          / %button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} &times;
+          %h3.modal-title
+            = icon(:delete)
+            Remove #{ user_role.user.nickname || user_role.user.name }
+        .modal-body
+          %p Are you sure you want to remove <i>#{ user_role.user.nickname || user_role.user.name }</i> from this project?
+          %p #{ user_role.user.nickname || user_role.user.name } can always be invited to the team again.
+          =link_to iconify('I\'m sure, remove access!', :delete), [user_role.organization, user_role], { class: 'delete', method: :delete }
+          %a.cancel{"aria-hidden" => "true", "data-dismiss" => "modal"}= iconify('Wait, leave it as is!', :check)

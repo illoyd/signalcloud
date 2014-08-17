@@ -1,30 +1,40 @@
 -# Page Header
-- headings 'User', "hello #{@user.nickname}", :user
-- breadcrumb @organization, @user
+- headings @user.nickname, 'user', :user
+- if @organization
+  - breadcrumb @organization, @user
+-# else
+  - breadcrumb @user
 
 / Page body
 .row
-  .span3= render :partial => 'navlist'
-  .span9
-    %p
-      %b Name
-      = "#{@user.name} (#{@user.nickname})"
-    %p
-      %b E-mail
-      = mail_to @user.email
-    %p
-      %b Shared Organizations
-      %ul
-        - @shared_organizations.each do |org|
-          %li
-            = link_to org do
-              = icon org.icon
-              = org.label
-            (
-            = link_to organization_users_path(org), prepend: '(' do
-              = icon :users
-              Users
-            )
-              
-            
-            
+  .col-xs-3.text-center
+    = gravatar_for(@user, 120, class: 'img-circle')
+
+  .col-xs-9
+    %h3 Details
+    %dl.dl-horizontal
+      %dt Name
+      %dd #{@user.nickname} (#{@user.name})
+      
+      %dt Email
+      %dd= mail_to @user.email
+
+.row
+  .col-sm-9.col-sm-offset-3
+    %h3 Shared Organizations
+    %table.list
+      %thead
+        %tr
+          %th Organization
+          %th.text-center Administrator
+          %th.text-center Developer
+          %th.text-center Billing<br />Liaison
+          %th.text-center Conversation<br />Manager
+      %tbody
+        - @shared_organizations.order(:label).each do |org|
+          %tr
+            %td= link_to iconify( org.label, org.icon ), org
+            %td.text-center= checkmark_for @user.is_organization_administrator_for?(org)
+            %td.text-center= checkmark_for @user.is_developer_for?(org)
+            %td.text-center= checkmark_for @user.is_billing_liaison_for?(org)
+            %td.text-center= checkmark_for @user.is_conversation_manager_for?(org)

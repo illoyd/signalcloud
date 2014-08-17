@@ -42,6 +42,7 @@ class User < ActiveRecord::Base
   
   UserRole::ROLES.each do |role|
     define_method "is_#{role.to_s}_for?" do |org|
+      return false if org.nil?
       self.roles_for(org).send("is_#{role.to_s}?")
     end
   end

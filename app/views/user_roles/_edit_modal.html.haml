@@ -1,0 +1,22 @@
+.modal.fade[user_role, :edit]{ "aria-hidden" => "true", "aria-labelledby" => "InviteUserModal", :role => "dialog", :tabindex => "-1"}
+  .modal-dialog
+    .modal-content
+      = form_for( [user_role.organization, user_role] ) do |f|
+        .modal-header
+          %h3= iconify('Change Roles', :roles)
+        .modal-body
+          = render partial: 'alert_errors', object: user_role.errors
+
+          - if current_user.is_organization_administrator_for?(user_role.organization)
+            .icon-field
+              .icon= icon('check-circle-o', class: 'fa-4x')
+              .field
+                - UserRole::ROLES.each do |role|
+                  %div
+                    = check_box_tag 'user_role[roles][]', role, user_role.roles.include?(role), { id: "user_role_#{ role }_#{ user_role.id }" }
+                    = f.label role.to_s.humanize, for: "user_role_#{ role }_#{ user_role.id }"
+                    .help-block= t "roles.#{ role }"
+
+        .modal-footer
+          = f.submit 'Update Roles'
+          %button.cancel{"aria-hidden" => "true", "data-dismiss" => "modal"} Discard Changes

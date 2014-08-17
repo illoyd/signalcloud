@@ -35,7 +35,7 @@ class UserRolesController < ApplicationController
     # Abort if errors given
     unless user.save
       @user_role.errors.add( :email, 'cannot be blank.' )
-      flash[:error] = "There were some issues with inviting the user."
+      flash[:error] = "There were some issues with inviting the user. (Is the email valid?)"
 
     # Update the passed parameters for this role
     else
@@ -49,14 +49,14 @@ class UserRolesController < ApplicationController
   # POST /user_roles/1
   # POST /user_roles/1.json
   def update
-    flash[:success] = "%s (%s) was updated successfully." % [ @user_role.user.nickname, @user_role.user.email ] if @user_role.update_attributes(user_role_params)
+    flash[:success] = "%s (%s) roles were updated successfully." % [ @user_role.user.nickname, @user_role.user.email ] if @user_role.update_attributes(user_role_params)
     redirect_to organization_users_path( @organization )
   end
 
   # DELETE /user_roles/1
   # DELETE /user_roles/1.json
   def destroy
-    flash[:success] = "%s (%s) was uninvited." % [ @user_role.user.nickname, @user_role.user.email ] if @user_role.destroy
+    flash[:success] = "%s (%s) was uninvited from the team." % [ @user_role.user.nickname, @user_role.user.email ] if @user_role.destroy
     redirect_to organization_users_path( @organization )
   end
 

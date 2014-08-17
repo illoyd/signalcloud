@@ -1,0 +1,28 @@
+- user_role = user.roles_for(@organization)
+%tr
+  %td
+    - if can?(:edit, user_role)
+      = render partial: 'user_roles/edit_modal', object: user_role, as: :user_role
+    - if can?(:delete, user_role)
+      = render partial: 'user_roles/destroy_modal', object: user_role, as: :user_role
+    = split_dropdown_list([ |
+      { label: 'Show', icon: :show, link: [@organization, user], if: can?(:show, user) }, |
+      { label: 'Change roles', icon: :edit, link: "#edit_user_role_#{user_role.id}", options: { data: {toggle: 'modal'} }, if: can?(:edit, user_role) }, |
+      { label: 'Remove', icon: :delete, link: "#destroy_user_role_#{user_role.id}",   options: { data: {toggle: 'modal'} }, if: can?(:destroy, user_role) } |
+      ], {class: 'btn-xs'} ) |
+
+  %td= link_to_if can?(:show, user), gravatar_for(user, 40, class: 'img-circle'), [@organization, user]
+  %td
+    %strong= link_to_if can?(:show, user), user.nickname, [@organization, user]
+    (#{ link_to_if can?(:show, user), user.name, [@organization, user] })
+    %div= mail_to user.email
+    - if user.has_pending_invitation?
+      .text-muted Invited to join
+    - if user.owner_of?(@organization)
+      .text-success Organization owner
+
+  %td.text-center= checkmark_for user_role.is_organization_administrator?
+  %td.text-center= checkmark_for user_role.is_developer?
+  %td.text-center= checkmark_for user_role.is_billing_liaison?
+  %td.text-center= checkmark_for user_role.is_conversation_manager?
+

@@ -1,4 +1,4 @@
-/ Brand and toggle get grouped for better mobile display
+-# Brand and toggle get grouped for better mobile display
 .navbar-header
   %button.navbar-toggle{"data-target" => "#collapsable", "data-toggle" => "collapse", type: "button"}
     %span.sr-only Toggle navigation
@@ -9,7 +9,7 @@
     = image_tag('marker-white-lg.png')
     SignalCloud
 
-/ Collect the nav links, forms, and other content for toggling
+-# Collect the nav links, forms, and other content for toggling
 #collapsable
   %ul.nav.navbar-nav
   
@@ -60,7 +60,7 @@
     %ul.signed-in
       %p.welcome Hi, #{current_user.name}
       - if can?(:show, current_user)
-        %li= link_to gravatar_for(current_user, 24, class: 'img-circle'), current_user
+        %li= link_to gravatar_for(current_user, 24, class: 'img-circle'), profile_path
       %li= link_to icon(:sign_out), destroy_user_session_path
 
   - else

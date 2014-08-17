@@ -3,3 +3,8 @@
 
 en:
   hello: "Hello world"
+  roles:
+    organization_administrator: Organization administrators can manage users.
+    developer: Developers can manage phone books, conversations, and phone numbers.
+    billing_liaison: Billing liaisons can view invoices and transactions.
+    conversation_manager: Conversation managers can view existing conversations and start new ones.

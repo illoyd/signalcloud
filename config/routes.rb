@@ -1,7 +1,17 @@
 SignalCloud::Application.routes.draw do
 
+  # Concerns
+  concern :collection_paginateable do
+    get 'page/:page', action: :index, on: :collection
+  end
+  concern :member_paginateable do
+    get 'page/:page', action: :index, on: :member
+  end
+
   # Configure authentication for USERS
-  devise_for :users #, :controllers => { :invitations => 'users/invitations' }
+  devise_for :user
+  get 'user', to: 'users#show'
+  get 'profile', to: 'users#show'
 
   # Global resources
   resources :account_plans
@@ -11,14 +21,12 @@ SignalCloud::Application.routes.draw do
   
   # Nest all underneath organizations
   resources :organizations, only: [ :index, :new, :show, :create, :update, :edit ] do
-    resources :users, only: [ :index, :show, :update, :edit ]
+    resources :users, only: [ :index, :show ]
     resources :user_roles, only: [ :create, :update, :destroy ]
     
     resources :boxes do
       resources :conversations, only: [ :index, :new, :create ] do
-        collection do
-          get 'page/:page', action: :index
-        end
+        concern :collection_paginateable
       end
     end
 
@@ -28,9 +36,7 @@ SignalCloud::Application.routes.draw do
         get 'inactive', action: :index, defaults: { active_filter: false }, as: 'inactive'
       end
       resources :conversations, only: [ :index, :new, :create ] do
-        collection do
-          get 'page/:page', action: :index
-        end
+        concern :collection_paginateable
       end
     end
   
@@ -38,19 +44,15 @@ SignalCloud::Application.routes.draw do
       member do
         post 'force', action: 'force_status', as: 'force_status'
       end
-      collection do
-        get 'page/:page', action: :index
-      end
+      concern :collection_paginateable
     end
 
     resources :invoices, only: [ :index, :show, :pending ] do
-      member do
-        get 'page/:page', action: :index
-      end
+      concern :member_paginateable
       collection do
         get 'pending', action: :pending
-        get 'page/:page', action: :index
       end
+      concern :collection_paginateable
     end
     
     resources :ledger_entries, only: :show
@@ -63,7 +65,7 @@ SignalCloud::Application.routes.draw do
   
     resources :phone_books
     resources :phone_book_entries, only: [:create, :destroy]
-
+    
   end
 
   # Nested resources via organization

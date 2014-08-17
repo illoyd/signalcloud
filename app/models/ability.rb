@@ -51,6 +51,7 @@ class Ability
     
     # Specifically do not allow deleting self
     can :read, user
+    can :profile, user
     can :read, UserRole, { user_id: user.id }
     cannot [:edit, :destroy], UserRole, { user_id: user.id }
     cannot :destroy, user
@@ -110,7 +111,7 @@ class Ability
   
   def grant_manage_users_privileges(user, organization_id)
     # All for organization users
-    can [:index, :show], User, user_roles: { organization_id: organization_id }
+    can [:index, :show, :invite], User, user_roles: { organization_id: organization_id }
   end
   
   def grant_manage_user_permissions_privileges(user, organization_id)

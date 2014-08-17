@@ -2,6 +2,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery
   
   before_filter :authenticate_user!
+  before_filter :configure_permitted_parameters, if: :devise_controller?
 
   helper_method :current_stencil
   
@@ -44,6 +45,14 @@ class ApplicationController < ActionController::Base
 
   protected
   
+  def configure_permitted_parameters
+    # Inject new parameters for accepting invitations
+    devise_parameter_sanitizer.for(:accept_invitation).concat [:name, :nickname, :phone]
+    
+    # Inject new paramters for inviting a user
+    devise_parameter_sanitizer.for(:invite).concat [ :organization_id, user_role: [ roles: [] ] ]
+  end
+
   def organization_params
     params.require(:organization).permit( :label, :icon, :description, :vat_name, :vat_number, :purchase_order, :use_billing_as_contact_address, :contact_first_name, :contact_last_name, :contact_email, :contact_work_phone, :contact_line1, :contact_line2, :contact_city, :contact_region, :contact_postcode, :contact_country, :billing_first_name, :billing_last_name, :billing_email, :billing_work_phone, :billing_line1, :billing_line2, :billing_city, :billing_region, :billing_postcode, :billing_country )
   end
