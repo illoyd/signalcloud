@@ -6,7 +6,7 @@
   %p.well= @phone_book.description
 
 %h4 Phone numbers
-%table.table.table-striped
+%table.list
   %thead
     %tr
       %th.span1
@@ -42,7 +42,7 @@
             = Country[entry.country].name rescue entry.country
 
 %h4 Stencils using this book
-%table.table.table-striped
+%table.list
   %thead
     %tr
       %th.span1
