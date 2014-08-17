@@ -9,7 +9,7 @@ SignalCloud::Application.routes.draw do
   end
 
   # Configure authentication for USERS
-  devise_for :user
+  devise_for :user, controllers: { registrations: 'users/registrations' }
   get 'user', to: 'users#show'
   get 'profile', to: 'users#show'
 

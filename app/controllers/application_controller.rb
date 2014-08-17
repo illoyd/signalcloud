@@ -47,10 +47,16 @@ class ApplicationController < ActionController::Base
   
   def configure_permitted_parameters
     # Inject new parameters for accepting invitations
-    devise_parameter_sanitizer.for(:accept_invitation).concat [:name, :nickname, :phone]
+    devise_parameter_sanitizer.for(:accept_invitation).concat [:name, :nickname]
     
     # Inject new paramters for inviting a user
-    devise_parameter_sanitizer.for(:invite).concat [ :organization_id, user_role: [ roles: [] ] ]
+    # devise_parameter_sanitizer.for(:invite).concat [ :organization_id, user_role: [ roles: [] ] ]
+
+    # Signing up
+    devise_parameter_sanitizer.for(:sign_up).concat [:name, :nickname]
+    
+    # Updating profile
+    devise_parameter_sanitizer.for(:account_update).concat [:name, :nickname]
   end
 
   def organization_params

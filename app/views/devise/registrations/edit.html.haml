@@ -1,21 +1,48 @@
-- content_for :title, 'Change Password'
+-# Page Header
+- headings @user.nickname, 'update profile', :user
+- if @organization
+  - breadcrumb @organization, @user
 
 = devise_error_messages!
-= twitter_bootstrap_form_for( resource, :as => resource_name, :url => registration_path(resource_name), :html => { :method => :put, :class => "form-horizontal" }) do |f|
-  .modal.inline-modal
-    .modal-header
-      / %button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} &times;
-      %h3 Change Password
+= form_for( resource, :as => resource_name, :url => registration_path(resource_name), :html => { :method => :put, :class => "general" }) do |f|
 
-    .modal-body
-      = f.password_field :current_password
-      %hr
-      = f.password_field :password, 'New password'
-      = f.password_field :password_confirmation, 'Confirm new password'
+  %fieldset
+    %legend
+      =icon(:user)
+      Profile
+    .field
+      = f.label :name
+      .inputs= f.text_field :name
+    .field
+      = f.label :nickname
+      .inputs= f.text_field :nickname, placeholder: @user.name
+    .field
+      = f.label :email
+      .inputs
+        = f.text_field :email, placeholder: 'someone@somewhere.com'
+        .help-block Please enter your password below to change your email.
 
-    .modal-footer
-      %div
-        = f.submit "Change Password", class: 'btn btn-primary'
-        = link_to 'Cancel', @user, { class: 'btn' }
-
+  %fieldset
+    %legend
+      =icon(:change_password)
+      Password
+    .field
+      = f.label :current_password
+      .inputs= f.password_field :current_password
+    %hr
+    .field
+      = f.label :password, 'New password'
+      .inputs
+        = f.password_field :password
+        .help-block Leave blank to leave your password as is.
+      
+    .field
+      = f.label :password_confirmation, 'Confirm new password'
+      .inputs= f.password_field :password_confirmation
+  
+  .field
+    .actions
+      = f.submit "Update profile"
+      = link_to 'Discard changes', :back, class: 'cancel'
+  
 = render "devise/shared/links"
