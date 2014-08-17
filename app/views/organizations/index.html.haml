@@ -52,3 +52,5 @@
         %td.text-center= link_to iconify(organization.phone_books.count, :phone_books), [organization, :phone_books]
         %td.text-center= link_to iconify(organization.phone_numbers.count, :phone_numbers), [organization, :phone_numbers]
         %td.text-center= link_to iconify(organization.users.count, :users), [organization, :users]
+
+= paginate @organizations, theme: 'twitter-bootstrap-3'

@@ -13,6 +13,7 @@ class OrganizationsController < ApplicationController
   # GET /organizations
   # GET /organizations.json
   def index
+    @organizations = @organizations.order(:label).page(params[:page])
     respond_with @organizations
   end
 
