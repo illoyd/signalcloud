@@ -105,11 +105,11 @@ FactoryGirl.define do
     end
     
     trait :real do
-      double false
+      #double false
     end
     
     trait :mock do
-      double true
+      #double true
     end
     
     ##

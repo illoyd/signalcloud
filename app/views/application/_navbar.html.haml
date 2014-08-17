@@ -13,7 +13,7 @@
 #collapsable
   %ul.nav.navbar-nav
   
-    - if can? :index, Organization
+    - if signed_in?() && can?(:index, Organization)
       %li= link_to icon(:organizations), organizations_path
     
 
