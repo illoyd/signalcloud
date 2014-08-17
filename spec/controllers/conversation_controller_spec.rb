@@ -35,7 +35,7 @@ describe ConversationsController, :type => :controller do
       end
       it 'loads all conversations for organization' do
         get :index, organization_id: organization.id
-        expect(assigns(:conversations)).to match(organization.conversations)
+        expect(assigns(:conversations)).to match_array(organization.conversations)
       end
     end
 

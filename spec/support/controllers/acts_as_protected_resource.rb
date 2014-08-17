@@ -6,7 +6,7 @@ shared_examples 'a protected resource' do
       before { get :index }
 
       it 'redirects to home' do
-        expect( response ).to redirect_to( '/users/sign_in' )
+        expect( response ).to redirect_to( '/user/sign_in' )
       end
     end
 

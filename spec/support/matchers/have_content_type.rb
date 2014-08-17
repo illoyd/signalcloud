@@ -15,7 +15,7 @@ RSpec::Matchers.define :have_content_type do |content_type|
     end
   end
  
-  failure_message_for_should do |response|
+  failure_message do |response|
     if @charset
       "Content type #{content_type_header.inspect} should match #{content_type.inspect} with charset #{@charset}"
     else
@@ -23,7 +23,7 @@ RSpec::Matchers.define :have_content_type do |content_type|
     end
   end
  
-  failure_message_for_should_not do |model|
+  failure_message_when_negated do |model|
     if @charset
       "Content type #{content_type_header.inspect} should not match #{content_type.inspect} with charset #{@charset}"
     else

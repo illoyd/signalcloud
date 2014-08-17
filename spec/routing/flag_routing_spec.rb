@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'routing to flag icons', :type => :routing do
+describe 'routing to flag icons', :focus, :type => :routing do
   #fixtures :organizations, :account_plans, :users
 
 #   it 'routes /organizations/:id to organizations#show for id' do
@@ -12,12 +12,13 @@ describe 'routing to flag icons', :type => :routing do
 #   end  
 
   ISO3166::Country::Names.each do |(name,alpha2)| alpha2
-    country = alpha2.to_s.downcase
-    it "#{country.upcase} flag exists" do
-      size = 'medium'
-      icon_url = './assets/images/flags/%s/%s.png' % [size.downcase, country.downcase]
-      # expect( get: icon_url ).to be_routable
-      expect{ File.exist? icon_url }.to be_truthy
+    ['medium'].each do |size|
+      country = alpha2.to_s.downcase
+      it "#{country.upcase} flag exists" do
+        icon_url = './app/assets/images/flags/%s/%s.png' % [size, country]
+        #expect( get: icon_url ).to be_routable
+        expect( File.exist? icon_url ).to be_truthy
+      end
     end
   end
 

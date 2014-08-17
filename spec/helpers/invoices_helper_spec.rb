@@ -10,6 +10,30 @@ require 'spec_helper'
 #     end
 #   end
 # end
+
 RSpec.describe InvoicesHelper, :type => :helper do
-  skip "add some examples to (or delete) #{__FILE__}"
+
+  describe '#status_tag_for' do
+    context 'with new status' do
+      let(:invoice) { Invoice.new( workflow_state: 'new' ) }
+      it 'returns a label snippet for new status' do
+        expect( helper.status_tag_for(invoice) ).to eq("<span class=\"label label-new\">new</span>")
+      end
+    end
+
+    context 'with prepared status' do
+      let(:invoice) { Invoice.new( workflow_state: 'prepared' ) }
+      it 'returns a label snippet for prepared status' do
+        expect( helper.status_tag_for(invoice) ).to eq("<span class=\"label label-prepared\">prepared</span>")
+      end
+    end
+
+    context 'with settled status' do
+      let(:invoice) { Invoice.new( workflow_state: 'settled' ) }
+      it 'returns a label snippet for settled status' do
+        expect( helper.status_tag_for(invoice) ).to eq("<span class=\"label label-settled\">settled</span>")
+      end
+    end
+  end
+
 end

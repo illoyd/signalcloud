@@ -31,7 +31,7 @@ class ApplicationController < ActionController::Base
     end
   end
   
-  alias_method :authenticate_organization!, :authenticate_organization_using_basic!
+  alias_method :authenticate_organization!, :authenticate_organization_using_digest!
 
   ##
   # Return the stencil of the current request, based upon the request and filtered to the current organization.

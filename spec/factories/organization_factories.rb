@@ -1,5 +1,15 @@
 def address
-  Address.new( 'John Q', 'Public', 'john.q.public@signalcloudapp.com', '+12021234567', 'Test Address', nil, 'Washington', 'DC', '20500', 'US' )
+  Address.new(
+    Faker::Name.first_name, Faker::Name.last_name,
+    Faker::Internet.email,
+    Faker::PhoneNumber.phone_number,
+    Faker::Address.street_address,
+    Faker::Address.secondary_address,
+    Faker::Address.city,
+    Faker::Address.state_abbr,
+    Faker::Address.zip_code,
+    'US'
+  )
 end
 
 def white_house_address
@@ -11,7 +21,7 @@ FactoryGirl.define do
   factory :organization do
     sid                 { SecureRandom.hex(16) }
     auth_token          { SecureRandom.hex(16) }
-    label               'Test Account'
+    label               { Faker::Company.name }
     association         :owner, factory: :user
     contact_address     white_house_address
     billing_address     address

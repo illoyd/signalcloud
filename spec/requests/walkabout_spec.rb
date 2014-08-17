@@ -10,6 +10,7 @@ describe "Walkabout", :type => :request do
   let!(:conversation)  { create :conversation, stencil: stencil }
   let!(:message)       { create :message, conversation: conversation }
   let!(:ledger_entry)  { create :ledger_entry, item: conversation }
+  let!(:invoice)       { create :invoice, organization: organization }
 
   before(:each) { sign_in(user) }
 
@@ -98,8 +99,13 @@ describe "Walkabout", :type => :request do
     expect(response.status).to eq(200)
   end
 
-  it 'GETs /organizations/:id/ledger_entries' do
-    get '/organizations/%i/ledger_entries' % [ organization.id ]
+  it 'GETs /organizations/:id/invoices' do
+    get '/organizations/%i/invoices' % [ organization.id ]
+    expect(response.status).to eq(200)
+  end
+
+  it 'GETs /organizations/:id/invoices/:id' do
+    get '/organizations/%i/invoices/%i' % [ organization.id, invoice.id ]
     expect(response.status).to eq(200)
   end
 

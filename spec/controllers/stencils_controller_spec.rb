@@ -34,15 +34,15 @@ describe StencilsController, :type => :controller do
       end
       it 'loads all stencils for organization' do
         get :index, organization_id: organization.id
-        expect(assigns(:stencils)).to match(organization.stencils)
+        expect(assigns(:stencils)).to match_array(organization.stencils)
       end
       it 'filters active stencils' do
         get :index, organization_id: organization.id, active_filter: true
-        expect(assigns(:stencils)).to match(organization.reload.stencils.active)
+        expect(assigns(:stencils)).to match_array(organization.reload.stencils.active)
       end
       it 'filters inactive stencils' do
         get :index, organization_id: organization.id, active_filter: false
-        expect(assigns(:stencils)).to match(organization.reload.stencils.inactive)
+        expect(assigns(:stencils)).to match_array(organization.reload.stencils.inactive)
       end
     end
 

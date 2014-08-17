@@ -12,7 +12,6 @@ FactoryGirl.define do
     denied_reply              'The other right answer!'
     failed_reply              'Wrong answer!'
     expired_reply             'Took too long!'
-    double                      true
     
     trait :challenge_sent do
       workflow_state          'asked'

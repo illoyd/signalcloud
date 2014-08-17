@@ -8,12 +8,11 @@ shared_examples 'an organization resource' do
     describe 'GET index' do
       it 'redirects to home' do
         get :index, organization_id: organization.id
-        expect( response ).to redirect_to( '/users/sign_in' )
+        expect( response ).to redirect_to( '/user/sign_in' )
       end
     end
 
   end
-  
 
   context 'as unaffiliated user' do
     before do

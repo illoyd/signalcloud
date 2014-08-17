@@ -33,7 +33,7 @@ describe PhoneBooksController, :type => :controller do
       end
       it 'assigns phone books' do
         get :index, organization_id: organization.id
-        expect(assigns(:phone_books)).to match(organization.reload.phone_books)
+        expect(assigns(:phone_books)).to match_array(organization.reload.phone_books)
       end
     end
 

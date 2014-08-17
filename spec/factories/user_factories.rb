@@ -1,11 +1,17 @@
 FactoryGirl.define do
 
   factory :user do
-    nickname           'John'
-    name               'Johnathan Doe'
-    sequence(:email)   { |n| "user#{n}@signalcloudapp.com" }
-    password           { SecureRandom.hex(4) }
+    nickname           { Faker::Name.first_name }
+    name               { Faker::Name.name }
+    email              { Faker::Internet.email }
+    password           { Faker::Internet.password }
     
+    factory "affiliated_user".to_sym do
+      after(:create) do |user, evaluator|
+        user.user_roles.create organization: FactoryGirl.create(:organization), roles: []
+      end
+    end
+
     UserRole::ROLES.each do |role|
       factory "#{role}_user".to_sym do
         after(:create) do |user, evaluator|

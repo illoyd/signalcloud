@@ -21,7 +21,7 @@ describe "Inbound Message for Open Conversation", :type => :request do
     } }
 
   describe "POST /twilio/inbound_sms" do
-    it 'raises forbidden' 
+    it 'raises forbidden'
 #     do
 #       # Run the generator again with the --webrat flag if you want to use webrat methods/matchers
 #       get apis_path

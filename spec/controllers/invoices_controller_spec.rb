@@ -20,139 +20,46 @@ require 'spec_helper'
 
 RSpec.describe InvoicesController, :type => :controller do
 
-  # This should return the minimal set of attributes required to create a valid
-  # Invoice. As you add validations to Invoice, be sure to
-  # adjust the attributes here as well.
-  let(:valid_attributes) {
-    skip("Add a hash of attributes valid for your model")
-  }
+  let(:organization) { user.organizations.first }
+  let(:invoice)      { create :invoice, organization: organization }
 
-  let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
-  }
-
-  # This should return the minimal set of values that should be in the session
-  # in order to pass any filters (e.g. authentication) defined in
-  # InvoicesController. Be sure to keep this updated too.
-  let(:valid_session) { {} }
-
-  describe "GET index" do
-    it "assigns all invoices as @invoices" do
-      invoice = Invoice.create! valid_attributes
-      get :index, {}, valid_session
-      expect(assigns(:invoices)).to eq([invoice])
-    end
-  end
-
-  describe "GET show" do
-    it "assigns the requested invoice as @invoice" do
-      invoice = Invoice.create! valid_attributes
-      get :show, {:id => invoice.to_param}, valid_session
-      expect(assigns(:invoice)).to eq(invoice)
-    end
-  end
-
-  describe "GET new" do
-    it "assigns a new invoice as @invoice" do
-      get :new, {}, valid_session
-      expect(assigns(:invoice)).to be_a_new(Invoice)
-    end
-  end
-
-  describe "GET edit" do
-    it "assigns the requested invoice as @invoice" do
-      invoice = Invoice.create! valid_attributes
-      get :edit, {:id => invoice.to_param}, valid_session
-      expect(assigns(:invoice)).to eq(invoice)
-    end
-  end
-
-  describe "POST create" do
-    describe "with valid params" do
-      it "creates a new Invoice" do
-        expect {
-          post :create, {:invoice => valid_attributes}, valid_session
-        }.to change(Invoice, :count).by(1)
-      end
-
-      it "assigns a newly created invoice as @invoice" do
-        post :create, {:invoice => valid_attributes}, valid_session
-        expect(assigns(:invoice)).to be_a(Invoice)
-        expect(assigns(:invoice)).to be_persisted
-      end
-
-      it "redirects to the created invoice" do
-        post :create, {:invoice => valid_attributes}, valid_session
-        expect(response).to redirect_to(Invoice.last)
+  context 'when billing liaison user' do
+    let(:user) { create :billing_liaison_user }
+    
+    describe "GET index" do
+      it "assigns all invoices as @invoices" do
+        signin_user(user)
+        get :index, {organization_id: organization.id}
+        expect(assigns(:invoices)).to contain_exactly(invoice)
       end
     end
-
-    describe "with invalid params" do
-      it "assigns a newly created but unsaved invoice as @invoice" do
-        post :create, {:invoice => invalid_attributes}, valid_session
-        expect(assigns(:invoice)).to be_a_new(Invoice)
-      end
-
-      it "re-renders the 'new' template" do
-        post :create, {:invoice => invalid_attributes}, valid_session
-        expect(response).to render_template("new")
-      end
-    end
-  end
-
-  describe "PUT update" do
-    describe "with valid params" do
-      let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
-      }
-
-      it "updates the requested invoice" do
-        invoice = Invoice.create! valid_attributes
-        put :update, {:id => invoice.to_param, :invoice => new_attributes}, valid_session
-        invoice.reload
-        skip("Add assertions for updated state")
-      end
-
+  
+    describe "GET show" do
       it "assigns the requested invoice as @invoice" do
-        invoice = Invoice.create! valid_attributes
-        put :update, {:id => invoice.to_param, :invoice => valid_attributes}, valid_session
+        signin_user(user)
+        get :show, {organization_id: organization.id, id: invoice.id}
         expect(assigns(:invoice)).to eq(invoice)
-      end
-
-      it "redirects to the invoice" do
-        invoice = Invoice.create! valid_attributes
-        put :update, {:id => invoice.to_param, :invoice => valid_attributes}, valid_session
-        expect(response).to redirect_to(invoice)
-      end
-    end
-
-    describe "with invalid params" do
-      it "assigns the invoice as @invoice" do
-        invoice = Invoice.create! valid_attributes
-        put :update, {:id => invoice.to_param, :invoice => invalid_attributes}, valid_session
-        expect(assigns(:invoice)).to eq(invoice)
-      end
-
-      it "re-renders the 'edit' template" do
-        invoice = Invoice.create! valid_attributes
-        put :update, {:id => invoice.to_param, :invoice => invalid_attributes}, valid_session
-        expect(response).to render_template("edit")
       end
     end
   end
 
-  describe "DELETE destroy" do
-    it "destroys the requested invoice" do
-      invoice = Invoice.create! valid_attributes
-      expect {
-        delete :destroy, {:id => invoice.to_param}, valid_session
-      }.to change(Invoice, :count).by(-1)
+  context 'when affiliated user' do
+    let(:user) { create :affiliated_user }
+    
+    describe "GET index" do
+      it "assigns all invoices as @invoices" do
+        signin_user(user)
+        get :index, {organization_id: organization.id}
+        expect(assigns(:invoices)).to be_empty
+      end
     end
-
-    it "redirects to the invoices list" do
-      invoice = Invoice.create! valid_attributes
-      delete :destroy, {:id => invoice.to_param}, valid_session
-      expect(response).to redirect_to(invoices_url)
+  
+    describe "GET show" do
+      it "assigns the requested invoice as @invoice" do
+        signin_user(user)
+        get :show, {organization_id: organization.id, id: invoice.id}
+        expect(assigns(:invoice)).to eq(invoice)
+      end
     end
   end
 

@@ -22,7 +22,7 @@ RSpec.configure do |config|
   
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   # config.fixture_path = "#{::Rails.root}/spec/fixtures"
-  
+
   # If you're not using ActiveRecord, or you'd prefer not to run each of your
   # examples within a transaction, remove the following line or assign false
   # instead of true.
@@ -32,6 +32,7 @@ RSpec.configure do |config|
   # automatically. This will be the default behavior in future versions of
   # rspec-rails.
   config.infer_base_class_for_anonymous_controllers = false
+  config.infer_spec_type_from_file_location!
 
   # Run specs in random order to surface order dependencies. If you find an
   # order dependency and want to debug it, you can fix the order by providing
@@ -45,16 +46,15 @@ RSpec.configure do |config|
   config.run_all_when_everything_filtered = true
 
   # Include auth digest helper
-  config.include AuthSpecHelpers, :type => :controller
+  config.include AuthSpecHelpers,        :type => :controller
 
   # Include devise helpers
-  config.include Devise::TestHelpers, :type => :controller
-  config.extend ControllerMacros, :type => :controller
+  config.include Devise::TestHelpers,    :type => :controller
+  config.include ControllerHelper,       :type => :controller
   config.include ValidUserRequestHelper, :type => :request
   
   # Mix-in the FactoryGirl methods
   config.include FactoryGirl::Syntax::Methods
-
 end
 
 FactoryGirl.find_definitions

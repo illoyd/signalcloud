@@ -23,7 +23,7 @@ describe OrganizationsController, :type => :controller do
       end
       it 'loads all organizations for signed-in user' do
         get :index
-        expect(assigns(:organizations)).to match(user.reload.organizations)
+        expect(assigns(:organizations)).to match_array(user.reload.organizations)
       end
     end
 

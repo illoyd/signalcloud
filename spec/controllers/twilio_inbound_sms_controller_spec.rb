@@ -1,9 +1,9 @@
 require 'spec_helper'
 describe Twilio::InboundSmsController, :type => :controller do
   #render_views
-  let(:organization) { create(:test_organization, :with_sid_and_token) }
-  let(:comm_gateway) { organization.communication_gateway_for(:twilio) }
-  let(:to_phone_number) { build( :phone_number, organization: organization, communication_gateway: comm_gateway ) }
+  let(:organization)      { create(:test_organization, :with_sid_and_token) }
+  let(:comm_gateway)      { organization.communication_gateway_for(:twilio) }
+  let(:to_phone_number)   { build( :phone_number, organization: organization, communication_gateway: comm_gateway ) }
   let(:from_phone_number) { build( :phone_number, organization: organization, communication_gateway: comm_gateway ) }
   let(:inbound_post_params) { {
       To: to_phone_number.number,
@@ -17,7 +17,7 @@ describe Twilio::InboundSmsController, :type => :controller do
     context 'when not passing HTTP DIGEST' do
       it 'responds with unauthorised' do
         post :create, inbound_post_params
-        expect(response.status).to eq( 401 )
+        expect(response).to have_http_status( :unauthorized )
       end
     end
     
@@ -26,7 +26,7 @@ describe Twilio::InboundSmsController, :type => :controller do
         it 'responds with forbidden' do
           authenticate_with_http_digest organization.sid, organization.auth_token, :post, :create
           post :create, inbound_post_params
-          expect(response.status).to eq( 403 )
+          expect(response).to have_http_status( :forbidden )
         end
       end
 
@@ -35,7 +35,7 @@ describe Twilio::InboundSmsController, :type => :controller do
           authenticate_with_http_digest organization.sid, organization.auth_token, :post, :create
           inject_twilio_signature( twilio_inbound_sms_url, organization, inbound_post_params )
           post :create, inbound_post_params
-          expect(response.status).to eq( 200 )
+          expect(response).to have_http_status( :success )
         end
       end
     end

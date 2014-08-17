@@ -4,26 +4,54 @@ describe ApplicationHelper, :type => :helper do
   # render_views
 
   describe "#icon" do
-    it "uses defaults" do
-      output = helper.icon()
-      expect(output).to include('icon-blank')
-      expect(output).to include("style=''")
+    context 'when blank' do
+      let(:output) { helper.icon() }
+      it 'uses blank icon' do
+        expect(output).to include('fa-blank')
+      end
+      it 'does not include style attribute' do
+        expect(output).not_to include('style')
+      end
     end
-    it "uses stencil symbol" do
-      output = helper.icon( :stencils )
-      expect(output).to include('icon-edit')
-      expect(output).to include("style=''")
+    
+    context 'when given symbol' do
+      let(:output) { helper.icon(:my_stencil) }
+      it 'uses icon' do
+        expect(output).to include('fa-my-stencil')
+      end
+      it 'does not include style attribute' do
+        expect(output).not_to include('style')
+      end
     end
-    it "uses stencil string" do
-      output = helper.icon( 'stencils' )
-      expect(output).to include('icon-edit')
-      expect(output).to include("style=''")
+    
+    context 'when given string' do
+      let(:output) { helper.icon('my_stencil') }
+      it 'uses icon' do
+        expect(output).to include('fa-my-stencil')
+      end
+      it 'does not include style attribute' do
+        expect(output).not_to include('style')
+      end
     end
-    it "adds options" do
-      output = helper.icon( :stencils, style: "font-size: bigger" )
-      expect(output).to include('icon-edit')
-      expect(output).to include("style='font-size: bigger'")
-    end
+    
+    context 'when given options' do
+      let(:output) { helper.icon('my_stencil', style: 'font-size: bigger', ostriches: 'amazing') }
+      it 'uses icon' do
+        expect(output).to include('fa-my-stencil')
+      end
+      it 'includes style attribute' do
+        expect(output).to include('style')
+      end
+      it 'includes style value' do
+        expect(output).to include('font-size: bigger')
+      end
+      it 'includes ostriches attribute' do
+        expect(output).to include('ostriches')
+      end
+      it 'includes ostriches value' do
+        expect(output).to include('amazing')
+      end
+    end    
   end
   
   describe '#humanize_phone_number' do
