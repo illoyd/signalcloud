@@ -19,7 +19,7 @@
   
     -# Allow deleting
     - if can?(:destroy, @organization)
-      = link_to iconify('Delete', :delete), '#delete_organization_modal', class: 'delete', 'data-toggle' => 'modal'
+      = link_to iconify('Delete', :delete), '#delete_organization_modal', class: 'delete', data: {toggle: 'modal'}
       = render partial: 'delete_modal'
 
 - if @organization.try(:persisted?)

@@ -19,15 +19,15 @@
         
       - #Disable
       - if @stencil.active?
-        = link_to iconify('Disable', :disable), "#disable_stencil_#{ @stencil.id }", 'data-toggle' => 'modal'
+        = link_to iconify('Disable', :disable), "#disable_stencil_#{ @stencil.id }", data: {toggle: 'modal'}
         = render partial: 'disable_object_modal', object: @stencil, as: :object
       - else
-        = link_to iconify('Enable', :enable), "#enable_stencil_#{ @stencil.id }", 'data-toggle' => 'modal'
+        = link_to iconify('Enable', :enable), "#enable_stencil_#{ @stencil.id }", data: {toggle: 'modal'}
         = render partial: 'enable_object_modal', object: @stencil, as: :object
   
     -# Allow deleting
     - if can?(:destroy, @stencil) && @stencil.conversations.none?
-      = link_to iconify('Delete', :delete), "#delete_stencil_#{ @stencil.id }", class: 'delete', 'data-toggle' => 'modal'
+      = link_to iconify('Delete', :delete), "#delete_stencil_#{ @stencil.id }", class: 'delete', data: {toggle: 'modal'}
       = render partial: 'delete_object_modal', object: @stencil, as: :object
 
 - if @stencil.try(:persisted?)

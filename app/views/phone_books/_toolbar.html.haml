@@ -11,7 +11,7 @@
   .actions
     -# Add number
     - if can?(:edit, @phone_book)
-      = link_to iconify('Add a phone number', :phone_numbers), '#phone_book_entry_modal', 'data-toggle' => 'modal'
+      = link_to iconify('Add a phone number', :phone_numbers), '#phone_book_entry_modal', data: {toggle: 'modal'}
       = render partial: 'add_phone_number_modal'
 
   .actions
@@ -26,15 +26,15 @@
     -#
       - #Disable
       - if @phone_book.active?
-        = link_to iconify('Disable', :disable), "#disable_phone_book_#{ @phone_book.id }", 'data-toggle' => 'modal'
+        = link_to iconify('Disable', :disable), "#disable_phone_book_#{ @phone_book.id }", data: {toggle: 'modal'}
         = render partial: 'disable_object_modal', object: @phone_book, as: :object
       - else
-        = link_to iconify('Enable', :enable), "#enable_phone_book_#{ @phone_book.id }", 'data-toggle' => 'modal'
+        = link_to iconify('Enable', :enable), "#enable_phone_book_#{ @phone_book.id }", data: {toggle: 'modal'}
         = render partial: 'enable_object_modal', object: @phone_book, as: :object
   
     -# Allow deleting
     - if can?(:destroy, @phone_book) && @phone_book.stencils.none?
-      = link_to iconify('Delete', :delete), "#delete_phone_book_#{ @phone_book.id }", class: 'delete', 'data-toggle' => 'modal'
+      = link_to iconify('Delete', :delete), "#delete_phone_book_#{ @phone_book.id }", class: 'delete', data: {toggle: 'modal'}
       = render partial: 'delete_object_modal', object: @phone_book, as: :object
 
 - if @phone_book

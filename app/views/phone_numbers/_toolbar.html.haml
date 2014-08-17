@@ -25,7 +25,7 @@
   
     -# Allow deleting
     - if can?(:destroy, @phone_number)
-      = link_to iconify('Delete', :delete), '#delete_phone_number_modal', class: 'delete', 'data-toggle' => 'modal'
+      = link_to iconify('Delete', :delete), '#delete_phone_number_modal', class: 'delete', data: {toggle: 'modal'}
       = render partial: 'delete_modal'
 
 - if @phone_number.try(:persisted?)

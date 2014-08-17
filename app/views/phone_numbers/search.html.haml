@@ -57,7 +57,7 @@
               = form_tag( organization_phone_numbers_path(@organization), method: :post, style:'margin:0px; padding:0px' ) do
                 = hidden_field_tag :phone_number, phone_number.phone_number
                 = submit_tag 'Buy', class: 'btn btn-primary btn-xs'
-            %td= link_to humanize_phone_number(phone_number.phone_number), "#info#{modal_id}", 'data-toggle' => 'modal'
+            %td= link_to humanize_phone_number(phone_number.phone_number), "#info#{modal_id}", data: {toggle: 'modal'}
             %td
               #{flag_icon(phone_number.iso_country)} #{phone_number.iso_country}
               - unless phone_number.region.blank?
