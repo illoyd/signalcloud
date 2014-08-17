@@ -94,6 +94,7 @@ gem 'ruby-freshbooks'
 #
 # Test and development gems
 group :test, :development do
+  gem 'rspec', '2.99'
   gem "rspec-rails"
 end
 
