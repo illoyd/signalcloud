@@ -58,9 +58,8 @@
   - if signed_in?
     / Signed-in controls
     %ul.signed-in
-      %p.welcome Hi, #{current_user.name}
-      - if can?(:show, current_user)
-        %li= link_to gravatar_for(current_user, 24, class: 'img-circle'), profile_path
+      %p.welcome #{current_user.nickname}
+      %li= link_to_if can?(:show, current_user), gravatar_for(current_user, 24, class: 'img-circle'), profile_path
       %li= link_to icon(:sign_out), destroy_user_session_path
 
   - else
