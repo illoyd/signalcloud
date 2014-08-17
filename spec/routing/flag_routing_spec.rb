@@ -11,7 +11,7 @@ describe 'routing to flag icons', :type => :routing do
 #     )
 #   end  
 
-  ISO3166::Country::Names.each do |(name,alpha2)| alpha2
+  ISO3166::Country::Names.each do |(name,alpha2)|
     ['medium'].each do |size|
       country = alpha2.to_s.downcase
       it "#{country.upcase} flag exists" do
