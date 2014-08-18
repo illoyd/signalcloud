@@ -128,9 +128,9 @@ module Twilio
         property :sid,        required: true
         property :account_sid
 
-        property :created_at, from: :date_created, transformer: lambda { |v| Time.parse(v) rescue nil }
-        property :updated_at, from: :date_updated, transformer: lambda { |v| Time.parse(v) rescue nil }
-        property :sent_at,    from: :date_sent,    transformer: lambda { |v| Time.parse(v) rescue nil }
+        property :created_at, from: :date_created, transformer: TimeTransformer
+        property :updated_at, from: :date_updated, transformer: TimeTransformer
+        property :sent_at,    from: :date_sent,    transformer: TimeTransformer
 
         property :to,         required: true
         alias_method :customer_number, :to
@@ -140,10 +140,10 @@ module Twilio
 
         property :body,       required: true
         
-        property :status,     required: true, transformer: lambda { |v| ActiveSupport::StringInquirer.new Twilio::StatusTransformer.transform(v) }
-        property :direction,  required: true, transformer: lambda { |v| ActiveSupport::StringInquirer.new Twilio::DirectionTransformer.transform(v) }
+        property :status,     required: true, transformer: Twilio::StatusTransformer
+        property :direction,  required: true, transformer: Twilio::DirectionTransformer
 
-        property :price,      transformer: lambda { |v| BigDecimal.new v rescue nil }
+        property :price,      transformer: BigDecimalTransformer
         property :price_unit
 
         property :segments,   from: :num_segments

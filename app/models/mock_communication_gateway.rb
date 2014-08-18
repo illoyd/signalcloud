@@ -76,9 +76,9 @@ class MockCommunicationGateway < CommunicationGateway
     property :sid,        required: true
     property :account_sid
 
-    property :created_at, transformer: lambda { |v| Time.parse(v) rescue v }
-    property :updated_at, transformer: lambda { |v| Time.parse(v) rescue v }
-    property :sent_at,    transformer: lambda { |v| Time.parse(v) rescue v }
+    property :created_at, transformer: TimeTransformer
+    property :updated_at, transformer: TimeTransformer
+    property :sent_at,    transformer: TimeTransformer
 
     property :to,         required: true
     alias_method :customer_number, :to
@@ -88,10 +88,10 @@ class MockCommunicationGateway < CommunicationGateway
 
     property :body,       required: true
     
-    property :status,     required: true, transformer: lambda { |v| ActiveSupport::StringInquirer.new(v) rescue v }
-    property :direction,  required: true, transformer: lambda { |v| ActiveSupport::StringInquirer.new(v) rescue v }
+    property :status,     required: true, transformer: StringInquirerTransformer
+    property :direction,  required: true, transformer: StringInquirerTransformer
 
-    property :price,      transformer: lambda { |v| BigDecimal.new v rescue nil }
+    property :price,      transformer: BigDecimalTransformer
     property :price_unit
 
     property :segments,   from: :num_segments

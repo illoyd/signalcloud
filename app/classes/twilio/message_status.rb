@@ -9,7 +9,7 @@ module Twilio
     property :from,         from: :From
     property :to,           from: :To
     property :body,         from: :Body
-    property :status,       from: :SmsStatus,   required: true, transformer: lambda { |v| Twilio::StatusTransformer.transform(v) }
+    property :status,       from: :SmsStatus,   required: true, transformer: Twilio::StatusTransformer
 
     delegate :sent?, :sending?, :queued?, :received?, :failed?, to: :status
   end

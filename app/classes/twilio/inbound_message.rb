@@ -11,12 +11,12 @@ module Twilio
     property :body,         from: :Body,        required: true
     
     # Defaulted fields
-    property :status,       from: :SmsStatus,   default: Message::RECEIVED_SZ, transformer: lambda { |v| Twilio::StatusTransformer.transform(v) }
-    property :direction,    from: :Direction,   default: Message::IN, transformer: lambda { |v| Twilio::DirectionTransformer.transform(v) }
-    property :segments,     from: :NumSegments, default: 1, transformer: lambda { |v| v.to_i rescue 1 }
+    property :status,       from: :SmsStatus,   default: Message::RECEIVED_SZ, transformer: Twilio::StatusTransformer
+    property :direction,    from: :Direction,   default: Message::IN,          transformer: Twilio::DirectionTransformer
+    property :segments,     from: :NumSegments, default: 1,                    transformer: IntegerTranformer
 
     # Optional fields
-    property :price,        from: :Price,       transformer: lambda { |v| BigDecimal.new(v) rescue nil }
+    property :price,        from: :Price,       transformer: BigDecimalTransformer
     property :price_unit,   from: :PriceUnit
 
     # Optional FROM fields
@@ -32,9 +32,9 @@ module Twilio
     property :to_country,   from: :ToCountry
 
     # Optional DATE fields
-    property :created_at,   from: :DateCreated, transformer: lambda { |v| Time.parse(v) rescue nil }
-    property :updated_at,   from: :DateUpdated, transformer: lambda { |v| Time.parse(v) rescue nil }
-    property :sent_at,      from: :DateSent,    transformer: lambda { |v| Time.parse(v) rescue nil }
+    property :created_at,   from: :DateCreated, transformer: TimeTransformer
+    property :updated_at,   from: :DateUpdated, transformer: TimeTransformer
+    property :sent_at,      from: :DateSent,    transformer: TimeTransformer
     
     delegate :sent?, :sending?, :queued?, :received?, :failed?, to: :status
     delegate :inbound?, :outbound?, to: :direction
