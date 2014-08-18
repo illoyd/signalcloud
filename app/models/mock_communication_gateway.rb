@@ -22,19 +22,19 @@ class MockCommunicationGateway < CommunicationGateway
     status = options.fetch(:status, select_status(to_number, from_number))
 
     msg = MockMessage.new(
-      sid: SecureRandom.hex(4),
+      sid:         SecureRandom.hex(4),
       account_sid: self.remote_sid,
-      to: to_number,
-      from: from_number,
-      body: body,
-      direction: ::Message::OUT,
-      status: status,
-      segments: ( body.length.to_f / 160 ).ceil,
-      price: ( status == 'sent' ? '0.01' : nil ),
-      price_unit: ( status == 'sent' ? 'USD' : nil ),
-      created_at: options.fetch(:created_at, Time.now),
-      updated_at: options.fetch(:updated_at, Time.now),
-      sent_at: ( status == 'sent' ? Time.now : nil )
+      to:          to_number,
+      from:        from_number,
+      body:        body,
+      direction:   ::Message::OUT,
+      status:      status,
+      segments:    ( body.length.to_f / 160 ).ceil,
+      price:       ( status == 'sent' ? '0.01' : nil ),
+      price_unit:  ( status == 'sent' ? 'USD' : nil ),
+      created_at:  options.fetch(:created_at, Time.now),
+      updated_at:  options.fetch(:updated_at, Time.now),
+      sent_at:     ( status == 'sent' ? Time.now : nil )
     )
     memorize( msg )
     msg
