@@ -2,7 +2,7 @@ module Twilio
   class DirectionTransformer
     INBOUND  = %w( in inbound )
     OUTBOUND = %w( outbound outbound-api outbound-call outbound-reply out )
-    def self.transform(v)
+    def self.call(v)
       ActiveSupport::StringInquirer.new case v.to_s.downcase
         when *OUTBOUND; ::Message::OUT
         when *INBOUND;  ::Message::IN

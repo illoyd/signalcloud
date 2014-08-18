@@ -5,7 +5,7 @@ module Twilio
     QUEUED   = %w( queued pending )
     RECEIVED = 'received'
     FAILED   = 'failed'
-    def self.transform(v)
+    def self.call(v)
       ActiveSupport::StringInquirer.new case v.downcase
         when SENT;     ::Message::SENT_SZ
         when SENDING;  ::Message::SENDING_SZ
