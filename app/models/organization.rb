@@ -24,7 +24,7 @@ class Organization < ActiveRecord::Base
 
   has_one :account_balance, inverse_of: :organization, autosave: true, dependent: :destroy
   
-  has_many :communication_gateways, inverse_of: :organization
+  has_many :communication_gateways, inverse_of: :organization, autosave: true
 
   has_one :accounting_gateway, inverse_of: :organization
   has_one :payment_gateway, inverse_of: :organization
