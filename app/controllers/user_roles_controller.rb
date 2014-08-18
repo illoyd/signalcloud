@@ -21,7 +21,7 @@ class UserRolesController < ApplicationController
   def create
   
     # Try to find the user in the database; if not found, invite
-    user = User.find_by_email( user_role_user_params[:email] )
+    user = User.find_for_authentication(email: user_role_user_params[:email])
     if user.nil?
       user = User.invite!( user_role_user_params, current_user )
     end

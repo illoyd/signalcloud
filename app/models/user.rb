@@ -8,10 +8,6 @@ class User < ActiveRecord::Base
   has_many :organizations, through: :user_roles
   has_many :owned_organizations, foreign_key: 'owner_id', class_name: "Organization", inverse_of: :owner
 
-  def self.find_by_email( email )
-    where( email: email.chomp.downcase ).first
-  end
-  
   def nickname
     read_attribute(:nickname) || name
   end
