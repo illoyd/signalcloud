@@ -12,11 +12,11 @@ class MockCommunicationGateway < CommunicationGateway
     raise SignalCloud::InvalidMessageBodyCommunicationGatewayError.new(self) if body.blank?
 
     # Normalise and test to number    
-    to_number = self.class.prepend_plus(to_number)
+    to_number = normalize_phone_number(to_number)
     raise SignalCloud::InvalidToNumberCommunicationGatewayError.new(self) if INVALID_TO_NUMBERS.include?(to_number)
 
     # Normalise and test from number
-    from_number = self.class.prepend_plus(from_number)
+    from_number = normalize_phone_number(from_number)
     raise SignalCloud::InvalidFromNumberCommunicationGatewayError.new(self) if INVALID_FROM_NUMBERS.include?(from_number)
 
     status = options.fetch(:status, select_status(to_number, from_number))
