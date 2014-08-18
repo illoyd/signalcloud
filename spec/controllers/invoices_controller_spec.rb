@@ -40,6 +40,19 @@ RSpec.describe InvoicesController, :type => :controller do
         get :show, {organization_id: organization.id, id: invoice.id}
         expect(assigns(:invoice)).to eq(invoice)
       end
+      it "assigns the ledger entries as @ledger_entries" do
+        signin_user(user)
+        get :show, {organization_id: organization.id, id: invoice.id}
+        expect(assigns(:ledger_entries)).to eq(invoice.ledger_entries)
+      end
+    end
+  
+    describe "GET pending" do
+      it "assigns @ledger_entries" do
+        signin_user(user)
+        get :show, {organization_id: organization.id, id: invoice.id}
+        expect(assigns(:ledger_entries)).to eq(organization.ledger_entries.uninvoiced)
+      end
     end
   end
 
