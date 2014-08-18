@@ -12,14 +12,15 @@ describe ExpireConversationJob, :vcr do
   end
 
   describe '#perform' do
-    let(:organization)            { create(:organization, :test_twilio, :with_sid_and_token) }
+    let(:organization)            { create(:organization, :with_mock_comms, :with_sid_and_token) }
+    let(:phone_number)            { create(:phone_number, organization: organization) }
     let(:stencil)                 { create(:stencil, organization: organization) }
 
     ExpireConversationJob_OPEN_STATES.each do |state|
       context "when conversation is #{state}" do
   
         context 'and conversation has not yet passed expiration' do
-          let(:conversation)      { create :conversation, state, stencil: stencil, expires_at: 900.seconds.from_now }
+          let(:conversation)      { create :conversation, state, stencil: stencil, internal_number: phone_number.number, expires_at: 900.seconds.from_now }
           
           it 'assigns the correct state' do
             expect(conversation.workflow_state).to eq(state.to_s)
@@ -51,7 +52,7 @@ describe ExpireConversationJob, :vcr do
         end
   
         context 'and conversation has passed expiration' do
-          let(:conversation)      { create :conversation, state, stencil: stencil, expires_at: 900.seconds.ago }
+          let(:conversation)      { create :conversation, state, stencil: stencil, internal_number: phone_number.number, expires_at: 900.seconds.ago }
 
           it 'assigns the correct state' do
             expect(conversation.workflow_state).to eq(state.to_s)
@@ -74,7 +75,7 @@ describe ExpireConversationJob, :vcr do
           end
   
           it 'creates a new ledger entry' do
-            skip
+            pending
             expect { subject.perform( conversation.id ) }.to change{conversation.stencil.organization.ledger_entries(true).count}
           end
   
