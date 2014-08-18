@@ -97,7 +97,7 @@ class Conversation < ActiveRecord::Base
   #delegate :communication_gateway, to: :internal_number, allow_nil: true
   
   def communication_gateway
-    self.organization.phone_numbers.where( number: self.internal_number ).first.communication_gateway
+    self.organization.phone_numbers.find_by!( number: self.internal_number ).communication_gateway
   end
   
   # Before validation  
