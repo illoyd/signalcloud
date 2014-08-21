@@ -10,10 +10,13 @@ module Twilio
     property :to,           from: :To,          required: true
     property :body,         from: :Body,        required: true
     
+    alias_method :internal_number, :to
+    alias_method :customer_number, :from
+
     # Defaulted fields
     property :status,       from: :SmsStatus,   default: Message::RECEIVED_SZ, transformer: Twilio::StatusTransformer
     property :direction,    from: :Direction,   default: Message::IN,          transformer: Twilio::DirectionTransformer
-    property :segments,     from: :NumSegments, default: 1,                    transformer: IntegerTranformer
+    property :segments,     from: :NumSegments, default: 1,                    transformer: IntegerTransformer
 
     # Optional fields
     property :price,        from: :Price,       transformer: BigDecimalTransformer
