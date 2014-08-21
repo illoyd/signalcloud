@@ -2,7 +2,13 @@ class MockCommunicationGateway < CommunicationGateway
   INVALID_TO_NUMBERS   = [ Twilio::INVALID_NUMBER, Twilio::INVALID_CANNOT_ROUTE_TO_NUMBER, Twilio::INVALID_INTERNATIONAL_NUMBER, Twilio::INVALID_BLACKLISTED_NUMBER ]
   INVALID_FROM_NUMBERS = [ Twilio::INVALID_NUMBER, Twilio::INVALID_NOT_SMS_CAPABLE_FROM_NUMBER, Twilio::INVALID_FULL_SMS_QUEUE_NUMBER, Twilio::INVALID_INTERNATIONAL_NUMBER, Twilio::INVALID_NOT_SMS_CAPABLE_TO_NUMBER ]
 
+  def memorize( obj )
+    puts "Memorizing #{ obj.sid }"
+    self.memory[obj.sid] = obj
+  end
+
   def message( sid )
+    puts "Retrieving #{ self.memory[sid].sid }"
     self.memory[sid]
   end
   
@@ -120,8 +126,4 @@ protected
     @memory ||= {}
   end
   
-  def memorize( obj )
-    self.memory[obj.sid] = obj
-  end
-
 end

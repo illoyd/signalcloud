@@ -26,8 +26,7 @@ class InboundMessageJob
 
   def perform( provider_update )
     # Save for future use
-    @provider_update = provider_update
-    @sms ||= Twilio::InboundMessage.new( provider_update )
+    self.provider_update = provider_update
     logger.info{ "Received inbound sms: #{@sms}" }
     
     # Find all open conversations
@@ -37,7 +36,7 @@ class InboundMessageJob
       # No open conversations found; treat as an unsolicited message.
       when 0
         logger.info{ 'Received an unsolicited message.' }
-        self.perform_unsolicited_action()
+        self.perform_unsolicited_action
       
       # Only one conversation, so process immediately
       when 1

@@ -148,8 +148,7 @@ class Message < ActiveRecord::Base
   ##
   # Query the provider (Twilio, Nexmo, etc.) status of this message.
   def provider_status
-    # self.organization.twilio_account.sms.messages.get( self.twilio_sid )
-    self.conversation.communication_gateway.message(self.provider_sid).to_property_smash
+    self.conversation.communication_gateway.message(self.provider_sid)
   end
   
   ##
