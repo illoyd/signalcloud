@@ -74,7 +74,9 @@ gem 'hightop'
 gem 'groupdate'
 gem 'active_median'
 
-gem 'rails_12factor', group: [:development, :production]
+gem 'activejob'
+
+gem 'rails_12factor', group: :production
 
 #
 # Temporary or deprecated gems - these should be removed!
