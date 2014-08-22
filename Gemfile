@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 ruby "2.1.2"
-gem 'rails', '4.1.4'
+gem 'rails', '~> 4.2.0.beta1'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
@@ -10,8 +10,7 @@ gem 'rails', '4.1.4'
 gem 'pg'
 
 # Use SCSS for stylesheets
-# gem 'sass', '~> 3.3'
-gem 'sass-rails', '~> 4.0.1'
+gem 'sass-rails', '~> 5.0.0.beta1'
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '>= 1.3.0'
 # Use CoffeeScript for .js.coffee assets and views
@@ -28,14 +27,25 @@ gem 'autoprefixer-rails'
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
 # Turbolinks makes following links in your web application faster. Read more: https://github.com/rails/turbolinks
-gem 'turbolinks'
+# gem 'turbolinks'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.0'
 # bundle exec rake doc:rails generates the API under doc/api.
 gem 'sdoc', '~> 0.4.0',          group: :doc
 
-# Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
-gem 'spring',        group: :development
+# Use Rails Html Sanitizer for HTML sanitization
+gem 'rails-html-sanitizer', '~> 1.0'
+
+group :development, :test do
+  # Call 'debugger' anywhere in the code to stop execution and get a debugger console
+  gem 'byebug'
+
+  # Access an IRB console on exceptions page and /console in development
+  gem 'web-console', '~> 2.0.0.beta2'
+
+  # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
+  gem 'spring'
+end
 
 # Use unicorn as the app server
 gem 'unicorn'
@@ -53,7 +63,7 @@ gem 'sinatra', '>= 1.3.0', :require => nil
 # Additional gems
 gem 'active_model_serializers'
 gem 'haml'
-gem 'devise', '~> 3.2.0'
+gem 'devise', git: 'git@github.com:plataformatec/devise.git', branch: 'lm-rails-4-2'
 gem 'devise-async'
 gem 'devise_invitable'
 gem 'cancancan', '~> 1.8'
@@ -73,8 +83,7 @@ gem 'chartkick'
 gem 'hightop'
 gem 'groupdate'
 gem 'active_median'
-
-gem 'rails_12factor', group: [:development, :production]
+gem 'responders'
 
 #
 # Temporary or deprecated gems - these should be removed!
@@ -94,7 +103,6 @@ gem 'ruby-freshbooks'
 #
 # Test and development gems
 group :test, :development do
-  #gem 'rspec', '2.99'
   gem "rspec-rails"
 end
 
@@ -116,6 +124,7 @@ end
 #
 # Production gems
 group :production do
+  gem 'rails_12factor'
   gem 'newrelic_rpm'
   gem 'lograge'
 end
