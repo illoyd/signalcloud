@@ -34,7 +34,7 @@ class Stencil < ActiveRecord::Base
     
     # Add a randomly selected from number if needed
     if options.fetch(:internal_number, nil).blank? and !options.fetch(:customer_number, nil).blank?
-      options[:internal_number] = self.phone_book.select_internal_number_for( options[:customer_number] ).number
+      options[:internal_number] = self.phone_book.select_internal_number_for( options[:customer_number] )
     end
     return self.conversations.build( options )
   end
