@@ -82,3 +82,4 @@ rerun.txt
 pickle-email-*.html
 .project
 /doc/*
+dump.rdb
