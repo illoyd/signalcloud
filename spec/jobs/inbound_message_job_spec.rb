@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe InboundMessageJob, :vcr do
+describe InboundMessageJob, :focus do
   let(:sms_sid )        { 'SM7104b239862b9006bd360a3d5f285f2e' }
   let(:organization)    { create(:organization, :with_mock_comms) }
   let(:stencil)         { create(:stencil, organization: organization) }
@@ -23,8 +23,8 @@ describe InboundMessageJob, :vcr do
     })
   end
   
-  describe '#internal_phone_number', :focus do
-    let(:conversation) { create(:conversation, :mock, :challenge_sent, stencil: stencil, internal_number: phone_number.number, customer_number: customer_number) }
+  describe '#internal_phone_number' do
+    let(:conversation) { create(:conversation, :mock, :challenge_sent, stencil: stencil, internal_number: phone_number, customer_number: customer_number) }
     before             { subject.perform(payload) }
 
     its(:internal_phone_number)         { is_expected.to be_a PhoneNumber }
@@ -34,8 +34,7 @@ describe InboundMessageJob, :vcr do
   
   describe '#perform' do
 
-    context 'when unsolicited (no matching conversation)', :focus do
-      let(:payload) { construct_inbound_payload( 'To' => phone_number.number, 'From' => customer_number ) }
+    context 'when unsolicited (no matching conversation)' do
       before        { phone_number.communication_gateway.memorize(inbound_msg) }
 
       it 'does not raise an error' do
@@ -52,7 +51,7 @@ describe InboundMessageJob, :vcr do
     end
     
     context 'when replying to open conversation' do
-      let(:conversation) { create(:conversation, :mock, :challenge_sent, :with_webhook_uri, stencil: stencil, internal_number: phone_number.number, customer_number: customer_number) }
+      let(:conversation) { create(:conversation, :mock, :challenge_sent, :with_webhook_uri, stencil: stencil, internal_number: phone_number, customer_number: customer_number) }
       
       it 'has an internal phone number' do
         subject.provider_update = payload
@@ -63,13 +62,14 @@ describe InboundMessageJob, :vcr do
         expect(subject.find_open_conversations.size).to eq(1)
       end
 
-      context 'with a confirmed response', :focus do
-        let(:payload)    { construct_inbound_payload( 'Body' => conversation.expected_confirmed_answer ) }
+      context 'with a confirmed response' do
+        let(:payload) { construct_inbound_payload( 'Body' => conversation.expected_confirmed_answer ) }
+        before        { phone_number.communication_gateway.memorize(inbound_msg) }
         it 'does not raise an error' do
-          expect{ subject.perform(payload) }.not_to raise_error
+          expect{ phone_number.communication_gateway.memorize(inbound_msg); subject.perform(payload) }.not_to raise_error
         end
         it 'transitions conversation to confirmed' do
-          expect{ subject.perform(payload) }.to change{ conversation.reload.workflow_state }.to('confirming')
+          expect{ phone_number.communication_gateway.memorize(inbound_msg); subject.perform(payload) }.to change{ conversation.reload.workflow_state }.to('confirming')
         end
       end
 
@@ -95,9 +95,9 @@ describe InboundMessageJob, :vcr do
     end
     
     context 'when replying to multiple open conversation' do
-      let(:conversationA)  { create(:conversation, :mock, :challenge_sent, :with_webhook_uri, stencil: stencil, internal_number: phone_number.number, customer_number: customer_number) }
-      let(:conversationB)  { create(:conversation, :mock, :challenge_sent, :with_webhook_uri, stencil: stencil, internal_number: phone_number.number, customer_number: customer_number) }
-      let(:conversationC)  { create(:conversation, :mock, :challenge_sent, :with_webhook_uri, stencil: stencil, internal_number: phone_number.number, customer_number: customer_number) }
+      let(:conversationA)  { create(:conversation, :mock, :challenge_sent, :with_webhook_uri, stencil: stencil, internal_number: phone_number, customer_number: customer_number) }
+      let(:conversationB)  { create(:conversation, :mock, :challenge_sent, :with_webhook_uri, stencil: stencil, internal_number: phone_number, customer_number: customer_number) }
+      let(:conversationC)  { create(:conversation, :mock, :challenge_sent, :with_webhook_uri, stencil: stencil, internal_number: phone_number, customer_number: customer_number) }
       let(:conversations)  { [ conversationC, conversationA, conversationB ] }
       before               { phone_number.communication_gateway.memorize(inbound_msg) }
 
@@ -119,7 +119,7 @@ describe InboundMessageJob, :vcr do
     end
     
     context 'when replying to expired conversation' do
-      let(:conversation) { create(:conversation, :mock, :challenge_sent, :expired, stencil: stencil, expires_at: 180.seconds.ago, internal_number: phone_number.number, customer_number: customer_number) }
+      let(:conversation) { create(:conversation, :mock, :challenge_sent, :expired, stencil: stencil, expires_at: 180.seconds.ago, internal_number: phone_number, customer_number: customer_number) }
       before             { phone_number.communication_gateway.memorize(inbound_msg) }
 
       it 'does not find an open conversation' do
@@ -133,7 +133,7 @@ describe InboundMessageJob, :vcr do
     
     [ :confirmed, :denied, :failed ].each do |status|
       context "when replying to #{status.to_s} but not sent conversation" do
-        let(:conversation) { create(:conversation, :mock, :challenge_sent, :response_received, status, stencil: stencil, internal_number: phone_number.number, customer_number: customer_number) }
+        let(:conversation) { create(:conversation, :mock, :challenge_sent, :response_received, status, stencil: stencil, internal_number: phone_number, customer_number: customer_number) }
         before             { phone_number.communication_gateway.memorize(inbound_msg) }
 
         it 'does not find an open conversation' do
@@ -145,7 +145,7 @@ describe InboundMessageJob, :vcr do
         end
       end
       context "when replying to #{status.to_s} and sent conversation" do
-        let(:conversation) { create(:conversation, :mock, :challenge_sent, :response_received, status, :reply_sent, stencil: stencil, internal_number: phone_number.number, customer_number: customer_number) }
+        let(:conversation) { create(:conversation, :mock, :challenge_sent, :response_received, status, :reply_sent, stencil: stencil, internal_number: phone_number, customer_number: customer_number) }
         before             { phone_number.communication_gateway.memorize(inbound_msg) }
 
         it 'does not find an open conversation' do

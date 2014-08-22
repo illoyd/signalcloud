@@ -40,6 +40,7 @@ class PhoneNumber < ActiveRecord::Base
   belongs_to :organization, inverse_of: :phone_numbers
   has_many :phone_book_entries, inverse_of: :phone_number, dependent: :destroy
   has_many :phone_books, through: :phone_book_entries
+  has_many :conversations, inverse_of: :internal_number
   has_many :unsolicited_calls, inverse_of: :phone_number
   has_many :unsolicited_messages, inverse_of: :phone_number
   belongs_to :communication_gateway, inverse_of: :phone_numbers

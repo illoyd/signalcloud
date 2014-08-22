@@ -41,8 +41,8 @@ def rand_datetime(from, to=Time.now)
 end
 
 # Create users for all environments
-master_user = User.create_with(nickname: 'Ian', name: 'Ian Lloyd', password: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID']).find_or_create_by(email: 'ian@signalcloudapp.com')
-perf_user = User.create_with(nickname: 'Perf', name: 'Performance User', password: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID']).find_or_create_by(email: 'hello@signalcloudapp.com')
+master_user = User.create_with(nickname: 'Ian', name: 'Ian Lloyd', password: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID']).find_or_create_by!(email: 'ian@signalcloudapp.com')
+perf_user = User.create_with(nickname: 'Perf', name: 'Performance User', password: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID']).find_or_create_by!(email: 'hello@signalcloudapp.com')
 
 # Create users only for non-production environments
 unless Rails.env.production?

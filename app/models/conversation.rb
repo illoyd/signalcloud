@@ -82,11 +82,12 @@ class Conversation < ActiveRecord::Base
   attr_encrypted :expected_denied_answer,     key: ATTR_ENCRYPTED_SECRET
 
   attr_encrypted :customer_number,  key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :internal_number,  key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :old_internal_number,  key: ATTR_ENCRYPTED_SECRET
 
   # Relationships
   belongs_to :stencil, inverse_of: :conversations
   belongs_to :box, inverse_of: :conversations
+  belongs_to :internal_number, class: PhoneNumber, inverse_of: :conversations
   has_many :messages, inverse_of: :conversation, autosave: true
   
   ##
@@ -94,19 +95,14 @@ class Conversation < ActiveRecord::Base
   has_one :ledger_entry, as: :item, autosave: true
 
   delegate :organization, to: :stencil
-  #delegate :communication_gateway, to: :internal_number, allow_nil: true
-  
-  def communication_gateway
-    self.organization.phone_numbers.find_by!( number: self.internal_number ).communication_gateway
-  end
-  
+  delegate :communication_gateway, to: :internal_number
+
   # Before validation  
   before_validation :assign_internal_number #, on: :create
   
   # Validation
   validates_presence_of :stencil, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :internal_number, :question, :customer_number, :expires_at
   validates :customer_number, phone_number: true
-  validates :internal_number, phone_number: true
   validates_inclusion_of :challenge_status, in: Message.workflow_spec.valid_state_names, allow_nil: true
   validates_inclusion_of :reply_status, in: Message.workflow_spec.valid_state_names, allow_nil: true
 
@@ -137,9 +133,9 @@ class Conversation < ActiveRecord::Base
   end
   
   def self.find_open_conversations( internal_number, customer_number )
-    Conversation.where(
-      hashed_internal_number: Conversation.hash_phone_number( internal_number ),
-      hashed_customer_number: Conversation.hash_phone_number( customer_number )
+    Conversation.joins(:internal_number).where(
+      phone_numbers: { number: PhoneNumber.normalize_phone_number(internal_number) },
+      conversations: { hashed_customer_number: Conversation.hash_phone_number(customer_number) }
     ).opened
   end
   
@@ -162,14 +158,14 @@ class Conversation < ActiveRecord::Base
   # Normalize phone numbers. Intended to be used with +before_save+ callbacks.
   def normalize_phone_numbers
     self.customer_number = PhoneNumber.normalize_phone_number(self.customer_number)
-    self.internal_number = PhoneNumber.normalize_phone_number(self.internal_number)
+    #self.internal_number = PhoneNumber.normalize_phone_number(self.internal_number)
   end
   
   ##
   # Standardise phone number hashes, to be used in searches for open conversations.
   def hash_phone_numbers
     self.hashed_customer_number = Conversation.hash_phone_number( PhoneNumber.normalize_phone_number(self.customer_number) )
-    self.hashed_internal_number = Conversation.hash_phone_number( PhoneNumber.normalize_phone_number(self.internal_number) )
+    self.hashed_internal_number = Conversation.hash_phone_number( PhoneNumber.normalize_phone_number(self.internal_number.number) )
   end
   
   def normalized_expected_confirmed_answer
@@ -299,12 +295,12 @@ protected
   def assign_internal_number
     # Add a randomly selected from number if needed
     if self.internal_number.blank? and !self.customer_number.blank?
-      self.internal_number = self.stencil.phone_book.select_internal_number_for( self.customer_number ).number
+      self.internal_number = self.stencil.phone_book.select_internal_number_for( self.customer_number )
     end
   end
 
   def deliver_message( message_body, message_kind )
-    msg = self.messages.create!( to_number: self.customer_number, from_number: self.internal_number, body: message_body, message_kind: message_kind, direction: :out )
+    msg = self.messages.create!( to_number: self.customer_number, from_number: self.internal_number.number, body: message_body, message_kind: message_kind, direction: :out )
     msg.deliver!
     msg
   end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131012084127) do
+ActiveRecord::Schema.define(version: 20140821183558) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -98,9 +98,9 @@ ActiveRecord::Schema.define(version: 20131012084127) do
     t.string   "challenge_status"
     t.string   "reply_status"
     t.string   "error_code"
-    t.text     "encrypted_internal_number",                                null: false
-    t.string   "encrypted_internal_number_iv"
-    t.string   "encrypted_internal_number_salt"
+    t.text     "encrypted_old_internal_number"
+    t.string   "encrypted_old_internal_number_iv"
+    t.string   "encrypted_old_internal_number_salt"
     t.text     "encrypted_customer_number",                                null: false
     t.string   "encrypted_customer_number_iv"
     t.string   "encrypted_customer_number_salt"
@@ -130,10 +130,12 @@ ActiveRecord::Schema.define(version: 20131012084127) do
     t.string   "encrypted_webhook_uri_salt"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "internal_number_id"
   end
 
   add_index "conversations", ["hashed_customer_number"], name: "index_conversations_on_hashed_customer_number", using: :btree
   add_index "conversations", ["hashed_internal_number"], name: "index_conversations_on_hashed_internal_number", using: :btree
+  add_index "conversations", ["internal_number_id"], name: "index_conversations_on_internal_number_id", using: :btree
   add_index "conversations", ["stencil_id"], name: "index_conversations_on_stencil_id", using: :btree
   add_index "conversations", ["workflow_state"], name: "index_conversations_on_workflow_state", using: :btree
 
