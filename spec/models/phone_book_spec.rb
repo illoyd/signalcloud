@@ -54,7 +54,7 @@ describe PhoneBook, :type => :model do
     end
     it 'includes only default phone numbers' do
       numbers = subject.phone_book_entries.where( country: nil ).pluck(:phone_number_id)
-      expect(subject.default_phone_numbers.pluck(:id)).to eq(numbers)
+      expect(subject.default_phone_numbers.pluck(:id)).to match_array(numbers)
     end
     it 'does not include US phone numbers' do
       numbers = subject.phone_numbers_by_country(PhoneBookEntry::US)

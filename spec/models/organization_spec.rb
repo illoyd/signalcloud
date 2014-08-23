@@ -43,6 +43,26 @@ describe Organization, :vcr, :type => :model do
 
   end
   
+  describe '#communication_gateway_for' do
+    subject { create :organization, :with_mock_comms, :with_twilio }
+    
+    it 'returns a mock gateway' do
+      expect( subject.communication_gateway_for(:mock) ).to be_a(MockCommunicationGateway)
+    end
+    
+    it 'returns a Twilio gateway' do
+      expect( subject.communication_gateway_for(:twilio) ).to be_a(TwilioCommunicationGateway)
+    end
+    
+    it 'raises error when requesting a Nexmo gateway' do
+      expect{ subject.communication_gateway_for(:nexmo) }.to raise_error
+    end
+    
+    it 'raises error when requesting any other gateway' do
+      expect{ subject.communication_gateway_for(:ostriches) }.to raise_error
+    end
+  end
+  
   describe '#ensure_account_balance' do
     subject { build :organization }
     it 'creates a new account balance object' do

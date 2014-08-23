@@ -2,7 +2,7 @@ FactoryGirl.define do
 
   factory :message do
     association :conversation, :with_internal_number, :with_stencil, strategy: :build
-    workflow_state     'pending'
+    draft
     challenge
     
 #     after(:create) do |message, evaluator|
@@ -70,11 +70,7 @@ FactoryGirl.define do
     end
     
     trait :draft do
-      workflow_state 'pending'
-    end
-    
-    trait :pending do
-      draft
+      workflow_state 'draft'
     end
     
     trait :sending do

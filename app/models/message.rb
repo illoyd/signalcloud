@@ -3,7 +3,7 @@ class Message < ActiveRecord::Base
   include Workflow
   
   workflow do
-    state :pending do
+    state :draft do
       event :deliver, transitions_to: :sending
       event :receive, transitions_to: :received
       event :error, transitions_to: :errored
@@ -50,6 +50,7 @@ class Message < ActiveRecord::Base
   
   def self.status_to_code( status )
     case status
+      when 'draft'; PENDING
       when 'pending'; PENDING
       when 'sending'; SENDING
       when 'sent'; SENT
@@ -59,7 +60,7 @@ class Message < ActiveRecord::Base
     end
   end
   
-  OPEN_STATUSES = [ 'pending', 'sending', :pending, :sending ]
+  OPEN_STATUSES = [ 'sending', 'draft', :sending, :draft ]
   # CLOSED_STATUSES = [ SENT, FAILED, RECEIVED ]
   # STATUSES = OPEN_STATUSES + CLOSED_STATUSES
   

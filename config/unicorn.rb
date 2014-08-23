@@ -33,7 +33,7 @@ worker_processes Integer(ENV["WEB_CONCURRENCY"] || 2)
 listen 5000, :tcp_nopush => true
 
 # nuke workers after 30 seconds instead of 60 seconds (the default)
-timeout 15
+timeout %w(staging production).include?(ENV['RAILS_ENV']) ? 15 : 45
 
 # feel free to point this anywhere accessible on the filesystem
 # pid "/path/to/app/shared/pids/unicorn.pid"

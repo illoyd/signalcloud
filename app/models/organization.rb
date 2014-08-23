@@ -7,12 +7,12 @@ class Organization < ActiveRecord::Base
     end
     state :ready do
       event :suspend, transition_to: :suspended
-      event :cancel, transition_to: :cancelled
+      event :cancel,  transition_to: :cancelled
       event :upgrade, transition_to: :ready
     end
     state :suspended do
       event :upgrade, transition_to: :ready
-      event :cancel, transition_to: :cancelled
+      event :cancel,  transition_to: :cancelled
     end
     state :cancelled
   end
@@ -176,8 +176,8 @@ protected
   ##
   # Add SID and Auth Token (for API access) on first create.
   def ensure_sid_and_token
-    self.sid        ||= SecureRandom.hex(16)
-    self.auth_token ||= SecureRandom.hex(16)
+    self.sid        ||= SecureRandom.hex(8)
+    self.auth_token ||= SecureRandom.hex(8)
     true
   end
   

@@ -4,15 +4,16 @@
     - if message.direction == Message::OUT
       %p
         %small
-          Sent
+          = message.workflow_state.humanize
           = l (message.sent_at || message.created_at)
+
       %p= message.body
   -# Do INBOUND
   %td
     - if message.direction == Message::IN
       %p
         %small
-          Received
+          = message.workflow_state.humanize
           = l (message.sent_at || message.created_at)
       %p
         - case message.conversation.compare_answer( message.body )
@@ -23,4 +24,4 @@
           - when Conversation::FAILED
             %i Unrecognised message received. (Message hidden for security.)
           - else
-            message.body
+            = message.body

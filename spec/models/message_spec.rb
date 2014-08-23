@@ -188,7 +188,7 @@ describe Message, :vcr, :type => :model do
         expect { subject.deliver! }.to change{subject.provider_response}.from(nil)
       end
       it 'sets workflow_state' do
-        expect { subject.deliver! }.to change{subject.workflow_state}.from('pending').to('sending')
+        expect { subject.deliver! }.to change{subject.workflow_state}.from('draft').to('sending')
       end
     end
 

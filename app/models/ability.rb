@@ -154,7 +154,7 @@ class Ability
   
   def grant_start_conversation_privileges(user, organization_id)
     # Allow new, create for conversations
-    can [:new, :create], Conversation, { stencil: { organization_id: organization_id } }
+    can [:new, :create], Conversation, { stencil: { organization_id: organization_id, organization: { workflow_state: 'ready' } } }
   end
   
 end

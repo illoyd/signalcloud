@@ -189,7 +189,7 @@ describe BoxesController, :type => :controller do
       end
       it "redirects to the boxes list" do
         delete :destroy, organization_id: organization.id, id: box.id
-        expect(response).to redirect_to( organization_boxes_url( organization ) )
+        expect(response).to redirect_to( subject.organization_boxes_url( organization ) )
       end
     end
 
