@@ -11,7 +11,7 @@
   %td
     = link_to [@organization, conversation] do
       = conversation_state_tag( conversation )
-  %td= humanize_phone_number Phony.normalize conversation.internal_number
+  %td= humanize_phone_number Phony.normalize conversation.internal_number.number
   %td= humanize_phone_number Phony.normalize conversation.customer_number
   %td= l conversation.expires_at, format: :short
   %td.text-center= checkmark_for conversation.challenge_sent_at

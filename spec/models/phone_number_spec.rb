@@ -97,7 +97,7 @@ describe PhoneNumber, :vcr, :type => :model do
       end
       
       context 'when active' do
-        subject { create :valid_phone_number, :active, :with_fixed_twilio_sid, organization: organization }
+        subject { create :valid_phone_number, :active, :with_fixed_twilio_sid, organization: organization, communication_gateway: comm_gateway }
 
         describe '#can_purchase?' do
           subject { super().can_purchase? }
@@ -131,7 +131,7 @@ describe PhoneNumber, :vcr, :type => :model do
     context 'invalid number' do
 
       context 'when inactive (also new)' do
-        subject { create :invalid_phone_number, organization: organization }
+        subject { create :invalid_phone_number, organization: organization, communication_gateway: comm_gateway }
         it 'fails to purchase number' do
           expect { subject.purchase! }.to raise_error(Twilio::REST::RequestError)
         end
@@ -145,7 +145,7 @@ describe PhoneNumber, :vcr, :type => :model do
     context 'unavailable number' do
 
       context 'when inactive (also new)' do
-        subject { create :unavailable_phone_number, organization: organization }
+        subject { create :unavailable_phone_number, organization: organization, communication_gateway: comm_gateway }
         it 'fails to purchase number' do
           expect { subject.purchase! }.to raise_error(Twilio::REST::RequestError)
         end

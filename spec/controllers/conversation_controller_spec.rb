@@ -1,15 +1,15 @@
 require 'spec_helper'
 describe ConversationsController, :type => :controller do
   let(:user)            { create :user }
-  let(:plan)            { create :account_plan, :default }
-  let(:organization)    { create :organization, account_plan: plan }
-  let(:stencil)         { create :stencil, organization: organization }
-  let(:conversation)    { create :conversation, stencil: stencil }
+  let(:organization)    { stencil.organization }
+  let(:stencil)         { conversation.stencil }
+  let(:conversation)    { create :conversation, :with_stencil, :with_internal_number }
 
   let(:customer_number) { Twilio::INVALID_NUMBER }
-  let(:internal_number) { Twilio::VALID_NUMBER }
-  let(:create_payload)  {{ organization_id: organization.id, stencil_id: stencil.id, conversation: { customer_number: customer_number, internal_number: internal_number } }}
-  let(:update_payload)  {{ organization_id: organization.id, stencil_id: stencil.id, id: conversation.id, conversation: { customer_number: customer_number, internal_number: internal_number } }}
+  let(:internal_number) { conversation.internal_number }
+
+  let(:create_attributes) {{ customer_number: customer_number, internal_number_id: internal_number.id }}
+  let(:create_payload)    {{ organization_id: organization.id, stencil_id: stencil.id, conversation: create_attributes }} 
 
   it_behaves_like 'an organization resource'
   
@@ -25,8 +25,7 @@ describe ConversationsController, :type => :controller do
 
     describe 'GET index' do
       before do
-        create :conversation, stencil: stencil
-        create :conversation, stencil: stencil
+        create_list :conversation, 3, stencil: stencil, internal_number: internal_number
       end
         
       it 'renders index' do
@@ -91,12 +90,16 @@ describe ConversationsController, :type => :controller do
     end
 
     describe 'POST create' do
-      it 'redirects to organization page' do
+      it 'redirects to conversation page' do
         post :create, create_payload
         expect( response ).to redirect_to( [ organization, Conversation.last ] )
       end
-      it 'creates a new organization' do
+      it 'creates a new conversation' do
         expect{ post :create, create_payload }.to change( Conversation, :count ).by(1)
+      end
+      it 'sets conversation\'s stencil' do
+        post :create, create_payload
+        expect(Conversation.last.stencil).to eq(stencil)
       end
       it 'sets conversation\'s customer_number' do
         post :create, create_payload
@@ -104,7 +107,7 @@ describe ConversationsController, :type => :controller do
       end
       it 'sets conversation\'s internal_number' do
         post :create, create_payload
-        expect(Conversation.last.internal_number).to eq(internal_number.gsub(/^\+/,''))
+        expect(Conversation.last.internal_number).to eq(internal_number)
       end
       it 'raises 400 bad request if no parameters' do
         expect{ post :create, organization_id: organization.id, stencil_id: stencil.id }.to raise_error(ActionController::ParameterMissing)

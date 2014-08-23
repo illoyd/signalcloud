@@ -11,13 +11,8 @@ describe ConversationPricer, :type => :model do
     end
     
     context 'with conversation with US customer' do
-#       let(:organization)     { build_stubbed :organization, :test_twilio }
-#       let(:phone_number)     { build_stubbed :phone_number, organization: organization, communication_gateway: organization.communication_gateways.first }
-#       let(:phone_book)       { create :phone_book, organization: organization }
-#       let(:phone_book_entry) { create :phone_book_entry, phone_book: phone_book, phone_number: phone_number }
-#       let(:stencil)          { build_stubbed :stencil, organization: organization, phone_book: phone_book }
       let(:phone_number) { build_stubbed :us_phone_number }
-      let(:conversation) { build_stubbed :conversation, :asked, customer_number: phone_number.number }
+      let(:conversation) { build_stubbed :conversation, :with_stencil, :with_internal_number, :asked, customer_number: phone_number.number }
       
       it 'returns a BigDecimal' do
         expect(subject.price_for(conversation)).to be_a BigDecimal
@@ -25,7 +20,7 @@ describe ConversationPricer, :type => :model do
       
       [ :draft, :asking, :asked, :receiving, :received, :confirming, :confirmed, :denying, :denied, :failing, :failed, :expiring, :expired ].each do |state|
         context "with #{state} conversation" do
-          let(:conversation) { create :conversation, state, :with_messages, customer_number: phone_number.number }
+          let(:conversation) { create :conversation, state, :with_stencil, :with_internal_number, :with_messages, customer_number: phone_number.number }
           it 'calculates price' do
             expect(subject.price_for( conversation )).to eq(us_price_sheet.base_conversation_price)
           end
@@ -34,7 +29,7 @@ describe ConversationPricer, :type => :model do
       
       [ :asking, :asked, :receiving, :received, :confirming, :confirmed, :denying, :denied, :failing, :failed, :expiring, :expired ].each do |state|
         context "with long challenge #{state} conversation" do
-          let(:conversation) { create :conversation, state, :with_messages, customer_number: phone_number.number, question: 'q'*170 }
+          let(:conversation) { create :conversation, state, :with_stencil, :with_internal_number, :with_messages, customer_number: phone_number.number, question: 'q'*170 }
           it 'calculates price' do
             expect(subject.price_for( conversation )).to eq( us_price_sheet.base_conversation_price * 1.5 )
           end
@@ -43,7 +38,7 @@ describe ConversationPricer, :type => :model do
       
       [ :confirming, :confirmed, :denying, :denied, :failing, :failed, :expiring, :expired ].each do |state|
         context "with long reply #{state} conversation" do
-          let(:conversation) { create :conversation, state, :with_messages, customer_number: phone_number.number, confirmed_reply: 'c'*170, denied_reply: 'd'*170, failed_reply: 'f'*170, expired_reply: 'e'*170 }
+          let(:conversation) { create :conversation, state, :with_stencil, :with_internal_number, :with_messages, customer_number: phone_number.number, confirmed_reply: 'c'*170, denied_reply: 'd'*170, failed_reply: 'f'*170, expired_reply: 'e'*170 }
           it 'calculates price' do
             expect(subject.price_for( conversation )).to eq( us_price_sheet.base_conversation_price * 1.5 )
           end
@@ -52,7 +47,7 @@ describe ConversationPricer, :type => :model do
       
       [ :confirming, :confirmed, :denying, :denied, :failing, :failed, :expiring, :expired ].each do |state|
         context "with long challenge and reply #{state} conversation" do
-          let(:conversation) { create :conversation, state, :with_messages, customer_number: phone_number.number, question: 'q'*170, confirmed_reply: 'c'*170, denied_reply: 'd'*170, failed_reply: 'f'*170, expired_reply: 'e'*170 }
+          let(:conversation) { create :conversation, state, :with_stencil, :with_internal_number, :with_messages, customer_number: phone_number.number, question: 'q'*170, confirmed_reply: 'c'*170, denied_reply: 'd'*170, failed_reply: 'f'*170, expired_reply: 'e'*170 }
           it 'calculates price' do
             expect(subject.price_for( conversation )).to eq( us_price_sheet.base_conversation_price * 2.0 )
           end

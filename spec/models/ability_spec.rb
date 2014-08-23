@@ -8,7 +8,7 @@ describe User, '.abilities', :type => :model do
   let(:test_phone_number)  { create :phone_number, organization: test_organization, communication_gateway: test_comm_gateway }
   let(:test_phone_book)    { create :phone_book, organization: test_organization }
   let(:test_stencil)       { create :stencil, organization: test_organization, phone_book: test_phone_book }
-  let(:test_conversation)  { create :conversation, stencil: test_stencil }
+  let(:test_conversation)  { create :conversation, stencil: test_stencil, internal_number: test_phone_number }
   let(:test_message)       { create :message, :challenge, conversation: test_conversation }
   let(:test_user)          { create :user, user_roles: [ UserRole.new( organization: test_organization, roles: nil ) ] }
   let(:test_ledger_entry)  { create :ledger_entry, item: test_message }
@@ -18,7 +18,7 @@ describe User, '.abilities', :type => :model do
   let(:other_phone_number) { create :phone_number, organization: other_organization, communication_gateway: other_comm_gateway }
   let(:other_phone_book)   { create :phone_book, organization: other_organization }
   let(:other_stencil)      { create :stencil, organization: other_organization, phone_book: other_phone_book }
-  let(:other_conversation) { create :conversation, stencil: other_stencil }
+  let(:other_conversation) { create :conversation, stencil: other_stencil, internal_number: other_phone_number }
   let(:other_message)      { create :message, :challenge, conversation: other_conversation }
   let(:other_user)         { create :user, user_roles: [ UserRole.new( organization: other_organization, roles: nil ) ] }
   let(:other_ledger_entry) { create :ledger_entry, item: other_message }

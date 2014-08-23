@@ -169,7 +169,7 @@ describe Message, :vcr, :type => :model do
   
   describe '#deliver!' do
     let(:organization) { create :organization, :with_mock_comms, :with_sid_and_token }
-    let(:phone_number) { create :valid_phone_number, organization: organization }
+    let(:phone_number) { create :valid_phone_number, :with_gateway, organization: organization }
     let(:phone_book)   { create :phone_book, organization: organization }
     let(:stencil)      { create :stencil, organization: organization, phone_book: phone_book }
     let(:conversation) { create :conversation, :real, stencil: stencil }

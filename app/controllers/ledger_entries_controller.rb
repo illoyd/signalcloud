@@ -4,7 +4,6 @@ class LedgerEntriesController < ApplicationController
 
   load_and_authorize_resource :organization
   load_and_authorize_resource through: :organization
-  before_filter :assign_invoice
   
   # GET /ledger_entries/1
   # GET /ledger_entries/1.json

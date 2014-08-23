@@ -11,7 +11,7 @@
 - if @user.try(:persisted?)
   .actions
     -# Allow viewing
-    - if can?(:show, @user)
+    - if can?(:show, @organization) && can?(:show, @user)
       = link_to iconify('Details', :show), [@organization, @user]
       
     -# Editing

@@ -4,7 +4,7 @@ describe InboundMessageJob do
   let(:sms_sid )        { 'SM7104b239862b9006bd360a3d5f285f2e' }
   let(:organization)    { create(:organization, :with_mock_comms) }
   let(:stencil)         { create(:stencil, organization: organization) }
-  let(:phone_number)    { create(:phone_number, organization: organization) }
+  let(:phone_number)    { create(:phone_number, :with_gateway, organization: organization) }
   let(:customer_number) { Twilio::VALID_NUMBER }
 
   let(:payload)         { construct_inbound_payload }

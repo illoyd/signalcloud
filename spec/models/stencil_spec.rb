@@ -10,7 +10,11 @@ shared_examples_for 'a conversation builder' do
   end
   
   it 'assigns the internal number' do
-    expect(subject.build_conversation(payload).internal_number).to eq(internal)
+    expect(subject.build_conversation(payload).internal_number.number).to eq(internal)
+  end
+  
+  it 'assigns the internal number' do
+    expect(subject.build_conversation(payload).internal_number).to eq(phone_number)
   end
   
   Stencil::CONVERSATION_PARAMETERS.each do |attribute|
@@ -21,16 +25,17 @@ shared_examples_for 'a conversation builder' do
 end
 
 describe Stencil, :type => :model do
-  let(:organization)     { build :organization, :with_mock_communication_gateway }
-  let(:phone_book)       { build :phone_book, organization: organization }
+  let(:organization)     { create :organization, :with_mock_comms }
+  let(:phone_book)       { create :phone_book, organization: organization }
+  let(:phone_number)     { create :phone_number, organization: organization, communication_gateway: organization.communication_gateway_for(:mock) }
 
   context 'with fully defined stencil' do
     subject              { build :stencil, organization: organization, phone_book: phone_book }
   
     context 'using explicit internal number' do 
       let(:customer)     { Twilio::VALID_NUMBER }
-      let(:internal)     { Twilio::INVALID_NUMBER }
-      let(:payload)      { {customer_number: customer, internal_number: internal} }
+      let(:internal)     { phone_number.number }
+      let(:payload)      { {customer_number: customer, internal_number_id: phone_number.id} }
       
       it_behaves_like 'a conversation builder'
 
@@ -41,10 +46,9 @@ describe Stencil, :type => :model do
     
     context 'using implicit phone book' do
       let(:customer)     { Twilio::VALID_NUMBER }
-      let(:phone_number) { create :phone_number, organization: organization }
       let(:internal)     { phone_number.number }
       let(:payload)      { {customer_number: customer} }
-      before(:each)      { phone_book.save; phone_book.phone_book_entries.create(phone_number: phone_number) }
+      before(:each)      { phone_book.phone_book_entries.create(phone_number: phone_number) }
 
       it_behaves_like 'a conversation builder'
 
@@ -59,8 +63,8 @@ describe Stencil, :type => :model do
 
     context 'using explicit internal number' do 
       let(:customer)     { Twilio::VALID_NUMBER }
-      let(:internal)     { Twilio::INVALID_NUMBER }
-      let(:payload)      { {customer_number: customer, internal_number: internal} }
+      let(:internal)     { phone_number.number }
+      let(:payload)      { {customer_number: customer, internal_number_id: phone_number.id} }
       
       it_behaves_like 'a conversation builder'
 
@@ -71,10 +75,9 @@ describe Stencil, :type => :model do
     
     context 'using implicit phone book' do
       let(:customer)     { Twilio::VALID_NUMBER }
-      let(:phone_number) { create :phone_number, organization: organization }
       let(:internal)     { phone_number.number }
       let(:payload)      { {customer_number: customer} }
-      before(:each)      { phone_book.save; phone_book.phone_book_entries.create(phone_number: phone_number) }
+      before(:each)      { phone_book.phone_book_entries.create(phone_number: phone_number) }
   
       it_behaves_like 'a conversation builder'
 

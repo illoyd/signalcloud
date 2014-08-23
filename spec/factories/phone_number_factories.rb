@@ -1,10 +1,18 @@
 FactoryGirl.define do
 
-  factory :phone_number, aliases: [ :us_phone_number ] do
-    sequence(:number)           { |n| '+1%010d' % ( 6000000000 + n ) }
-    organization
-    communication_gateway       { organization.communication_gateways.first }
+  factory :phone_number, aliases: [ :internal_number, :us_phone_number ] do
+
+    trait :with_organization do
+      association :organization, :with_mock_comms, strategy: :build
+    end
     
+    trait :with_gateway do
+      ignore { comm_type nil }
+      communication_gateway     { comm_type ? (organization.save; organization.communication_gateway_for(comm_type)) : organization.communication_gateways.first }
+    end
+
+    sequence(:number)           { |n| '+1%010d' % ( 6000000000 + n ) }
+
     factory :valid_phone_number do
       number                    { Twilio::VALID_NUMBER }
     end
@@ -17,7 +25,7 @@ FactoryGirl.define do
       number                    { Twilio::UNAVAILABLE_NUMBER }
     end
     
-    factory :uk_phone_number do
+    factory :uk_phone_number, aliases: [:gb_phone_number] do
       sequence(:number)         { |n| '+4479%08d' % n }
     end
     

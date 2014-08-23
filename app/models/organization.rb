@@ -26,8 +26,8 @@ class Organization < ActiveRecord::Base
   
   has_many :communication_gateways, inverse_of: :organization, autosave: true
 
-  has_one :accounting_gateway, inverse_of: :organization
-  has_one :payment_gateway, inverse_of: :organization
+  has_one :accounting_gateway, inverse_of: :organization, autosave: true
+  has_one :payment_gateway, inverse_of: :organization, autosave: true
 
   belongs_to :account_plan, inverse_of: :organizations
   has_many :boxes, inverse_of: :organization
@@ -96,7 +96,7 @@ class Organization < ActiveRecord::Base
       else
         raise RuntimeError.new('Unrecognised service %s!' % [service.to_s])
       end
-    self.communication_gateways.where( type: klass ).first
+    self.communication_gateways.find_by( type: klass )
   end
   
   def communication_gateway_for?( service )

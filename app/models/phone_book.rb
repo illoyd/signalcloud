@@ -7,12 +7,12 @@ class PhoneBook < ActiveRecord::Base
   
   validates_presence_of :organization
   
-  def phone_number_ids_by_country( country )
-    self.phone_book_entries.where( country: country ).pluck(:phone_number_id)
+  def phone_numbers_by_country(country)
+    self.phone_numbers.where(phone_book_entries: {country: country})
   end
   
-  def default_phone_number_ids()
-    self.phone_number_ids_by_country(nil)
+  def default_phone_numbers
+    self.phone_numbers_by_country(nil)
   end
   
   def select_internal_number_for( to_number )
@@ -20,16 +20,16 @@ class PhoneBook < ActiveRecord::Base
     country = country.to_s if country.respond_to? :to_s
 
     # First, try to find 'From numbers' for the same country as the country for the 'To number'
-    phone_number_ids = self.phone_number_ids_by_country(country)
+    phone_numbers = self.phone_numbers_by_country(country)
     
-    # If no phone numbers found, try the 'global' phone numbers
-    phone_number_ids = self.default_phone_number_ids if phone_number_ids.empty?
+    # If no phone numbers found, try the 'global' (nil country) phone numbers
+    phone_numbers = self.default_phone_numbers if phone_numbers.empty?
     
-    # If still no number is found, grab any phone number from the book
-    phone_number_ids = self.phone_book_entries.pluck(:phone_number_id) if phone_number_ids.empty?
+    # If still no number is found, grab all phone numbers
+    phone_numbers = self.phone_numbers if phone_numbers.empty?
 
-    # Finally, randomly select one id from the collection and return that phone number
-    return PhoneNumber.find(phone_number_ids.sample)
+    # Finally, randomly select one phone number from the collection
+    return phone_numbers.sample
   end
 
 end

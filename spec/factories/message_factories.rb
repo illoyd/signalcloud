@@ -1,7 +1,7 @@
 FactoryGirl.define do
 
   factory :message do
-    conversation
+    association :conversation, :with_internal_number, :with_stencil, strategy: :build
     workflow_state     'pending'
     challenge
     
