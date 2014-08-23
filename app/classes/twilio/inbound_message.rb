@@ -14,8 +14,8 @@ module Twilio
     alias_method :customer_number, :from
 
     # Defaulted fields
-    property :status,       from: :SmsStatus,   default: Message::RECEIVED_SZ, transformer: Twilio::StatusTransformer
-    property :direction,    from: :Direction,   default: Message::IN,          transformer: Twilio::DirectionTransformer
+    property :status,       from: :SmsStatus,   default: ::Message::RECEIVED_SZ, transformer: Twilio::StatusTransformer
+    property :direction,    from: :Direction,   default: ::Message::IN,          transformer: Twilio::DirectionTransformer
     property :segments,     from: :NumSegments, default: 1,                    transformer: IntegerTransformer
 
     # Optional fields
