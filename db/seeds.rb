@@ -41,13 +41,13 @@ def rand_datetime(from, to=Time.now)
 end
 
 # Create users for all environments
-master_user = User.create_with(nickname: 'Ian', name: 'Ian Lloyd', password: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID']).find_or_create_by!(email: 'ian@signalcloudapp.com')
-perf_user = User.create_with(nickname: 'Perf', name: 'Performance User', password: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['SEED_PASSWORD'] || ENV['TWILIO_MASTER_ACCOUNT_SID']).find_or_create_by!(email: 'hello@signalcloudapp.com')
+master_user = User.create_with(name: ENV['SEED_USER'] || 'Johnny Appleseed', password: ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['TWILIO_MASTER_ACCOUNT_SID']).find_or_create_by!(email: ENV['SEED_EMAIL'] || 'seed@signalcloudapp.com')
 
 # Create users only for non-production environments
 unless Rails.env.production?
-  simple_user = User.create_with(nickname: 'Joe', name: 'Joseph Bloggs', password: 'password', password_confirmation: 'password').find_or_create_by(email: 'joe.bloggs@signalcloudapp.com')
-  test_user = User.create_with(nickname: 'Jane', name: 'Jane Doe', password: 'password', password_confirmation: 'password').find_or_create_by(email: 'jane.doe@signalcloudapp.com')
+  perf_user = User.create_with(nickname: 'Perf', name: 'Performance User', password: ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['TWILIO_MASTER_ACCOUNT_SID']).find_or_create_by!(email: 'hello@signalcloudapp.com')
+  simple_user = User.create_with(nickname: 'Joe', name: 'Joseph Bloggs',   password: 'password', password_confirmation: 'password').find_or_create_by(email: 'joe.bloggs@signalcloudapp.com')
+  test_user = User.create_with(nickname: 'Jane', name: 'Jane Doe',         password: 'password', password_confirmation: 'password').find_or_create_by(email: 'jane.doe@signalcloudapp.com')
 end
 
 # Add plan data
@@ -58,7 +58,7 @@ dedicated_plan = AccountPlan.create_with( month: -250, phone_add: 0, call_in_add
 # Master organization tools
 unless Organization.exists?( sid: '76f78f836d4563bf4824da02b506346d' )
   org = Organization.create!({
-    label:          'Master Organization',
+    label:          'Master',
     account_plan:   master_plan,
     description:    'Primary organization',
     sid:            '76f78f836d4563bf4824da02b506346d',
@@ -226,7 +226,7 @@ end
 
 
 # Add a performance testing organization where necessary (will not appear in Development)
-unless Organization.exists?( sid: '00000000000000000000000000000000' )
+unless Rails.env.production? || Organization.exists?( sid: '00000000000000000000000000000000' )
 
   org = Organization.create!({
     label:          'Performance',

@@ -13,7 +13,7 @@ class ConversationSerializer < ActiveModel::Serializer
   end
 
   def internal_number
-    "+#{ object.internal_number }"
+    "+#{ object.internal_number.number }"
   end
 
 end

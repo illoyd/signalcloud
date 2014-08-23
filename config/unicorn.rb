@@ -8,9 +8,13 @@
 # See http://unicorn.bogomips.org/Unicorn/Configurator.html for complete
 # documentation.
 
+# Running sidekiq inside
+run_sidekiq_in_this_thread = %w(staging production).include?(ENV['RAILS_ENV'])
+@sidekiq_pid = nil
+
 # Use at least one worker per core if you're on a dedicated server,
 # more will usually help for _short_ waits on databases/caches.
-worker_processes 2
+worker_processes Integer(ENV["WEB_CONCURRENCY"] || 2)
 
 # Since Unicorn is never exposed to outside clients, it does not need to
 # run on the standard HTTP port (80), there is no reason to start Unicorn
@@ -29,7 +33,7 @@ worker_processes 2
 listen 5000, :tcp_nopush => true
 
 # nuke workers after 30 seconds instead of 60 seconds (the default)
-timeout 30
+timeout 15
 
 # feel free to point this anywhere accessible on the filesystem
 # pid "/path/to/app/shared/pids/unicorn.pid"
@@ -55,6 +59,11 @@ GC.respond_to?(:copy_on_write_friendly=) and
 check_client_connection false
 
 before_fork do |server, worker|
+  Signal.trap 'TERM' do
+    puts 'Unicorn master intercepting TERM and sending myself QUIT instead'
+    Process.kill 'QUIT', Process.pid
+  end
+  
   # the following is highly recomended for Rails + "preload_app true"
   # as there's no need for the master process to hold a connection
   defined?(ActiveRecord::Base) and
@@ -83,9 +92,19 @@ before_fork do |server, worker|
   # helps (but does not completely) prevent identical, repeated signals
   # from being lost when the receiving process is busy.
   # sleep 1
+
+  if run_sidekiq_in_this_thread
+    @sidekiq_pid ||= spawn("bundle exec sidekiq -c #{ ENV['JOB_CONCURRENCY'].to_i }")
+    Rails.logger.info("Spawned sidekiq #{@sidekiq_pid}")
+  end
+
 end
 
 after_fork do |server, worker|
+  Signal.trap 'TERM' do
+    puts 'Unicorn worker intercepting TERM and doing nothing. Wait for master to send QUIT'
+  end
+
   # per-process listener ports for debugging/admin/migrations
   # addr = "127.0.0.1:#{9293 + worker.nr}"
   # server.listen(addr, :tries => -1, :delay => 5, :tcp_nopush => true)

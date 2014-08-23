@@ -61,7 +61,7 @@ gem 'sinatra', '>= 1.3.0', :require => nil
 
 #
 # Additional gems
-gem 'active_model_serializers'
+gem 'active_model_serializers', '~> 0.8.0'
 gem 'haml'
 gem 'devise', git: 'git@github.com:plataformatec/devise.git', branch: 'lm-rails-4-2'
 gem 'devise-async'
@@ -93,7 +93,7 @@ gem 'responders'
 # Internal services (e.g. queues, caches)
 gem 'redis'
 gem 'sidekiq', '~> 3.2'
-gem 'sidetiq'
+#gem 'sidetiq'
 
 #
 # External services (e.g. telephony, accounting)

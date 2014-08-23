@@ -14,7 +14,7 @@ span.flag {
 
 @each $alpha2 in $countries {
   span.flag.fl-#{$alpha2} {
-    background-image: url("/assets/flags/medium/#{$alpha2}.png");
+    background-image: image-url("flags/medium/#{$alpha2}.png");
   }
 }
 
@@ -27,7 +27,7 @@ span.flag {
   only screen and (                min-resolution: 2dppx) {
     @each $alpha2 in $countries {
       span.flag.fl-#{$alpha2} {
-        background-image: url("/assets/flags/medium@2x/#{$alpha2}.png");
+        background-image: image-url("flags/medium@2x/#{$alpha2}.png");
         background-size:  24px 24px;
       }
     }
@@ -35,7 +35,7 @@ span.flag {
 
 @each $alpha2 in $countries {
   span.flag.flag-lg.fl-#{$alpha2} {
-    background-image: "/assets/flags/large/#{$alpha2}.png";
+    background-image: image-url("flags/large/#{$alpha2}.png");
   }
 }
 
@@ -48,7 +48,7 @@ span.flag {
   only screen and (                min-resolution: 2dppx) {
     @each $alpha2 in $countries {
       span.flag.flag-lg.fl-#{$alpha2} {
-        background-image: url("/assets/flags/large@2x/#{$alpha2}.png");
+        background-image: image-url("flags/large@2x/#{$alpha2}.png");
         background-size:  64px 64px;
       }
     }
