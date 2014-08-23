@@ -3,7 +3,7 @@
   - if can?(:index, Conversation)
     = link_to iconify('Conversations', :conversations), organization_conversations_path(@organization)
 
-  -# If no book present, allow creating a new one
+  -# Allow starting conversations
   - if can?(:new, Conversation)
     = link_to iconify('Start conversation', :plus), new_organization_stencil_conversation_path( @organization, @stencil || @conversation.try(:stencil) || @organization.default_stencil )
     

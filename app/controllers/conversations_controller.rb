@@ -46,11 +46,6 @@ class ConversationsController < ApplicationController
     respond_with @organization, @conversation
   end
 
-  # GET /conversations/1/edit
-  #   def edit
-  #     @conversation = ( @stencil.nil? ? @organization : @stencil ).conversations.find(params[:id])
-  #   end
-
   # POST /conversations
   # POST /conversations.json
   def create

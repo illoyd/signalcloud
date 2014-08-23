@@ -48,6 +48,7 @@ module ApplicationHelper
   end
 
   def humanize_phone_number( number )
+    return humanize_phone_number(number.number) if number.is_a? PhoneNumber
     Country.format_international_phone_number(number)
   end
   

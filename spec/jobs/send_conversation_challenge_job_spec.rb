@@ -43,11 +43,12 @@ describe SendConversationChallengeJob, :vcr do
 
   describe '#perform' do
     let(:organization)    { create(:organization, :with_mock_comms, :with_sid_and_token) }
+    let(:internal_number) { create(:phone_number, :with_gateway, number: Twilio::VALID_NUMBER, organization: organization) }
     let(:stencil)         { create(:stencil, organization: organization) }
 
     SendConversationChallengeJob_OPEN_STATES.each do |state|
       context "when conversation is #{state} and not sent" do
-        let(:conversation)  { create(:conversation, state, stencil: stencil, customer_number: Twilio::VALID_NUMBER, internal_number: Twilio::VALID_NUMBER) }
+        let(:conversation)  { create(:conversation, state, stencil: stencil, customer_number: Twilio::VALID_NUMBER, internal_number: internal_number) }
         it 'creates a new message' do
           expect { subject.perform( conversation.id ) }.to change{conversation.messages(true).count}.by(1)
         end
@@ -71,7 +72,7 @@ describe SendConversationChallengeJob, :vcr do
 
     SendConversationChallengeJob_CLOSED_STATES.each do |state|
       context "when conversation is #{state} and sent" do
-        let(:conversation)  { create(:conversation, state, stencil: stencil, customer_number: Twilio::VALID_NUMBER, internal_number: Twilio::VALID_NUMBER) }
+        let(:conversation)  { create(:conversation, state, stencil: stencil, customer_number: Twilio::VALID_NUMBER, internal_number: internal_number) }
         it 'does not create a new message' do
           expect { subject.perform( conversation.id ) }.not_to change{conversation.messages(true).count}
         end
@@ -95,13 +96,13 @@ describe SendConversationChallengeJob, :vcr do
     
     context 'with invalid TO number' do
       let(:phone_number)     { create :phone_number, number: Twilio::VALID_NUMBER, organization: organization, communication_gateway: organization.communication_gateway_for(:mock) }
-      let(:conversation)     { create :conversation, :draft, :real, stencil: stencil, customer_number: Twilio::INVALID_NUMBER, internal_number: phone_number.number }
+      let(:conversation)     { create :conversation, :draft, :real, stencil: stencil, customer_number: Twilio::INVALID_NUMBER, internal_number: phone_number }
       it_behaves_like 'a failed message'
     end
 
     context 'with invalid FROM number' do
       let(:phone_number)     { create :phone_number, number: Twilio::INVALID_NUMBER, organization: organization, communication_gateway: organization.communication_gateway_for(:mock) }
-      let(:conversation)     { create :conversation, :draft, :real, stencil: stencil, customer_number: Twilio::VALID_NUMBER, internal_number: phone_number.number }
+      let(:conversation)     { create :conversation, :draft, :real, stencil: stencil, customer_number: Twilio::VALID_NUMBER, internal_number: phone_number }
       it_behaves_like 'a failed message'
     end
 

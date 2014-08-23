@@ -6,7 +6,7 @@ describe PhoneBook, :type => :model do
   def create_book( defaults=0, us_numbers=0, ca_numbers=0, gb_numbers=0 )
     organization = create :organization, :test_twilio
     comm_gateway = organization.communication_gateways.first
-    book = create(:phone_book)
+    book = create(:phone_book, organization: organization)
     
     defaults.times do |n|
       pn = create :phone_number, organization: book.organization, communication_gateway: comm_gateway
@@ -45,8 +45,8 @@ describe PhoneBook, :type => :model do
   describe '#default_phone_numbers' do
     subject { create_book(3, 2, 2, 2) }
 
-    describe '#default_phone_number_ids' do
-      subject { super().default_phone_number_ids }
+    describe '#default_phone_numbers' do
+      subject { super().default_phone_numbers }
 
       it 'has 3 items' do
         expect(subject.size).to eq(3)
@@ -54,61 +54,61 @@ describe PhoneBook, :type => :model do
     end
     it 'includes only default phone numbers' do
       numbers = subject.phone_book_entries.where( country: nil ).pluck(:phone_number_id)
-      expect(subject.default_phone_number_ids).to eq(numbers)
+      expect(subject.default_phone_numbers.pluck(:id)).to eq(numbers)
     end
     it 'does not include US phone numbers' do
-      numbers = subject.phone_number_ids_by_country(PhoneBookEntry::US)
-      expect(subject.default_phone_number_ids).not_to eq(numbers)
+      numbers = subject.phone_numbers_by_country(PhoneBookEntry::US)
+      expect(subject.default_phone_numbers).not_to eq(numbers)
     end
     it 'does not include UK phone numbers' do
-      numbers = subject.phone_number_ids_by_country(PhoneBookEntry::UK)
-      expect(subject.default_phone_number_ids).not_to eq(numbers)
+      numbers = subject.phone_numbers_by_country(PhoneBookEntry::UK)
+      expect(subject.default_phone_numbers).not_to eq(numbers)
     end
     it 'does not include CA phone numbers' do
-      numbers = subject.phone_number_ids_by_country(PhoneBookEntry::CA)
-      expect(subject.default_phone_number_ids).not_to eq(numbers)
+      numbers = subject.phone_numbers_by_country(PhoneBookEntry::CA)
+      expect(subject.default_phone_numbers).not_to eq(numbers)
     end
   end
 
   describe '#select_internal_number_for' do
-    let(:default_numbers) { book.default_phone_number_ids() }
-    let(:us_numbers)      { book.phone_number_ids_by_country(PhoneBookEntry::US) }
-    let(:ca_numbers)      { book.phone_number_ids_by_country(PhoneBookEntry::CA) }
-    let(:gb_numbers)      { book.phone_number_ids_by_country(PhoneBookEntry::GB) }
+    let(:default_numbers) { book.default_phone_numbers }
+    let(:us_numbers)      { book.phone_numbers_by_country(PhoneBookEntry::US) }
+    let(:ca_numbers)      { book.phone_numbers_by_country(PhoneBookEntry::CA) }
+    let(:gb_numbers)      { book.phone_numbers_by_country(PhoneBookEntry::GB) }
 
     context 'when using only default numbers' do
       let(:book) { create_book(2, 0, 0, 0) }
 
       it 'selects a default number for US number' do
-        expect(default_numbers).to include( book.select_internal_number_for( us_number ).id )
+        expect(default_numbers).to include( book.select_internal_number_for( us_number ) )
       end
       
       it 'selects a default number for a Canadian number' do
-        expect(default_numbers).to include( book.select_internal_number_for( ca_number ).id )
+        expect(default_numbers).to include( book.select_internal_number_for( ca_number ) )
       end
       
       it 'selects a default number for a United Kingdom number' do
-        expect(default_numbers).to include( book.select_internal_number_for( gb_number ).id )
+        expect(default_numbers).to include( book.select_internal_number_for( gb_number ) )
       end
       
       it 'selects a default number for a Trinidad number' do
-        expect(default_numbers).to include( book.select_internal_number_for( tt_number ).id )
+        expect(default_numbers).to include( book.select_internal_number_for( tt_number ) )
       end
       
       it 'selects a default number for a Malaysian number' do
-        expect(default_numbers).to include( book.select_internal_number_for( my_number ).id )
+        expect(default_numbers).to include( book.select_internal_number_for( my_number ) )
       end
       
       it 'selects a default number for a Hong Kong number' do
-        expect(default_numbers).to include( book.select_internal_number_for( hk_number ).id )
+        expect(default_numbers).to include( book.select_internal_number_for( hk_number ) )
       end
       
       it 'selects a default number for a Australian number' do
-        expect(default_numbers).to include( book.select_internal_number_for( au_number ).id )
+        expect(default_numbers).to include( book.select_internal_number_for( au_number ) )
       end
       
       it 'selects a default number for a Russian number' do
-        expect(default_numbers).to include( book.select_internal_number_for( ru_number ).id )
+        expect(default_numbers).to include( book.select_internal_number_for( ru_number ) )
       end
     end
 
@@ -116,35 +116,35 @@ describe PhoneBook, :type => :model do
       let(:book) { create_book(0, 2, 0, 0) }
 
       it 'selects a US number for US number' do
-        expect(us_numbers).to include( book.select_internal_number_for( us_number ).id )
+        expect(us_numbers).to include( book.select_internal_number_for( us_number ) )
       end
       
       it 'selects a US number for a Canadian number' do
-        expect(us_numbers).to include( book.select_internal_number_for( ca_number ).id )
+        expect(us_numbers).to include( book.select_internal_number_for( ca_number ) )
       end
       
       it 'selects a US number for a United Kingdom number' do
-        expect(us_numbers).to include( book.select_internal_number_for( gb_number ).id )
+        expect(us_numbers).to include( book.select_internal_number_for( gb_number ) )
       end
       
       it 'selects a US number for a Trinidad number' do
-        expect(us_numbers).to include( book.select_internal_number_for( tt_number ).id )
+        expect(us_numbers).to include( book.select_internal_number_for( tt_number ) )
       end
       
       it 'selects a US number for a Malaysian number' do
-        expect(us_numbers).to include( book.select_internal_number_for( my_number ).id )
+        expect(us_numbers).to include( book.select_internal_number_for( my_number ) )
       end
       
       it 'selects a US number for a Hong Kong number' do
-        expect(us_numbers).to include( book.select_internal_number_for( hk_number ).id )
+        expect(us_numbers).to include( book.select_internal_number_for( hk_number ) )
       end
       
       it 'selects a US number for a Australian number' do
-        expect(us_numbers).to include( book.select_internal_number_for( au_number ).id )
+        expect(us_numbers).to include( book.select_internal_number_for( au_number ) )
       end
       
       it 'selects a US number for a Russian number' do
-        expect(us_numbers).to include( book.select_internal_number_for( ru_number ).id )
+        expect(us_numbers).to include( book.select_internal_number_for( ru_number ) )
       end
     end
 
@@ -152,35 +152,35 @@ describe PhoneBook, :type => :model do
       let(:book) { create_book(0, 0, 2, 0) }
 
       it 'selects a CA number for US number' do
-        expect(ca_numbers).to include( book.select_internal_number_for( us_number ).id )
+        expect(ca_numbers).to include( book.select_internal_number_for( us_number ) )
       end
       
       it 'selects a CA number for a Canadian number' do
-        expect(ca_numbers).to include( book.select_internal_number_for( ca_number ).id )
+        expect(ca_numbers).to include( book.select_internal_number_for( ca_number ) )
       end
       
       it 'selects a CA number for a United Kingdom number' do
-        expect(ca_numbers).to include( book.select_internal_number_for( gb_number ).id )
+        expect(ca_numbers).to include( book.select_internal_number_for( gb_number ) )
       end
       
       it 'selects a CA number for a Trinidad number' do
-        expect(ca_numbers).to include( book.select_internal_number_for( tt_number ).id )
+        expect(ca_numbers).to include( book.select_internal_number_for( tt_number ) )
       end
       
       it 'selects a CA number for a Malaysian number' do
-        expect(ca_numbers).to include( book.select_internal_number_for( my_number ).id )
+        expect(ca_numbers).to include( book.select_internal_number_for( my_number ) )
       end
       
       it 'selects a CA number for a Hong Kong number' do
-        expect(ca_numbers).to include( book.select_internal_number_for( hk_number ).id )
+        expect(ca_numbers).to include( book.select_internal_number_for( hk_number ) )
       end
       
       it 'selects a CA number for a Australian number' do
-        expect(ca_numbers).to include( book.select_internal_number_for( au_number ).id )
+        expect(ca_numbers).to include( book.select_internal_number_for( au_number ) )
       end
       
       it 'selects a CA number for a Russian number' do
-        expect(ca_numbers).to include( book.select_internal_number_for( ru_number ).id )
+        expect(ca_numbers).to include( book.select_internal_number_for( ru_number ) )
       end
     end
 
@@ -188,35 +188,35 @@ describe PhoneBook, :type => :model do
       let(:book) { create_book(0, 0, 0, 2) }
 
       it 'selects a UK number for US number' do
-        expect(gb_numbers).to include( book.select_internal_number_for( us_number ).id )
+        expect(gb_numbers).to include( book.select_internal_number_for( us_number ) )
       end
       
       it 'selects a UK number for a Canadian number' do
-        expect(gb_numbers).to include( book.select_internal_number_for( ca_number ).id )
+        expect(gb_numbers).to include( book.select_internal_number_for( ca_number ) )
       end
       
       it 'selects a UK number for a United Kingdom number' do
-        expect(gb_numbers).to include( book.select_internal_number_for( gb_number ).id )
+        expect(gb_numbers).to include( book.select_internal_number_for( gb_number ) )
       end
       
       it 'selects a UK number for a Trinidad number' do
-        expect(gb_numbers).to include( book.select_internal_number_for( tt_number ).id )
+        expect(gb_numbers).to include( book.select_internal_number_for( tt_number ) )
       end
       
       it 'selects a UK number for a Malaysian number' do
-        expect(gb_numbers).to include( book.select_internal_number_for( my_number ).id )
+        expect(gb_numbers).to include( book.select_internal_number_for( my_number ) )
       end
       
       it 'selects a UK number for a Hong Kong number' do
-        expect(gb_numbers).to include( book.select_internal_number_for( hk_number ).id )
+        expect(gb_numbers).to include( book.select_internal_number_for( hk_number ) )
       end
       
       it 'selects a UK number for a Australian number' do
-        expect(gb_numbers).to include( book.select_internal_number_for( au_number ).id )
+        expect(gb_numbers).to include( book.select_internal_number_for( au_number ) )
       end
       
       it 'selects a UK number for a Russian number' do
-        expect(gb_numbers).to include( book.select_internal_number_for( ru_number ).id )
+        expect(gb_numbers).to include( book.select_internal_number_for( ru_number ) )
       end
     end
 
@@ -224,35 +224,35 @@ describe PhoneBook, :type => :model do
       let(:book) { create_book(2, 2, 2, 2) }
 
       it 'selects a US number for US number' do
-        expect(us_numbers).to include( book.select_internal_number_for( us_number ).id )
+        expect(us_numbers).to include( book.select_internal_number_for( us_number ) )
       end
       
       it 'selects a CA number for a Canadian number' do
-        expect(ca_numbers).to include( book.select_internal_number_for( ca_number ).id )
+        expect(ca_numbers).to include( book.select_internal_number_for( ca_number ) )
       end
       
       it 'selects a UK number for a United Kingdom number' do
-        expect(gb_numbers).to include( book.select_internal_number_for( gb_number ).id )
+        expect(gb_numbers).to include( book.select_internal_number_for( gb_number ) )
       end
       
       it 'selects a default number for a Trinidad number' do
-        expect(default_numbers).to include( book.select_internal_number_for( tt_number ).id )
+        expect(default_numbers).to include( book.select_internal_number_for( tt_number ) )
       end
       
       it 'selects a default number for a Malaysian number' do
-        expect(default_numbers).to include( book.select_internal_number_for( my_number ).id )
+        expect(default_numbers).to include( book.select_internal_number_for( my_number ) )
       end
       
       it 'selects a default number for a Hong Kong number' do
-        expect(default_numbers).to include( book.select_internal_number_for( hk_number ).id )
+        expect(default_numbers).to include( book.select_internal_number_for( hk_number ) )
       end
       
       it 'selects a default number for a Australian number' do
-        expect(default_numbers).to include( book.select_internal_number_for( au_number ).id )
+        expect(default_numbers).to include( book.select_internal_number_for( au_number ) )
       end
       
       it 'selects a default number for a Russian number' do
-        expect(default_numbers).to include( book.select_internal_number_for( ru_number ).id )
+        expect(default_numbers).to include( book.select_internal_number_for( ru_number ) )
       end
     end
 

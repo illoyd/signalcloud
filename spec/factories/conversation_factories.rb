@@ -1,17 +1,33 @@
 FactoryGirl.define do
 
   factory :conversation do
-    stencil
-    internal_number           Twilio::VALID_NUMBER
     customer_number           Twilio::VALID_NUMBER
     expires_at                180.seconds.from_now
-    question                  'Hello, I am a question.'
-    expected_confirmed_answer 'yes'
-    expected_denied_answer    'no'
-    confirmed_reply           'Right answer!'
-    denied_reply              'The other right answer!'
-    failed_reply              'Wrong answer!'
-    expired_reply             'Took too long!'
+    question                  { Faker::Hacker.say_something_smart }
+    expected_confirmed_answer { Faker::Hacker.noun }
+    expected_denied_answer    { Faker::Hacker.verb }
+    confirmed_reply           { Faker::Hacker.say_something_smart }
+    denied_reply              { Faker::Hacker.say_something_smart }
+    failed_reply              { Faker::Hacker.say_something_smart }
+    expired_reply             { Faker::Hacker.say_something_smart }
+    
+    trait :with_stencil do
+      after(:build) do |object, evaluator|
+        unless object.stencil.present?
+          organization = object.internal_number.try(:organization) || build(:organization, :with_mock_comms)
+          object.stencil = build :stencil, organization: organization
+        end
+      end
+    end
+
+    trait :with_internal_number do
+      after(:build) do |object, evaluator|
+        unless object.internal_number.present?
+          organization = object.stencil.try(:organization) || build(:organization, :with_mock_comms)
+          object.internal_number = build :phone_number, :with_gateway, organization: organization
+        end
+      end
+    end
     
     trait :challenge_sent do
       workflow_state          'asked'
@@ -118,69 +134,69 @@ FactoryGirl.define do
       after(:stub) do |conversation, evaluator|
         # Question message
         if %w( asking asked receiving received confirming confirmed denying denied failing failed expiring expired ).include? conversation.workflow_state
-          conversation.messages << build_stubbed( :challenge_message, conversation: conversation, to_number: conversation.customer_number, from_number: conversation.internal_number, body: conversation.question )
+          conversation.messages << build_stubbed( :challenge_message, conversation: conversation, to_number: conversation.customer_number, from_number: conversation.internal_number.number, body: conversation.question )
         end
 
         # Answer message
         if %w( receiving received confirming confirmed ).include? conversation.workflow_state
-          conversation.messages << build_stubbed( :response_message, conversation: conversation, from_number: conversation.customer_number, to_number: conversation.internal_number, body: conversation.expected_confirmed_answer )
+          conversation.messages << build_stubbed( :response_message, conversation: conversation, from_number: conversation.customer_number, to_number: conversation.internal_number.number, body: conversation.expected_confirmed_answer )
         end
 
         # Response (confirm) message
         if %w( confirming confirmed ).include? conversation.workflow_state
           # Answer message defined above
-          conversation.messages << build_stubbed( :reply_message, conversation: conversation, to_number: conversation.customer_number, from_number: conversation.internal_number, body: conversation.confirmed_reply )
+          conversation.messages << build_stubbed( :reply_message, conversation: conversation, to_number: conversation.customer_number, from_number: conversation.internal_number.number, body: conversation.confirmed_reply )
         end
 
         # Response (deny) message
         if %w( denying denied ).include? conversation.workflow_state
-          conversation.messages << build_stubbed( :response_message, conversation: conversation, from_number: conversation.customer_number, to_number: conversation.internal_number, body: conversation.expected_denied_answer )
-          conversation.messages << build_stubbed( :reply_message, conversation: conversation, to_number: conversation.customer_number, from_number: conversation.internal_number, body: conversation.denied_reply )
+          conversation.messages << build_stubbed( :response_message, conversation: conversation, from_number: conversation.customer_number, to_number: conversation.internal_number.number, body: conversation.expected_denied_answer )
+          conversation.messages << build_stubbed( :reply_message, conversation: conversation, to_number: conversation.customer_number, from_number: conversation.internal_number.number, body: conversation.denied_reply )
         end
 
         # Response (fail) message
         if %w( failing failed ).include? conversation.workflow_state
-          conversation.messages << build_stubbed( :response_message, conversation: conversation, from_number: conversation.customer_number, to_number: conversation.internal_number, body: 'walrus walrus walrus' )
-          conversation.messages << build_stubbed( :reply_message, conversation: conversation, to_number: conversation.customer_number, from_number: conversation.internal_number, body: conversation.failed_reply )
+          conversation.messages << build_stubbed( :response_message, conversation: conversation, from_number: conversation.customer_number, to_number: conversation.internal_number.number, body: 'walrus walrus walrus' )
+          conversation.messages << build_stubbed( :reply_message, conversation: conversation, to_number: conversation.customer_number, from_number: conversation.internal_number.number, body: conversation.failed_reply )
         end
 
         # Response (expire) message
         if %w( expiring expired ).include? conversation.workflow_state
-          conversation.messages << build_stubbed( :reply_message, conversation: conversation, to_number: conversation.customer_number, from_number: conversation.internal_number, body: conversation.expired_reply )
+          conversation.messages << build_stubbed( :reply_message, conversation: conversation, to_number: conversation.customer_number, from_number: conversation.internal_number.number, body: conversation.expired_reply )
         end
       end
       after(:build) do |conversation, evaluator|
         # Question message
         if %w( asking asked receiving received confirming confirmed denying denied failing failed expiring expired ).include? conversation.workflow_state
-          conversation.messages << build( :challenge_message, conversation: conversation, to_number: conversation.customer_number, from_number: conversation.internal_number, body: conversation.question )
+          conversation.messages << build( :challenge_message, conversation: conversation, to_number: conversation.customer_number, from_number: conversation.internal_number.number, body: conversation.question )
         end
 
         # Answer message
         if %w( receiving received confirming confirmed ).include? conversation.workflow_state
-          conversation.messages << build( :response_message, conversation: conversation, from_number: conversation.customer_number, to_number: conversation.internal_number, body: conversation.expected_confirmed_answer )
+          conversation.messages << build( :response_message, conversation: conversation, from_number: conversation.customer_number, to_number: conversation.internal_number.number, body: conversation.expected_confirmed_answer )
         end
 
         # Response (confirm) message
         if %w( confirming confirmed ).include? conversation.workflow_state
           # Answer message defined above
-          conversation.messages << build( :reply_message, conversation: conversation, to_number: conversation.customer_number, from_number: conversation.internal_number, body: conversation.confirmed_reply )
+          conversation.messages << build( :reply_message, conversation: conversation, to_number: conversation.customer_number, from_number: conversation.internal_number.number, body: conversation.confirmed_reply )
         end
 
         # Response (deny) message
         if %w( denying denied ).include? conversation.workflow_state
-          conversation.messages << build( :response_message, conversation: conversation, from_number: conversation.customer_number, to_number: conversation.internal_number, body: conversation.expected_denied_answer )
-          conversation.messages << build( :reply_message, conversation: conversation, to_number: conversation.customer_number, from_number: conversation.internal_number, body: conversation.denied_reply )
+          conversation.messages << build( :response_message, conversation: conversation, from_number: conversation.customer_number, to_number: conversation.internal_number.number, body: conversation.expected_denied_answer )
+          conversation.messages << build( :reply_message, conversation: conversation, to_number: conversation.customer_number, from_number: conversation.internal_number.number, body: conversation.denied_reply )
         end
 
         # Response (fail) message
         if %w( failing failed ).include? conversation.workflow_state
-          conversation.messages << build( :response_message, conversation: conversation, from_number: conversation.customer_number, to_number: conversation.internal_number, body: 'walrus walrus walrus' )
-          conversation.messages << build( :reply_message, conversation: conversation, to_number: conversation.customer_number, from_number: conversation.internal_number, body: conversation.failed_reply )
+          conversation.messages << build( :response_message, conversation: conversation, from_number: conversation.customer_number, to_number: conversation.internal_number.number, body: 'walrus walrus walrus' )
+          conversation.messages << build( :reply_message, conversation: conversation, to_number: conversation.customer_number, from_number: conversation.internal_number.number, body: conversation.failed_reply )
         end
 
         # Response (expire) message
         if %w( expiring expired ).include? conversation.workflow_state
-          conversation.messages << build( :reply_message, conversation: conversation, to_number: conversation.customer_number, from_number: conversation.internal_number, body: conversation.expired_reply )
+          conversation.messages << build( :reply_message, conversation: conversation, to_number: conversation.customer_number, from_number: conversation.internal_number.number, body: conversation.expired_reply )
         end
       end
     end
@@ -193,7 +209,7 @@ FactoryGirl.define do
     end
     
     ##
-    # Intneded for internal use 
+    # Intended for internal use 
     trait :sent_reply do
       sending_reply
       reply_sent_at           { DateTime.now }

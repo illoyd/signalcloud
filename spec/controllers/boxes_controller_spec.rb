@@ -20,11 +20,10 @@ require 'spec_helper'
 
 describe BoxesController, :type => :controller do
   let(:user)            { create :user }
-  let(:plan)            { create :account_plan, :default }
-  let(:organization)    { create :organization, account_plan: plan }
-  let(:stencil)         { create :stencil, organization: organization }
+  let(:organization)    { build :organization }
+  let(:stencil)         { build :stencil, organization: organization }
   let(:box)             { create :box, organization: organization }
-  let(:conversation)    { create :conversation, stencil: stencil, box: box }
+  let(:conversation)    { create :conversation, :with_internal_number, stencil: stencil, box: box }
 
   let(:box_label)       { 'Test Box' }
   let(:box_start_at)    { DateTime.now }

@@ -26,6 +26,7 @@ FactoryGirl.define do
     contact_address     white_house_address
     billing_address     address
     use_billing_as_contact_address false
+    #with_mock_comms
 
     association         :account_plan, factory: :payg_account_plan
 

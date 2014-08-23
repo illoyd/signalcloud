@@ -23,7 +23,7 @@ describe Conversation, :type => :model do
     it 'assigns from_number' do
       subject.send(method)
       msg = subject.messages(true).last
-      expect(msg.from_number).to eq(subject.internal_number)
+      expect(msg.from_number).to eq(subject.internal_number.number)
     end
     it 'can get communication gateway' do
       subject.send(method)
@@ -52,7 +52,7 @@ describe Conversation, :type => :model do
     it 'assigns from_number' do
       subject.accept_answer!(answer)
       msg = subject.messages(true).last
-      expect(msg.from_number).to eq(subject.internal_number)
+      expect(msg.from_number).to eq(subject.internal_number.number)
     end
     it 'can get communication gateway' do
       subject.accept_answer!(answer)
@@ -72,7 +72,7 @@ describe Conversation, :type => :model do
   end
   
   describe 'callbacks' do
-    subject { build :conversation }
+    subject { build :conversation, :with_stencil, :with_internal_number }
     it 'creates a ledger entry' do
       expect{ subject.save }.to change{subject.ledger_entry}.from(nil)
     end
@@ -81,7 +81,7 @@ describe Conversation, :type => :model do
   describe '#is_open? and #is_closed? and #has_errored?' do
     [ :asking, :asked ].each do |status|
       context "when status is #{status}" do
-        subject { build :conversation, workflow_state: status }
+        subject { build :conversation, :with_stencil, :with_internal_number, workflow_state: status }
         its(:is_open?)   { is_expected.to be_truthy }
         its(:is_closed?) { is_expected.to be_falsey }
         its(:errored?)   { is_expected.to be_falsey }
@@ -90,7 +90,7 @@ describe Conversation, :type => :model do
     
     [ :draft, :receiving, :received, :confirming, :confirmed, :denying, :denied, :failing, :failed, :expiring, :expired ].each do |status|
       context "when status is #{status}" do
-        subject { build :conversation, workflow_state: status }
+        subject { build :conversation, :with_stencil, :with_internal_number, workflow_state: status }
         its(:is_open?)   { is_expected.to be_falsey }
         its(:is_closed?) { is_expected.to be_truthy }
         its(:errored?)   { is_expected.to be_falsey }
@@ -100,7 +100,7 @@ describe Conversation, :type => :model do
     [ :errored ].each do |status|
     #[ Conversation::ERROR_INVALID_TO, Conversation::ERROR_INVALID_FROM, Conversation::ERROR_BLACKLISTED_TO, Conversation::ERROR_NOT_SMS_CAPABLE, Conversation::ERROR_CANNOT_ROUTE, Conversation::ERROR_SMS_QUEUE_FULL ].each do |status|
       context "when status is #{status}" do
-        subject { build :conversation, workflow_state: status }
+        subject { build :conversation, :with_stencil, :with_internal_number, workflow_state: status }
         its(:is_open?)   { is_expected.to be_falsey }
         its(:is_closed?) { is_expected.to be_truthy }
         its(:errored?)   { is_expected.to be_truthy }
@@ -110,33 +110,33 @@ describe Conversation, :type => :model do
   
   describe "#has_challenge_been_sent?" do
     context 'when challenge not sent' do
-      subject { build :conversation }
+      subject { build :conversation, :with_stencil, :with_internal_number }
       its(:has_challenge_been_sent?) { is_expected.to be_falsey }
     end
     context 'when challenge sent' do
-      subject { build :conversation, :challenge_sent }
+      subject { build :conversation, :with_stencil, :with_internal_number, :challenge_sent }
       its(:has_challenge_been_sent?) { is_expected.to be_truthy }
     end
   end
 
   describe "#has_response_been_received?" do
     context 'when response has not been received' do
-      subject { build :conversation }
+      subject { build :conversation, :with_stencil, :with_internal_number }
       its(:has_response_been_received?) { is_expected.to be_falsey }
     end
     context 'when response has been received' do
-      subject { build :conversation, :response_received }
+      subject { build :conversation, :with_stencil, :with_internal_number, :response_received }
       its(:has_response_been_received?) { is_expected.to be_truthy }
     end
   end
 
   describe "#has_reply_been_sent?" do
     context 'when reply not sent' do
-      subject { build :conversation }
+      subject { build :conversation, :with_stencil, :with_internal_number }
       its(:has_reply_been_sent?) { is_expected.to be_falsey }
     end
     context 'when reply sent' do
-      subject { build :conversation, :reply_sent }
+      subject { build :conversation, :with_stencil, :with_internal_number, :reply_sent }
       its(:has_reply_been_sent?) { is_expected.to be_truthy }
     end
   end
@@ -144,7 +144,7 @@ describe Conversation, :type => :model do
   describe "#update_expiry_time_based_on_seconds_to_live" do
     let(:seconds_to_live) { 360 }
     let(:original_expiry) { 60.seconds.ago }
-    subject { build :conversation, expires_at: nil }
+    subject { build :conversation, :with_stencil, :with_internal_number, expires_at: nil }
 
     it "overrides existing expires_at" do
       subject.expires_at = original_expiry
@@ -170,7 +170,7 @@ describe Conversation, :type => :model do
     let(:positive) { 'yes' }
     let(:negative) { 'no' }
     let(:failed)   { 'walrus' }
-    subject { build(:conversation, expected_confirmed_answer: positive, expected_denied_answer: negative) }
+    subject { build(:conversation, :with_stencil, :with_internal_number, expected_confirmed_answer: positive, expected_denied_answer: negative) }
 
     it 'recognises positive answer' do
       expect(subject.compare_answer( positive )).to eq(:confirmed)
@@ -214,7 +214,7 @@ describe Conversation, :type => :model do
     let(:positive) { 'yes' }
     let(:negative) { 'no' }
     let(:failed) { 'walrus' }
-    subject { build(:conversation, expected_confirmed_answer: positive, expected_denied_answer: negative) }
+    subject { build(:conversation, :with_stencil, :with_internal_number, expected_confirmed_answer: positive, expected_denied_answer: negative) }
 
     it 'recognises positive answer' do
       expect(subject.answer_applies?( positive )).to be_truthy
@@ -264,7 +264,7 @@ describe Conversation, :type => :model do
     before(:each)          { phone_book_entry }
     let(:exp_confirmed)    { 'yes' }
     let(:exp_denied)       { 'no' }
-    subject { create(:conversation, :challenge_sent, :response_received, expected_confirmed_answer: exp_confirmed, expected_denied_answer: exp_denied, stencil: stencil, internal_number: phone_number.number) }
+    subject { create(:conversation, :challenge_sent, :response_received, expected_confirmed_answer: exp_confirmed, expected_denied_answer: exp_denied, stencil: stencil, internal_number: phone_number) }
     
     context 'when given a confirmed answer' do
       let(:expected_body) { subject.confirmed_reply }
@@ -305,27 +305,19 @@ describe Conversation, :type => :model do
       expect{ subject.send(:assign_internal_number) }.not_to raise_error
     end
     it 'sets the from number' do
-      expect{ subject.send(:assign_internal_number) }.to change(subject, :internal_number).to( phone_number.number )
+      expect{ subject.send(:assign_internal_number) }.to change(subject, :internal_number).to( phone_number )
     end
     it 'does not change the from number' do
-      subject.internal_number = Twilio::VALID_NUMBER
-      expect{ subject.send(:assign_internal_number) }.not_to change(subject, :internal_number).from( Twilio::VALID_NUMBER )
+      new_phone_number = create :phone_number, organization: organization, communication_gateway: comm_gateway
+      subject.internal_number = new_phone_number
+      expect{ subject.send(:assign_internal_number) }.not_to change(subject, :internal_number).from( new_phone_number )
     end
   end
   
   describe '#communication_gateway' do
-    let(:organization)     { create :organization, :with_mock_comms }
-    let(:comm_gateway)     { organization.communication_gateways.first }
-    let(:phone_number)     { create :phone_number, organization: organization, communication_gateway: comm_gateway }
-    let(:phone_book)       { create :phone_book, organization: organization }
-    let(:phone_book_entry) { create :phone_book_entry, phone_book: phone_book, phone_number: phone_number }
-    let(:stencil)          { create :stencil, organization: organization, phone_book: phone_book }
-    before(:each)          { phone_book_entry }
-    subject { create :conversation, stencil: stencil, internal_number: phone_number.number }
+    let(:phone_number) { subject.internal_number }
+    subject            { build :conversation, :with_stencil, :with_internal_number }
     
-    describe '#internal_number' do
-      its(:internal_number) { is_expected.to eq(phone_number.number) }
-    end
     it 'does not error' do
       expect{ subject.communication_gateway }.not_to raise_error
     end
@@ -341,7 +333,7 @@ describe Conversation, :type => :model do
     
     describe '#ask!' do
       let(:expected_body) { subject.question }
-      subject { create(:conversation, stencil: stencil, internal_number: phone_number.number) }
+      subject { create(:conversation, stencil: stencil, internal_number: phone_number) }
 
       describe '#can_ask?' do
         its(:can_ask?) { is_expected.to be_truthy }
@@ -350,7 +342,7 @@ describe Conversation, :type => :model do
     end
     
     describe '#asked!' do
-      subject { create(:conversation, workflow_state: :asking, stencil: stencil, internal_number: phone_number.number) }
+      subject { create(:conversation, workflow_state: :asking, stencil: stencil, internal_number: phone_number) }
       it 'updates challenge_sent_at' do
         expect{ subject.asked! }.to change( subject, :challenge_sent_at )
       end
@@ -358,16 +350,14 @@ describe Conversation, :type => :model do
   
     describe '#confirm!' do
       let(:expected_body) { subject.confirmed_reply }
-      subject { create(:conversation, :challenge_sent, :response_received, stencil: stencil, internal_number: phone_number.number) }
+      subject { create(:conversation, :challenge_sent, :response_received, stencil: stencil, internal_number: phone_number) }
 
-      describe '#can_confirm?' do
-        its(:can_confirm?) { is_expected.to be_truthy }
-      end
+      its(:can_confirm?) { is_expected.to be_truthy }
       include_examples 'sends message', :confirm!
     end
   
     describe '#confirmed!' do
-      subject { create(:conversation, :challenge_sent, :response_received, workflow_state: :confirming, stencil: stencil, internal_number: phone_number.number) }
+      subject { create(:conversation, :challenge_sent, :response_received, workflow_state: :confirming, stencil: stencil, internal_number: phone_number) }
       it 'updates reply_sent_at' do
         expect{ subject.confirmed! }.to change( subject, :reply_sent_at )
       end
@@ -375,16 +365,14 @@ describe Conversation, :type => :model do
   
     describe '#deny!' do
       let(:expected_body) { subject.denied_reply }
-      subject { create(:conversation, :challenge_sent, :response_received, stencil: stencil, internal_number: phone_number.number) }
+      subject { create(:conversation, :challenge_sent, :response_received, stencil: stencil, internal_number: phone_number) }
 
-      describe '#can_deny?' do
-        its(:can_deny?) { is_expected.to be_truthy }
-      end
+      its(:can_deny?) { is_expected.to be_truthy }
       include_examples 'sends message', :deny!
     end
   
     describe '#denied!' do
-      subject { create(:conversation, :challenge_sent, :response_received, workflow_state: :denying, stencil: stencil, internal_number: phone_number.number) }
+      subject { create(:conversation, :challenge_sent, :response_received, workflow_state: :denying, stencil: stencil, internal_number: phone_number) }
       it 'updates reply_sent_at' do
         expect{ subject.denied! }.to change( subject, :reply_sent_at )
       end
@@ -392,16 +380,14 @@ describe Conversation, :type => :model do
   
     describe '#fail!' do
       let(:expected_body) { subject.failed_reply }
-      subject { create(:conversation, :challenge_sent, :response_received, stencil: stencil, internal_number: phone_number.number) }
+      subject { create(:conversation, :challenge_sent, :response_received, stencil: stencil, internal_number: phone_number) }
 
-      describe '#can_fail?' do
-        its(:can_fail?) { is_expected.to be_truthy }
-      end
+      its(:can_fail?) { is_expected.to be_truthy }
       include_examples 'sends message', :fail!
     end
   
     describe '#failed!' do
-      subject { create(:conversation, :challenge_sent, :response_received, workflow_state: :failing, stencil: stencil, internal_number: phone_number.number) }
+      subject { create(:conversation, :challenge_sent, :response_received, workflow_state: :failing, stencil: stencil, internal_number: phone_number) }
       it 'updates reply_sent_at' do
         expect{ subject.failed! }.to change( subject, :reply_sent_at )
       end
@@ -409,16 +395,14 @@ describe Conversation, :type => :model do
   
     describe '#expire!' do
       let(:expected_body) { subject.expired_reply }
-      subject { create(:conversation, :challenge_sent, stencil: stencil, internal_number: phone_number.number) }
+      subject { create(:conversation, :challenge_sent, stencil: stencil, internal_number: phone_number) }
 
-      describe '#can_expire?' do
-        its(:can_expire?) { is_expected.to be_truthy }
-      end
+      its(:can_expire?) { is_expected.to be_truthy }
       include_examples 'sends message', :expire!
     end
 
     describe '#expired!' do
-      subject { create(:conversation, :challenge_sent, workflow_state: :expiring, stencil: stencil, internal_number: phone_number.number) }
+      subject { create(:conversation, :challenge_sent, workflow_state: :expiring, stencil: stencil, internal_number: phone_number) }
       it 'updates reply_sent_at' do
         expect{ subject.expired! }.to change( subject, :reply_sent_at )
       end
