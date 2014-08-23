@@ -74,7 +74,7 @@ class TwilioCommunicationGateway < CommunicationGateway
   end
   
   def message( sid )
-    self.twilio_account.messages.get( sid )
+    Twilio::Message.new(self.twilio_account.messages.get(sid).to_property_hash)
   end
   
   def phone_number( sid )
