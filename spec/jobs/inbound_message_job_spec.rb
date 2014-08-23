@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe InboundMessageJob, :focus do
+describe InboundMessageJob do
   let(:sms_sid )        { 'SM7104b239862b9006bd360a3d5f285f2e' }
   let(:organization)    { create(:organization, :with_mock_comms) }
   let(:stencil)         { create(:stencil, organization: organization) }
@@ -52,6 +52,7 @@ describe InboundMessageJob, :focus do
     
     context 'when replying to open conversation' do
       let(:conversation) { create(:conversation, :mock, :challenge_sent, :with_webhook_uri, stencil: stencil, internal_number: phone_number, customer_number: customer_number) }
+      before             { conversation }
       
       it 'has an internal phone number' do
         subject.provider_update = payload
@@ -99,7 +100,7 @@ describe InboundMessageJob, :focus do
       let(:conversationB)  { create(:conversation, :mock, :challenge_sent, :with_webhook_uri, stencil: stencil, internal_number: phone_number, customer_number: customer_number) }
       let(:conversationC)  { create(:conversation, :mock, :challenge_sent, :with_webhook_uri, stencil: stencil, internal_number: phone_number, customer_number: customer_number) }
       let(:conversations)  { [ conversationC, conversationA, conversationB ] }
-      before               { phone_number.communication_gateway.memorize(inbound_msg) }
+      before               { conversations; phone_number.communication_gateway.memorize(inbound_msg) }
 
       it 'finds three open conversations' do
         subject.provider_update = payload
@@ -120,7 +121,7 @@ describe InboundMessageJob, :focus do
     
     context 'when replying to expired conversation' do
       let(:conversation) { create(:conversation, :mock, :challenge_sent, :expired, stencil: stencil, expires_at: 180.seconds.ago, internal_number: phone_number, customer_number: customer_number) }
-      before             { phone_number.communication_gateway.memorize(inbound_msg) }
+      before             { conversation; phone_number.communication_gateway.memorize(inbound_msg) }
 
       it 'does not find an open conversation' do
         subject.provider_update = payload
@@ -134,7 +135,7 @@ describe InboundMessageJob, :focus do
     [ :confirmed, :denied, :failed ].each do |status|
       context "when replying to #{status.to_s} but not sent conversation" do
         let(:conversation) { create(:conversation, :mock, :challenge_sent, :response_received, status, stencil: stencil, internal_number: phone_number, customer_number: customer_number) }
-        before             { phone_number.communication_gateway.memorize(inbound_msg) }
+        before             { conversation; phone_number.communication_gateway.memorize(inbound_msg) }
 
         it 'does not find an open conversation' do
           subject.provider_update = payload
@@ -146,7 +147,7 @@ describe InboundMessageJob, :focus do
       end
       context "when replying to #{status.to_s} and sent conversation" do
         let(:conversation) { create(:conversation, :mock, :challenge_sent, :response_received, status, :reply_sent, stencil: stencil, internal_number: phone_number, customer_number: customer_number) }
-        before             { phone_number.communication_gateway.memorize(inbound_msg) }
+        before             { conversation; phone_number.communication_gateway.memorize(inbound_msg) }
 
         it 'does not find an open conversation' do
           subject.provider_update = payload
