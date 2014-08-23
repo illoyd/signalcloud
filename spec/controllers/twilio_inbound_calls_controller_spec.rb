@@ -39,7 +39,7 @@ describe Twilio::InboundCallsController, :type => :controller do
       context 'when passing message auth header' do
         it 'responds with success' do
           authenticate_with_http_digest organization.sid, organization.auth_token, :post, :create
-          inject_twilio_signature( twilio_inbound_call_url, organization, inbound_post_params )
+          inject_twilio_signature( subject.twilio_inbound_call_url, organization, inbound_post_params )
           post :create, inbound_post_params
           expect(response.status).to eq( 200 ) # OK
         end
@@ -54,7 +54,7 @@ describe Twilio::InboundCallsController, :type => :controller do
       context 'when configured to reject' do
         let(:phone_number) { create( :phone_number, :reject_unsolicited_call, organization: organization, communication_gateway: comm_gateway ) }
         let(:params) { build_post_params( 'To' => phone_number.number ) }
-        before(:each) { inject_twilio_signature( twilio_inbound_call_url, organization, params ) }
+        before(:each) { inject_twilio_signature( subject.twilio_inbound_call_url, organization, params ) }
 
         it 'responds with REJECT verb' do
           post :create, params
@@ -100,7 +100,7 @@ describe Twilio::InboundCallsController, :type => :controller do
       context 'when configured to play busy tone' do
         let(:phone_number) { create( :phone_number, :busy_for_unsolicited_call, organization: organization, communication_gateway: comm_gateway ) }
         let(:params) { build_post_params( 'To' => phone_number.number ) }
-        before(:each) { inject_twilio_signature( twilio_inbound_call_url, organization, params ) }
+        before(:each) { inject_twilio_signature( subject.twilio_inbound_call_url, organization, params ) }
 
         it 'responds with REJECT verb' do
           post :create, params
@@ -146,7 +146,7 @@ describe Twilio::InboundCallsController, :type => :controller do
       context 'when configured to respond with message' do
         let(:phone_number) { create( :phone_number, :reply_to_unsolicited_call, organization: organization, communication_gateway: comm_gateway ) }
         let(:params) { build_post_params( 'To' => phone_number.number ) }
-        before(:each) { inject_twilio_signature( twilio_inbound_call_url, organization, params ) }
+        before(:each) { inject_twilio_signature( subject.twilio_inbound_call_url, organization, params ) }
 
         it 'responds with SAY verb' do
           post :create, params

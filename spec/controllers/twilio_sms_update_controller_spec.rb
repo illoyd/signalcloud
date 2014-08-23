@@ -34,7 +34,7 @@ describe Twilio::SmsUpdatesController, :type => :controller do
       context 'when passing message auth header' do
         it 'responds with success' do
           authenticate_with_http_digest organization.sid, organization.auth_token, :post, :create
-          inject_twilio_signature( twilio_sms_update_url, organization, update_post_params )
+          inject_twilio_signature( subject.twilio_sms_update_url, organization, update_post_params )
           post :create, update_post_params
           expect(response.status).to eq( 200 )
         end
@@ -44,7 +44,7 @@ describe Twilio::SmsUpdatesController, :type => :controller do
     context 'when responding to sms update' do
       before {
         authenticate_with_http_digest organization.sid, organization.auth_token, :post, :create
-        inject_twilio_signature( twilio_sms_update_url, organization, update_post_params )
+        inject_twilio_signature( subject.twilio_sms_update_url, organization, update_post_params )
       }
       it 'responds with blank TwiML' do
         post :create, update_post_params

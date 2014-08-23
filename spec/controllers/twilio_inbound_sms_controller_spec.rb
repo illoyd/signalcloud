@@ -33,7 +33,7 @@ describe Twilio::InboundSmsController, :type => :controller do
       context 'when passing message auth header' do
         it 'responds with success' do
           authenticate_with_http_digest organization.sid, organization.auth_token, :post, :create
-          inject_twilio_signature( twilio_inbound_sms_url, organization, inbound_post_params )
+          inject_twilio_signature( subject.twilio_inbound_sms_url, organization, inbound_post_params )
           post :create, inbound_post_params
           expect(response).to have_http_status( :success )
         end
@@ -43,7 +43,7 @@ describe Twilio::InboundSmsController, :type => :controller do
     context 'when responding to inbound sms' do
       before {
         authenticate_with_http_digest organization.sid, organization.auth_token, :post, :create
-        inject_twilio_signature( twilio_inbound_sms_url, organization, inbound_post_params )
+        inject_twilio_signature( subject.twilio_inbound_sms_url, organization, inbound_post_params )
       }
       it 'responds with blank TwiML' do
         post :create, inbound_post_params

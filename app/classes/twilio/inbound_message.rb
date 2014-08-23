@@ -16,7 +16,7 @@ module Twilio
     # Defaulted fields
     property :status,       from: :SmsStatus,   default: ::Message::RECEIVED_SZ, transformer: Twilio::StatusTransformer
     property :direction,    from: :Direction,   default: ::Message::IN,          transformer: Twilio::DirectionTransformer
-    property :segments,     from: :NumSegments, default: 1,                    transformer: IntegerTransformer
+    property :segments,     from: :NumSegments, default: 1,                      transformer: IntegerTransformer
 
     # Optional fields
     property :price,        from: :Price,       transformer: BigDecimalTransformer
