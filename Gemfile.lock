@@ -1,14 +1,5 @@
 GIT
-  remote: git://github.com/stouset/twitter_bootstrap_form_for.git
-  revision: 8d58185ad47065809a5631ba871b41d77e30ee12
-  branch: bootstrap-2.0
-  specs:
-    twitter_bootstrap_form_for (2.0.1.0.rc1)
-      actionpack (>= 3)
-      railties (>= 3)
-
-GIT
-  remote: git@github.com:plataformatec/devise.git
+  remote: git://github.com/plataformatec/devise.git
   revision: 2f4fab00d9f44958957e6699d8ee02a063565c19
   branch: lm-rails-4-2
   specs:
@@ -19,6 +10,15 @@ GIT
       responders
       thread_safe (~> 0.1)
       warden (~> 1.2.3)
+
+GIT
+  remote: git://github.com/stouset/twitter_bootstrap_form_for.git
+  revision: 8d58185ad47065809a5631ba871b41d77e30ee12
+  branch: bootstrap-2.0
+  specs:
+    twitter_bootstrap_form_for (2.0.1.0.rc1)
+      actionpack (>= 3)
+      railties (>= 3)
 
 GEM
   remote: https://rubygems.org/

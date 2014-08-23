@@ -63,7 +63,7 @@ gem 'sinatra', '>= 1.3.0', :require => nil
 # Additional gems
 gem 'active_model_serializers', '~> 0.8.0'
 gem 'haml'
-gem 'devise', git: 'git@github.com:plataformatec/devise.git', branch: 'lm-rails-4-2'
+gem 'devise', git: 'git://github.com/plataformatec/devise.git', branch: 'lm-rails-4-2'
 gem 'devise-async'
 gem 'devise_invitable'
 gem 'cancancan', '~> 1.8'
