@@ -13,6 +13,11 @@ class TwilioCommunicationGateway < CommunicationGateway
   ERROR_UNKNOWN = 127
   ERROR_STATUSES = [ ERROR_INVALID_TO, ERROR_INVALID_FROM, ERROR_BLACKLISTED_TO, ERROR_NOT_SMS_CAPABLE, ERROR_CANNOT_ROUTE, ERROR_SMS_QUEUE_FULL, ERROR_INTERNATIONAL, ERROR_MISSING_BODY, ERROR_BODY_TOO_LARGE, ERROR_UNKNOWN ]
   CRITICAL_ERRORS = [ ERROR_MISSING_BODY, ERROR_BODY_TOO_LARGE, ERROR_INTERNATIONAL ]
+  
+  # 
+  AVAILABLE_ACCOUNT_NAME = '+++AVAILABLE+++'
+  ACCOUNT_SUSPENDED = 'suspended'
+  ACCOUNT_ACTIVE    = 'active'
 
   ##
   # Determine if this organization has an authorised Twilio account.
@@ -32,7 +37,6 @@ class TwilioCommunicationGateway < CommunicationGateway
     @twilio_client = nil if reload
     raise SignalCloud::MissingTwilioAccountError.new(self) unless self.has_twilio_account?
     @twilio_client ||= Twilio::REST::Client.new self.twilio_account_sid, self.twilio_auth_token
-    return @twilio_client
   end
   
   ##
@@ -48,7 +52,6 @@ class TwilioCommunicationGateway < CommunicationGateway
   def twilio_validator
     raise SignalCloud::MissingTwilioAccountError.new(self) unless self.has_twilio_account?
     @twilio_validator ||= Twilio::Util::RequestValidator.new self.twilio_auth_token
-    return @twilio_validator
   end
   
   alias_method :signature_validator, :twilio_validator
@@ -215,10 +218,19 @@ protected
   # Create a Twilio sub-organization.
   def create_twilio_account!
     raise SignalCloud::TwilioAccountAlreadyExistsError.new(self) if self.has_twilio_account?
-    response = Twilio.master_client.accounts.create(self.assemble_twilio_account_data)
+
+    # Create a new account
+    response = self.find_available_twilio_account || Twilio.master_client.accounts.create(self.assemble_twilio_account_data)
+
     self.twilio_account_sid = response.sid
     self.twilio_auth_token = response.auth_token
     return response
+  end
+  
+  ##
+  # Find a suspended, available account
+  def find_available_twilio_account
+    Twilio.master_client.accounts.list(friendly_name: AVAILABLE_ACCOUNT_NAME, status: ACCOUNT_SUSPENDED).first
   end
   
   ##
@@ -250,13 +262,14 @@ protected
   end
 
   def assemble_twilio_account_data( options={} )
-    return {
-      'FriendlyName' => self.organization.try(:label) || '[NEW]'
+    {
+      'FriendlyName' => self.organization.try(:label) || '[NEW]',
+      'Status'       => ACCOUNT_ACTIVE
     }.merge(options)
   end
 
   def assemble_twilio_application_data( options={} )
-    return {
+    {
       'FriendlyName' => '%s\'s Application' % [ self.organization.try(:label) || '[NEW]' ],
 
       'VoiceUrl' => self.twilio_voice_url,
