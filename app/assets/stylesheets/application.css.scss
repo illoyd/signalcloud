@@ -125,6 +125,9 @@ table.list {
 div.content {
   @extend .container;
   
+  .btn.btn-xs.dropdown-toggle,
+  .btn.btn-sm.dropdown-toggle { padding-left: 6px; padding-right: 6px; }
+  
   div.toolbar {
     margin-bottom: 28px;
     @extend .btn-toolbar;
