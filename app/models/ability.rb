@@ -106,7 +106,7 @@ class Ability
   
   def grant_manage_organization_privileges(user, organization_id)
     # Edit, update for owning organization
-    can [:edit, :update], Organization, { id: organization_id }
+    can [:edit, :update, :upgrade], Organization, { id: organization_id }
   end
   
   def grant_manage_users_privileges(user, organization_id)
@@ -127,6 +127,7 @@ class Ability
   def grant_manage_phone_numbers_privileges(user, organization_id)
     # All for organization phone numbers
     can :manage, PhoneNumber, { organization_id: organization_id }
+    cannot [:new, :create], PhoneNumber, { organization_id: organization_id, organization: {workflow_state: 'trial'} }
   end
   
   def grant_manage_phone_books_privileges(user, organization_id)
