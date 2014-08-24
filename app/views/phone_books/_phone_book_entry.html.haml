@@ -1,0 +1,21 @@
+%tr
+  %td= split_dropdown_list([ |
+    { label: 'Details', icon: :show, link: [@organization, entry.phone_number], if: can?(:show, entry.phone_number) }, |
+    { label: 'Remove from book', icon: :delete, link: [@organization, entry], options: { method: :delete }, if: can?(:destroy, entry) } |
+    ], {class:'btn-xs'}) |
+  %td
+    - if can?(:show, entry.phone_number)
+      = link_to [@organization, entry.phone_number] do
+        = flag_icon(entry.phone_number.country)
+        = humanize_phone_number(entry.phone_number.number)
+    - else
+      = flag_icon(entry.phone_number.country)
+      = humanize_phone_number(entry.phone_number.number)
+
+  %td
+    - if entry.country.blank?
+      = flag_icon()
+      %em Any
+    - else
+      = flag_icon(entry.country)
+      = Country[entry.country].name rescue entry.country

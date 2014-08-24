@@ -6,32 +6,16 @@
 %table.list
   %thead
     %tr
-      %th.span1
+      %th
       %th Directory
       %th Description
       %th
         = icon(:phone_numbers)
-        Phone numbers
+        Phone Numbers
       %th
         = icon(:stencils)
         Stencils
   %tbody
-    - @phone_books.order('label desc').each do |phone_book|
-      %tr
-        %td= split_dropdown_list([ |
-            { label: 'Details', icon: :show, link: [@organization, phone_book], if: can?(:show, phone_book) }, |
-            { label: 'Edit', icon: :edit, link: edit_organization_phone_book_path(@organization, phone_book), if: can?(:edit, phone_book) }, |
-          ], { class: 'btn-xs' }) |
-        %td= link_to phone_book.label, [@organization, phone_book]
-        %td
-          %small
-            - if phone_book.description.blank?
-              %em No description configured.
-            - else
-              = phone_book.description
-        %td
-          = phone_book.phone_book_entries.count
-          - if phone_book.phone_book_entries.empty?
-            = warning_label('This Phone Book does not have any Phone Numbers! Add a Phone Number to use it in a Stencil.')
+    = render(partial: 'phone_book', collection: @phone_books) || render(partial: 'no_phone_books')
 
-        %td= phone_book.stencils.count
+= render(partial: 'delete_object_modal', collection: @phone_books, as: :object)
