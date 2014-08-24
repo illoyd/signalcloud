@@ -4,7 +4,7 @@
     = link_to iconify('Conversations', :conversations), organization_conversations_path(@organization)
 
   -# Allow starting conversations
-  - if can?(:new, Conversation)
+  - if can?(:new, Conversation) && can_start_conversation?(@organization)
     = link_to iconify('Start conversation', :plus), new_organization_stencil_conversation_path( @organization, @stencil || @conversation.try(:stencil) || @organization.default_stencil )
     
 - if @conversation.try(:persisted?)
