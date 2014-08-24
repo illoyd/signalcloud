@@ -14,7 +14,7 @@
             .field
               = f.label :phone_number_id do
                 Use this number...
-              = f.collection_select :phone_number_id, @phone_book.organization.phone_numbers, :id, :human_number #, class: 'input-small'
+              = f.collection_select :phone_number_id, @phone_book.organization.phone_numbers.with_active_state, :id, :human_number #, class: 'input-small'
     
           .icon-field
             .icon= icon(:globe, class: 'fa-4x')
