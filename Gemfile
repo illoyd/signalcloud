@@ -91,6 +91,7 @@ gem 'responders'
 
 #
 # Internal services (e.g. queues, caches)
+gem 'dalli'
 gem 'redis'
 gem 'sidekiq', '~> 3.2'
 #gem 'sidetiq'
