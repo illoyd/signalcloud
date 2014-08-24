@@ -60,7 +60,7 @@
     %ul.signed-in
       %p.welcome #{current_user.nickname}
       %li= link_to_if can?(:show, current_user), gravatar_for(current_user, 24, class: 'img-circle'), profile_path
-      %li= link_to icon(:sign_out), destroy_user_session_path
+      %li= link_to icon(:sign_out), destroy_user_session_path, method: :delete
 
   - else
     / Not signed-in controls
