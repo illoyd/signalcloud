@@ -216,8 +216,8 @@ protected
   def receive( sid=nil )
     # Update self with information from payload
     self.provider_sid = sid unless sid.blank?
-    # self.refresh_from_provider unless self.provider_sid.blank?
-    CallMethodJob.enqueue(self, 'refresh_from_provider!')
+    self.refresh_from_provider unless self.provider_sid.blank?
+    # CallMethodJob.enqueue(self, 'refresh_from_provider!')
     
     # Update parent conversation
     unless self.conversation.nil?
