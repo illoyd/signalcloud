@@ -1,6 +1,7 @@
 .trial-banner
   %strong Head's up!
-  This is a trial account.
+  %em= iconify(@organization.label, @organization.icon)
+  is a trial account.
   - if can? :upgrade, @organization
     = link_to 'Upgrade now', "#upgrade_organization_#{@organization.id}", class:'alert-link', data: {toggle: 'modal'}
     to buy phone numbers and to start conversations.

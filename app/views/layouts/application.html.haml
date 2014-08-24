@@ -17,7 +17,7 @@
     %nav#navbar
       .header= render partial: 'navbar'
 
-    - if @organization.try(:trial?)
+    - if @organization && @organization.trial? && @organization.persisted?
       = render partial: 'trial_banner'
 
     .content
