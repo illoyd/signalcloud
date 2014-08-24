@@ -1,0 +1,26 @@
+%tr
+  %td= split_dropdown_list([ |
+    { label: 'Details', icon: :show, link: [ @organization, stencil ], if: can?(:show, stencil) }, |
+    { label: 'Edit', icon: :edit, link: edit_organization_stencil_path(@organization, stencil), if: can?(:edit, stencil) }, |
+    { label: 'Enable', icon: :enable, link: "#enable_stencil_#{ stencil.id }", options: { data: { toggle: 'modal' } }, if: (can?(:edit, stencil) && !stencil.active?) }, |
+    { label: 'Disable', icon: :disable, link: "#disable_stencil_#{ stencil.id }", options: { data: { toggle: 'modal' } }, if: (can?(:edit, stencil) && stencil.active?) }, |
+    { label: 'Delete', icon: :delete, link: "#delete_stencil_#{ stencil.id }", options: { data: { toggle: 'modal' } }, if: can?(:destroy, stencil) }, |
+    { label: 'Conversations', icon: :conversations, link: organization_stencil_conversations_path(@organization, stencil), if: can?(:show, Conversation) } |
+    ], {class: 'btn-xs'}) |
+  %td= link_to_if can?(:show, stencil), iconify(stencil.label, :stencil), [ stencil.organization, stencil ]
+  %td
+    - if stencil.phone_book.nil?
+      %em No book assigned
+    - else
+      = link_to_if can?(:show, stencil.phone_book), iconify(stencil.phone_book.label, :phone_book), [ stencil.organization, stencil.phone_book ]
+  %td.text-center= checkmark_for stencil.active
+  %td
+    %small
+      - if stencil.description.blank?
+        %em No description defined.
+      - else
+        = stencil.description
+  %td.text-center
+    = link_to organization_stencil_conversations_url( stencil.organization, stencil ) do
+      = icon :conversations             
+      = stencil.conversations.count

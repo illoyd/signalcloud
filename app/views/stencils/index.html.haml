@@ -12,33 +12,8 @@
       %th Description
       %th.text-center Conversations
   %tbody
-    - if @stencils.empty?
-      %tr
-        %td{ colspan: 6 }
-          %em No stencils match your selected filters. Please change your filters to view other items.
-    
-    - @stencils.order('label').each do |stencil|
-      %tr
-        %td= split_dropdown_list([ |
-          { label: 'Details', icon: :show, link: [ @organization, stencil ], if: can?(:show, stencil) }, |
-          { label: 'Edit', icon: :edit, link: edit_organization_stencil_path(@organization, stencil), if: can?(:edit, stencil) }, |
-          { label: 'Delete', icon: :delete, link: [ @organization, stencil ], options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, stencil) }, |
-          { label: 'Conversations', icon: :conversations, link: organization_stencil_conversations_path(@organization, stencil), if: can?(:show, Conversation) } |
-          ], {class: 'btn-xs'}) |
-        %td= link_to_if can?(:show, stencil), stencil.label, [ @organization, stencil ]
-        %td
-          - if stencil.phone_book.nil?
-            %em No book assigned
-          - else
-            = link_to_if can?(:show, stencil.phone_book), stencil.phone_book.label, [ @organization, stencil.phone_book ]
-        %td.text-center= checkmark_for stencil.active
-        %td
-          %small
-            - if stencil.description.blank?
-              %em No description defined.
-            - else
-              = stencil.description
-        %td.text-center
-          = link_to organization_stencil_conversations_url( @organization, stencil ) do
-            = icon :conversations             
-            = stencil.conversations.count
+    = render(partial: 'stencil', collection: @stencils) || render(partial: 'no_stencils')
+
+= render(partial: 'enable_object_modal', collection: @stencils, as: :object)
+= render(partial: 'disable_object_modal', collection: @stencils, as: :object)
+= render(partial: 'delete_object_modal', collection: @stencils, as: :object)
