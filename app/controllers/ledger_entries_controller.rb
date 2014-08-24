@@ -1,4 +1,4 @@
-class LedgerEntriesController < ApplicationController
+class LedgerEntriesController < ProtectedController
 
   respond_to :html, :json, :xml
 

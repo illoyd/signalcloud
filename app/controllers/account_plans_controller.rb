@@ -1,4 +1,4 @@
-class AccountPlansController < ApplicationController
+class AccountPlansController < ProtectedController
 
   load_and_authorize_resource
 

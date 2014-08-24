@@ -1,4 +1,4 @@
-class UsersController < ApplicationController
+class UsersController < ProtectedController
   
   respond_to :html, :json, :xml
 

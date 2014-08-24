@@ -1,4 +1,4 @@
-class StencilsController < ApplicationController
+class StencilsController < ProtectedController
   
   respond_to :html, :json, :xml
   load_and_authorize_resource :organization

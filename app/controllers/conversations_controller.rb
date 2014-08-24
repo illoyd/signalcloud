@@ -1,4 +1,4 @@
-class ConversationsController < ApplicationController
+class ConversationsController < ProtectedController
 
   respond_to :html, :json, :xml
   load_and_authorize_resource :organization

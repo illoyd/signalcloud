@@ -1,4 +1,4 @@
-class OrganizationsController < ApplicationController
+class OrganizationsController < ProtectedController
 
   respond_to :html, :json, :xml
   before_filter :load_new_organization, only: [ :new, :create ]

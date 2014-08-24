@@ -1,27 +1,14 @@
-/
-  %h2 Resend unlock instructions
-  = form_for(resource, :as => resource_name, :url => unlock_path(resource_name), :html => { :method => :post }) do |f|
-    = devise_error_messages!
-    %div
-      = f.label :email
-      %br/
-      = f.email_field :email
-    %div= f.submit "Resend unlock instructions"
-  = render "devise/shared/links"
+- headings('Resend', 'unlock instructions')
 
-= form_for( resource, :as => resource_name, :url => unlock_path(resource_name), :html => { :method => :post, :class => "form-horizontal" } ) do |f|
-  .modal.inline-modal
-    .modal-header
-      / %button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} &times;
-      %h3 Unlock
-    .modal-body
-      = devise_error_messages!
-      .control-group
-        = f.label :email, :class => 'control-label'
-        .controls= f.email_field :email
-    .modal-footer
-      / %a.btn{:href => "#"} Close
-      %div
-        = f.submit "Resend unlock instructions", class: 'btn btn-primary'
+= form_for( resource, :as => resource_name, :url => unlock_path(resource_name), :html => { :method => :post, :class => "general" } ) do |f|
+
+  = devise_error_messages!
+  
+  .field{ has_error(resource, :email) }
+    = f.label :email
+    .inputs= f.email_field :email
+  
+  .actions
+    = f.submit "Resend unlock instructions"
 
 = render "devise/shared/links"

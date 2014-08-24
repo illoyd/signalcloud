@@ -1,4 +1,4 @@
-class PhoneBookEntriesController < ApplicationController
+class PhoneBookEntriesController < ProtectedController
 
   respond_to :html, :json, :xml
   load_and_authorize_resource :organization

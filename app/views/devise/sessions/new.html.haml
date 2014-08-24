@@ -1,11 +1,11 @@
 - headings('Sign in', 'and get started')
 
-= form_for( resource, :as => resource_name, :url => session_path(resource_name) ) do |f|
-  .field
+= form_for( resource, :as => resource_name, :url => session_path(resource_name), class: 'general' ) do |f|
+  .field{ has_error(resource, :email) }
     = f.label :email
     .inputs= f.email_field :email
 
-  .field
+  .field{ has_error(resource, :password) }
     = f.label :password
     .inputs= f.password_field :password
 

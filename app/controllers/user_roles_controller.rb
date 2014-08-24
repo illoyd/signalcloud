@@ -1,8 +1,4 @@
-# params = { user_role: { email: 'ian.w.lloyd@gmail.com' } }
-# current_user = User.find 1
-# @organization = current_user.organizations.first
-
-class UserRolesController < ApplicationController
+class UserRolesController < ProtectedController
 
   respond_to :html, :json, :xml
   load_and_authorize_resource :organization
