@@ -7,7 +7,14 @@ class CommunicationGateway < ActiveRecord::Base
     end
     state :ready do
       event :update_remote, transitions_to: :ready
+      event :suspend,       transitions_to: :suspended
+      event :cancel,        transitions_to: :cancelled
     end
+    state :suspended do
+      event :activate,      transitions_to: :ready
+      event :cancel,        transitions_to: :cancelled
+    end
+    state :canceled
   end
 
   attr_encrypted :remote_sid, key: ATTR_ENCRYPTED_SECRET
