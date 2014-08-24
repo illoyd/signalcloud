@@ -1,0 +1,10 @@
+.trial-banner
+  %strong Head's up!
+  This is a trial account.
+  - if can? :upgrade, @organization
+    = link_to 'Upgrade now', "#upgrade_organization_#{@organization.id}", class:'alert-link', data: {toggle: 'modal'}
+    to buy phone numbers and to start conversations.
+  - else
+    Check with your organization administrator on enabling this account.
+
+.content= render partial: 'upgrade_organization_modal', object: @organization, as: :organization

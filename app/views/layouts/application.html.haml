@@ -17,6 +17,9 @@
     %nav#navbar
       .header= render partial: 'navbar'
 
+    - if @organization.try(:trial?)
+      = render partial: 'trial_banner'
+
     .content
       = render partial: 'heading'
       = render partial: 'flash'

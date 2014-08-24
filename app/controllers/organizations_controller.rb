@@ -39,14 +39,14 @@ class OrganizationsController < ApplicationController
   def create
     @organization.account_plan = AccountPlan.default
     @organization.owner = current_user
-    flash[:success] = 'Your organization has been created.' if @organization.update_attributes(organization_params)
+    flash[:success] = 'Your organization has been created.' if @organization.update(organization_params)
     respond_with @organization
   end
 
   # PUT /organizations/1
   # PUT /organizations/1.json
   def update
-    flash[:success] = 'Your organization has been updated.' if @organization.update_attributes(organization_params)
+    flash[:success] = 'Your organization has been updated.' if @organization.update(organization_params)
     respond_with @organization
   end
   

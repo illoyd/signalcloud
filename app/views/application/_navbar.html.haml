@@ -23,7 +23,7 @@
       - if can? :show, @organization
         / Dashboard
         %li{ class: ('active' if dashboard_page?) }
-          = link_to icon( :dashboard ), organization_path(@organization)
+          = link_to icon(@organization.icon), organization_path(@organization)
   
       - if can? :index, Conversation
         / Conversations

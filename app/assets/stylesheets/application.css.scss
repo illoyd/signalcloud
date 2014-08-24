@@ -90,6 +90,19 @@ nav#navbar {
   }
 }
 
+.trial-banner {
+  @extend .alert;
+  @extend .alert-info;
+  @extend .text-center;
+  
+  margin-bottom: 0px;
+  margin-top: 18px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-left-width: 0px;
+  border-right-width: 0px; 
+}
+
 
 // Tables
 table.list {

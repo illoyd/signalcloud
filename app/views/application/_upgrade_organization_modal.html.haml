@@ -1,0 +1,16 @@
+- if can? :upgrade, organization
+  .modal.fade[organization, :upgrade]{ "aria-hidden" => "true", role: "dialog", tabindex: "-1"}
+    .modal-dialog.modal-sm
+      .modal-content
+        .modal-header
+          %h3.modal-title
+            = icon(organization.icon)
+            Upgrade #{ organization.label }
+        .modal-body
+          %p Ready to upgrade?
+          %p Before we get started, please make sure you have set up your contact and billing information. We can't upgrade without it!
+          = form_for( organization, url: upgrade_organization_path(organization), method: :post ) do |f|
+            = f.button type: 'submit', class: 'enable' do
+              = icon(:enable)
+              I'm ready, let's upgrade!
+          %a.cancel{"aria-hidden" => "true", "data-dismiss" => "modal"}= iconify('Wait, let me think!', :disable)
