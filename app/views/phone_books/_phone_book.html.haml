@@ -4,7 +4,7 @@
       { label: 'Edit', icon: :edit, link: edit_organization_phone_book_path(phone_book.organization, phone_book), if: can?(:edit, phone_book) }, |
       { label: 'Delete', icon: :delete, link: "#delete_phone_book_#{ phone_book.id }", options: { data: { toggle: 'modal' } }, if: ( can?(:destroy, phone_book) && phone_book.stencils.empty? ) }, |
     ], { class: 'btn-xs' }) |
-  %td= link_to phone_book.label, [phone_book.organization, phone_book]
+  %td= link_to iconify(phone_book.label, :phone_book), [phone_book.organization, phone_book]
   %td
     %small
       - if phone_book.description.blank?
@@ -12,7 +12,7 @@
       - else
         = phone_book.description
   %td
-    = link_to iconify(phone_book.phone_book_entries.count, :phone_book), [phone_book.organization, phone_book]
+    = link_to iconify(phone_book.phone_book_entries.count, :phone_number), [phone_book.organization, phone_book]
     - if phone_book.phone_book_entries.empty?
       = warning_label('This Phone Book does not have any Phone Numbers! Add a Phone Number to use it in a Stencil.')
 

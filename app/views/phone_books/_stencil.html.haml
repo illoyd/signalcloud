@@ -6,4 +6,4 @@
       ], { class: "btn-xs"} ) |
   %td= link_to_if can?(:show, stencil), iconify(stencil.label, :stencil), [stencil.organization, stencil]
   %td= link_to_if can?(:show, Conversation), iconify(stencil.conversations.count, :conversations), [stencil.organization, stencil, :conversations]
-  %td= stencil.conversations.maximum(:updated_at).blank? ? 'Not used' : l(stencil.conversations.maximum(:updated_at))
+  %td= stencil.conversations.maximum(:updated_at).blank? ? '<em>Never used</em>'.html_safe : l(stencil.conversations.maximum(:updated_at), format: :short)

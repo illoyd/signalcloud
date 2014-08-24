@@ -8,7 +8,7 @@
             = icon(:release)
             #{ humanize_phone_number object }
         .modal-body
-          %p Are you sure you want to release <i>#{ humanize_phone_number object }</i>?
+          %p Are you sure you want to release <em>#{ humanize_phone_number object }</em>?
           %p The Phone Number will be immediately released from your account.
           %p You can attempt to re-purchase the number but you may be charged again.
           = form_for( [object.organization, object], url: release_organization_phone_number_path(object.organization, object), method: :post ) do |f|

@@ -8,6 +8,7 @@
     %tr
       %th.controls
       %th Name
+      %th Status
       %th Plan
       %th.text-right Balance
       %th.text-center
@@ -28,7 +29,7 @@
   %tbody
     - @organizations.each do |organization|
       %tr
-        %td.controls
+        %td
           = split_dropdown_list([ |
             { label: 'Details', icon: :show, link: organization, if: can?(:show, organization) }, |
             { label: 'Edit', icon: :edit, link: edit_organization_path(organization), if: can?(:edit, organization) }, |
@@ -38,9 +39,8 @@
           = link_to organization do
             = icon(organization.icon || :organizations )
             = organization.label
-        %td
-          #{organization.status rescue 'TODO'}
-          (#{organization.account_plan.label})
+        %td #{ organization.workflow_state.titleize rescue 'TODO' }
+        %td #{organization.account_plan.label}
         %td.text-right= currency_for( organization.balance )
         %td.text-center
           = link_to [organization, :conversations] do

@@ -12,11 +12,10 @@
     %strong Inactive!
     This Phone Number is inactive and cannot be used to start or monitor conversations.
 
-%p= status_label_for(@phone_number)
-
 %p
   %b Number:
   = humanize_phone_number @phone_number.number
+  = status_label_for(@phone_number)
 
 %p
   %b Country:
