@@ -1,2 +1,5 @@
-#uri = URI.parse(ENV["REDISTOGO_URL"])
-#REDIS = Redis.new(:url => ENV['REDISTOGO_URL'])
+##
+# Connect Redis Cloud
+if ENV["REDISCLOUD_URL"]
+    $redis = Redis.new(:url => ENV["REDISCLOUD_URL"])
+end
