@@ -8,7 +8,7 @@ class PhoneBook < ActiveRecord::Base
   validates_presence_of :organization
   
   def phone_numbers_by_country(country)
-    self.phone_numbers.where(phone_book_entries: {country: country})
+    self.phone_numbers.with_active_state.where(phone_book_entries: {country: country})
   end
   
   def default_phone_numbers

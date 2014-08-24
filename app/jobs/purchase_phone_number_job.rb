@@ -19,7 +19,7 @@ class PurchasePhoneNumberJob
     begin
       phone_number.purchase!
     
-    rescue Twilio::Rest::RequestError => ex
+    rescue Twilio::REST::RequestError => ex
       case ex.code
         when Twilio::ERR_PHONE_NUMBER_NOT_AVAILABLE
           phone_number.deactivate!

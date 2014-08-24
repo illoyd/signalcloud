@@ -9,13 +9,13 @@ class PhoneNumber < ActiveRecord::Base
       event :purchase, transitions_to: :active
     end
     state :active do
-      event :unpurchase, transitions_to: :inactive
+      event :release, transitions_to: :inactive
       event :refresh, transitions_to: :active
     end
   end
 
   alias_method :buy!, :purchase!
-  alias_method :unbuy!, :unpurchase!
+  alias_method :unbuy!, :release!
   
   IGNORE = 0
   REJECT = 0
@@ -132,7 +132,7 @@ protected
 
   ##
   # Using the phone number's Twilio SID, get an instance of it from Twilio's API then perform a 'DELETE' action against it.
-  def unpurchase
+  def release
     # If not assigned to an organization, cannot unbuy a number!
     raise OrganizationNotAssociatedError.new if self.organization.nil?
     self.communication_gateway.unpurchase_number! self

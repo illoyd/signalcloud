@@ -39,6 +39,10 @@ ICONS = {
   roles:          'check-circle-o',
   change_password: 'key',
   
+  # Phone Number statuses/actions
+  purchase:       'chain',
+  release:        'chain-broken',
+  
   # Conversation statuses
   draft:          'file-file-o',
   pending:        'plus-circle',
@@ -52,6 +56,8 @@ ICONS = {
   challenge_sent: 'plus-circle',
 
   # Misc
-  error:          'warning-sign'
+  error:          'warning-sign',
+  active:         'check',
+  inactive:       'times',
     
 }.with_indifferent_access.freeze

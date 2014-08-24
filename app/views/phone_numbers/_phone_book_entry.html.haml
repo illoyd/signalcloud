@@ -3,7 +3,7 @@
     { label: 'Details', icon: :show, link: [phone_book_entry.phone_book.organization, phone_book_entry.phone_book], if: can?(:show, phone_book_entry.phone_book) }, |
     { label: 'Remove from book', icon: :delete, link: [phone_book_entry.phone_book.organization, phone_book_entry], options: { method: :delete }, if: can?(:destroy, phone_book_entry) } |
     ], {class:'btn-xs'}) |
-  %td= link_to phone_book_entry.phone_book.label, [phone_book_entry.phone_book.organization, phone_book_entry.phone_book]
+  %td= link_to iconify(phone_book_entry.phone_book.label, :phone_book), [phone_book_entry.phone_book.organization, phone_book_entry.phone_book]
   %td
     - if phone_book_entry.country.blank?
       %em #{ flag_icon() } Any

@@ -8,8 +8,6 @@ class PhoneNumbersController < ApplicationController
   # GET /phone_numbers
   # GET /phone_numbers.json
   def index
-    #@phone_numbers = @organization.phone_numbers
-    #authorize! :index, PhoneNumber
     respond_with @organization, @phone_numbers
   end
 
@@ -32,7 +30,6 @@ class PhoneNumbersController < ApplicationController
 
   # GET /phone_numbers/1/edit
   def edit
-    # @phone_number = PhoneNumber.find(params[:id])
     respond_with @organization, @phone_number
   end
 
@@ -41,22 +38,23 @@ class PhoneNumbersController < ApplicationController
   def create
 
     # Construct and authorise the phone number
-    @phone_number = @organization.phone_numbers.build( phone_number_params )
+    @phone_number = @organization.phone_numbers.build( buy_phone_number_params )
+    @phone_number.communication_gateway = @organization.communication_gateway_for(:twilio)
     authorize! :create, @phone_number
 
     begin
-      @phone_number.buy
-      flash[:success] = 'Phone number was successfully created.' if @phone_number.save
-      respond_with [@organization, @phone_number]
+      @phone_number.purchase!
+      flash[:success] = 'Phone number was successfully created.' if @phone_number.update(buy_phone_number_params)
 
-    rescue Twilio::Rest::RequestError => ex
+    rescue Twilio::REST::RequestError => ex
       case ex.code
         when Twilio::ERR_PHONE_NUMBER_NOT_AVAILABLE
-          flash[:error] = 'Phone number not available. (%s)' % [ex.message]
+          flash[:error] = "Sorry, #{ view_context.humanize_phone_number @phone_number.number } is no longer available. (Detailed message: #{ ex.message })"
         else
-          flash[:error] = 'Unknown error! (%i: %s)' % [ex.code, ex.message]
+          flash[:error] = 'Unknown error! (%s: %s)' % [ex.code, ex.message]
       end
-      redirect_to search_organization_phone_numbers_path(@organization)
+    ensure
+      respond_with @organization, @phone_number
     end
   end
 
@@ -67,20 +65,7 @@ class PhoneNumbersController < ApplicationController
     respond_with @organization, @phone_number
   end
 
-  # DELETE /phone_numbers/1
-  # DELETE /phone_numbers/1.json
-  def destroy
-    @phone_number.unbuy
-    @phone_number.destroy
-
-    respond_to do |format|
-      format.html { redirect_to organization_phone_numbers_url(@organization) }
-      format.json { head :no_content }
-      format.xml  { head :no_content }
-    end
-  end
-  
-  def search
+  def new
     # Number of phone numbers to show
     @numbers_to_show = 10
   
@@ -89,10 +74,11 @@ class PhoneNumbersController < ApplicationController
     search_params[:sms_enabled] = true
     
     # Extract country code from params
-    country_code = params.fetch(:country, 'US').upcase
-    phone_number_kind = params.fetch(:kind, 'local').downcase
+    country_code = params.fetch('country', 'US').upcase
+    phone_number_kind = params.fetch('kind', 'local').downcase
     
     # Search and reply
+    @available_phone_numbers = []
     begin
       @available_phone_numbers = search_for( country_code, phone_number_kind, search_params ).first(@numbers_to_show)
     rescue Twilio::REST::RequestError => ex
@@ -117,10 +103,52 @@ class PhoneNumbersController < ApplicationController
 #     end
 #   end
 
+  def purchase
+    begin
+      if @phone_number.can_purchase?
+        @phone_number.purchase!
+        flash[:success] = 'Phone Number was successfully purchased.' if @phone_number.save
+      else
+        flash[:warning] = 'This Phone Number could not be purchased. It might already be active.'
+      end
+
+    rescue Twilio::REST::RequestError => ex
+      case ex.code
+        when Twilio::ERR_PHONE_NUMBER_NOT_AVAILABLE
+          flash[:error] = "Sorry, #{ view_context.humanize_phone_number @phone_number.number } is no longer available. (Detailed message: #{ ex.message })"
+        else
+          flash[:error] = 'Unknown error! (%s: %s)' % [ex.code, ex.message]
+      end
+    ensure
+      respond_with @organization, @phone_number
+    end
+  end
+  
+  def release
+    begin
+      if @phone_number.can_release?
+        @phone_number.release!
+        flash[:success] = 'Phone Number was successfully released.' if @phone_number.save
+      else
+        flash[:warning] = 'This Phone Number could not be released. It might already be inactive.'
+      end
+
+    rescue Twilio::REST::RequestError => ex
+      case ex.code
+        when Twilio::ERR_PHONE_NUMBER_NOT_AVAILABLE
+          flash[:error] = "Sorry, #{ view_context.humanize_phone_number @phone_number.number } is no longer available. (Detailed message: #{ ex.message })"
+        else
+          flash[:error] = 'Unknown error! (%s: %s)' % [ex.code, ex.message]
+      end
+    ensure
+      respond_with @organization, @phone_number
+    end
+  end
+
   protected
   
   def search_for(country, kind, search_params)
-    searcher = @organization.communication_gateway_for(:twilio).remote_instance.available_phone_numbers.get(country)
+    searcher = gateway.available_phone_numbers.get(country)
     searcher = case kind
       when 'mobile'
         searcher.mobile
@@ -128,6 +156,10 @@ class PhoneNumbersController < ApplicationController
         searcher.local
       end
     searcher.list(search_params)
+  end
+  
+  def gateway
+    @organization.communication_gateway_for(:twilio).try(:remote_instance) || Twilio.master_client.account
   end
 
 end

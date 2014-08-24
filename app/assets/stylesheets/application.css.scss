@@ -192,7 +192,9 @@ div.content {
   
   div.modal {
     
-    a.delete {
+    a.delete, a.purchase, a.release,
+    input.delete, input.purchase, input.release,
+    button.delete, button.purchase, button.release {
       @extend .btn;
       @extend .btn-danger;
       @extend .btn-block;
@@ -210,18 +212,41 @@ div.content {
       @extend .btn-block;
     }
 
-    a.cancel {
+    a.cancel, input.cancel, button.disable {
       @extend .btn;
-      @extend .btn-success;
+      @extend .btn-default;
       @extend .btn-block;
     }
     
-    a + a {
+    a + a, button + a, button + button {
       margin-top: 0.5em;
     }
+
+    form {
+      margin: 0px;
+  
+      .icon-field {
+        @extend .row;
+  
+        & > .icon { @extend .col-sm-2; }
+  
+        & > .field {
+          @extend .form-group;
+          @extend .col-sm-10;
+  
+          input[type="text"], input[type="password"], input[type="email"], select, textarea {
+            @extend .form-control;
+          }
+        }
+      }
+      
+      .icon-field + .icon-field {
+        margin-top: 1.5em;
+      }
+    }
+
   }
-  
-  
+
   div.performance {
     @extend .row;
 
@@ -258,30 +283,6 @@ div.content {
     }
   }
   
-  .modal form {
-    margin: 0px;
-
-    .icon-field {
-      @extend .row;
-
-      & > .icon { @extend .col-sm-2; }
-
-      & > .field {
-        @extend .form-group;
-        @extend .col-sm-10;
-
-        input[type="text"], input[type="password"], input[type="email"], select, textarea {
-          @extend .form-control;
-        }
-      }
-    }
-    
-    .icon-field + .icon-field {
-      margin-top: 1.5em;
-    }
-
-  }
-  
   form {
     label {
       @extend .control-label;
@@ -293,6 +294,9 @@ div.content {
 
     .actions {
       @extend .text-right;
+    }
+    
+    .field + .actions {
       margin-top: 2em;
     }
     

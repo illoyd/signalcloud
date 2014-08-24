@@ -1,8 +1,13 @@
 class PhoneNumberPricer < Pricer
   
-  def price_for( phone_number )
+  def price_for(phone_number)
+    return 0 unless phone_number.active?
     country = PhoneTools.country( phone_number.number )
-    pricesheet = self.price_sheet_for( country )
+    price_for_country(country)
+  end
+  
+  def price_for_country(country)
+    pricesheet = self.price_sheet_for(country)
     pricesheet.base_phone_number_price
   end
 

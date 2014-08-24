@@ -35,6 +35,13 @@ SignalCloud::Application.routes.draw do
       end
     end
 
+    resources :phone_numbers, only: [ :index, :show, :new, :create, :edit, :update ] do
+      member do
+        post :purchase
+        post :release
+      end
+    end
+  
     resources :stencils do
       collection do
         get 'active', action: :index, defaults: { active_filter: true }, as: 'active'
@@ -62,12 +69,6 @@ SignalCloud::Application.routes.draw do
     
     resources :ledger_entries, only: :show
     
-    resources :phone_numbers, only: [ :index, :show, :create, :edit, :update, :destroy ] do
-      collection do
-        get 'search/:country/:kind', action: 'search', defaults: { country: 'US', kind: 'local' }, as: 'search'
-      end
-    end
-  
     resources :phone_books
     resources :phone_book_entries, only: [:create, :destroy]
     

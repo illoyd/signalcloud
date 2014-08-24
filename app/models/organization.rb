@@ -63,6 +63,7 @@ class Organization < ActiveRecord::Base
   # Delegations
   delegate :update_balance!, :balance, :balance=, to: :account_balance
   delegate :freshbooks_id, to: :accounting_gateway
+  delegate :price_for, :conversation_pricer, :phone_number_pricer, to: :account_plan
 
   def icon
     super || :briefcase

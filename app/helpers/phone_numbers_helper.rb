@@ -15,6 +15,19 @@ module PhoneNumbersHelper
     ]
   end
   
+  def status_label_for(phone_number)
+    case phone_number.workflow_state
+      when 'active'
+        llabel(iconify('Active', :active), 'success')
+      when 'inactive'
+        llabel(iconify('Inactive', :inactive))
+      when 'purchasing'
+        llabel(iconify('Purchasing', :active), 'warning')
+      when 'unpurchasing'
+        llabel(iconify('Releasing', :inactive), 'warning')
+    end.html_safe
+  end
+  
   def call_languages()
     PhoneNumber::LANGUAGES.map { |language| [ call_language(language), language ] }
   end
@@ -69,7 +82,7 @@ module PhoneNumbersHelper
 
   def build_supported_countries_navigation_list_fragment(countries, kind)
     countries.map do |country|
-      { label: "#{ country.name }", icon: :phone_numbers, link: search_organization_phone_numbers_path(@organization, country.alpha2, kind), active: ( params[:country] == country.alpha2 && params[:kind] == kind ) }
+      { label: "#{ country.name }", icon: :phone_numbers, link: new_organization_phone_number_path(@organization, country.alpha2, kind), active: ( params[:country] == country.alpha2 && params[:kind] == kind ) }
     end
   end
 

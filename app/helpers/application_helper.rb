@@ -6,6 +6,14 @@ module ApplicationHelper
     content_for :subheading, subheading
     content_for :heading_icon, icon
   end
+  
+  def can_buy_phone_number?(organization)
+    organization.try(:ready?) && can?(:buy_phone_number, organization)
+  end
+  
+  def can_start_conversation?(organization)
+    organization.try(:ready?) && can?(:start_conversation, organization)
+  end
 
   def navigation_list( entries = [], options = {} )
     render partial: 'layouts/navlist', object: entries, locals: { options: options }
@@ -224,16 +232,19 @@ module ApplicationHelper
     iconify( display_name_for(item), display_icon_for(item) )
   end
 
-  def supported_countries
-    Twilio::SUPPORTED_COUNTRIES.map { |alpha2| Country[alpha2] }.sort_by(&:name)
+  def supported_countries(use_beta = false)
+    countries = use_beta ? Twilio::SUPPORTED_COUNTRIES_BETA : Twilio::SUPPORTED_COUNTRIES
+    countries.map { |alpha2| Country[alpha2] }.sort_by(&:name)
   end
   
-  def supported_countries_local
-    Twilio::SUPPORTED_COUNTRIES_LOCAL.map { |alpha2| Country[alpha2] }.sort_by(&:name)
+  def supported_countries_local(use_beta = false)
+    countries = use_beta ? Twilio::SUPPORTED_COUNTRIES_LOCAL_BETA : Twilio::SUPPORTED_COUNTRIES_LOCAL
+    countries.map { |alpha2| Country[alpha2] }.sort_by(&:name)
   end
   
-  def supported_countries_mobile
-    Twilio::SUPPORTED_COUNTRIES_MOBILE.map { |alpha2| Country[alpha2] }.sort_by(&:name)
+  def supported_countries_mobile(use_beta = false)
+    countries = use_beta ? Twilio::SUPPORTED_COUNTRIES_MOBILE_BETA : Twilio::SUPPORTED_COUNTRIES_MOBILE
+    countries.map { |alpha2| Country[alpha2] }.sort_by(&:name)
   end
   
   def map_for_coordinates(lat, lon, options = {})

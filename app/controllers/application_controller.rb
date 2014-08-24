@@ -7,7 +7,16 @@ class ApplicationController < ActionController::Base
   helper_method :current_stencil
   
   rescue_from CanCan::AccessDenied do |exception|
-    redirect_to root_url, :alert => exception.message
+    if current_user.nil?
+      session[:next] = request.fullpath
+      redirect_to sign_in_url, :alert => "Please sign in to continue."
+    else
+      if request.env["HTTP_REFERER"].present?
+        redirect_to :back, :alert => exception.message
+      else
+        redirect_to root_url, :alert => exception.message
+      end
+    end
   end
   
   def assign_organization
@@ -73,6 +82,10 @@ class ApplicationController < ActionController::Base
   
   def phone_number_params
     params.require(:phone_number).permit(:unsolicited_sms_action, :unsolicited_sms_message, :unsolicited_call_action, :unsolicited_call_message, :unsolicited_call_voice, :unsolicited_call_language)
+  end
+
+  def buy_phone_number_params
+    params.require(:phone_number).permit(:number)
   end
 
   def conversation_params

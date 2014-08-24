@@ -4,8 +4,8 @@
     = link_to iconify('Phone numbers', :phone_numbers), organization_phone_numbers_path(@organization)
 
   -# If no book present, allow creating a new one
-  - if can?(:new, PhoneNumber) && !@phone_number.present?
-    = link_to iconify('Add phone number', :plus), search_organization_phone_numbers_path(@organization)
+  - if can?(:search, PhoneNumber) && !@phone_number.present?
+    = link_to iconify('Add phone number', :plus), new_organization_phone_number_path(@organization)
     
 - if @phone_number.try(:persisted?)
   .actions
@@ -23,12 +23,21 @@
     - if can?(:edit, @phone_number)
       = link_to iconify('Edit', :edit), edit_organization_phone_number_path(@organization, @phone_number)
   
-    -# Allow deleting
-    - if can?(:destroy, @phone_number)
-      = link_to iconify('Delete', :delete), '#delete_phone_number_modal', class: 'delete', data: {toggle: 'modal'}
-      = render partial: 'delete_modal'
+    -# Allow purchasing
+    - if can?(:purchase, @phone_number) && @phone_number.can_purchase?
+      = link_to iconify('Buy', :purchase), "#purchase_phone_number_#{ @phone_number.id }", class: 'purchase', data: {toggle: 'modal'}
+
+    -# Allow unpurchasing
+    - if can?(:release, @phone_number) && @phone_number.can_release?
+      = link_to iconify('Release', :release), "#release_phone_number_#{ @phone_number.id }", class: 'release', data: {toggle: 'modal'}
 
 - if @phone_number.try(:persisted?)
   .related
     %span.tag Related
-    = link_to icon(:phone_books),   organization_phone_books_path(@organization)
+    = link_to icon(:phone_books), organization_phone_books_path(@organization)
+
+- if can?(:purchase, @phone_number) && @phone_number.can_purchase?
+  = render partial: 'purchase_phone_number_modal', object: @phone_number, as: :object
+
+- if can?(:release, @phone_number) && @phone_number.can_release?
+  = render partial: 'release_phone_number_modal', object: @phone_number, as: :object

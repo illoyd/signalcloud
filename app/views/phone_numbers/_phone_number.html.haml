@@ -1,0 +1,15 @@
+%tr
+  %td= split_dropdown_list([ |
+      { label: 'Details', icon: :show, link: [@organization, phone_number], if: can?(:show, phone_number) }, |
+      { label: 'Delete', icon: :delete, link: [@organization, phone_number], options: { method: :delete, data: { confirm: 'Are you sure?' } }, if: can?(:destroy, phone_number) } |
+    ], { class: 'btn-xs' }) |
+  %td
+    = link_to [phone_number.organization, phone_number] do
+      = flag_icon_for_phone_number phone_number
+      = humanize_phone_number(phone_number.number)
+  %td
+    = link_to iconify(phone_number.phone_books.count, :phone_books), [phone_number.organization, phone_number]
+    - if phone_number.active? && phone_number.phone_book_entries.empty?
+      = warning_label('This Phone Number is not used in any Phone Books! Add a Phone Book to use it in a Stencil.')
+  %td.text-center= status_label_for(phone_number)
+  %td.text-right= currency_for(phone_number.organization.price_for(phone_number))

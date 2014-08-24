@@ -138,13 +138,14 @@ class TwilioCommunicationGateway < CommunicationGateway
 
   def purchase_number!( phone_number )
     pn = self.class.prepend_plus(phone_number.number)
-    results = self.twilio_account.incoming_phone_numbers.create( { phone_number: pn, application_sid: self.remote_application } )
+    results = self.twilio_account.incoming_phone_numbers.create(assemble_phone_number_data phone_number)
     phone_number.provider_sid = results.sid
     results
   end
   
   def unpurchase_number!( phone_number )
     phone_number(phone_number.provider_sid).delete
+    phone_number.provider_sid = nil
   end
   
   def update_number!( phone_number )

@@ -2,12 +2,21 @@
 - headings 'Phone Number', humanize_phone_number(@phone_number.number), :phone_numbers
 - breadcrumb @phone_number
 
-- if @phone_number.phone_books.empty?
-  .flash-warning Head's up! This Phone Number is not used in any Stencils.
+- if @phone_number.active? && @phone_number.phone_books.empty?
+  .flash-warning
+    %strong Head's up!
+    This Phone Number is not used in any Phone Books.
+
+- if @phone_number.inactive?
+  .flash-info
+    %strong Inactive!
+    This Phone Number is inactive and cannot be used to start or monitor conversations.
 
 -# Sidebar controls
 - content_for :sidebar do
   = render 'navlist'
+
+%p= status_label_for(@phone_number)
 
 %p
   %b Number:
@@ -17,10 +26,10 @@
   %b Country:
   = flag_icon_for_phone_number @phone_number
   = country_name_for_phone_number @phone_number
-  
+
 %p
   %b Monthly fee:
-  = currency_for @phone_number.cost
+  = currency_for @organization.price_for(@phone_number)
 
 %h3 Actions
 .row

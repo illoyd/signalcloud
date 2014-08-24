@@ -1,0 +1,17 @@
+- available_phone_number_id = available_phone_number.phone_number.to_s.gsub(/\D/,'')
+%tr
+  %td
+    - if can_buy_phone_number?(organization)
+      = link_to 'Buy', "#show_available_phone_number_#{available_phone_number_id}", data: {toggle: 'modal'}, class: 'btn btn-success btn-xs'
+    - else
+      = link_to 'Upgrade', "#upgrade_organization_#{@organization.id}", data: {toggle: 'modal'}, class: 'btn btn-success btn-xs'
+    
+    = link_to icon(:show), "#show_available_phone_number_#{available_phone_number_id}", data: {toggle: 'modal'}, class: 'btn btn-default btn-xs'
+      
+  %td= link_to iconify(humanize_phone_number(available_phone_number.phone_number), :phone_number), "#show_available_phone_number_#{available_phone_number_id}", data: {toggle: 'modal'}
+  %td
+    #{flag_icon(available_phone_number.iso_country)} #{available_phone_number.iso_country}
+    - unless available_phone_number.region.blank?
+      \- #{available_phone_number.region}
+  %td
+    = currency_for organization.phone_number_pricer.price_for_country(available_phone_number.iso_country)
