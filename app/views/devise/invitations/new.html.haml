@@ -3,7 +3,7 @@
 
 / Page body
 .row
-  .span3= render :partial => 'users/navlist'
+  .span3
   .span9
     = form_for resource, :as => resource_name, :url => invitation_path(resource_name), :html => {:method => :post, class: 'general'} do |f|
       = devise_error_messages!
