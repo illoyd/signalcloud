@@ -49,6 +49,19 @@ class OrganizationsController < ApplicationController
     flash[:success] = 'Your organization has been updated.' if @organization.update_attributes(organization_params)
     respond_with @organization
   end
+  
+  # POST /organizations/1/upgrade
+  def upgrade
+    if @organization.can_upgrade?
+      begin
+        @organization.upgrade!
+        flash[:success] = 'Congrats! Your organization has been upgraded.' if @organization.save
+      rescue Workflow::TransitionHalted => ex
+        flash[:error] = ex.message
+      end
+    end
+    respond_with @organization
+  end
 
   # DELETE /organizations/1
   # DELETE /organizations/1.json

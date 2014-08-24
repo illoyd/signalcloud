@@ -22,6 +22,9 @@ SignalCloud::Application.routes.draw do
   # Nest all underneath organizations
   resources :organizations, only: [ :index, :new, :show, :create, :update, :edit ] do
     concern :collection_paginateable
+    
+    # Upgrade path
+    post :upgrade, on: :member
 
     resources :users, only: [ :index, :show ]
     resources :user_roles, only: [ :create, :update, :destroy ]

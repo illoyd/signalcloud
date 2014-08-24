@@ -8,7 +8,6 @@ class Organization < ActiveRecord::Base
     state :ready do
       event :suspend, transition_to: :suspended
       event :cancel,  transition_to: :cancelled
-      event :upgrade, transition_to: :ready
     end
     state :suspended do
       event :upgrade, transition_to: :ready
@@ -258,14 +257,18 @@ protected
   end
 
   def upgrade
+    # Halt upgrade if not valid
+    @upgrading = true
+    halt! 'Missing important information before upgrading!' unless valid?
+  
     # Update SMS data if needed - this should be created when first needed
     # self.create_or_update_communication_gateway
 
     # Update accounting data if needed
-    self.create_or_update_client
+    # self.create_or_update_client
     
     # Update payment data if needed
-    self.create_or_update_payment_gateway
+    # self.create_or_update_payment_gateway
   end
   
   def suspend
