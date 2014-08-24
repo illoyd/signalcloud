@@ -3,12 +3,18 @@
 # for the #billing_address and #mailing_address fields.
 class Address
   include Comparable
+  include GoingPostal
   attr_reader :first_name, :last_name, :email, :work_phone, :line1, :line2, :city, :region, :postcode, :country
   
   ##
   # Initialize with all values.
   def initialize( first_name=nil, last_name=nil, email=nil, work_phone=nil, line1=nil, line2=nil, city=nil, region=nil, postcode=nil, country=nil )
-    @first_name, @last_name, @email, @work_phone, @line1, @line2, @city, @region, @postcode, @country = first_name, last_name, email, work_phone, line1, line2, city, region, postcode, country
+    @first_name, @last_name, @email, @work_phone, @line1, @line2, @city, @region, @country = first_name, last_name, email, work_phone, line1, line2, city, region, country
+    @postcode = postcode?(postcode, country) ? format_postcode(postcode, country) : postcode
+  end
+  
+  def plausible_postcode?
+    postcode?(postcode, @country)
   end
   
   ##

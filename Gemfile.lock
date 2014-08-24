@@ -128,6 +128,7 @@ GEM
       ruby-progressbar (~> 1.4)
     globalid (0.2.3)
       activesupport (>= 4.1.0)
+    going_postal (0.1.4)
     gretel (3.0.8)
       rails (>= 3.2.0)
     groupdate (2.2.1)
@@ -331,6 +332,7 @@ DEPENDENCIES
   cancancan (~> 1.8)
   chartkick
   coffee-rails (~> 4.0.0)
+  countries
   countries-phone_numbers
   country_select
   dalli
@@ -340,6 +342,7 @@ DEPENDENCIES
   factory_girl
   faker
   fuubar
+  going_postal
   gretel
   groupdate
   haml

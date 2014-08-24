@@ -45,8 +45,14 @@ class Organization < ActiveRecord::Base
   
   # Validations
   validates_presence_of :sid, :auth_token, :label, :account_balance, :account_plan
-  validates_presence_of :billing_first_name, :billing_last_name, :billing_work_phone, if: Proc.new { |org| org.billing_country.present? }
-  validates_presence_of :contact_first_name, :contact_last_name, :contact_work_phone, if: Proc.new { |org| org.contact_country.present? }
+  validates_presence_of :billing_first_name, :billing_last_name, :billing_work_phone, :billing_email, :billing_line1, :billing_city, :billing_region, :billing_country, if: :billing_address_required?
+  validates_presence_of :billing_postcode, if: :billing_postcode_required?
+  validates_presence_of :contact_first_name, :contact_last_name, :contact_work_phone, :contact_email, :contact_line1, :contact_city, :contact_region, :contact_country, if: :contact_address_required?
+  validates_presence_of :contact_postcode, if: :contact_postcode_required?
+  validates :billing_address, postcode: true, if: :billing_postcode_required?
+  validates :contact_address, postcode: true, if: :contact_postcode_required?
+  validates :billing_work_phone, phone_number: true, if: :billing_postcode_required?
+  validates :contact_work_phone, phone_number: true, if: :contact_postcode_required?
   validates_uniqueness_of :sid
   
   # Callbacks
@@ -61,6 +67,30 @@ class Organization < ActiveRecord::Base
 
   def icon
     super || :briefcase
+  end
+  
+  ##
+  # Format the billing postcode when set.
+  def billing_postcode=(value)
+    super GoingPostal.postcode?(value, billing_country) ? GoingPostal.format_postcode(value, billing_country) : value
+  end
+  
+  ##
+  # Format the contact postcode when set.
+  def contact_postcode=(value)
+    super GoingPostal.postcode?(value, contact_country) ? GoingPostal.format_postcode(value, contact_country) : value
+  end
+  
+  ##
+  # Format the billing phone number when set.
+  def billing_work_phone=(value)
+    super value.blank? ? nil : "+#{Country.normalize_phone_number(value)}"
+  end
+  
+  ##
+  # Format the contact phone number when set.
+  def contact_work_phone=(value)
+    super value.blank? ? nil : "+#{Country.normalize_phone_number(value)}"
   end
   
   ##
@@ -103,6 +133,30 @@ class Organization < ActiveRecord::Base
     !communication_gateway_for( service ).nil?
   end
 
+  ##
+  # Is the billing address required?
+  def billing_address_required?
+    ready? || @upgrading
+  end
+  
+  ##
+  # Is the billing postcode required?
+  def billing_postcode_required?
+    billing_address_required? && !%w( IE ).include?(billing_country)
+  end
+  
+  ##
+  # Is the contact address required?
+  def contact_address_required?
+    billing_address_required? && !use_billing_as_contact_address
+  end
+  
+  ##
+  # Is the contact postcode required?
+  def contact_postcode_required?
+    contact_address_required? && !%w( IE ).include?(contact_country)
+  end
+  
   ##
   # Billing address value object getter.
   def billing_address
