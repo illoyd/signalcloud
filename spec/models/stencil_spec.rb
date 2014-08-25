@@ -86,5 +86,23 @@ describe Stencil, :type => :model do
       end
     end
   end
+  
+  context 'validations' do
+    it 'accepts a valid HTTP URI' do
+      expect( build :stencil, webhook_uri: 'http://www.google.com' ).to be_valid
+    end
+    it 'accepts a valid HTTPS URI' do
+      expect( build :stencil, webhook_uri: 'https://www.ft.com' ).to be_valid
+    end
+    it 'is invalid when invalid URI' do
+      expect( build :stencil, webhook_uri: 'abcd1234' ).not_to be_valid
+    end
+    it 'is invalid when IP' do
+      expect( build :stencil, webhook_uri: '192.168.1.1' ).not_to be_valid
+    end
+    it 'is invalid when non-HTTP URI' do
+      expect( build :stencil, webhook_uri: 'git://github.com' ).not_to be_valid
+    end
+  end
 
 end

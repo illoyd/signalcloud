@@ -23,6 +23,9 @@ class Stencil < ActiveRecord::Base
   scope :active,   ->{ where( :active => true ) }
   scope :inactive, ->{ where( :active => false ) }
   
+  # Normalizations
+  normalize_attributes :label, :description, :question, :expected_confirmed_answer, :expected_denied_answer, :confirmed_reply, :denied_reply, :failed_reply, :expired_reply, :webhook_uri
+  
   ##
   # Parameters passed to newly built conversations
   CONVERSATION_PARAMETERS = [ :seconds_to_live, :question, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :confirmed_reply, :denied_reply ]
