@@ -27,6 +27,14 @@ AttributeNormalizer.configure do |config|
     end
   end
   
+  config.normalizers[:upcase] = ->(value, options) {
+    value.try(:upcase) || value
+  }
+  
+  config.normalizers[:downcase] = ->(value, options) {
+    value.try(:downcase) || value
+  }
+  
   config.normalizers[:phone_number] = ->(value, options) {
     Country.plausible_phone_number?(value) ? Country.format_international_phone_number(value, spaces: '').gsub(/\s/, '') : value
   }

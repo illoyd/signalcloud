@@ -52,6 +52,8 @@ class Organization < ActiveRecord::Base
   validates :contact_address, postcode: true, if: :contact_postcode_required?
   validates :billing_work_phone, phone_number: true, if: :billing_postcode_required?
   validates :contact_work_phone, phone_number: true, if: :contact_postcode_required?
+  validates_length_of :billing_country, maximum: 2, allow_blank: true
+  validates_length_of :contact_country, maximum: 2, allow_blank: true
   validates_uniqueness_of :sid
   
   # Callbacks
@@ -67,8 +69,9 @@ class Organization < ActiveRecord::Base
   
   # Normalizations
   normalize_attributes :label, :description, :icon, :vat_name, :vat_number, :purchase_order
-  normalize_attributes :billing_first_name, :billing_last_name, :billing_work_phone, :billing_email, :billing_line1, :billing_city, :billing_region, :billing_postcode, :billing_country
-  normalize_attributes :contact_first_name, :contact_last_name, :contact_work_phone, :contact_email, :contact_line1, :contact_city, :contact_region, :contact_postcode, :contact_country
+  normalize_attributes :billing_first_name, :billing_last_name, :billing_work_phone, :billing_email, :billing_line1, :billing_city, :billing_region, :billing_postcode
+  normalize_attributes :contact_first_name, :contact_last_name, :contact_work_phone, :contact_email, :contact_line1, :contact_city, :contact_region, :contact_postcode
+  normalize_attributes :billing_country, :contact_country, with: [:strip, :blank, :upcase]
   normalize_attributes :billing_work_phone, :contact_work_phone, with: :phone_number
   normalize_attribute :billing_postcode, with: [{postcode: {object: true, country_attribute: :billing_country}}, :blank]
   normalize_attribute :contact_postcode, with: [{postcode: {object: true, country_attribute: :contact_country}}, :blank]
