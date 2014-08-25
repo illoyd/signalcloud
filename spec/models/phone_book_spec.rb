@@ -9,22 +9,22 @@ describe PhoneBook, :type => :model do
     book = create(:phone_book, organization: organization)
     
     defaults.times do |n|
-      pn = create :phone_number, organization: book.organization, communication_gateway: comm_gateway
+      pn = create :phone_number, :active, organization: book.organization, communication_gateway: comm_gateway
       book.phone_book_entries.create phone_number_id: pn.id, country: nil
     end
     
     us_numbers.times do
-      pn = create :us_phone_number, organization: book.organization, communication_gateway: comm_gateway
+      pn = create :us_phone_number, :active, organization: book.organization, communication_gateway: comm_gateway
       book.phone_book_entries.create phone_number_id: pn.id, country: PhoneBookEntry::US
     end
     
     ca_numbers.times do
-      pn = create :ca_phone_number, organization: book.organization, communication_gateway: comm_gateway
+      pn = create :ca_phone_number, :active, organization: book.organization, communication_gateway: comm_gateway
       book.phone_book_entries.create phone_number_id: pn.id, country: PhoneBookEntry::CA
     end
     
     gb_numbers.times do
-      pn = create :uk_phone_number, organization: book.organization, communication_gateway: comm_gateway
+      pn = create :uk_phone_number, :active, organization: book.organization, communication_gateway: comm_gateway
       book.phone_book_entries.create phone_number_id: pn.id, country: PhoneBookEntry::GB
     end
     
