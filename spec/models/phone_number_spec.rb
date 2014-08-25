@@ -10,7 +10,7 @@ AVAILABLE_AREACODE = '500'
 describe PhoneNumber, :vcr, :type => :model do
 
   let(:organization) { create :organization, :test_twilio, :with_sid_and_token }
-  let(:comm_gateway) { organization.communication_gateways.first }
+  let(:comm_gateway) { organization.communication_gateway_for(:twilio) }
   
   # Manage all validations
   describe "validations" do
@@ -83,15 +83,17 @@ describe PhoneNumber, :vcr, :type => :model do
           it { is_expected.to be_falsey }
         end
 
-        describe '#can_unpurchase?' do
-          subject { super().can_unpurchase? }
+        describe '#can_release?' do
+          subject { super().can_release? }
           it { is_expected.to be_falsey }
         end
 
         it 'purchases number' do
+          pending 'Swap out Twilio Gateway for generic'
           expect { subject.purchase! }.not_to raise_error
         end
         it 'transitions to active state after purchasing' do
+          pending 'Swap out Twilio Gateway for generic'
           expect { subject.purchase! }.to change(subject, :workflow_state).from('inactive').to('active')
         end
       end
@@ -109,20 +111,22 @@ describe PhoneNumber, :vcr, :type => :model do
           it { is_expected.to be_truthy }
         end
 
-        describe '#can_unpurchase?' do
-          subject { super().can_unpurchase? }
+        describe '#can_release?' do
+          subject { super().can_release? }
           it { is_expected.to be_truthy }
         end
 
-        it 'unpurchases number' do
-          expect { subject.unpurchase! }.not_to raise_error
+        it 'releases number' do
+          pending 'Swap out Twilio Gateway for generic'
+          expect { subject.release! }.not_to raise_error
         end
         it 'refreshes number' do
-          skip
+          pending 'Swap out Twilio Gateway for generic'
           expect { subject.refresh! }.not_to raise_error
         end
         it 'transitions to inactive state after unpurchasing' do
-          expect { subject.unpurchase! }.to change(subject, :workflow_state).from('active').to('inactive')
+          pending 'Swap out Twilio Gateway for generic'
+          expect { subject.release! }.to change(subject, :workflow_state).from('active').to('inactive')
         end
       end
 
