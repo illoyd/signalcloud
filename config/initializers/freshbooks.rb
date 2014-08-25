@@ -5,10 +5,10 @@ module FreshBooks
   DEFAULT_CURRENCY = 'USD'
 
   ##
-  # Request the current organization; expects +ENV['FRESHBOOKS_API_ENDPOINT=']+ and +ENV['FRESHBOOKS_API_TOKEN']+
+  # Request the current organization; expects +Rails.application.secrets.freshbooks_endpoint+ and +Rails.application.secrets.freshbooks_endpoint+
   # to be defined in the environment.
   def self.account
-    @@client ||= FreshBooks::Client.new( ENV['FRESHBOOKS_API_ENDPOINT'], ENV['FRESHBOOKS_API_TOKEN'] )
+    @@client ||= FreshBooks::Client.new( Rails.application.secrets.freshbooks_endpoint, Rails.application.secrets.freshbooks_token )
   end
   
   def self.system_info( reset=false )
