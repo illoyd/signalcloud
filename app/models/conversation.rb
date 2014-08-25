@@ -68,18 +68,18 @@ class Conversation < ActiveRecord::Base
   attr_accessor :seconds_to_live
   
   # Encrypted attributes
-  attr_encrypted :question,         key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :confirmed_reply,  key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :denied_reply,     key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :failed_reply,     key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :expired_reply,    key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :webhook_uri,      key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :question,         key: Rails.application.secrets.encrypted_secret
+  attr_encrypted :confirmed_reply,  key: Rails.application.secrets.encrypted_secret
+  attr_encrypted :denied_reply,     key: Rails.application.secrets.encrypted_secret
+  attr_encrypted :failed_reply,     key: Rails.application.secrets.encrypted_secret
+  attr_encrypted :expired_reply,    key: Rails.application.secrets.encrypted_secret
+  attr_encrypted :webhook_uri,      key: Rails.application.secrets.encrypted_secret
 
-  attr_encrypted :expected_confirmed_answer,  key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :expected_denied_answer,     key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :expected_confirmed_answer,  key: Rails.application.secrets.encrypted_secret
+  attr_encrypted :expected_denied_answer,     key: Rails.application.secrets.encrypted_secret
 
-  attr_encrypted :customer_number,  key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :old_internal_number,  key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :customer_number,  key: Rails.application.secrets.encrypted_secret
+  attr_encrypted :old_internal_number,  key: Rails.application.secrets.encrypted_secret
 
   # Relationships
   belongs_to :stencil, inverse_of: :conversations
@@ -130,9 +130,9 @@ class Conversation < ActiveRecord::Base
   ##
   # Provide a standardised way to convert a phone number into a deterministic hash.
   def self.hash_phone_number( phone_number )
-    # BCrypt::Password.new( BCrypt::Engine.hash_secret( pn, ATTR_ENCRYPTED_SECRET, BCrypt::Engine::DEFAULT_COST ) )
+    # BCrypt::Password.new( BCrypt::Engine.hash_secret( pn, Rails.application.secrets.encrypted_secret, BCrypt::Engine::DEFAULT_COST ) )
     phone_number = PhoneNumber.normalize_phone_number(phone_number)
-    phone_number.nil? ? nil : Digest::SHA1.base64digest( ATTR_ENCRYPTED_SECRET + phone_number )
+    phone_number.nil? ? nil : Digest::SHA1.base64digest( Rails.application.secrets.encrypted_secret + phone_number )
   end
   
   def self.find_open_conversations( internal_number, customer_number )

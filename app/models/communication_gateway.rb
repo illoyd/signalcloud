@@ -14,8 +14,8 @@ class CommunicationGateway < ActiveRecord::Base
     end
   end
 
-  attr_encrypted :remote_sid, key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :remote_token, key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :remote_sid, key: Rails.application.secrets.encrypted_secret
+  attr_encrypted :remote_token, key: Rails.application.secrets.encrypted_secret
   
   belongs_to :organization, inverse_of: :communication_gateways
   has_many :phone_numbers, inverse_of: :communication_gateway
