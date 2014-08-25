@@ -7,11 +7,15 @@ class CommunicationGateway < ActiveRecord::Base
     end
     state :ready do
       event :update_remote, transitions_to: :ready
+      event :suspend,       transitions_to: :suspended
+    end
+    state :suspended do
+      event :activate,      transitions_to: :ready
     end
   end
 
-  attr_encrypted :remote_sid, key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :remote_token, key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :remote_sid, key: Rails.application.secrets.encrypted_secret
+  attr_encrypted :remote_token, key: Rails.application.secrets.encrypted_secret
   
   belongs_to :organization, inverse_of: :communication_gateways
   has_many :phone_numbers, inverse_of: :communication_gateway
@@ -29,7 +33,7 @@ class CommunicationGateway < ActiveRecord::Base
   # A communication gateway MUST implement the following functions
   # send_message!
   # purchase_number!
-  # unpurchase_number!
+  # release_number!
   # update_number!
 
   def self.prepend_plus( number )

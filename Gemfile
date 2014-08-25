@@ -3,12 +3,8 @@ source 'https://rubygems.org'
 ruby "2.1.2"
 gem 'rails', '~> 4.2.0.beta1'
 
-# Bundle edge Rails instead:
-# gem 'rails', :git => 'git://github.com/rails/rails.git'
-
-# gem 'sqlite3'
+# Use Postgresql
 gem 'pg'
-
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0.0.beta1'
 # Use Uglifier as compressor for JavaScript assets
@@ -50,41 +46,45 @@ end
 # Use unicorn as the app server
 gem 'unicorn'
 
-# Add sinatra for sidekiq
-# gem 'sinatra', '>= 1.3.0', :require => nil
-
-# Deploy with Capistrano
-# gem 'capistrano'
-
 # To use debugger
 # gem 'debugger'
 
 #
 # Additional gems
-gem 'active_model_serializers', '~> 0.8.0'
 gem 'haml'
-gem 'devise', git: 'git://github.com/plataformatec/devise.git', branch: 'lm-rails-4-2'
-gem 'devise-async'
-gem 'devise_invitable'
-gem 'cancancan', '~> 1.8'
-gem 'attr_encrypted', '~> 1.3.2'
 gem 'kaminari'
 gem 'bootstrap-kaminari-views'
 gem 'stringex'
-gem 'httparty'
-gem 'api_smith'
 gem 'twitter_bootstrap_form_for', :git => 'git://github.com/stouset/twitter_bootstrap_form_for.git', :branch => 'bootstrap-2.0'
-gem 'workflow'
 gem 'countries'
 gem 'countries-phone_numbers'
 gem 'country_select'
 gem 'gretel'
-gem 'chartkick'
+gem 'responders'
+
+#
+# Model extensions
+gem 'active_model_serializers', '~> 0.8.0'
+gem 'attr_encrypted', '~> 1.3.2'
+gem 'attribute_normalizer', git: 'https://github.com/illoyd/attribute_normalizer.git'
+gem 'workflow'
+gem 'httparty'
+gem 'api_smith'
+gem 'going_postal'
+
+#
+# User auth and permissions
+gem 'devise', git: 'git://github.com/plataformatec/devise.git', branch: 'lm-rails-4-2'
+gem 'devise-async'
+gem 'devise_invitable'
+gem 'cancancan', '~> 1.8'
+
+#
+# Reporting gems
 gem 'hightop'
 gem 'groupdate'
 gem 'active_median'
-gem 'responders'
-gem 'going_postal'
+gem 'chartkick'
 
 #
 # Temporary or deprecated gems - these should be removed!
@@ -95,7 +95,6 @@ gem 'going_postal'
 gem 'dalli'
 gem 'redis'
 gem 'sidekiq', '~> 3.2'
-#gem 'sidetiq'
 
 #
 # External services (e.g. telephony, accounting)

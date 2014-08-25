@@ -1,7 +1,7 @@
 class AccountingGateway < ActiveRecord::Base
   include Workflow
   
-  attr_encrypted :remote_sid, key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :remote_sid, key: Rails.application.secrets.encrypted_secret
 
   belongs_to :organization, inverse_of: :accounting_gateway
 

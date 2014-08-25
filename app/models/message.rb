@@ -69,23 +69,23 @@ class Message < ActiveRecord::Base
 
   ##
   # Encrypted payload. Serialised using JSON.
-  attr_encrypted :provider_response, key: ATTR_ENCRYPTED_SECRET, marshal: true, marshaler: JSON
+  attr_encrypted :provider_response, key: Rails.application.secrets.encrypted_secret, marshal: true, marshaler: JSON
 
   ##
   # Encrypted callback payload. Serialised using JSON.
-  attr_encrypted :provider_update, key: ATTR_ENCRYPTED_SECRET, marshal: true, marshaler: JSON
+  attr_encrypted :provider_update, key: Rails.application.secrets.encrypted_secret, marshal: true, marshaler: JSON
 
   ##
   # Encrypted customer phone number.
-  attr_encrypted :to_number, key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :to_number, key: Rails.application.secrets.encrypted_secret
   
   ##
   # Encrypted internal phone number.
-  attr_encrypted :from_number, key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :from_number, key: Rails.application.secrets.encrypted_secret
   
   ##
   # Encrypted body of message.
-  attr_encrypted :body, key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :body, key: Rails.application.secrets.encrypted_secret
 
   ##
   # Parent conversation, of which this message is part of the conversation.

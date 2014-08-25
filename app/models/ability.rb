@@ -97,8 +97,7 @@ class Ability
     can :read, [ Message ], { conversation: { stencil: { organization_id: user.organization_ids } } }
 
     # Create organizations if allowed    
-    # can( [:new, :create], Organization, { id: user.organization_ids } ) if ALLOW_ORG_CREATION
-    can( [:new, :create], Organization, { user_roles: { user_id: user.id } } ) if ALLOW_ORG_CREATION
+    can( [:new, :create], Organization, { user_roles: { user_id: user.id } } ) if Rails.application.secrets.allow_new_organization
 
     # Show, edit, and update self
     can [ :show, :edit, :update, :change_password ], User, { id: user.id }

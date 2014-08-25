@@ -1,6 +1,6 @@
 class FreshBooksAccountingGateway < AccountingGateway
 
-  attr_encrypted :remote_sid, key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :remote_sid, key: Rails.application.secrets.encrypted_secret
 
   alias_method :freshbooks_id, :remote_sid
   alias_method :freshbooks_id=, :remote_sid=

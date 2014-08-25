@@ -27,7 +27,7 @@
   .col-sm-10
     - unless @stencil.webhook_uri.blank?      
       \...and send conversation updates to this URI
-      .well.well-sm= link_to @stencil.webhook_uri
+      .well.well-sm= link_to @stencil.webhook_uri, @stencil.webhook_uri
     - else
       \...and do not send updates to a URI
 

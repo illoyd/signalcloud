@@ -1,5 +1,5 @@
 ##
 # Connect Redis Cloud
-if ENV["REDISCLOUD_URL"]
-    $redis = Redis.new(:url => ENV["REDISCLOUD_URL"])
+if Rails.application.secrets.redis_uri
+    $redis = Redis.new(url: Rails.application.secrets.redis_uri)
 end

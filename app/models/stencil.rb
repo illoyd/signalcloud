@@ -1,27 +1,32 @@
 class Stencil < ActiveRecord::Base
 
   # Encrypted attributes
-  attr_encrypted :confirmed_reply, key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :denied_reply, key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :expired_reply, key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :failed_reply, key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :question, key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :confirmed_reply, key: Rails.application.secrets.encrypted_secret
+  attr_encrypted :denied_reply, key: Rails.application.secrets.encrypted_secret
+  attr_encrypted :expired_reply, key: Rails.application.secrets.encrypted_secret
+  attr_encrypted :failed_reply, key: Rails.application.secrets.encrypted_secret
+  attr_encrypted :question, key: Rails.application.secrets.encrypted_secret
 
-  attr_encrypted :expected_confirmed_answer, key: ATTR_ENCRYPTED_SECRET
-  attr_encrypted :expected_denied_answer, key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :expected_confirmed_answer, key: Rails.application.secrets.encrypted_secret
+  attr_encrypted :expected_denied_answer, key: Rails.application.secrets.encrypted_secret
 
-  attr_encrypted :webhook_uri, key: ATTR_ENCRYPTED_SECRET
+  attr_encrypted :webhook_uri, key: Rails.application.secrets.encrypted_secret
   
   # Relationships
   belongs_to :organization, inverse_of: :stencils
   belongs_to :phone_book, inverse_of: :stencils
   has_many :conversations, inverse_of: :stencil, dependent: :restrict_with_error
   
+  # Validations
   validates_presence_of :organization, :label
+  validates :webhook_uri, http_url: true, allow_blank: true
   
   # Scopes
   scope :active,   ->{ where( :active => true ) }
   scope :inactive, ->{ where( :active => false ) }
+  
+  # Normalizations
+  normalize_attributes :label, :description, :question, :expected_confirmed_answer, :expected_denied_answer, :confirmed_reply, :denied_reply, :failed_reply, :expired_reply, :webhook_uri
   
   ##
   # Parameters passed to newly built conversations

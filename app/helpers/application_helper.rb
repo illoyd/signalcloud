@@ -252,7 +252,7 @@ module ApplicationHelper
       src:         URI::HTTPS.build(
                      host: "www.google.com",
                      path: "/maps/embed/v1/view",
-                     query: { center: "#{ lat },#{ lon }", maptype: 'satellite', zoom: 12, key: ENV['GOOGLE_MAPS_KEY'] }.to_query ),
+                     query: { center: "#{ lat },#{ lon }", maptype: 'satellite', zoom: 12, key: Rails.application.secrets.google_maps_key }.to_query ),
       width:       '100%',
       height:      '250',
       frameborder: 0,

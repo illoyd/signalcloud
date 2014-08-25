@@ -16,6 +16,7 @@ class PhoneNumber < ActiveRecord::Base
 
   alias_method :buy!, :purchase!
   alias_method :unbuy!, :release!
+  alias_method :unpurchase!, :release!
   
   IGNORE = 0
   REJECT = 0
@@ -65,6 +66,9 @@ class PhoneNumber < ActiveRecord::Base
   validates_inclusion_of :unsolicited_call_voice, allow_nil: true, in: VOICES, if: :'should_reply_to_unsolicited_call?'
   
   before_validation :ensure_normalized_phone_number
+  
+  normalize_attributes :unsolicited_sms_message, :unsolicited_call_message
+  normalize_attribute :number, with: :phone_number
   
   def human_number
     Country.format_international_phone_number(number)

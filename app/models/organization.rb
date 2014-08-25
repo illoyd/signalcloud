@@ -52,6 +52,8 @@ class Organization < ActiveRecord::Base
   validates :contact_address, postcode: true, if: :contact_postcode_required?
   validates :billing_work_phone, phone_number: true, if: :billing_postcode_required?
   validates :contact_work_phone, phone_number: true, if: :contact_postcode_required?
+  validates_length_of :billing_country, maximum: 2, allow_blank: true
+  validates_length_of :contact_country, maximum: 2, allow_blank: true
   validates_uniqueness_of :sid
   
   # Callbacks
@@ -64,33 +66,21 @@ class Organization < ActiveRecord::Base
   delegate :update_balance!, :balance, :balance=, to: :account_balance
   delegate :freshbooks_id, to: :accounting_gateway
   delegate :price_for, :conversation_pricer, :phone_number_pricer, to: :account_plan
-
+  
+  # Normalizations
+  normalize_attributes :label, :description, :icon, :vat_name, :vat_number, :purchase_order
+  normalize_attributes :billing_first_name, :billing_last_name, :billing_work_phone, :billing_email, :billing_line1, :billing_city, :billing_region, :billing_postcode
+  normalize_attributes :contact_first_name, :contact_last_name, :contact_work_phone, :contact_email, :contact_line1, :contact_city, :contact_region, :contact_postcode
+  normalize_attributes :billing_country, :contact_country, with: [:strip, :blank, :upcase]
+  normalize_attributes :billing_work_phone, :contact_work_phone, with: :phone_number
+  normalize_attribute :billing_postcode, with: [{postcode: {object: true, country_attribute: :billing_country}}, :blank]
+  normalize_attribute :contact_postcode, with: [{postcode: {object: true, country_attribute: :contact_country}}, :blank]
+  
+  ##
+  # Provide an icon default if no icon is provided.
+  # FIXME: This should probably be moved to the database and deleted from here.
   def icon
     super || :briefcase
-  end
-  
-  ##
-  # Format the billing postcode when set.
-  def billing_postcode=(value)
-    super GoingPostal.postcode?(value, billing_country) ? GoingPostal.format_postcode(value, billing_country) : value
-  end
-  
-  ##
-  # Format the contact postcode when set.
-  def contact_postcode=(value)
-    super GoingPostal.postcode?(value, contact_country) ? GoingPostal.format_postcode(value, contact_country) : value
-  end
-  
-  ##
-  # Format the billing phone number when set.
-  def billing_work_phone=(value)
-    super value.blank? ? nil : "+#{Country.normalize_phone_number(value)}"
-  end
-  
-  ##
-  # Format the contact phone number when set.
-  def contact_work_phone=(value)
-    super value.blank? ? nil : "+#{Country.normalize_phone_number(value)}"
   end
   
   ##
@@ -264,6 +254,9 @@ protected
   
     # Update SMS data if needed - this should be created when first needed
     # self.create_or_update_communication_gateway
+    self.communication_gateways.each do |gateway|
+      gateway.activate!
+    end
 
     # Update accounting data if needed
     # self.create_or_update_client
@@ -273,13 +266,16 @@ protected
   end
   
   def suspend
-    # No need for additional work at this point
+    # Suspend the communication gateways
+    self.communication_gateways.each do |gateway|
+      gateway.suspend!
+    end
   end
   
   def cancel
     # Release all phone numbers
     self.phone_numbers.active.each do |phone_number|
-      phone_number.unpurchase!
+      phone_number.release!
     end
     
     # Cancel the communication gateway

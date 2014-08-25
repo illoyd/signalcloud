@@ -288,7 +288,7 @@ describe Organization, :vcr, :type => :model do
   
   describe '#billing_address' do
     let(:address) { white_house_address }
-    subject       { create :organization, billing_address: address }
+    subject       { build :organization, billing_address: address }
     [ :first_name, :last_name, :email, :work_phone, :line1, :line2, :city, :region, :postcode, :country ].each do |attribute|
       it "retrieves #{attribute}" do
         organization_attribute = "billing_#{attribute}".to_sym
@@ -300,7 +300,7 @@ describe Organization, :vcr, :type => :model do
   describe '#billing_address=' do
     context 'when setting a billing address' do
       let(:address) { white_house_address }
-      subject       { create :organization, billing_address: nil }
+      subject       { build :organization, billing_address: nil }
       [ :first_name, :last_name, :email, :work_phone, :line1, :line2, :city, :region, :postcode, :country ].each do |attribute|
         it "assigns #{attribute}" do
           expect{ subject.billing_address = address }.to change(subject, "billing_#{attribute}".to_sym).to(address.send(attribute))
@@ -310,7 +310,7 @@ describe Organization, :vcr, :type => :model do
     
     context 'when setting nil' do
       let(:address) { Address.new }
-      subject       { create :organization, billing_address: white_house_address }
+      subject       { build :organization, billing_address: white_house_address }
       [ :first_name, :last_name, :email, :work_phone, :line1, :line2, :city, :region, :postcode, :country ].each do |attribute|
         it "nullifies #{attribute}" do
           expect{ subject.billing_address = address }.to change(subject, "billing_#{attribute}".to_sym).to(nil)
@@ -321,7 +321,7 @@ describe Organization, :vcr, :type => :model do
   
   describe '#contact_address' do
     let(:address) { white_house_address }
-    subject       { create :organization, contact_address: address }
+    subject       { build :organization, contact_address: address }
     [ :first_name, :last_name, :email, :work_phone, :line1, :line2, :city, :region, :postcode, :country ].each do |attribute|
       it "retrieves #{attribute}" do
         organization_attribute = "contact_#{attribute}".to_sym
@@ -333,7 +333,7 @@ describe Organization, :vcr, :type => :model do
   describe '#contact_address=' do
     context 'when setting a contact address' do
       let(:address) { white_house_address }
-      subject       { create :organization, contact_address: nil }
+      subject       { build :organization, contact_address: nil }
       [ :first_name, :last_name, :email, :work_phone, :line1, :line2, :city, :region, :postcode, :country ].each do |attribute|
         it "assigns #{attribute}" do
           expect{ subject.contact_address = address }.to change(subject, "contact_#{attribute}".to_sym).to(address.send(attribute))
@@ -343,7 +343,7 @@ describe Organization, :vcr, :type => :model do
     
     context 'when setting nil' do
       let(:address) { Address.new }
-      subject { create :organization, contact_address: white_house_address }
+      subject { build :organization, contact_address: white_house_address }
       [ :first_name, :last_name, :email, :work_phone, :line1, :line2, :city, :region, :postcode, :country ].each do |attribute|
         it "nullifies #{attribute}" do
           expect{ subject.contact_address = address }.to change(subject, "contact_#{attribute}".to_sym).to(nil)
@@ -355,7 +355,7 @@ describe Organization, :vcr, :type => :model do
   describe '#use_billing_as_contact_address' do
     let(:contact_address) { address }
     let(:billing_address) { white_house_address }
-    subject { create :organization, contact_address: contact_address, billing_address: billing_address }
+    subject { build :organization, contact_address: contact_address, billing_address: billing_address }
     context 'when true' do
       before { subject.use_billing_as_contact_address = true }
       it 'updates the contact address with the billing address' do

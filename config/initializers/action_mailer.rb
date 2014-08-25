@@ -7,4 +7,4 @@ ActionMailer::Base.smtp_settings = {
     :authentication => :plain
 }
 ActionMailer::Base.delivery_method = :smtp
-ActionMailer::Base.default_url_options = { :host => ENV["DEFAULT_URL_HOST"] }
+ActionMailer::Base.default_url_options = { host: Rails.application.secrets.default_url_host }
