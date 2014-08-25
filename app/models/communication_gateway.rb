@@ -7,6 +7,10 @@ class CommunicationGateway < ActiveRecord::Base
     end
     state :ready do
       event :update_remote, transitions_to: :ready
+      event :suspend,       transitions_to: :suspended
+    end
+    state :suspended do
+      event :activate,      transitions_to: :ready
     end
   end
 
@@ -29,7 +33,7 @@ class CommunicationGateway < ActiveRecord::Base
   # A communication gateway MUST implement the following functions
   # send_message!
   # purchase_number!
-  # unpurchase_number!
+  # release_number!
   # update_number!
 
   def self.prepend_plus( number )
