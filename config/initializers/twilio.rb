@@ -72,7 +72,7 @@ module Twilio
   ERR_INTERNATIONAL_NOT_ENABLED = 21408
   
   def self.master_client
-    Twilio::REST::Client.new ENV['TWILIO_MASTER_ACCOUNT_SID'], ENV['TWILIO_MASTER_AUTH_TOKEN']
+    Twilio::REST::Client.new url: Rails.application.secrets.twilio_sid, url: Rails.application.secrets.twilio_token
   end
   
   def self.test_client

@@ -1,6 +1,6 @@
 - headings('Sign up', 'and get started')
 
-- unless ALLOW_USER_REGISTRATION
+- unless Rails.application.secrets.allow_user_registration
   .alert.alert-danger
     Sorry, new user registration is currently disabled.
 

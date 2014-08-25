@@ -55,22 +55,22 @@ class TwilioCommunicationGateway < CommunicationGateway
   
   def twilio_voice_url
     raise SignalCloud::MissingTwilioAccountError.new(self) unless self.has_twilio_account?
-    self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_inbound_call_url(host: ENV['DEFAULT_URL_HOST'])
+    self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_inbound_call_url(host: Rails.application.secrets.default_uri_host)
   end
   
   def twilio_voice_status_url
     raise SignalCloud::MissingTwilioAccountError.new(self) unless self.has_twilio_account?
-    self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_call_update_url(host: ENV['DEFAULT_URL_HOST'])
+    self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_call_update_url(host: Rails.application.secrets.default_uri_host)
   end
   
   def twilio_sms_url
     raise SignalCloud::MissingTwilioAccountError.new(self) unless self.has_twilio_account?
-    self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_inbound_sms_url(host: ENV['DEFAULT_URL_HOST'])
+    self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_inbound_sms_url(host: Rails.application.secrets.default_uri_host)
   end
   
   def twilio_sms_status_url
     raise SignalCloud::MissingTwilioAccountError.new(self) unless self.has_twilio_account?
-    self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_sms_update_url(host: ENV['DEFAULT_URL_HOST'])
+    self.insert_twilio_authentication Rails.application.routes.url_helpers.twilio_sms_update_url(host: Rails.application.secrets.default_uri_host)
   end
   
   def message( sid )
