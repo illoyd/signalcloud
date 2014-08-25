@@ -17,7 +17,9 @@ class Stencil < ActiveRecord::Base
   belongs_to :phone_book, inverse_of: :stencils
   has_many :conversations, inverse_of: :stencil, dependent: :restrict_with_error
   
+  # Validations
   validates_presence_of :organization, :label
+  validates :webhook_uri, http_url: true, allow_blank: true
   
   # Scopes
   scope :active,   ->{ where( :active => true ) }
