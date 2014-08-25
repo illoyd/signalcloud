@@ -2,7 +2,7 @@ def address
   Address.new(
     Faker::Name.first_name, Faker::Name.last_name,
     Faker::Internet.email,
-    Faker::PhoneNumber.phone_number,
+    '+12121234567',
     Faker::Address.street_address,
     Faker::Address.secondary_address,
     Faker::Address.city,
