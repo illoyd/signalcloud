@@ -54,9 +54,6 @@ class Conversation < ActiveRecord::Base
     state :errored
   end
 
-  before_validation :update_expiry_time_based_on_seconds_to_live
-  before_save :normalize_phone_numbers, :hash_phone_numbers, :update_ledger_entry
-
   # Status constants
   PENDING = 0
   QUEUED = 1
@@ -94,13 +91,19 @@ class Conversation < ActiveRecord::Base
   # LedgerEntry for this conversation.
   has_one :ledger_entry, as: :item, autosave: true
 
+  # Delegations
   delegate :organization, to: :stencil
   delegate :communication_gateway, to: :internal_number
 
-  # Before validation  
-  before_validation :assign_internal_number #, on: :create
+  # Normalizations
+  normalize_attributes :label, :description, :question, :expected_confirmed_answer, :expected_denied_answer, :confirmed_reply, :denied_reply, :failed_reply, :expired_reply, :webhook_uri
+  normalize_attributes :customer_number, with: :phone_number
   
-  # Validation
+  # Callbacks
+  before_validation :assign_internal_number, :update_expiry_time_based_on_seconds_to_live
+  before_save :hash_phone_numbers, :update_ledger_entry
+
+  # Validations
   validates_presence_of :stencil, :confirmed_reply, :denied_reply, :expected_confirmed_answer, :expected_denied_answer, :expired_reply, :failed_reply, :internal_number, :question, :customer_number, :expires_at
   validates :customer_number, phone_number: true
   validates_inclusion_of :challenge_status, in: Message.workflow_spec.valid_state_names, allow_nil: true
