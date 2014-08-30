@@ -56,22 +56,28 @@ module ApplicationHelper
   end
 
   def humanize_phone_number( number )
+    return humanize_phone_number(number.phone_number) if number.is_a? MiniPhoneNumber
     return humanize_phone_number(number.number) if number.is_a? PhoneNumber
     Country.format_international_phone_number(number)
   end
   
-  def flag_icon(country = nil, size = nil)
-    country ||= 'global'
-    size    ||= 'md'
-    country_name = Country[country].name rescue country
-    #image_tag 'flags/%s/%s.png' % [size.downcase, country.downcase], alt: country_name, title: country_name, style: 'vertical-align: bottom'
-    content_tag :span, '', class: ['flag', "flag-#{size.downcase}", "fl-#{country.downcase}"], title: country_name, alt: country_name
+  def flag_icon_for(object, size = nil)
+    country = object.try(:country) || object
+    flag_icon(country, size)
   end
   
-  def flag_icon_for_phone_number(number, size = nil)
-    number = number.number if number.is_a? PhoneNumber
-    country = PhoneTools.country( number )
-    flag_icon country, size
+  def flag_icon(country = nil, size = nil)
+    country = (Country[country] || country || 'global') unless country.is_a?(Country)
+    size  ||= 'md'
+
+    #image_tag 'flags/%s/%s.png' % [size.downcase, country.downcase], alt: country_name, title: country_name, style: 'vertical-align: bottom'
+    content_tag :span, '', class: ['flag', "flag-#{size.downcase}", "fl-#{country.alpha2.downcase}"], title: country.name, alt: country.name
+  end
+  
+  def country_name_for(object)
+    country = object.try(:country) || object
+    country = (Country[country] || country || 'global') unless country.is_a?(Country)
+    country.try(:name) || 'Global'
   end
   
   def country_name_for_phone_number( number )
