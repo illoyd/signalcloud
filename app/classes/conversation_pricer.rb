@@ -9,7 +9,7 @@ class ConversationPricer < Pricer
   end
   
   def price_with_messages( conversation, challenge_count, reply_count )
-    country = PhoneTools.country( conversation.customer_number )
+    country = PhoneTools.country( conversation.customer_number.to_s )
     pricesheet = self.price_sheet_for( country )
     
     # Calculate costs for outbound messages

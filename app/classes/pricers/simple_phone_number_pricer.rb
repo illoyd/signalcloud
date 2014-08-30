@@ -1,12 +1,6 @@
 module Pricers
   class SimplePhoneNumberPricer < Pricer
   
-    attr_reader :config
-  
-    def initialize(config)
-      @config = config.with_indifferent_access
-    end
-  
     def price_for(object)
       base_price_for(object)
     end

@@ -9,41 +9,36 @@ FactoryGirl.define do
 
     factory :payg_account_plan do
       label         'Pay-as-You-Go'
-      phone_add     -1
-      call_in_add   -0.00
-      sms_in_add    -0.01
-      sms_out_add   -0.01
+
+      phone_number_pricer_class 'Pricers::SimplePhoneNumberPricer'
+      phone_number_pricer_config Hash.new({ US: '3' })
+
+      conversation_pricer_class 'Pricers::SimpleConversationPricer'
+      conversation_pricer_config Hash.new({ US: '0.1' })
     end
 
     factory :dedicated_account_plan do
       label         'Dedicated'
-      month         -250
-      phone_add     0
-      call_in_add   -0.00
-      sms_in_add    -0.01
-      sms_out_add   -0.01
+      month         250
+
+      phone_number_pricer_class 'Pricers::SimplePhoneNumberPricer'
+      phone_number_pricer_config Hash.new({ US: '1.5' })
+
+      conversation_pricer_class 'Pricers::SimpleConversationPricer'
+      conversation_pricer_config Hash.new({ US: '0.08' })
     end
 
-    factory :special_account_plan do
-      label         'Special'
-      month         -50
-      phone_mult    0.1
-      call_in_mult  0.1
-      sms_in_mult   0.1
-      sms_out_mult  0.1
+    factory :free_account_plan do
+      label         'All Inclusive'
+      month         1000
+      phone_number_pricer_class 'Pricers::FreePricer'
+      conversation_pricer_class 'Pricers::FreePricer'
     end
 
-    factory :ridiculous_account_plan do
-      label         'Special'
-      month         -777
-      phone_add     -1.1
-      phone_mult    0.5
-      call_in_add   -4
-      call_in_mult  0.4
-      sms_in_add    -3
-      sms_in_mult   0.3
-      sms_out_add   -2
-      sms_out_mult  0.2
+    factory :at_cost_account_plan do
+      label         'At Cost'
+      phone_number_pricer_class 'Pricers::FreePricer'
+      conversation_pricer_class 'Pricers::FreePricer'
     end
   end
 

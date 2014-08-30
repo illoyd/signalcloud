@@ -2,6 +2,7 @@ FactoryGirl.define do
 
   factory :message do
     association :conversation, :with_internal_number, :with_stencil, strategy: :build
+    body { Faker::Hacker.verb }
     draft
     challenge
     

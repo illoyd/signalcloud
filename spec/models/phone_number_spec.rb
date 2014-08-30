@@ -48,7 +48,7 @@ describe PhoneNumber, :vcr, :type => :model do
     end
     
     it 'cannot find an implausible number' do
-      expect{ PhoneNumber.find_by_number('hello') }.to be_nil
+      expect( PhoneNumber.find_by_number('hello') ).to be_nil
     end
     
     it 'throws error on nil' do

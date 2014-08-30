@@ -38,7 +38,7 @@ class MiniPhoneNumber
   end
   
   def self.load(value)
-    new(value.to_s)
+    value.nil? ? nil : new(value.to_s)
   end
   
 end

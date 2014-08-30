@@ -80,13 +80,6 @@ module ApplicationHelper
     country.try(:name) || 'Global'
   end
   
-  def country_name_for_phone_number( number )
-    number = number.number if number.is_a? PhoneNumber
-    country = PhoneTools.country( number )
-    return 'Global' if country.nil?
-    Country[country].name
-  end
-  
   def progress_bar(percentage, kind=nil, label=nil)
     style = kind.present? ? "progress-bar-#{ kind }" : nil
     content_tag :div, '', {

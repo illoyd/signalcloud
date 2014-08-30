@@ -40,6 +40,10 @@ def rand_datetime(from, to=Time.now)
   Time.at(rand_in_range(from.to_f, to.to_f))
 end
 
+def white_house_address
+  Address.new( 'Barack', 'Obama', 'theprez@signalcloudapp.com', '+12021234568', 'The White House', '1600 Pennsylvania Ave NW', 'Washington', 'DC', '20500', 'US' )
+end
+
 # Create users for all environments
 master_user = User.create_with(name: ENV['SEED_USER'] || 'Johnny Appleseed', password: ENV['TWILIO_MASTER_ACCOUNT_SID'], password_confirmation: ENV['TWILIO_MASTER_ACCOUNT_SID']).find_or_create_by!(email: ENV['SEED_EMAIL'] || 'seed@signalcloudapp.com')
 
@@ -57,7 +61,7 @@ dedicated_plan = AccountPlan.create_with( month: -250, phone_add: 0, call_in_add
 
 # Master organization tools
 unless Organization.exists?( sid: '76f78f836d4563bf4824da02b506346d' )
-  org = Organization.create!({
+  org = Organization.new({
     label:          'Master',
     account_plan:   master_plan,
     description:    'Primary organization',
@@ -66,7 +70,9 @@ unless Organization.exists?( sid: '76f78f836d4563bf4824da02b506346d' )
     workflow_state: 'ready',
     owner:          master_user
   })
-  
+  org.billing_address = white_house_address
+  org.save!
+
   # Attach users
   org.user_roles.create user: master_user, roles: UserRole::ROLES
   
@@ -135,7 +141,7 @@ unless Rails.env.production? || Organization.exists?( sid: '00000000000000000000
     auth_token:     '0ee1ed9c635074d1a5fc452aa2aec6d1',
     account_plan:   payg_plan,
     description:    'My test organization',
-    workflow_state: 'ready',
+    workflow_state: 'trial',
     owner:          test_user
   })
 
@@ -234,7 +240,7 @@ unless Rails.env.production? || Organization.exists?( sid: '00000000000000000000
     auth_token:     '0ee1ed9c635074d1a5fc452aa2aec6d1',
     account_plan:   payg_plan,
     description:    'Performance testing',
-    workflow_state: 'ready',
+    workflow_state: 'trial',
     owner:          perf_user
   })
 

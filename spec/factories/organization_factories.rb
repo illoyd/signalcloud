@@ -29,7 +29,7 @@ FactoryGirl.define do
     workflow_state 'ready'
     #with_mock_comms
 
-    association         :account_plan, factory: :payg_account_plan
+    association         :account_plan, factory: :account_plan, strategy: :build
 
     factory :test_organization do
       label               'White House'
