@@ -108,7 +108,7 @@ class InboundMessageJob
   end
   
   def internal_phone_number()
-    @internal_phone_number ||= PhoneNumber.find_by_number( @sms.to ).first
+    @internal_phone_number ||= PhoneNumber.find_by_number( @sms.to )
   end
 
   alias :run :perform

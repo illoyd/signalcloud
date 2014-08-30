@@ -70,15 +70,15 @@ class PhoneNumber < ActiveRecord::Base
   normalize_attributes :unsolicited_sms_message, :unsolicited_call_message
   normalize_attribute :number, with: :phone_number
   
+  serialize :number, MiniPhoneNumber
+  delegate :country, :alpha2, to: :number
+  
   def human_number
     Country.format_international_phone_number(number)
   end
   
-  def country
-    PhoneTools.country( self.number )
-  end
-
   def self.normalize_phone_number(pn)
+    pn = pn.phone_number if pn.is_a?(MiniPhoneNumber)
     return pn.nil? ? nil : PhoneNumberNormalizer.normalize(pn)
   end
   

@@ -132,6 +132,7 @@ class Conversation < ActiveRecord::Base
   # Provide a standardised way to convert a phone number into a deterministic hash.
   def self.hash_phone_number( phone_number )
     # BCrypt::Password.new( BCrypt::Engine.hash_secret( pn, Rails.application.secrets.encrypted_secret, BCrypt::Engine::DEFAULT_COST ) )
+    phone_number = phone_number.phone_number if phone_number.is_a?(MiniPhoneNumber)
     phone_number = PhoneNumber.normalize_phone_number(phone_number)
     phone_number.nil? ? nil : Digest::SHA1.base64digest( Rails.application.secrets.encrypted_secret + phone_number )
   end
@@ -148,7 +149,7 @@ class Conversation < ActiveRecord::Base
     Conversation::STATUSES.each { |status| counts[status] = 0 unless counts.include?(status) }
     return counts
   end
-
+  
   ##
   # Update expires_at based upon seconds to live. Intended to be used with +before_save+ callbacks.
   def update_expiry_time_based_on_seconds_to_live

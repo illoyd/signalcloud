@@ -116,7 +116,8 @@ protected
   end
   
   def normalize_phone_number( phone_number )
-    phone_number = phone_number.number if phone_number.is_a? PhoneNumber
+    phone_number = phone_number.number.phone_number if phone_number.is_a? PhoneNumber
+    phone_number = phone_number.phone_number if phone_number.is_a? MiniPhoneNumber
     "+#{Country.normalize_phone_number(phone_number)}"
   end
   
