@@ -36,7 +36,7 @@ AttributeNormalizer.configure do |config|
   }
   
   config.normalizers[:phone_number] = ->(value, options) {
-    Country.plausible_phone_number?(value) ? Country.format_international_phone_number(value, spaces: '').gsub(/\s/, '') : value
+    PhoneNumberNormalizer.call(value)
   }
   
   config.normalizers[:postcode] = ->(value, options) {

@@ -65,7 +65,7 @@ class PhoneNumber < ActiveRecord::Base
   validates_inclusion_of :unsolicited_call_language, allow_nil: true, in: LANGUAGES, if: :'should_reply_to_unsolicited_call?'
   validates_inclusion_of :unsolicited_call_voice, allow_nil: true, in: VOICES, if: :'should_reply_to_unsolicited_call?'
   
-  before_validation :ensure_normalized_phone_number
+#   before_validation :ensure_normalized_phone_number
   
   normalize_attributes :unsolicited_sms_message, :unsolicited_call_message
   normalize_attribute :number, with: :phone_number
@@ -79,18 +79,14 @@ class PhoneNumber < ActiveRecord::Base
   end
 
   def self.normalize_phone_number(pn)
-    return pn.nil? ? nil : Country.normalize_phone_number(pn)
+    return pn.nil? ? nil : PhoneNumberNormalizer.normalize(pn)
   end
   
   def self.find_by_number(pn)
     raise ArgumentError.new( 'Given phone number was nil or blank.' ) if pn.blank?
-    PhoneNumber.where( number: PhoneNumber.normalize_phone_number(pn) )
+    PhoneNumber.find_by( number: PhoneNumberNormalizer.normalize(pn) )
   end
 
-  def number=(value)
-    super( self.class.normalize_phone_number(value) )
-  end
-  
   def should_ignore_unsolicited_sms?
     self.unsolicited_sms_action == IGNORE
   end
@@ -123,9 +119,9 @@ protected
 
   ##
   # Automagically normalise the number.
-  def ensure_normalized_phone_number
-    self.number = PhoneNumber.normalize_phone_number(self.number)
-  end
+#   def ensure_normalized_phone_number
+#     self.number = PhoneNumber.normalize_phone_number(self.number)
+#   end
   
   ##
   # Attempt to buy the phone number from the Twilio API. If it receives an error, halt the operation.

@@ -40,15 +40,15 @@ describe PhoneNumber, :vcr, :type => :model do
     let(:phone_number)   { create :phone_number, number: valid_number, organization: organization, communication_gateway: comm_gateway }
     
     it 'finds valid number' do
-      expect(PhoneNumber.find_by_number(phone_number.number).first).to be_a( PhoneNumber )
+      expect(PhoneNumber.find_by_number(phone_number.number)).to be_a( PhoneNumber )
     end
     
-    it 'cannot find a number' do
-      expect(PhoneNumber.find_by_number(unknown_number)).to be_empty
+    it 'cannot find a plausible number' do
+      expect(PhoneNumber.find_by_number(unknown_number)).to be_nil
     end
     
-    it 'throws error on inappropriate number' do
-      expect{ PhoneNumber.find_by_number('hello') }.to raise_error
+    it 'cannot find an implausible number' do
+      expect{ PhoneNumber.find_by_number('hello') }.to be_nil
     end
     
     it 'throws error on nil' do
