@@ -68,18 +68,19 @@ class Conversation < ActiveRecord::Base
   attr_accessor :seconds_to_live
   
   # Encrypted attributes
-  attr_encrypted :question,         key: Rails.application.secrets.encrypted_secret
-  attr_encrypted :confirmed_reply,  key: Rails.application.secrets.encrypted_secret
-  attr_encrypted :denied_reply,     key: Rails.application.secrets.encrypted_secret
-  attr_encrypted :failed_reply,     key: Rails.application.secrets.encrypted_secret
-  attr_encrypted :expired_reply,    key: Rails.application.secrets.encrypted_secret
-  attr_encrypted :webhook_uri,      key: Rails.application.secrets.encrypted_secret
+  attr_encrypted_options.merge!(key: Rails.application.secrets.encrypted_secret, mode: :per_attribute_iv_and_salt)
+  attr_encrypted :question
+  attr_encrypted :confirmed_reply
+  attr_encrypted :denied_reply
+  attr_encrypted :failed_reply
+  attr_encrypted :expired_reply
+  attr_encrypted :webhook_uri
 
-  attr_encrypted :expected_confirmed_answer,  key: Rails.application.secrets.encrypted_secret
-  attr_encrypted :expected_denied_answer,     key: Rails.application.secrets.encrypted_secret
+  attr_encrypted :expected_confirmed_answer
+  attr_encrypted :expected_denied_answer
 
-  attr_encrypted :customer_number,  key: Rails.application.secrets.encrypted_secret
-  attr_encrypted :old_internal_number,  key: Rails.application.secrets.encrypted_secret
+  attr_encrypted :customer_number, marshal: true, marshaler: MiniPhoneNumber
+  attr_encrypted :old_internal_number
 
   # Relationships
   belongs_to :stencil, inverse_of: :conversations
