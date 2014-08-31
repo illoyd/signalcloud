@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Pricers::SimpleConversationPricer, :type => :model do
+fdescribe Pricers::SimpleConversationPricer, :type => :model do
   let(:us_number) { '+12151234567' }
   let(:gb_number) { '+447540123456' }
   let(:ca_number) { '+14161234567' }
@@ -13,7 +13,7 @@ describe Pricers::SimpleConversationPricer, :type => :model do
 
   let(:au_number) { '+61418123456' }
 
-  let(:config) { { US: '0.1', GB: '0.1', CA: '0.1', TT: '0.2', HK: '0.2', MY: '0.3', RU: '0.3' } }
+  let(:config) { Pricesheet.new({ US: '0.1', GB: '0.1', CA: '0.1', TT: '0.2', HK: '0.2', MY: '0.3', RU: '0.3' }) }
   subject      { described_class.new(config) }
 
   describe '#price_for' do

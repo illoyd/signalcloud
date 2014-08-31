@@ -56,8 +56,18 @@ end
 
 # Add plan data
 master_plan = AccountPlan.find_or_create_by( label: 'Unmetered' )
-payg_plan = AccountPlan.create_with( month: 0, phone_add: -1, call_in_add: -0.02, sms_in_add: -0.02, sms_out_add: -0.02, default: true ).find_or_create_by( label:'PAYG' )
-dedicated_plan = AccountPlan.create_with( month: -250, phone_add: 0, call_in_add: -0.01, sms_in_add: -0.01, sms_out_add: -0.01 ).find_or_create_by( label:'Dedicated' )
+
+payg_plan = AccountPlan.create_with( month: 0, phone_number_pricer_class: 'Pricers::SimplePhoneNumberPricer', phone_conversation_class: 'Pricers::SimpleConversationPricer' ).find_or_create_by( label:'PAYG' ).tap do |plan|
+  plan.phone_number_pricesheet = TieredPricesheet.new(3.00, 1.00, nil, 'Twilio::PhoneNumberPricesheet', true)
+  plan.conversation_pricesheet = TieredPricesheet.new(0.10, 0.01, nil, 'Twilio::SmsPricesheet', true)
+  plan.save
+end
+
+dedicated_plan = AccountPlan.create_with( month: -100, phone_number_pricer_class: 'Pricers::SimplePhoneNumberPricer', phone_conversation_class: 'Pricers::SimpleConversationPricer' ).find_or_create_by( label:'Dedicated' ).tap do |plan|
+  plan.phone_number_pricesheet = TieredPricesheet.new(1.50, 0.50, nil, 'Twilio::PhoneNumberPricesheet', true)
+  plan.conversation_pricesheet = TieredPricesheet.new(0.05, 0.01, nil, 'Twilio::SmsPricesheet', true)
+  plan.save
+end
 
 # Master organization tools
 unless Organization.exists?( sid: '76f78f836d4563bf4824da02b506346d' )

@@ -1,5 +1,5 @@
 require 'spec_helper'
-describe Pricer, :type => :model do
+fdescribe Pricer, :type => :model do
   it_behaves_like 'a pricer'
   
   describe '#price_for' do

@@ -121,8 +121,8 @@ describe User, '.abilities', :type => :model do
     it{ is_expected.not_to have_ability(:manage, for: other_phone_book) }
 
     # Test phone numbers
-    it{ is_expected.to have_ability(:manage, for: test_phone_number) }
-    it{ is_expected.not_to have_ability(:manage, for: other_phone_number) }
+    it{ is_expected.to have_ability([:show, :edit, :new, :create, :update, :purchase, :release], for: test_phone_number) }
+    it{ is_expected.not_to have_ability([:show, :new, :create, :edit, :update, :purchase, :release], for: other_phone_number) }
   end
   
   context 'as billing liaison' do

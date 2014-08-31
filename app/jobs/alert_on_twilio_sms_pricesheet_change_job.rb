@@ -3,9 +3,13 @@ class AlertOnTwilioSmsPricesheetChangeJob < ActiveJob::Base
 
   def perform
     # Find all AccountPlans with original pricesheets
-    AccountPlan.where('original_conversation_pricesheet is not null').each do |plan|
-      original = simplify(plan.original_conversation_pricesheet)
-      diff = HashDiff.diff(original, pricesheet)
+    AccountPlan.where('conversation_pricesheet is not null').each do |plan|
+
+      original = plan.conversation_pricesheet
+      updated  = original.dup.tap { |sheet| sheet.refresh_from_source }
+
+      diff = original.diff(updated)
+
       if diff.any?
         TwilioPricesheetChangeMailer.sms_pricesheet_changed(plan, diff).deliver_later
       end

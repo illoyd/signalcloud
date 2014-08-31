@@ -6,9 +6,14 @@ describe "Sign-in", :type => :request do
 
   context 'when not signed-in' do
     describe "GET /" do
-      it 'raises forbidden' do
+      it 'is moved permanently' do
         get '/'
-        expect(response.status).to eq(302)
+        expect(response.status).to eq(301)
+      end
+      
+      it 'redirects to sign-in' do
+        get '/'
+        expect(response).to redirect_to('/user/sign_in')
       end
     end
   end

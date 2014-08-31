@@ -5,10 +5,11 @@ class AccountPlan < ActiveRecord::Base
   CREDIT = 0
   
   # Attributes
-  serialize :phone_number_pricer_config, HashWithIndifferentAccess
-  serialize :conversation_pricer_config, HashWithIndifferentAccess
-  serialize :original_phone_number_pricesheet, HashWithIndifferentAccess
-  serialize :original_conversation_pricesheet, HashWithIndifferentAccess
+  serialize :phone_number_pricesheet, Pricesheet
+  serialize :conversation_pricesheet, Pricesheet
+
+  serialize :original_phone_number_pricesheet, JSON
+  serialize :original_conversation_pricesheet, JSON
 
   # Relationships
   has_many :organizations, inverse_of: :account_plan
@@ -28,13 +29,13 @@ class AccountPlan < ActiveRecord::Base
   ##
   # Get the currenly configured phone number pricer.
   def phone_number_pricer
-    @phone_number_pricer ||= phone_number_pricer_class.constantize.new(phone_number_pricer_config)
+    @phone_number_pricer ||= phone_number_pricer_class.constantize.new(phone_number_pricesheet)
   end
   
   ##
   # Get the currenly configured conversation pricer.
   def conversation_pricer
-    @conversation_pricer ||= conversation_pricer_class.constantize.new(conversation_pricer_config)
+    @conversation_pricer ||= conversation_pricer_class.constantize.new(conversation_pricesheet)
   end
   
   ##

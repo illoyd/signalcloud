@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140830125303) do
+ActiveRecord::Schema.define(version: 20140831104030) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -34,8 +34,8 @@ ActiveRecord::Schema.define(version: 20140830125303) do
     t.datetime "updated_at"
     t.string   "phone_number_pricer_class",                                          default: "Pricers::FreePricer", null: false
     t.string   "conversation_pricer_class",                                          default: "Pricers::FreePricer", null: false
-    t.text     "phone_number_pricer_config"
-    t.text     "conversation_pricer_config"
+    t.text     "phone_number_pricesheet"
+    t.text     "conversation_pricesheet"
     t.text     "original_phone_number_pricesheet"
     t.text     "original_conversation_pricesheet"
   end

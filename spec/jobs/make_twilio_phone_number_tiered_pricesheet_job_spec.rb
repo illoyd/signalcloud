@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-fdescribe MakeTwilioPhoneNumberTieredPricesheetJob, :vcr do
+describe MakeTwilioPhoneNumberTieredPricesheetJob, :vcr do
   
   describe '#perform' do
     context 'with multiple of 3 and minimum margin of 1' do

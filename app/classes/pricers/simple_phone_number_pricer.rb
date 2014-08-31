@@ -21,9 +21,9 @@ module Pricers
       else
         return base_price_for(MiniPhoneNumber.new(object)) if Country.plausible_phone_number?(object)
       
-        raise SignalCloud::UnpriceableObjectError, object unless config.include?(object)
+        raise SignalCloud::UnpriceableObjectError, object unless prices.include?(object)
 
-        BigDecimal.new config[object] 
+        BigDecimal.new prices[object] 
       end
     end
     

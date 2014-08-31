@@ -137,6 +137,7 @@ describe PhoneNumber, :vcr, :type => :model do
       context 'when inactive (also new)' do
         subject { create :invalid_phone_number, organization: organization, communication_gateway: comm_gateway }
         it 'fails to purchase number' do
+          pending 'Swap with Mock Gateway'
           expect { subject.purchase! }.to raise_error(Twilio::REST::RequestError)
         end
         it 'remains in inactivate state' do
@@ -151,6 +152,7 @@ describe PhoneNumber, :vcr, :type => :model do
       context 'when inactive (also new)' do
         subject { create :unavailable_phone_number, organization: organization, communication_gateway: comm_gateway }
         it 'fails to purchase number' do
+          pending 'Swap with Mock Gateway'
           expect { subject.purchase! }.to raise_error(Twilio::REST::RequestError)
         end
         it 'remains in inactivate state' do
@@ -158,7 +160,7 @@ describe PhoneNumber, :vcr, :type => :model do
         end
       end
 
-    end # Invalid number context
+    end # Unavailable number context
 
   end
   

@@ -11,10 +11,10 @@ FactoryGirl.define do
       label         'Pay-as-You-Go'
 
       phone_number_pricer_class 'Pricers::SimplePhoneNumberPricer'
-      phone_number_pricer_config Hash.new({ US: '3' })
+      phone_number_pricesheet    Pricesheet.new({ US: '3.00'})
 
       conversation_pricer_class 'Pricers::SimpleConversationPricer'
-      conversation_pricer_config Hash.new({ US: '0.1' })
+      conversation_pricesheet    Pricesheet.new({ US: '0.10' })
     end
 
     factory :dedicated_account_plan do
@@ -22,10 +22,10 @@ FactoryGirl.define do
       month         250
 
       phone_number_pricer_class 'Pricers::SimplePhoneNumberPricer'
-      phone_number_pricer_config Hash.new({ US: '1.5' })
+      phone_number_pricesheet    Pricesheet.new({ US: '1.5' })
 
       conversation_pricer_class 'Pricers::SimpleConversationPricer'
-      conversation_pricer_config Hash.new({ US: '0.08' })
+      conversation_pricesheet    Pricesheet.new({ US: '0.08' })
     end
 
     factory :free_account_plan do
