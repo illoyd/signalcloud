@@ -68,18 +68,19 @@ class Conversation < ActiveRecord::Base
   attr_accessor :seconds_to_live
   
   # Encrypted attributes
-  attr_encrypted :question,         key: Rails.application.secrets.encrypted_secret
-  attr_encrypted :confirmed_reply,  key: Rails.application.secrets.encrypted_secret
-  attr_encrypted :denied_reply,     key: Rails.application.secrets.encrypted_secret
-  attr_encrypted :failed_reply,     key: Rails.application.secrets.encrypted_secret
-  attr_encrypted :expired_reply,    key: Rails.application.secrets.encrypted_secret
-  attr_encrypted :webhook_uri,      key: Rails.application.secrets.encrypted_secret
+  attr_encrypted_options.merge!(key: Rails.application.secrets.encrypted_secret, mode: :per_attribute_iv_and_salt)
+  attr_encrypted :question
+  attr_encrypted :confirmed_reply
+  attr_encrypted :denied_reply
+  attr_encrypted :failed_reply
+  attr_encrypted :expired_reply
+  attr_encrypted :webhook_uri
 
-  attr_encrypted :expected_confirmed_answer,  key: Rails.application.secrets.encrypted_secret
-  attr_encrypted :expected_denied_answer,     key: Rails.application.secrets.encrypted_secret
+  attr_encrypted :expected_confirmed_answer
+  attr_encrypted :expected_denied_answer
 
-  attr_encrypted :customer_number,  key: Rails.application.secrets.encrypted_secret
-  attr_encrypted :old_internal_number,  key: Rails.application.secrets.encrypted_secret
+  attr_encrypted :customer_number, marshal: true, marshaler: MiniPhoneNumber
+  attr_encrypted :old_internal_number
 
   # Relationships
   belongs_to :stencil, inverse_of: :conversations
@@ -131,6 +132,7 @@ class Conversation < ActiveRecord::Base
   # Provide a standardised way to convert a phone number into a deterministic hash.
   def self.hash_phone_number( phone_number )
     # BCrypt::Password.new( BCrypt::Engine.hash_secret( pn, Rails.application.secrets.encrypted_secret, BCrypt::Engine::DEFAULT_COST ) )
+    phone_number = phone_number.phone_number if phone_number.is_a?(MiniPhoneNumber)
     phone_number = PhoneNumber.normalize_phone_number(phone_number)
     phone_number.nil? ? nil : Digest::SHA1.base64digest( Rails.application.secrets.encrypted_secret + phone_number )
   end
@@ -147,7 +149,7 @@ class Conversation < ActiveRecord::Base
     Conversation::STATUSES.each { |status| counts[status] = 0 unless counts.include?(status) }
     return counts
   end
-
+  
   ##
   # Update expires_at based upon seconds to live. Intended to be used with +before_save+ callbacks.
   def update_expiry_time_based_on_seconds_to_live

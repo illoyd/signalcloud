@@ -5,7 +5,7 @@
     ], { class: 'btn-xs' }) |
   %td
     = link_to [phone_number.organization, phone_number] do
-      = flag_icon_for_phone_number phone_number
+      = flag_icon_for phone_number
       = humanize_phone_number(phone_number.number)
   %td
     = link_to iconify(phone_number.phone_books.count, :phone_books), [phone_number.organization, phone_number]

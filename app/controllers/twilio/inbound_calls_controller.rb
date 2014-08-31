@@ -18,7 +18,7 @@ class Twilio::InboundCallsController < Twilio::TwilioController
   # POST /account_plans.json
   def create
     # Find the phone number
-    phone_number = PhoneNumber.find_by_number( params[:To] ).first
+    phone_number = PhoneNumber.find_by_number( params[:To] )
     
     # Add record of inbound call
     unsolicited_call = phone_number.nil? ? nil : phone_number.unsolicited_calls.build( provider_sid: params[:CallSid], customer_number: params[:From], received_at: DateTime.now, call_content: params )

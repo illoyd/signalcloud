@@ -1,16 +1,15 @@
 class Stencil < ActiveRecord::Base
 
   # Encrypted attributes
-  attr_encrypted :confirmed_reply, key: Rails.application.secrets.encrypted_secret
-  attr_encrypted :denied_reply, key: Rails.application.secrets.encrypted_secret
-  attr_encrypted :expired_reply, key: Rails.application.secrets.encrypted_secret
-  attr_encrypted :failed_reply, key: Rails.application.secrets.encrypted_secret
-  attr_encrypted :question, key: Rails.application.secrets.encrypted_secret
-
-  attr_encrypted :expected_confirmed_answer, key: Rails.application.secrets.encrypted_secret
-  attr_encrypted :expected_denied_answer, key: Rails.application.secrets.encrypted_secret
-
-  attr_encrypted :webhook_uri, key: Rails.application.secrets.encrypted_secret
+  attr_encrypted_options.merge!(key: Rails.application.secrets.encrypted_secret, mode: :per_attribute_iv_and_salt)
+  attr_encrypted :confirmed_reply
+  attr_encrypted :denied_reply
+  attr_encrypted :expired_reply
+  attr_encrypted :failed_reply
+  attr_encrypted :question
+  attr_encrypted :expected_confirmed_answer
+  attr_encrypted :expected_denied_answer
+  attr_encrypted :webhook_uri
   
   # Relationships
   belongs_to :organization, inverse_of: :stencils

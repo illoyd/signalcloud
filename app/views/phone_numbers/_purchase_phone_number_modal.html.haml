@@ -10,7 +10,7 @@
         .modal-body
           %p Are you sure you want to purchase <i>#{ humanize_phone_number object }</i>?
           %p You will be charged for this Phone Number, and it will be renewed each month until you release it.
-          %p Monthly fee: #{ currency_for(object.organization.phone_number_pricer.price_for_country(object.country)) }
+          %p Monthly fee: #{ currency_for(object.organization.phone_number_pricer.price_for(object.country)) }
           = form_for( [object.organization, object], url: purchase_organization_phone_number_path(object.organization, object), method: :post ) do |f|
             = f.button type: 'submit', class: 'purchase' do
               = icon(:purchase)

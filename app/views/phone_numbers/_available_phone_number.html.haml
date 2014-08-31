@@ -14,4 +14,4 @@
     - unless available_phone_number.region.blank?
       \- #{available_phone_number.region}
   %td
-    = currency_for organization.phone_number_pricer.price_for_country(available_phone_number.iso_country)
+    = currency_for organization.phone_number_pricer.price_for(available_phone_number.iso_country)

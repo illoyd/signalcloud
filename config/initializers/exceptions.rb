@@ -21,7 +21,7 @@ end
 
 class UnpriceableObjectError < Error
   def initialize( object, original = $! )
-    super( "Can not price a #{object.class}.", original )
+    super( "Can not price '#{ object }' (#{ object.class }).", original )
   end
 end
 

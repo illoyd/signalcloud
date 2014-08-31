@@ -1,7 +1,8 @@
 class PaymentGateway < ActiveRecord::Base
   include Workflow
   
-  attr_encrypted :remote_sid, key: Rails.application.secrets.encrypted_secret
+  attr_encrypted_options.merge!(key: Rails.application.secrets.encrypted_secret, mode: :per_attribute_iv_and_salt)
+  attr_encrypted :remote_sid
 
   belongs_to :organization, inverse_of: :payment_gateway
 

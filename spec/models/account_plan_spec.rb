@@ -2,43 +2,36 @@ require 'spec_helper'
 
 describe AccountPlan, :type => :model do
 
-  PROVIDER_COSTS = %w( 0.00, 0.01, 0.02, 0.03, 0.04, 0.044, 0.077, 0.10, 0.11, 1.00, 1.50, 2.00, 100.00 ).map{ |e| -BigDecimal.new(e) }
-  ADDITION_VALUES = %w( 0.0, 0.001, 0.01, 0.1, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0 ).map{ |e| -BigDecimal.new(e) }
-  MULTIPLIER_VALUES = %w( 0.0, 0.8, 0.9, 1.0, 1.001, 1.01, 1.1, 1.11, 1.5, 2.0 ).map{ |e| BigDecimal.new(e) }
-  
-  describe '#price_for' do
-    let(:conversation)   { build_stubbed :conversation }
-    let(:phone_number)   { build_stubbed :phone_number }
-    let(:us_price_sheet) { PriceSheet.new :US, 0.1, 1.0 }
-    before do
-      subject.phone_number_pricer.price_sheet_library.memoize( us_price_sheet )
-      subject.conversation_pricer.price_sheet_library.memoize( us_price_sheet )
-    end
-
-    it 'can price a conversation' do
-      expect(subject.price_for( conversation )).to be_a BigDecimal
-    end
-
-    it 'can price a phone_number' do
-      expect(subject.price_for( phone_number )).to be_a BigDecimal
-    end
-
-    it 'cannot price a string' do
-      expect{ subject.price_for( 'string' ) }.to raise_error( SignalCloud::UnpriceableObjectError )
-    end
-
-  end
-  
   describe '#phone_number_pricer' do
-    it 'returns a pricer' do
-      expect(subject.phone_number_pricer).to be_a Pricer
+  
+    context 'with a free pricer' do
+      subject { build :account_plan }
+      its(:phone_number_pricer) { is_expected.to be_a Pricers::FreePricer }
+      its('phone_number_pricer.config') { is_expected.to eq(subject.phone_number_pricer_config) }
     end
+  
+    context 'with a simple pricer' do
+      subject { build :payg_account_plan }
+      its(:phone_number_pricer) { is_expected.to be_a Pricers::SimplePhoneNumberPricer }
+      its('phone_number_pricer.config') { is_expected.to eq(subject.phone_number_pricer_config) }
+    end
+
   end
 
   describe '#conversation_pricer' do
-    it 'returns a pricer' do
-      expect(subject.conversation_pricer).to be_a Pricer
+
+    context 'with a free pricer' do
+      subject { build :account_plan }
+      its(:conversation_pricer) { is_expected.to be_a Pricers::FreePricer }
+      its('conversation_pricer.config') { is_expected.to eq(subject.conversation_pricer_config) }
     end
+  
+    context 'with a simple pricer' do
+      subject { build :payg_account_plan }
+      its(:conversation_pricer) { is_expected.to be_a Pricers::SimpleConversationPricer }
+      its('conversation_pricer.config') { is_expected.to eq(subject.conversation_pricer_config) }
+    end
+
   end
 
 end

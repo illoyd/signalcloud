@@ -103,7 +103,7 @@ describe ConversationsController, :type => :controller do
       end
       it 'sets conversation\'s customer_number' do
         post :create, create_payload
-        expect(Conversation.last.customer_number).to eq(customer_number.gsub(/^\+/,''))
+        expect(Conversation.last.customer_number.to_s).to eq(customer_number)
       end
       it 'sets conversation\'s internal_number' do
         post :create, create_payload

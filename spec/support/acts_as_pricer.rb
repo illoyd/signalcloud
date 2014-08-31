@@ -6,9 +6,9 @@ shared_examples 'a pricer' do
     end
   end
 
-  describe '#price_sheet_library' do
-    it 'responds to #price_sheet_library' do
-      expect(subject.respond_to?(:price_sheet_library)).to be_truthy
+  describe '#config' do
+    it 'responds to #config' do
+      expect(subject.respond_to?(:config)).to be_truthy
     end
   end
 

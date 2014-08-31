@@ -89,11 +89,9 @@ class TwilioCommunicationGateway < CommunicationGateway
     raise SignalCloud::InvalidFromNumberCommunicationGatewayError.new(self) if from_number.blank?
     raise SignalCloud::InvalidMessageBodyCommunicationGatewayError.new(self) if body.blank?
   
-    to_number = self.class.prepend_plus(to_number)
-    from_number = self.class.prepend_plus(from_number)
     payload = {
-      to: to_number,
-      from: from_number,
+      to:   PhoneNumberNormalizer.normalize(to_number),
+      from: PhoneNumberNormalizer.normalize(from_number),
       body: body
     }
     
@@ -137,7 +135,6 @@ class TwilioCommunicationGateway < CommunicationGateway
   alias_method :send_sms!, :send_message!
 
   def purchase_number!( phone_number )
-    pn = self.class.prepend_plus(phone_number.number)
     results = self.twilio_account.incoming_phone_numbers.create(assemble_phone_number_data phone_number)
     phone_number.provider_sid = results.sid
     results

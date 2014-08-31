@@ -67,25 +67,27 @@ class Message < ActiveRecord::Base
   IN = 'in'
   OUT = 'out'
 
+  attr_encrypted_options.merge!(key: Rails.application.secrets.encrypted_secret, mode: :per_attribute_iv_and_salt)
+
   ##
   # Encrypted payload. Serialised using JSON.
-  attr_encrypted :provider_response, key: Rails.application.secrets.encrypted_secret, marshal: true, marshaler: JSON
+  attr_encrypted :provider_response, marshal: true, marshaler: JSON
 
   ##
   # Encrypted callback payload. Serialised using JSON.
-  attr_encrypted :provider_update, key: Rails.application.secrets.encrypted_secret, marshal: true, marshaler: JSON
+  attr_encrypted :provider_update, marshal: true, marshaler: JSON
 
   ##
   # Encrypted customer phone number.
-  attr_encrypted :to_number, key: Rails.application.secrets.encrypted_secret
+  attr_encrypted :to_number, marshal: true, marshaler: MiniPhoneNumber
   
   ##
   # Encrypted internal phone number.
-  attr_encrypted :from_number, key: Rails.application.secrets.encrypted_secret
+  attr_encrypted :from_number, marshal: true, marshaler: MiniPhoneNumber
   
   ##
   # Encrypted body of message.
-  attr_encrypted :body, key: Rails.application.secrets.encrypted_secret
+  attr_encrypted :body
 
   ##
   # Parent conversation, of which this message is part of the conversation.
