@@ -4,7 +4,7 @@
     = link_to iconify('Phone numbers', :phone_numbers), organization_phone_numbers_path(@organization)
 
   -# If no book present, allow creating a new one
-  - if can?(:search, PhoneNumber) && !@phone_number.present?
+  - if can?(:new, PhoneNumber) && !@phone_number.present?
     = link_to iconify('Add phone number', :plus), new_organization_phone_number_path(@organization)
     
 - if @phone_number.try(:persisted?)

@@ -73,7 +73,7 @@ end
 unless Organization.exists?( sid: '76f78f836d4563bf4824da02b506346d' )
   org = Organization.new({
     label:          'Master',
-    account_plan:   master_plan,
+    account_plan:   payg_plan,
     description:    'Primary organization',
     sid:            '76f78f836d4563bf4824da02b506346d',
     auth_token:     '0ee1ed9c635074d1a5fc452aa2aec6d1',

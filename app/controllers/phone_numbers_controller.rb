@@ -66,6 +66,8 @@ class PhoneNumbersController < ProtectedController
   end
 
   def new
+    @phone_number = nil
+    
     # Number of phone numbers to show
     @numbers_to_show = 10
   
@@ -148,7 +150,7 @@ class PhoneNumbersController < ProtectedController
   protected
   
   def search_for(country, kind, search_params)
-    searcher = gateway.available_phone_numbers.get(country)
+    searcher = search_gateway.available_phone_numbers.get(country)
     searcher = case kind
       when 'mobile'
         searcher.mobile
@@ -158,7 +160,7 @@ class PhoneNumbersController < ProtectedController
     searcher.list(search_params)
   end
   
-  def gateway
+  def search_gateway
     @organization.communication_gateway_for(:twilio).try(:remote_instance) || Twilio.master_client.account
   end
 

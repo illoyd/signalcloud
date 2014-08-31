@@ -23,7 +23,7 @@ module Pricers
       
         raise SignalCloud::UnpriceableObjectError, object unless prices.include?(object)
 
-        BigDecimal.new prices[object] 
+        BigDecimal.new prices[object], 8
       end
     end
     

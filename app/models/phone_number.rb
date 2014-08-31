@@ -74,7 +74,7 @@ class PhoneNumber < ActiveRecord::Base
   delegate :country, :alpha2, to: :number
   
   def human_number
-    Country.format_international_phone_number(number)
+    Country.format_international_phone_number(number.to_s)
   end
   
   def self.normalize_phone_number(pn)
