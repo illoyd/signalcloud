@@ -61,6 +61,8 @@ gem 'countries-phone_numbers'
 gem 'country_select'
 gem 'gretel'
 gem 'responders'
+gem 'hashdiff'
+gem 'rails_12factor', group: [:development, :production]
 
 #
 # Model extensions
@@ -118,14 +120,12 @@ group :test do
 	gem 'factory_girl'
 	gem 'fuubar'
   gem 'simplecov', :require => false
-  gem 'hashdiff'
   gem 'faker'
 end
 
 #
 # Production gems
 group :production do
-  gem 'rails_12factor'
   gem 'newrelic_rpm'
   gem 'lograge'
 end

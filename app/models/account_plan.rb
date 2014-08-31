@@ -7,6 +7,8 @@ class AccountPlan < ActiveRecord::Base
   # Attributes
   serialize :phone_number_pricer_config, HashWithIndifferentAccess
   serialize :conversation_pricer_config, HashWithIndifferentAccess
+  serialize :original_phone_number_pricesheet, HashWithIndifferentAccess
+  serialize :original_conversation_pricesheet, HashWithIndifferentAccess
 
   # Relationships
   has_many :organizations, inverse_of: :account_plan

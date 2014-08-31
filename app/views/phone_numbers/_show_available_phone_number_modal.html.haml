@@ -27,7 +27,7 @@
             %dt LATA
             %dd= available_phone_number.lata
           %dt Monthly fee
-          %dd= currency_for organization.phone_number_pricer.price_for_country(available_phone_number.iso_country)
+          %dd= currency_for organization.phone_number_pricer.price_for(available_phone_number.iso_country)
             
         - unless available_phone_number.latitude.blank? || available_phone_number.longitude.blank?
           = map_for_coordinates(available_phone_number.latitude, available_phone_number.longitude)

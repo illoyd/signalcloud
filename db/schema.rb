@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140830110918) do
+ActiveRecord::Schema.define(version: 20140830125303) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -26,16 +26,18 @@ ActiveRecord::Schema.define(version: 20140830110918) do
   add_index "account_balances", ["organization_id"], name: "index_account_balances_on_organization_id", unique: true, using: :btree
 
   create_table "account_plans", force: true do |t|
-    t.string   "label",                                                                                        null: false
-    t.boolean  "default",                                                      default: false,                 null: false
-    t.integer  "plan_kind",                  limit: 2,                         default: 0,                     null: false
-    t.decimal  "month",                                precision: 8, scale: 4, default: 0.0,                   null: false
+    t.string   "label",                                                                                              null: false
+    t.boolean  "default",                                                            default: false,                 null: false
+    t.integer  "plan_kind",                        limit: 2,                         default: 0,                     null: false
+    t.decimal  "month",                                      precision: 8, scale: 4, default: 0.0,                   null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "phone_number_pricer_class",                                    default: "Pricers::FreePricer", null: false
-    t.string   "conversation_pricer_class",                                    default: "Pricers::FreePricer", null: false
+    t.string   "phone_number_pricer_class",                                          default: "Pricers::FreePricer", null: false
+    t.string   "conversation_pricer_class",                                          default: "Pricers::FreePricer", null: false
     t.text     "phone_number_pricer_config"
     t.text     "conversation_pricer_config"
+    t.text     "original_phone_number_pricesheet"
+    t.text     "original_conversation_pricesheet"
   end
 
   create_table "accounting_gateways", force: true do |t|

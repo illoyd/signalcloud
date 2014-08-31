@@ -1,0 +1,11 @@
+Alert! Twilio phone numbers have changed!
+===============================================
+ 
+Twilio phone numbers have changed for plan <%= @plan.label %> (<%= @plan.id %>).
+
+The difference is as follows:
+<% @diff.each do |diff| %>
+* <%= diff %>
+<% end %>
+
+- Your friendly SignalCloud Robot
