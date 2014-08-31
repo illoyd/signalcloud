@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-fdescribe Pricers::SimplePhoneNumberPricer, :type => :model do
+describe Pricers::SimplePhoneNumberPricer, :type => :model do
   let(:config) { Pricesheet.new({ US: 3, GB: 3, CA: 3, TT: 6, HK: 6, MY: 9, RU: '9' }) }
   subject      { described_class.new(config) }
 

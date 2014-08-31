@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-fdescribe Pricers::SimpleConversationPricer, :type => :model do
+describe Pricers::SimpleConversationPricer, :type => :model do
   let(:us_number) { '+12151234567' }
   let(:gb_number) { '+447540123456' }
   let(:ca_number) { '+14161234567' }
