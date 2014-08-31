@@ -1,4 +1,4 @@
-class AlertOnTwilioConversationPricesheetChangeJob < ActiveJob::Base
+class AlertOnTwilioSmsPricesheetChangeJob < ActiveJob::Base
   queue_as :default
 
   def perform
@@ -7,13 +7,13 @@ class AlertOnTwilioConversationPricesheetChangeJob < ActiveJob::Base
       original = simplify(plan.original_conversation_pricesheet)
       diff = HashDiff.diff(original, pricesheet)
       if diff.any?
-        TwilioPricesheetChangeMailer.sms_changed_alert(plan, diff).deliver_later
+        TwilioPricesheetChangeMailer.sms_pricesheet_changed(plan, diff).deliver_later
       end
     end
   end
   
   def pricesheet
-    @pricesheet ||= simplify(Twilio::ConversationPricesheet.parse)
+    @pricesheet ||= simplify(Twilio::SmsPricesheet.parse)
   end
   
   def simplify(pricesheet)

@@ -1,7 +1,7 @@
 require 'open-uri'
 
 module Twilio
-  class ConversationPricesheet
+  class SmsPricesheet
   
     DEFAULT_URI = 'http://www.twilio.com/resources/rates/international-sms-rates.csv'
   

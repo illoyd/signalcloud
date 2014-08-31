@@ -8,7 +8,7 @@ class AlertOnTwilioPhoneNumberPricesheetChangeJob < ActiveJob::Base
       diff = HashDiff.diff(original, pricesheet)
       diff = HashDiff.diff(plan.original_phone_number_pricesheet, pricesheet)
       if diff.any?
-        TwilioPricesheetChangeMailer.phone_number_alert(plan, diff).deliver_later
+        TwilioPricesheetChangeMailer.phone_number_pricesheet_changed(plan, diff).deliver_later
       end
     end
   end

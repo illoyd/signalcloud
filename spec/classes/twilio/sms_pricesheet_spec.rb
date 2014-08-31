@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-fdescribe Twilio::ConversationPricesheet, :vcr do
+fdescribe Twilio::SmsPricesheet, :vcr do
 
   describe '.parse' do
     
