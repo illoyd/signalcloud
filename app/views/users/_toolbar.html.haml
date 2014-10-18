@@ -24,12 +24,12 @@
 
     -# Change privileges
     - if can?(:edit, @user.roles_for(@organization))
-      = link_to iconify('Change roles', :roles), "#edit_user_role_#{ @user.id }", data: {toggle: 'modal'}
+      = link_to iconify('Change roles', :roles), "#edit_user_role_#{ @user.roles_for(@organization).id }", data: {toggle: 'modal'}
       = render partial: 'user_roles/edit_modal', object: @user.roles_for(@organization), as: :user_role
 
     -# Allow deleting
     - if can?(:destroy, @user.roles_for(@organization))
-      = link_to iconify('Delete', :delete), "#destroy_user_role_#{ @user.id }", class: 'delete', data: {toggle: 'modal'}
+      = link_to iconify('Delete', :delete), "#destroy_user_role_#{ @user.roles_for(@organization).id }", class: 'delete', data: {toggle: 'modal'}
       = render partial: 'user_roles/destroy_modal', object: @user.roles_for(@organization), as: :user_role
 
 - if @user.try(:persisted?)
