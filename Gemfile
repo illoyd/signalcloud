@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 ruby "2.1.2"
-gem 'rails', '~> 4.2.0.beta1'
+gem 'rails', '~> 4.2.0.beta2'
 
 # Use Postgresql
 gem 'pg'
@@ -10,7 +10,7 @@ gem 'sass-rails', '~> 5.0.0.beta1'
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '>= 1.3.0'
 # Use CoffeeScript for .js.coffee assets and views
-gem 'coffee-rails', '~> 4.0.0'
+gem 'coffee-rails', '~> 4.1.0'
 
 # See https://github.com/sstephenson/execjs#readme for more supported runtimes
 # gem 'therubyracer', :platforms => :ruby
@@ -67,7 +67,7 @@ gem 'rails_12factor', group: [:development, :production]
 #
 # Model extensions
 gem 'active_model_serializers', '~> 0.8.0'
-gem 'attr_encrypted', '~> 1.3.2'
+gem 'attr_encrypted', '~> 1.3.3'
 gem 'attribute_normalizer', git: 'https://github.com/illoyd/attribute_normalizer.git'
 gem 'workflow'
 gem 'httparty'
