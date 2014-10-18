@@ -59,6 +59,9 @@ module ApplicationHelper
     return humanize_phone_number(number.phone_number) if number.is_a? ::MiniPhoneNumber
     return humanize_phone_number(number.number) if number.is_a? ::PhoneNumber
     number.nil? ? nil : Country.format_international_phone_number(number)
+
+    rescue
+      number
   end
   
   def flag_icon_for(object, size = nil)
