@@ -1,8 +1,0 @@
-- if content_for?(:page_title)
-  / Page header
-  .page-header
-    %h1
-      - if content_for? :heading_icon
-        = icon(yield(:page_icon))
-      = yield(:page_title)
-      %small= yield(:page_subtitle)

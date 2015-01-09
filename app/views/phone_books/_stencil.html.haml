@@ -1,9 +1,0 @@
-%tr
-  %td= split_dropdown_list([ |
-      { label: 'Details', icon: :show, link: [@organization, stencil], if: can?(:show, stencil) }, |
-      { label: 'Edit', icon: :edit, link: edit_organization_stencil_path(@organization, stencil), if: can?(:edit, stencil) }, |
-      { label: 'Conversations', icon: :conversations, link: organization_stencil_conversations_path(@organization, stencil), if: can?(:show, Conversation) } |
-      ], { class: "btn-xs"} ) |
-  %td= link_to_if can?(:show, stencil), iconify(stencil.label, :stencil), [stencil.organization, stencil]
-  %td= link_to_if can?(:show, Conversation), iconify(stencil.conversations.count, :conversations), [stencil.organization, stencil, :conversations]
-  %td= stencil.conversations.maximum(:updated_at).blank? ? '<em>Never used</em>'.html_safe : l(stencil.conversations.maximum(:updated_at), format: :short)

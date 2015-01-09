@@ -1,6 +1,0 @@
-/ Page header
-- headings 'Invoice', @invoice.settled? ? "for invoice #{ l @invoice.date_to.to_date, format: :short }" : 'pending', :invoices
-- breadcrumb :organization_invoices, @organization
-
-/ Page body
-= render partial: 'ledger_entries', object: @ledger_entries

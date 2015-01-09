@@ -1,9 +1,0 @@
-- if alert_errors.any?
-  #error_explanation.alert.alert-danger
-    %h4
-      %strong Oops!
-      = pluralize(alert_errors.count, "error was")
-      spotted.
-    %ul
-      - alert_errors.full_messages.each do |msg|
-        %li= msg

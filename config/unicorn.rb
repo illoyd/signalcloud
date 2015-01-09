@@ -8,16 +8,13 @@
 # See http://unicorn.bogomips.org/Unicorn/Configurator.html for complete
 # documentation.
 
-# Parse worker counts
-unicorn_workers = Integer(ENV["WEB_CONCURRENCY"] || 3)
-sidekiq_workers = Integer(ENV["JOB_CONCURRENCY"] || 0)
-
-# PID variable for sidekiq
+# Running sidekiq inside
+run_sidekiq_in_this_thread = %w(staging production).include?(ENV['RAILS_ENV'])
 @sidekiq_pid = nil
 
 # Use at least one worker per core if you're on a dedicated server,
 # more will usually help for _short_ waits on databases/caches.
-worker_processes unicorn_workers
+worker_processes Integer(ENV["WEB_CONCURRENCY"] || 2)
 
 # Since Unicorn is never exposed to outside clients, it does not need to
 # run on the standard HTTP port (80), there is no reason to start Unicorn
@@ -65,6 +62,7 @@ before_fork do |server, worker|
   Signal.trap 'TERM' do
     puts 'Unicorn master intercepting TERM and sending myself QUIT instead'
     Process.kill 'QUIT', Process.pid
+    Process.kill 'TERM', @sidekiq_pid if @sidekiq_pid
   end
   
   # the following is highly recomended for Rails + "preload_app true"
@@ -96,8 +94,8 @@ before_fork do |server, worker|
   # from being lost when the receiving process is busy.
   # sleep 1
 
-  if sidekiq_workers > 0
-    @sidekiq_pid ||= spawn("bundle exec sidekiq -C ./config/sidekiq.yml -c #{ sidekiq_workers }")
+  if run_sidekiq_in_this_thread
+    @sidekiq_pid ||= spawn("bundle exec sidekiq -c #{ ENV['JOB_CONCURRENCY'] || 1 } -C ./config/sidekiq.yml")
     Rails.logger.info("Spawned sidekiq #{@sidekiq_pid}")
   end
 
