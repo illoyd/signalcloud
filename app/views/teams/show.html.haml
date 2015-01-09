@@ -1,0 +1,18 @@
+%p#notice= notice
+
+%p
+  %b User:
+  = @team.user
+%p
+  %b Workflow state:
+  = @team.workflow_state
+%p
+  %b Name:
+  = @team.name
+%p
+  %b Description:
+  = @team.description
+
+= link_to 'Edit', edit_team_path(@team)
+\|
+= link_to 'Back', teams_path
