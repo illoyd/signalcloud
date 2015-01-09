@@ -56,6 +56,7 @@ gem 'responders'
 gem 'haml'
 gem 'haml-rails'
 gem 'hashie'
+gem 'going_postal'
 
 #
 # Reporting gems
@@ -63,10 +64,6 @@ gem 'hightop'
 gem 'groupdate'
 gem 'active_median'
 gem 'chartkick'
-
-#
-# Service gems
-# gem 'twitter', '~> 5.11.0'
 
 #
 # Model extensions
@@ -79,6 +76,11 @@ gem 'workflow'
 gem 'devise', '~> 3.4'
 gem 'devise-async'
 gem 'pundit'
+
+#
+# External services
+gem 'twilio'
+gem 'freshbooks'
 
 #
 # Internal services (e.g. queues, caches)
