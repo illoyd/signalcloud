@@ -17,9 +17,11 @@
 // Include bootstrap
 @import "bootstrap/mixins";
 @import '_variables';
+// @import "bootstrap-sprockets";
+@import "bootstrap";
 @import '_bootswatch';
 
-@import "bootstrap-sprockets";
-@import "bootstrap";
-
 @import 'flags';
+
+// Body
+body { padding-top: 30px; }

@@ -240,19 +240,19 @@ select.form-control {
   border: none;
   color: #fff;
 
-  &-success {
+  &-success, &-notice {
     background-color: $brand-success;
   }
 
-  &-info {
+  &-info, &-flash {
     background-color: $brand-info;
   }
 
-  &-warning {
+  &-warning, &-alert {
     background-color: $brand-warning;
   }
 
-  &-danger {
+  &-danger, &-error {
     background-color: $brand-danger;
   }
 
