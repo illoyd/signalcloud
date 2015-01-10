@@ -1,4 +1,4 @@
-class TeamsController < ApplicationController
+class TeamsController < ProtectedController
   before_action :set_team, only: [:show, :edit, :update, :destroy]
 
   respond_to :html
