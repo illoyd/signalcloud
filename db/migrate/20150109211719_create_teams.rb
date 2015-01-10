@@ -1,7 +1,7 @@
 class CreateTeams < ActiveRecord::Migration
   def change
     create_table :teams do |t|
-      t.references :user, index: true
+      t.references :owner, references: :users, index: true
       t.string :workflow_state
       t.string :name
       t.text :description
@@ -9,6 +9,6 @@ class CreateTeams < ActiveRecord::Migration
       t.timestamps null: false
     end
     add_index :teams, :workflow_state
-    add_foreign_key :teams, :users
+    #add_foreign_key :teams, :owners
   end
 end
