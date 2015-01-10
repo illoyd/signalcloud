@@ -103,7 +103,7 @@ group :test do
 	gem 'rspec-its'
 	gem 'vcr'
 	gem 'webmock', "~> 1.11.0"
-	gem 'factory_girl_rails'
+	gem 'factory_girl_rails', '~> 4.0'
 	gem 'fuubar'
   gem 'simplecov', :require => false
   gem 'faker'

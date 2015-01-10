@@ -333,7 +333,7 @@ DEPENDENCIES
   dalli
   devise (~> 3.4)
   devise-async
-  factory_girl_rails
+  factory_girl_rails (~> 4.0)
   faker
   freshbooks
   fuubar
