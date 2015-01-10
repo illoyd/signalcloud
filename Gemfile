@@ -76,6 +76,7 @@ gem 'workflow'
 # Authorisations
 gem 'devise', '~> 3.4'
 gem 'devise-async'
+gem 'devise-bootstrap-views'
 gem 'pundit'
 
 #

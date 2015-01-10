@@ -88,6 +88,7 @@ GEM
       warden (~> 1.2.3)
     devise-async (0.9.0)
       devise (~> 3.2)
+    devise-bootstrap-views (0.0.3)
     diff-lcs (1.2.5)
     docile (1.1.5)
     draper (1.4.0)
@@ -339,6 +340,7 @@ DEPENDENCIES
   dalli
   devise (~> 3.4)
   devise-async
+  devise-bootstrap-views
   draper
   factory_girl_rails (~> 4.0)
   faker
