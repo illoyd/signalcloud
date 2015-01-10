@@ -3,17 +3,17 @@
     %h2 Details
     %dl
       %dt Owner
-      %dd= @team.owner.link_to
+      %dd= team.owner.link_to
 
       %dt Status
-      %dd= @team.workflow_state_with_icon
+      %dd= team.workflow_state_with_icon
 
   .col-sm-8
     %h2 Description
-    = @team.description
+    = team.description
 
 %h2 Members
-= render partial: 'memberships', object: @team.memberships
+= render partial: 'memberships', object: team.memberships
 
 .well
   = form_for(Membership.new, html: {class: 'form-inline'}) do |f|

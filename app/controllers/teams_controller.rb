@@ -3,14 +3,14 @@ class TeamsController < ProtectedController
 
   respond_to :html
 
+  decorates_assigned :teams, :team
+
   def index
     @teams = policy_scope(Team).order(:name)
-    @teams = TeamDecorator.decorate_collection(@teams)
     respond_with(@teams)
   end
 
   def show
-    @team = TeamDecorator.decorate(@team)
     respond_with(@team)
   end
 
