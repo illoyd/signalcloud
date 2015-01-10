@@ -14,7 +14,7 @@
   %tbody
     - @teams.each do |team|
       %tr
-        %td= team.user
+        %td= team.owner.id
         %td= team.workflow_state
         %td= team.name
         %td= team.description

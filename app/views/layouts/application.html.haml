@@ -1,9 +1,14 @@
 !!!
 %html
   %head
-    %title Signalcloud
-    = stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true
-    = javascript_include_tag 'application', 'data-turbolinks-track' => true
+    %title
+      - if content_for? :title
+        yield(:title)
+        \ -
+      Signalcloud
+    - cache do
+      = stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true
+      = javascript_include_tag 'application', 'data-turbolinks-track' => true
     = csrf_meta_tags
   %body
     = yield

@@ -1,7 +1,15 @@
 Rails.application.routes.draw do
-  resources :teams
 
   devise_for :users
+
+  resources :teams do
+    resources :users, only: :index
+  end
+  
+  resources :users, only: [:show, :edit, :update]
+  
+  root to: "teams#index"
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
