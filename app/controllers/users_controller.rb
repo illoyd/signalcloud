@@ -1,6 +1,9 @@
 class UsersController < ProtectedController
   before_action :set_user, only: [:show, :edit, :update]
   respond_to :html
+  
+  decorates_assigned :user
+  decorates_assigned :users
 
   # GET /users
   # GET /users.json

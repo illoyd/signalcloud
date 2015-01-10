@@ -19,9 +19,12 @@ ActiveRecord::Schema.define(version: 20150109223341) do
   create_table "memberships", force: :cascade do |t|
     t.integer  "team_id"
     t.integer  "user_id"
-    t.boolean  "admin",      default: false
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
+    t.boolean  "administrator",        default: false, null: false
+    t.boolean  "developer",            default: false, null: false
+    t.boolean  "billing_liaison",      default: false, null: false
+    t.boolean  "conversation_manager", default: false, null: false
+    t.datetime "created_at",                           null: false
+    t.datetime "updated_at",                           null: false
   end
 
   add_index "memberships", ["team_id"], name: "index_memberships_on_team_id", using: :btree
@@ -59,8 +62,8 @@ ActiveRecord::Schema.define(version: 20150109223341) do
     t.datetime "locked_at"
     t.string   "name"
     t.string   "nickname"
-    t.datetime "created_at",                          null: false
-    t.datetime "updated_at",                          null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree

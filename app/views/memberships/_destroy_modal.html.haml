@@ -1,11 +1,12 @@
-.modal.fade[destroy_modal, :destroy]
-  .modal-dialog
-    .modal-content
-      .modal-header
-        %h4.modal-title= iconify('Remove', :delete)
-      .modal-body
-        %p Are you sure you want to remove #{ destroy_modal.user.name } from #{ destroy_modal.team.name }?
-        %p No worries, you can undo this by re-adding #{ destroy_modal.user.email }.
-      .modal-footer
-        = link_to iconify('Remove', :delete), destroy_modal, method: :delete, class: 'btn btn-danger'
-        %a.btn.btn-default{"data-dismiss" => "modal", :type => "button"}= iconify('Keep', :cancel)
+- cache membership do
+  .modal.fade[membership.model, :destroy]
+    .modal-dialog
+      .modal-content
+        .modal-header
+          %h4.modal-title= iconify('Remove', :delete)
+        .modal-body
+          %p Are you sure you want to remove #{ membership.user.name } from #{ membership.team.name }?
+          %p No worries, you can undo this by re-adding #{ membership.user.email }.
+        .modal-footer
+          = link_to iconify('Remove', :delete), membership, method: :delete, class: 'btn btn-danger'
+          %a.btn.btn-default{"data-dismiss" => "modal", :type => "button"}= iconify('Keep', :cancel)

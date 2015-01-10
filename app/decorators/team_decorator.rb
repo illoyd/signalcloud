@@ -1,8 +1,8 @@
 class TeamDecorator < ApplicationDecorator
   delegate_all
   
-  decorates_association :owner, with: UserDecorator
-  decorates_association :users, with: UserDecorator
+  decorates_association :owner,       with: UserDecorator
+  decorates_association :users,       with: UserDecorator
   decorates_association :memberships, with: MembershipDecorator
 
   def link_to_owner

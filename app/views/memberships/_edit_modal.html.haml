@@ -1,17 +1,36 @@
-.modal.fade[edit_modal, :edit]
-  .modal-dialog
-    .modal-content
-      = form_for(edit_modal) do |f|
-        .modal-header
-          %h4.modal-title= iconify('Edit', :edit)
-        .modal-body
-          %p Change this user's membership in #{ edit_modal.team.name }.
-          .form-group
-            %label
-              = f.check_box :admin
-              Admin
-            %span.help-text Can perform any operation as if the member were the team owner.
-
-        .modal-footer
-          = f.submit 'Save membership', class: 'btn btn-primary'
-          %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Discard changes
+- cache membership.model do
+  .modal.fade[membership.model, :edit]
+    .modal-dialog
+      .modal-content
+        = form_for(membership) do |f|
+          .modal-header
+            %h4.modal-title= iconify('Edit', :edit)
+          .modal-body
+            %p Change this user's membership in #{ membership.team.name }.
+            .form-group
+              %label
+                = f.check_box :administrator
+                Administrator
+              %span.help-text Can manage the team and add, change, or remove team members.
+  
+            .form-group
+              %label
+                = f.check_box :developer
+                Developer
+              %span.help-text Can manage phone numbers and add or change stencils.
+  
+            .form-group
+              %label
+                = f.check_box :billing_liaison
+                Billing Liaison
+              %span.help-text Can manage the team billing details as well as view journals and invoices.
+  
+            .form-group
+              %label
+                = f.check_box :conversation_manager
+                Conversation Manager
+              %span.help-text Can start and manage conversations.
+  
+          .modal-footer
+            = f.submit 'Save membership', class: 'btn btn-primary'
+            %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Discard changes

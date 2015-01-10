@@ -23,14 +23,24 @@
 
 @import 'flags';
 
-// Body
-// body { padding-top: 30px; }
-div.toolbar {
-  padding-bottom: 25px;
+.navbar {
+  margin-top: 8px;
+  margin-bottom: 0px;
 }
 
-form.form {
+div.toolbar {
+  padding-bottom: 23px;
+}
+
+div.well.form-sm {
+  @extend .center-block;
   width: 50%;
-  margin-left: 0px;
-  margin-right: 0px;
+}
+
+div.page-header {
+  margin-top: 0px;
+}
+
+img.gravatar {
+  @extend .img-circle;
 }

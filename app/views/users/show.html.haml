@@ -1,0 +1,10 @@
+= user.gravatar_image_tag(120, class: 'gravatar pull-right')
+%dl
+  %dt Name
+  %dd= user.name
+
+  %dt Nickname
+  %dd= user.nickname
+
+%h2 Members
+= render partial: 'memberships', object: MembershipDecorator.decorate_collection(policy_scope(@user.memberships))

@@ -2,8 +2,8 @@
   .container
     .page-header
       %h1
-        - if @user
-          = @user.name
+        - if user
+          = user.display_name
           %small user
         - else
           Users

@@ -4,7 +4,10 @@ class CreateMemberships < ActiveRecord::Migration
       t.references :team, index: true
       t.references :user, index: true
       
-      t.boolean :admin, default: false
+      t.boolean :administrator,        default: false, null: false
+      t.boolean :developer,            default: false, null: false
+      t.boolean :billing_liaison,      default: false, null: false
+      t.boolean :conversation_manager, default: false, null: false
 
       t.timestamps null: false
     end

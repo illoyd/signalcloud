@@ -33,6 +33,7 @@ ICONS = {
   boxes:          'archive',
   
   # Common actions
+  new:            'plus',
   show:           'search',
   edit:           'pencil',
   delete:         'trash-o',

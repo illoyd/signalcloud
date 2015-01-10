@@ -1,9 +1,9 @@
 - cache [membership, policy(membership).edit?, policy(membership).destroy?] do
   %tr
+    %td= membership.team.link_to
     %td
-      = membership.user.gravatar_image_tag(20, class: 'img-circle')
-      = membership.user.link_to
-    %td= membership.user.email_link
+      = membership.team.owner.gravatar_image_tag(20, class: 'img-circle')
+      = membership.team.owner.link_to
     %td.text-center= membership.owner_checkmark?
     %td.text-center= membership.administrator_checkmark?
     %td.text-center= membership.developer_checkmark?
