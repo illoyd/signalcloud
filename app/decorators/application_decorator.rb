@@ -1,15 +1,15 @@
 class ApplicationDecorator < Draper::Decorator
 
   def link_to
-    h.link_to_if h.policy(model).show?, name, model
+    h.link_to_if h.policy(object).show?, name, object
   end
   
   def show_button
-    h.link_to(h.icon(:show), model, class: 'btn btn-xs btn-default') if h.policy(model).show?
+    h.link_to(h.icon(:show), object, class: 'btn btn-xs btn-default') if h.policy(object).show?
   end
   
   def edit_button
-    h.link_to(h.icon(:edit), [:edit, model], class: 'btn btn-xs btn-default') if h.policy(model).edit?
+    h.link_to(h.icon(:edit), [:edit, object], class: 'btn btn-xs btn-default') if h.policy(object).edit?
   end
   
   def active_checkmark

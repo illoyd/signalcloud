@@ -1,0 +1,9 @@
+- cache do
+  .container.toolbar
+    / General
+    .btn-group.btn-group-sm
+      = link_to iconify('Teams', :teams), teams_path, class: 'btn btn-default'
+      
+      - if @user && !@user.new_record? && policy(@user).edit?
+        - cache [@user, policy(@user).edit?] do
+          = link_to iconify('Edit', :edit), [:edit, @user], class: 'btn btn-default'
