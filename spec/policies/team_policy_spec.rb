@@ -1,28 +1,46 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe TeamPolicy do
+  subject { TeamPolicy.new(user, team) }
 
-  let(:user) { User.new }
+  context 'with team owner' do
+    let(:user) { create(:user) }
+    let(:team) { create(:team, owner: user) }
+    
+    it { should permit(:show)    }
+    it { should permit(:create)  }
+    it { should permit(:new)     }
+    it { should permit(:update)  }
+    it { should permit(:edit)    }
 
-  subject { TeamPolicy }
-
-  permissions ".scope" do
-    pending "add some examples to (or delete) #{__FILE__}"
+    it { should_not permit(:destroy) }   
   end
 
-  permissions :create? do
-    pending "add some examples to (or delete) #{__FILE__}"
+  context 'with team member' do
+    let(:user) { create(:user) }
+    let(:team) { create(:team) }
+    before { Membership.create!(user: user, team: team) }
+
+    it { should permit(:show)    }
+    it { should permit(:create)  }
+    it { should permit(:new)     }
+
+    it { should_not permit(:update)  }
+    it { should_not permit(:edit)    }
+    it { should_not permit(:destroy) }   
   end
 
-  permissions :show? do
-    pending "add some examples to (or delete) #{__FILE__}"
+  context 'with unrelated team' do
+    let(:user) { create(:user) }
+    let(:team) { create(:team) }
+
+    it { should permit(:create)  }
+    it { should permit(:new)     }
+
+    it { should_not permit(:show)    }
+    it { should_not permit(:update)  }
+    it { should_not permit(:edit)    }
+    it { should_not permit(:destroy) }   
   end
 
-  permissions :update? do
-    pending "add some examples to (or delete) #{__FILE__}"
-  end
-
-  permissions :destroy? do
-    pending "add some examples to (or delete) #{__FILE__}"
-  end
 end

@@ -1,7 +1,7 @@
 class UserPolicy < ApplicationPolicy
   
   def show?
-    scope.where(id: record.id).exists?
+    update? || scope.where(id: record.id).exists?
   end
 
   def update?
@@ -10,7 +10,9 @@ class UserPolicy < ApplicationPolicy
   
   class Scope < Scope
     def resolve
-      scope.where(id: user.memberships.pluck(:team_id))
+      team_ids = user.memberships.select(:team_id).distinct
+      user_ids = Membership.where(team_id: team_ids).select(:user_id).distinct
+      scope.where('id in (?) OR id = ?', user_ids, user.id)
     end
   end
 
