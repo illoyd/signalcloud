@@ -10,10 +10,16 @@
  * defined in the other CSS/SCSS files in this directory. It is generally better to create a new
  * file per style scope.
  *
- *= require_tree .
+ *= require devise_bootstrap_views
  *= require_self
  */
 
 // Include bootstrap
+@import "bootstrap/mixins";
+@import '_variables';
+@import '_bootswatch';
+
 @import "bootstrap-sprockets";
 @import "bootstrap";
+
+@import 'flags';
