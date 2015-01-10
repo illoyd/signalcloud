@@ -1,18 +1,27 @@
-%p#notice= notice
+.row
+  .col-sm-4
+    %h2 Details
+    %dl
+      %dt Owner
+      %dd= @team.owner.link_to
 
-%p
-  %b User:
-  = @team.owner.id
-%p
-  %b Workflow state:
-  = @team.workflow_state
-%p
-  %b Name:
-  = @team.name
-%p
-  %b Description:
-  = @team.description
+      %dt Status
+      %dd= @team.workflow_state_with_icon
 
-= link_to 'Edit', edit_team_path(@team)
-\|
-= link_to 'Back', teams_path
+  .col-sm-8
+    %h2 Description
+    = @team.description
+
+%h2 Members
+= render partial: 'memberships', object: @team.memberships
+
+.well
+  = form_for(Membership.new, html: {class: 'form-inline'}) do |f|
+    .form-group
+      = f.label :team_id
+      = f.collection_select :team_id, Team.all, :id, :name, {}, class: 'form-control'
+    .form-group
+      = f.label :user_id
+      = f.collection_select :user_id, User.all, :id, :name, {}, class: 'form-control'
+    .form-group
+      = f.submit class: 'btn btn-primary btn-sm'

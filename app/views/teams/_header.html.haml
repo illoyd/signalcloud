@@ -1,0 +1,10 @@
+- cache @team do
+  .container
+    .page-header
+      %h1
+        = icon(:teams)
+        - if @team
+          = @team.name || 'New'
+          %small team
+        - else
+          Teams

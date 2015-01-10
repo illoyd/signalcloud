@@ -1,0 +1,13 @@
+- cache [membership, policy(membership).edit?] do
+  %tr
+    %td= membership.user.link_to
+    %td= membership.user.email_link
+    %td= membership.owner_checkmark?
+    %td= membership.admin_checkmark?
+    %td.tools
+      -# = membership.edit_button
+      %a{ href: '#', 'data-toggle' => "modal", 'data-target' => "#edit_membership_#{ membership.id }", class: 'btn btn-xs btn-default' }= icon(:edit)
+      %a{ href: '#', 'data-toggle' => "modal", 'data-target' => "#destroy_membership_#{ membership.id }", class: 'btn btn-xs btn-default' }= icon(:delete)
+
+      = render partial: 'memberships/edit_modal', object: membership.model
+      = render partial: 'memberships/destroy_modal', object: membership.model

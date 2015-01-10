@@ -24,4 +24,13 @@
 @import 'flags';
 
 // Body
-body { padding-top: 30px; }
+// body { padding-top: 30px; }
+div.toolbar {
+  padding-bottom: 25px;
+}
+
+form.form {
+  width: 50%;
+  margin-left: 0px;
+  margin-right: 0px;
+}

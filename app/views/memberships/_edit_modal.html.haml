@@ -1,0 +1,17 @@
+.modal.fade[edit_modal, :edit]
+  .modal-dialog
+    .modal-content
+      = form_for(edit_modal) do |f|
+        .modal-header
+          %h4.modal-title= iconify('Edit', :edit)
+        .modal-body
+          %p Change this user's membership in #{ edit_modal.team.name }.
+          .form-group
+            %label
+              = f.check_box :admin
+              Admin
+            %span.help-text Can perform any operation as if the member were the team owner.
+
+        .modal-footer
+          = f.submit 'Save membership', class: 'btn btn-primary'
+          %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Discard changes

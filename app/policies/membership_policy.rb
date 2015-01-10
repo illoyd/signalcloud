@@ -1,21 +1,26 @@
-class TeamPolicy < ApplicationPolicy
+class MembershipPolicy < ApplicationPolicy
   
   def show?
     update? || scope.where(id: record.id).exists?
   end
   
   def create?
-    true
+    update?
   end
   
   def update?
-    record.owner == user
+    record.team.owner == user || user.membership_for(record.team).admin?
   end
-
+  
+  def destroy?
+    update?
+  end
+  
   class Scope < Scope
     def resolve
       team_ids = user.memberships.select(:team_id).distinct
-      scope.where('owner_id = ? OR id in (?)', user.id, team_ids)
+      scope.where('memberships.id in (?)', team_ids)
     end
   end
+
 end

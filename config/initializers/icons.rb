@@ -17,6 +17,9 @@ ICONS = {
   organization:   'th-large',
   organizations:  'th-large',
 
+  team:           'th-large',
+  teams:          'th-large',
+
   user:           'user',
   users:          'group',
 

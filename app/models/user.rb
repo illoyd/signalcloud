@@ -6,4 +6,8 @@ class User < ActiveRecord::Base
   has_many :memberships, inverse_of: :user
   has_many :teams, through: :memberships
   has_many :owned_teams, inverse_of: :owner, as: :owner
+  
+  def membership_for(team_or_id)
+    memberships.find_by(team_id: team_or_id.try(:id) || team_or_id) || Membership.new(user: self)
+  end
 end

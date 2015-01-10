@@ -8,6 +8,8 @@ Rails.application.routes.draw do
   
   resources :users, only: [:show, :edit, :update]
   
+  resources :memberships, only: [:create, :update, :destroy]
+  
   root to: "teams#index"
 
   # The priority is based upon order of creation: first created -> highest priority.

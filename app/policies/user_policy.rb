@@ -12,7 +12,7 @@ class UserPolicy < ApplicationPolicy
     def resolve
       team_ids = user.memberships.select(:team_id).distinct
       user_ids = Membership.where(team_id: team_ids).select(:user_id).distinct
-      scope.where('id in (?) OR id = ?', user_ids, user.id)
+      scope.where('users.id in (?) OR users.id = ?', user_ids, user.id)
     end
   end
 

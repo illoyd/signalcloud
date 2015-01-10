@@ -1,0 +1,11 @@
+- cache teams do
+  %table.table
+    %thead
+      %tr
+        %th Name
+        %th Active
+        %th Owner
+        %th Description
+        %th
+    %tbody
+      = render(partial: 'team', collection: teams) || render('teams_empty')

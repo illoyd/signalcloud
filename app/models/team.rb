@@ -5,4 +5,16 @@ class Team < ActiveRecord::Base
   
   validates :name, presence: true
   validates :owner, presence: true
+  
+  normalize_attributes :name, :description
+  
+  include Workflow
+  workflow do
+    state :active do
+      event :deactivate, transitions_to: :inactive
+    end
+    state :inactive do
+      event :activate, transitions_to: :active
+    end
+  end
 end

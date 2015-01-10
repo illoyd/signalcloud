@@ -1,0 +1,9 @@
+- cache [team, policy(team).show?, policy(team).edit?] do
+  %tr
+    %td= team.link_to
+    %td= team.active_checkmark
+    %td= team.link_to_owner
+    %td= team.description
+    %td.tools
+      = team.show_button
+      = team.edit_button

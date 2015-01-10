@@ -1,27 +1,4 @@
-%h1 Listing teams
+= render partial: 'teams', object: @teams
 
-%table
-  %thead
-    %tr
-      %th User
-      %th Workflow state
-      %th Name
-      %th Description
-      %th
-      %th
-      %th
-      
-  %tbody
-    - @teams.each do |team|
-      %tr
-        %td= team.owner.id
-        %td= team.workflow_state
-        %td= team.name
-        %td= team.description
-        %td= link_to 'Show', team
-        %td= link_to 'Edit', edit_team_path(team)
-        %td= link_to 'Destroy', team, :method => :delete, :data => { :confirm => 'Are you sure?' }
-
-%br
-
-= link_to 'New Team', new_team_path
+- if policy(Team).create?
+  = link_to 'New Team', new_team_path

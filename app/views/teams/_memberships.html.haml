@@ -1,0 +1,11 @@
+- cache memberships.map{ |o| o.id } do
+  %table.table
+    %thead
+      %tr
+        %th Name
+        %th Email
+        %th Owner?
+        %th Admin?
+        %th
+    %tbody
+      = render(partial: 'membership', collection: memberships) || render('memberships_empty')
