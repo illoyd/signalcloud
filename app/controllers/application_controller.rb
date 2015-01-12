@@ -2,4 +2,9 @@ class ApplicationController < ActionController::Base
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
+  
+  def set_team
+    @team = Team.find(params[:team_id])
+    authorize @team, :show?
+  end
 end

@@ -1,0 +1,15 @@
+- cache policy(@phone_number || @team.phone_numbers.build) do
+  .container.toolbar
+    / General
+    .btn-group.btn-group-sm
+      = link_to iconify('All', :list), [@team, :phone_numbers], class: 'btn btn-default'
+      
+      - if policy(PhoneNumber.new(team: @team)).purchase?
+        = link_to iconify('New', :new), new_team_phone_number_path(@team), class: 'btn btn-default'
+  
+      - if @phone_number && !@phone_number.new_record?
+        - if policy(@phone_number).show?
+          = link_to iconify('Details', :phone_number), @phone_number, class: 'btn btn-default'
+
+        - if policy(@phone_number).edit?
+          = link_to iconify('Edit', :edit), [:edit, @phone_number], class: 'btn btn-default'

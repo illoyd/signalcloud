@@ -1,10 +1,34 @@
 = form_for @user do |f|
-  - if @user.errors.any?
-    #error_explanation
-      %h2= "#{pluralize(@user.errors.count, "error")} prohibited this user from being saved:"
-      %ul
-        - @user.errors.full_messages.each do |msg|
-          %li= msg
+  = render partial: 'form_errors', object: @user.errors
 
-  .actions
-    = f.submit 'Save'
+  .row
+    .col-sm-6
+      .well.well-sm
+        %fieldset
+          %legend= iconify('Details', :edit)
+          .form-group
+            = f.label :name
+            = f.text_field :name, class: 'form-control'
+        
+          .form-group
+            = f.label :nickname
+            = f.text_field :nickname, class: 'form-control'
+
+    .col-sm-6
+      .well.well-sm
+        %fieldset
+          %legend= iconify('Password', :key)
+          .form-group
+            = f.label :password
+            = f.password_field :password, class: 'form-control'
+        
+          .form-group
+            = f.label :password_confirmation
+            = f.password_field :password_confirmation, class: 'form-control'
+
+  .row
+    .col-sm-12
+      .form-group
+        = f.submit 'Save Changes', class: 'btn btn-primary'
+        = link_to 'Discard changes', @user, class: 'btn btn-default'
+        

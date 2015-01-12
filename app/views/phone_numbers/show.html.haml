@@ -1,0 +1,11 @@
+%h2 #{ icon(:details) } Details
+%dl
+  %dt Status
+  %dd= phone_number.status
+
+  %dt Country
+  %dd
+    = phone_number.country_flag
+    = phone_number.country_name
+
+%h2 Phone Books

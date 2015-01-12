@@ -1,4 +1,4 @@
-- cache current_user, @team do
+- cache [current_user, @team] do
   .container
     %nav.navbar.navbar-default
       .container-fluid
@@ -16,26 +16,24 @@
           #collapsable.collapse.navbar-collapse
             %ul.nav.navbar-nav
               = navbar_link teams_path, 'Teams', :teams
-              %li
-                %a{:href => "#"} Link
-              %li.dropdown
-                %a.dropdown-toggle{"aria-expanded" => "false", "data-toggle" => "dropdown", :href => "#", :role => "button"}
-                  Dropdown
-                  %span.caret
-                %ul.dropdown-menu{:role => "menu"}
-                  %li
-                    %a{:href => "#"} Action
-                  %li
-                    %a{:href => "#"} Another action
-                  %li
-                    %a{:href => "#"} Something else here
-                  %li.divider
-                  %li
-                    %a{:href => "#"} Separated link
-                  %li.divider
-                  %li
-                    %a{:href => "#"} One more separated link
-      
+              
+              - if @team && !@team.new_record?
+                - membership = current_user.membership_for(@team)
+                
+                = navbar_link @team, team.name, :team
+
+                - if membership.conversation_manager?
+                  = navbar_link [@team, :conversations], 'Conversations', :conversations
+
+                - if membership.developer?
+                  = navbar_link [@team, :phone_numbers], 'Phone Numbers', :phone_numbers
+                  = navbar_link [@team, :stencils],      'Stencils',      :stencils
+                  = navbar_link [@team, :phone_books],   'Phone Books',   :phone_books
+                
+                - if membership.billing_liaison?
+                  = navbar_link [@team, :invoices],      'Invoices',      :invoices
+                  = navbar_link [@team, :journals],      'Journals',      :journals
+
             %form.navbar-form.navbar-left{:role => "search"}
               .form-group
                 %input.form-control{:placeholder => "Search", :type => "text"}/
@@ -47,6 +45,7 @@
                   = current_user.name
                   %span.caret
                 %ul.dropdown-menu{:role => "menu"}
-                  = subnavbar_link current_user, 'Profile'
+                  = subnavbar_link current_user, 'Profile', :user
+                  = subnavbar_link [:edit, current_user], 'Edit'
                   %li.divider
-                  %li= link_to('Sign out', destroy_user_session_path, method: :delete)
+                  %li= link_to(iconify('Sign out', 'sign-out'), destroy_user_session_path, method: :delete)

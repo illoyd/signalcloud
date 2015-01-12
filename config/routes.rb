@@ -1,14 +1,35 @@
 Rails.application.routes.draw do
 
+  resources :phone_numbers
+
   devise_for :users
 
   resources :teams do
-    resources :users, only: :index
+    resources :conversations, only: [:index, :new, :create]
+    resources :invoices,      only: [:index, :new, :create]
+    resources :journals,      only: [:index, :new, :create]
+    resources :phone_books,   only: [:index, :new, :create]
+    resources :phone_numbers, only: [:index, :new, :create]
+    resources :stencils,      only: [:index, :new, :create]
+    resources :users,         only: [:index, :new, :create]
   end
   
-  resources :users, only: [:show, :edit, :update]
+  resources :conversations,   only: [:show, :edit, :update]
+  resources :invoices,        only: [:show, :edit, :update]
+  resources :journals,        only: [:show, :edit, :update]
+  resources :phone_books,     only: [:show, :edit, :update]
+  resources :phone_numbers,   only: [:show, :edit, :update] do
+    resources :conversations, only: [:index]
+    resources :phone_books,   only: [:index]
+    member do
+      post   :purchase
+      delete :release
+    end
+  end
+  resources :stencils,        only: [:show, :edit, :update]
+  resources :users,           only: [:show, :edit, :update]
   
-  resources :memberships, only: [:create, :update, :destroy]
+  resources :memberships,     only: [:create, :update, :destroy]
   
   root to: "teams#index"
 

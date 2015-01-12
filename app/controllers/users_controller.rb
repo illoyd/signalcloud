@@ -65,6 +65,8 @@ class UsersController < ProtectedController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def user_params
-      params[:user]
+      accessible = %w( email name nickname )
+      accessible += %w( password password_confirmation ) if params[:user].present? && params[:user][:password].present?
+      params.require(:user).permit(*accessible)
     end
 end

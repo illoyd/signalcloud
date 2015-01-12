@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150109223341) do
+ActiveRecord::Schema.define(version: 20150110210637) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -29,6 +29,22 @@ ActiveRecord::Schema.define(version: 20150109223341) do
 
   add_index "memberships", ["team_id"], name: "index_memberships_on_team_id", using: :btree
   add_index "memberships", ["user_id"], name: "index_memberships_on_user_id", using: :btree
+
+  create_table "phone_numbers", force: :cascade do |t|
+    t.string   "type"
+    t.integer  "team_id",        null: false
+    t.string   "workflow_state"
+    t.string   "number",         null: false
+    t.string   "provider_sid"
+    t.text     "description"
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
+  end
+
+  add_index "phone_numbers", ["number"], name: "index_phone_numbers_on_number", using: :btree
+  add_index "phone_numbers", ["team_id"], name: "index_phone_numbers_on_team_id", using: :btree
+  add_index "phone_numbers", ["type"], name: "index_phone_numbers_on_type", using: :btree
+  add_index "phone_numbers", ["workflow_state"], name: "index_phone_numbers_on_workflow_state", using: :btree
 
   create_table "teams", force: :cascade do |t|
     t.integer  "owner_id"
@@ -73,4 +89,5 @@ ActiveRecord::Schema.define(version: 20150109223341) do
 
   add_foreign_key "memberships", "teams"
   add_foreign_key "memberships", "users"
+  add_foreign_key "phone_numbers", "teams"
 end

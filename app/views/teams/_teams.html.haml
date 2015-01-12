@@ -6,6 +6,12 @@
         %th Active
         %th Owner
         %th Description
+
+        %th= icon(:conversations)
+        %th= icon(:phone_numbers)
+        %th= icon(:stencils)
+        %th= icon(:invoices)
+
         %th
     %tbody
       = render(partial: 'teams/team', collection: teams) || render('teams_empty')

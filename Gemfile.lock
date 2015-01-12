@@ -74,8 +74,16 @@ GEM
     coffee-script-source (1.8.0)
     columnize (0.9.0)
     connection_pool (2.1.0)
+    countries (0.9.3)
+      currencies (~> 0.4.2)
+    countries-phone_numbers (1.0.3)
+      countries (~> 0.9)
+      phony (~> 2.2)
+    country_select (2.1.0)
+      countries (~> 0.9, >= 0.9.3)
     crack (0.4.2)
       safe_yaml (~> 1.0.0)
+    currencies (0.4.2)
     dalli (2.7.2)
     debug_inspector (0.0.2)
     debugger-linecache (1.2.0)
@@ -167,6 +175,7 @@ GEM
       mini_portile (~> 0.6.0)
     orm_adapter (0.5.0)
     pg (0.18.1)
+    phony (2.10.0)
     pundit (0.3.0)
       activesupport (>= 3.0.0)
     rack (1.6.0)
@@ -337,6 +346,9 @@ DEPENDENCIES
   byebug
   chartkick
   coffee-rails (~> 4.1.0)
+  countries
+  countries-phone_numbers
+  country_select
   dalli
   devise (~> 3.4)
   devise-async

@@ -1,0 +1,10 @@
+- cache @phone_number do
+  .container
+    .page-header
+      %h1
+        = icon(:phone_numbers)
+        - if phone_number
+          = phone_number.display_name || 'New'
+          %small phone number
+        - else
+          Phone numbers

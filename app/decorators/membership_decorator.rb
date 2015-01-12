@@ -5,7 +5,7 @@ class MembershipDecorator < ApplicationDecorator
   decorates_association :team
   
   def owner_checkmark?
-    checkmark model.team.owner == h.current_user
+    checkmark model.team.owner == model.user
   end
   
   def administrator_checkmark?

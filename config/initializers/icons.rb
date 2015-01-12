@@ -17,14 +17,17 @@ ICONS = {
   organization:   'th-large',
   organizations:  'th-large',
 
-  team:           'th-large',
-  teams:          'th-large',
+  team:           'cube',
+  teams:          'cubes',
 
   user:           'user',
   users:          'group',
 
   ledger_entry:   'list-alt',
   ledger_entries: 'list-alt',
+
+  journal:        'list-alt',
+  journals:       'list-alt',
 
   invoice:        'file-text-o',
   invoices:       'file-text-o',
@@ -60,6 +63,7 @@ ICONS = {
   challenge_sent: 'plus-circle',
 
   # Misc
+  details:        'search',
   error:          'warning-sign',
   active:         'check',
   inactive:       'times',

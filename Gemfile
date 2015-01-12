@@ -58,6 +58,9 @@ gem 'haml-rails'
 gem 'hashie'
 gem 'draper'
 gem 'going_postal'
+gem 'countries'
+gem 'countries-phone_numbers'
+gem 'country_select'
 
 #
 # Reporting gems

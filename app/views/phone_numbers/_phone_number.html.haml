@@ -1,0 +1,18 @@
+- cache phone_number do
+  %tr
+    %td= phone_number.link_to
+    %td= phone_number.status
+      
+    %td
+      = phone_number.country_flag
+      = phone_number.country_name
+
+    %td= link_to iconify('X', :phone_books),   [phone_number, :phone_books]
+    %td= link_to iconify('X', :conversations), [phone_number, :conversations]
+    
+    %td
+      - cache [phone_number, policy(phone_number).show?, policy(phone_number).edit?, policy(phone_number).purchase?, policy(phone_number).release?] do
+        = phone_number.show_button
+        = phone_number.edit_button
+        = phone_number.buy_button
+        = phone_number.release_button

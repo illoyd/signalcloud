@@ -1,0 +1,8 @@
+- if form_errors.any?
+  .panel.panel-danger
+    .panel-heading
+      %h3.panel-title= "Oops! We counted #{pluralize(form_errors.count, "error")}"
+    .panel-body
+      %ul
+        - form_errors.full_messages.each do |msg|
+          %li= msg

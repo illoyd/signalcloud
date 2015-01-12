@@ -1,0 +1,13 @@
+%table.table
+  %thead
+    %tr
+      %th Number
+      %th Status
+      %th Country
+
+      %th= icon(:phone_books)
+      %th= icon(:conversations)
+
+      %th
+  %tbody
+    = render(partial: 'phone_number', collection: phone_numbers) || render('phone_numbers_empty')

@@ -1,7 +1,7 @@
 class ApplicationDecorator < Draper::Decorator
 
   def link_to
-    h.link_to_if h.policy(object).show?, name, object
+    h.link_to_if h.policy(object).show?, self.try(:display_name) || self.try(:name) || object.class.name, object
   end
   
   def show_button
@@ -20,8 +20,10 @@ class ApplicationDecorator < Draper::Decorator
     h.icon(flag ? :active : :inactive)
   end
 
-  def workflow_state_with_icon
+  def status
     ws = workflow_state || :active
     h.iconify(ws.to_s.humanize, ws)
   end
+  
+  alias_method :workflow_state_with_icon, :status
 end
