@@ -9,6 +9,7 @@
     
     %td= link_to iconify('X', :conversations), [team, :conversations]
     %td= link_to iconify(team.phone_numbers.with_active_state.count, :phone_numbers), [team, :phone_numbers]
+    %td= link_to iconify('X', :phone_books),   [team, :phone_books]
     %td= link_to iconify('X', :stencils),      [team, :stencils]
     %td= link_to iconify('X', :invoices),      [team, :invoices]
     
