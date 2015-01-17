@@ -49,8 +49,18 @@ class StencilsController < ProtectedController
       @team = @stencil.team
       authorize @team, :show?
     end
+    
+    def if_clause_subparams
+      [ :type, { then_clauses_attributes: then_clause_subparams } ]
+    end
+    
+    def then_clause_subparams
+      [ :type, :message ]
+    end
 
     def stencil_params
-      params.require(:stencil).permit(:team_id, :workflow_state, :name, :description, :phone_book_id)
+      if_clause_params = []
+      then_clause_params = [:message]
+      params.require(:stencil).permit(:team_id, :workflow_state, :name, :description, :phone_book_id, if_clauses_attributes: if_clause_subparams)
     end
 end

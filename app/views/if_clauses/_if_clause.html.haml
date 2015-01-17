@@ -1,5 +1,1 @@
-- cache if_clause do
-  %ol
-    %li
-      = render(if_clause)
-      = render(partial: 'then_clauses/then_clauses', object: if_clause.then_clauses)
+= if_clause.class.name.humanize

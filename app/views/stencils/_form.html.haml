@@ -1,19 +1,26 @@
 = form_for @stencil do |f|
   = render partial: 'form_errors', object: @stencil.errors
-    
   = f.hidden_field :team_id
 
-  .form-group
-    = f.label :name, class: 'control-label'
-    = f.text_field :name, class: 'form-control'
-
-  .form-group
-    = f.label :description, class: 'control-label'
-    = f.text_area :description, class: 'form-control'
-
-  .form-group
-    = f.label :phone_book_id, class: 'control-label'
-    = f.collection_select :phone_book_id, policy_scope(@team.phone_books).decorate, :id, :name, {}, { class: 'form-control' }
+  .row
+    .col-sm-6
+      .well.well-sm
+        %fieldset
+          %legend
+            = icon(:details)
+            Details
+      
+          .form-group
+            = f.label :name, class: 'control-label'
+            = f.text_field :name, class: 'form-control'
+        
+          .form-group
+            = f.label :description, class: 'control-label'
+            = f.text_area :description, class: 'form-control'
+        
+          .form-group
+            = f.label :phone_book_id, class: 'control-label'
+            = f.collection_select :phone_book_id, policy_scope(@team.phone_books).decorate, :id, :name, {}, { class: 'form-control' }
 
   .form-group
     = f.submit 'Save changes', class: 'btn btn-primary'

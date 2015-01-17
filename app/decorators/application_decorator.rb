@@ -42,25 +42,25 @@ class ApplicationDecorator < Draper::Decorator
   
   ##
   # Show link
-  def show_link(label, options)
+  def show_link(label = 'Show', options = {})
     h.link_to_if(h.policy(object).show?, label, object, options)
   end
   
   ##
   # Edit link
-  def edit_link(label, options)
+  def edit_link(label = 'Edit', options = {})
     h.link_to_if(h.policy(object).edit?, label, [:edit, object], options)
   end
   
   ##
   # Activate link
-  def activate_link(label, options)
+  def activate_link(label = 'Activate', options = {})
     h.link_to_if(h.policy(object).activate?, label, [:activate, object], options)
   end
   
   ##
   # Deactivate link
-  def deactivate_link(label, options)
+  def deactivate_link(label = 'Deactivate', options = {})
     h.link_to_if(h.policy(object).deactivate?, label, [:deactivate, object], options)
   end
   

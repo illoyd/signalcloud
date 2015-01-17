@@ -7,6 +7,8 @@ class Stencil < ActiveRecord::Base
   
   validates_presence_of :name
 
+  accepts_nested_attributes_for :if_clauses
+
   include Workflow
   workflow do
     state :active do

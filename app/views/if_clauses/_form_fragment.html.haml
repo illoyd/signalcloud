@@ -1,0 +1,7 @@
+-# Determine which fragment to render based on passed object
+- parent_group = f.object.class.name.pluralize.underscore
+= render(partial: "#{ parent_group }/form_fragment", object: f.object, locals: {f: f})
+
+-# Render child clauses
+= f.fields_for(:then_clauses) do |builder|
+  = render(partial: 'then_clauses/form_fragment', locals: {f: builder})

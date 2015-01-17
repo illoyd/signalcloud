@@ -1,0 +1,2 @@
+class ThenSendMessageClausePolicy < ThenClausePolicy
+end
