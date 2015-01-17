@@ -3,8 +3,6 @@ class TeamsController < ProtectedController
 
   respond_to :html
 
-  decorates_assigned :teams, :team
-
   def index
     @teams = policy_scope(Team).order(:name)
     respond_with(@teams)

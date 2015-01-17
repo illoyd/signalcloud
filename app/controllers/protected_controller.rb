@@ -9,6 +9,8 @@ class ProtectedController < ApplicationController
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
+  decorates_assigned :teams, :team
+
   private
 
   def user_not_authorized
