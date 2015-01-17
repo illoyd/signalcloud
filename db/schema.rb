@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150110210637) do
+ActiveRecord::Schema.define(version: 20150117090515) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -29,6 +29,29 @@ ActiveRecord::Schema.define(version: 20150110210637) do
 
   add_index "memberships", ["team_id"], name: "index_memberships_on_team_id", using: :btree
   add_index "memberships", ["user_id"], name: "index_memberships_on_user_id", using: :btree
+
+  create_table "phone_book_entries", force: :cascade do |t|
+    t.integer  "phone_book_id"
+    t.integer  "phone_number_id"
+    t.string   "country"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+  end
+
+  add_index "phone_book_entries", ["phone_book_id"], name: "index_phone_book_entries_on_phone_book_id", using: :btree
+  add_index "phone_book_entries", ["phone_number_id"], name: "index_phone_book_entries_on_phone_number_id", using: :btree
+
+  create_table "phone_books", force: :cascade do |t|
+    t.integer  "team_id"
+    t.string   "workflow_state"
+    t.string   "name"
+    t.text     "description"
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
+  end
+
+  add_index "phone_books", ["team_id"], name: "index_phone_books_on_team_id", using: :btree
+  add_index "phone_books", ["workflow_state"], name: "index_phone_books_on_workflow_state", using: :btree
 
   create_table "phone_numbers", force: :cascade do |t|
     t.string   "type"
@@ -89,5 +112,8 @@ ActiveRecord::Schema.define(version: 20150110210637) do
 
   add_foreign_key "memberships", "teams"
   add_foreign_key "memberships", "users"
+  add_foreign_key "phone_book_entries", "phone_books"
+  add_foreign_key "phone_book_entries", "phone_numbers"
+  add_foreign_key "phone_books", "teams"
   add_foreign_key "phone_numbers", "teams"
 end

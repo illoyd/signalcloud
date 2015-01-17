@@ -1,5 +1,7 @@
 class PhoneNumber < ActiveRecord::Base
   belongs_to :team, inverse_of: :phone_numbers
+  has_many :phone_book_entries, inverse_of: :phone_number
+  has_many :phone_books, through: :phone_book_entries
   
   normalize_attributes :provider_sid, :description
   normalize_attribute :number, with: :phone_number

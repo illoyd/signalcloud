@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
 
+  resources :phone_books
+
   resources :phone_numbers
 
   devise_for :users
@@ -20,7 +22,6 @@ Rails.application.routes.draw do
   resources :phone_books,     only: [:show, :edit, :update]
   resources :phone_numbers,   only: [:show, :edit, :update] do
     resources :conversations, only: [:index]
-    resources :phone_books,   only: [:index]
     member do
       post   :purchase
       delete :release
@@ -30,6 +31,7 @@ Rails.application.routes.draw do
   resources :users,           only: [:show, :edit, :update]
   
   resources :memberships,     only: [:create, :update, :destroy]
+  resources :phone_book_entries, only: [:create, :update, :destroy]
   
   root to: "teams#index"
 

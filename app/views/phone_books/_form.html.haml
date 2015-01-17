@@ -1,0 +1,14 @@
+= form_for @phone_book do |f|
+  = render partial: 'form_errors', object: @phone_book.errors
+
+  .form-group
+    = f.label :name, class: 'control-label'
+    = f.text_field :name, class: 'form-control'
+
+  .form-group
+    = f.label :description, class: 'control-label'
+    = f.text_area :description, class: 'form-control'
+
+  .form-group
+    = f.submit 'Save changes', class: 'btn btn-primary'
+    = link_to 'Discard changes', @phone_book.new_record? ? [@phone_book.team, :phone_books] : @phone_book, class: 'btn btn-default'

@@ -1,0 +1,15 @@
+.row
+  .col-sm-5
+    %h2 #{ icon(:details) } Details
+    %dl
+      %dt Status
+      %dd= phone_book.status
+  .col-sm-7
+    %h2 #{ icon(:info) } Description
+    = phone_book.description
+
+%h2 #{ icon(:phone_numbers) } Phone Numbers
+= render partial: 'phone_book_entries/phone_book_entries', object: phone_book.phone_book_entries
+
+= phone_book.add_phone_book_entry_button
+= phone_book.add_phone_book_entry_modal

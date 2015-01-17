@@ -1,0 +1,9 @@
+%table.table
+  %thead
+    %tr
+      %th Number
+      %th Country
+
+      %th
+  %tbody
+    = render(partial: 'phone_book_entries/phone_book_entry', collection: phone_book_entries) || render('phone_book_entries/phone_book_entries_empty')

@@ -1,0 +1,13 @@
+-#- cache policy(phone_book_entry) do
+%tr
+  %td= phone_book_entry.phone_number.link_to
+
+  %td
+    = phone_book_entry.country_flag
+    = phone_book_entry.country_name
+
+  %td
+    = phone_book_entry.edit_button
+    = phone_book_entry.edit_modal
+    = phone_book_entry.destroy_button
+    = phone_book_entry.destroy_modal

@@ -27,8 +27,8 @@
 
                 - if membership.developer?
                   = navbar_link [@team, :phone_numbers], 'Phone Numbers', :phone_numbers
-                  = navbar_link [@team, :stencils],      'Stencils',      :stencils
                   = navbar_link [@team, :phone_books],   'Phone Books',   :phone_books
+                  = navbar_link [@team, :stencils],      'Stencils',      :stencils
                 
                 - if membership.billing_liaison?
                   = navbar_link [@team, :invoices],      'Invoices',      :invoices

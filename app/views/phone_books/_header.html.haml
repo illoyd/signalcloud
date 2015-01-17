@@ -1,0 +1,11 @@
+- cache @phone_book do
+  .container
+    .page-header
+      %h1
+        - if phone_book
+          = icon(:phone_book)
+          = phone_book.display_name
+          %small phone book
+        - else
+          = icon(:phone_books)
+          Phone books

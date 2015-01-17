@@ -7,7 +7,7 @@
       = phone_number.country_flag
       = phone_number.country_name
 
-    %td= link_to iconify('X', :phone_books),   [phone_number, :phone_books]
+    %td= link_to iconify(phone_number.phone_books.count, :phone_books),   [phone_number]
     %td= link_to iconify('X', :conversations), [phone_number, :conversations]
     
     %td

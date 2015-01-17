@@ -40,6 +40,6 @@ class PhoneNumbersController < ProtectedController
     end
 
     def phone_number_params
-      params.require(:phone_number).permit(:team_id)
+      params.require(:phone_number).permit(:team_id, :workflow_state, :name, :description)
     end
 end

@@ -1,0 +1,12 @@
+%table.table
+  %thead
+    %tr
+      %th Name
+      %th Status
+
+      %th= icon(:phone_numbers)
+      %th= icon(:stencils)
+
+      %th
+  %tbody
+    = render(partial: 'phone_books/phone_book', collection: phone_books) || render('phone_books/phone_books_empty')

@@ -1,0 +1,11 @@
+- cache policy(phone_book) do
+  %tr
+    %td= phone_book.link_to
+    %td= phone_book.status
+      
+    %td= link_to iconify(phone_book.phone_numbers.count, :phone_numbers), [phone_book]
+    %td= link_to iconify('X', :stencils),      [phone_book]
+    
+    %td
+      = phone_book.show_button
+      = phone_book.edit_button

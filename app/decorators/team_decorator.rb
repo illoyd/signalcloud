@@ -9,8 +9,4 @@ class TeamDecorator < ApplicationDecorator
     h.link_to_if h.policy(model.owner).show?, model.owner.name, model.owner
   end
   
-  def description
-    model.description || h.content_tag(:span, 'No description provided', class: 'text-muted')
-  end
-
 end

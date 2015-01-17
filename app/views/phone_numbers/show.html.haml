@@ -1,11 +1,18 @@
-%h2 #{ icon(:details) } Details
-%dl
-  %dt Status
-  %dd= phone_number.status
+.row
+  .col-sm-5
+    %h2 #{ icon(:details) } Details
+    %dl
+      %dt Status
+      %dd= phone_number.status
 
-  %dt Country
-  %dd
-    = phone_number.country_flag
-    = phone_number.country_name
+      %dt Country
+      %dd
+        = phone_number.country_flag
+        = phone_number.country_name
+
+  .col-sm-7
+    %h2 #{ icon(:info) } Description
+    = phone_number.description
 
 %h2 Phone Books
+= render partial: 'phone_books/phone_books', object: phone_number.phone_books
