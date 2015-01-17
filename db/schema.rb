@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150117135513) do
+ActiveRecord::Schema.define(version: 20150117141624) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -107,6 +107,16 @@ ActiveRecord::Schema.define(version: 20150117135513) do
   add_index "teams", ["owner_id"], name: "index_teams_on_owner_id", using: :btree
   add_index "teams", ["workflow_state"], name: "index_teams_on_workflow_state", using: :btree
 
+  create_table "then_clauses", force: :cascade do |t|
+    t.integer  "if_clause_id"
+    t.string   "type"
+    t.hstore   "settings"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+  end
+
+  add_index "then_clauses", ["if_clause_id"], name: "index_then_clauses_on_if_clause_id", using: :btree
+
   create_table "users", force: :cascade do |t|
     t.string   "email",                  default: "", null: false
     t.string   "encrypted_password",     default: "", null: false
@@ -144,4 +154,5 @@ ActiveRecord::Schema.define(version: 20150117135513) do
   add_foreign_key "phone_numbers", "teams"
   add_foreign_key "stencils", "phone_books"
   add_foreign_key "stencils", "teams"
+  add_foreign_key "then_clauses", "if_clauses"
 end

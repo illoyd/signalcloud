@@ -1,7 +1,7 @@
 class Stencil < ActiveRecord::Base
   belongs_to :team,       inverse_of: :stencils
   belongs_to :phone_book, inverse_of: :stencils
-  has_many :if_clauses,   inverse_of: :parent, as: :parent
+  has_many :if_clauses,   inverse_of: :parent, as: :parent, autosave: true, dependent: :destroy
 
   normalize_attributes :name, :description
   

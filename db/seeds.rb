@@ -21,6 +21,9 @@ Team.create_with(name: 'Examples', owner: admin).find_or_create_by!(name: 'Examp
       book.phone_book_entries.find_or_create_by!(phone_book: book, phone_number: number)
       
       team.stencils.create_with(phone_book: book).find_or_create_by!(name: 'My First Stencil').tap do |stencil|
+        stencil.if_clauses.find_or_create_by!(type: 'IfStartingClause').tap do |if_starting|
+          if_starting.then_clauses.create_with(message: 'Hello!').find_or_create_by!(type: 'ThenSendMessageClause')
+        end
         stencil.save!
       end
     end
