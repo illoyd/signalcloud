@@ -1,0 +1,15 @@
+.row
+  .col-sm-5
+    %h2 #{ icon(:details) } Details
+    %dl
+      %dt Name
+      %dd= stencil.name
+    %dl
+      %dt Status
+      %dd= stencil.status
+  .col-sm-7
+    %h2 #{ icon(:info) } Description
+    = stencil.description
+
+%h2 Actions
+= render(partial: 'if_clauses/if_clauses', object:stencil.if_clauses)

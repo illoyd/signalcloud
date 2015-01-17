@@ -1,9 +1,12 @@
 class PhoneBook < ActiveRecord::Base
   belongs_to :team, inverse_of: :phone_books
+  has_many :stencils, inverse_of: :phone_book
   has_many :phone_book_entries, inverse_of: :phone_book
   has_many :phone_numbers, through: :phone_book_entries
 
   normalize_attributes :name, :description
+  
+  validates_presence_of :name, :phone_book
 
   include Workflow
   workflow do

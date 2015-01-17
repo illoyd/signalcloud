@@ -1,0 +1,2 @@
+class IfStartingClause < IfClause
+end

@@ -13,12 +13,16 @@ admin = User.create_with(name: 'Ian Lloyd', nickname: 'Ian', password: 'password
 end
 
 Team.create_with(name: 'Examples', owner: admin).find_or_create_by!(name: 'Examples').tap do |team|
-  Membership.create_with(roles: nil).find_or_create_by!(user: admin, team: team)
+  Membership.find_or_create_by!(user: admin, team: team)
 
   team.phone_numbers.create_with(number: '+1 202-601-3854', workflow_state: :active).find_or_create_by!(provider_sid: 'PNf7abf4d06e5faecb7d6878fa37b8cdc3').tap do |number|
 
     team.phone_books.create_with(workflow_state: :active).find_or_create_by!(name: 'General').tap do |book|
       book.phone_book_entries.find_or_create_by!(phone_book: book, phone_number: number)
+      
+      team.stencils.create_with(phone_book: book).find_or_create_by!(name: 'My First Stencil').tap do |stencil|
+        stencil.save!
+      end
     end
 
   end

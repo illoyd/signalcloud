@@ -11,10 +11,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150117090515) do
+ActiveRecord::Schema.define(version: 20150117135513) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+  enable_extension "hstore"
+
+  create_table "if_clauses", force: :cascade do |t|
+    t.string   "type"
+    t.integer  "parent_id"
+    t.string   "parent_type"
+    t.hstore   "settings"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
+
+  add_index "if_clauses", ["parent_type", "parent_id"], name: "index_if_clauses_on_parent_type_and_parent_id", using: :btree
 
   create_table "memberships", force: :cascade do |t|
     t.integer  "team_id"
@@ -69,6 +81,20 @@ ActiveRecord::Schema.define(version: 20150117090515) do
   add_index "phone_numbers", ["type"], name: "index_phone_numbers_on_type", using: :btree
   add_index "phone_numbers", ["workflow_state"], name: "index_phone_numbers_on_workflow_state", using: :btree
 
+  create_table "stencils", force: :cascade do |t|
+    t.integer  "team_id"
+    t.integer  "phone_book_id"
+    t.string   "workflow_state"
+    t.string   "name",           null: false
+    t.text     "description"
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
+  end
+
+  add_index "stencils", ["phone_book_id"], name: "index_stencils_on_phone_book_id", using: :btree
+  add_index "stencils", ["team_id"], name: "index_stencils_on_team_id", using: :btree
+  add_index "stencils", ["workflow_state"], name: "index_stencils_on_workflow_state", using: :btree
+
   create_table "teams", force: :cascade do |t|
     t.integer  "owner_id"
     t.string   "workflow_state"
@@ -116,4 +142,6 @@ ActiveRecord::Schema.define(version: 20150117090515) do
   add_foreign_key "phone_book_entries", "phone_numbers"
   add_foreign_key "phone_books", "teams"
   add_foreign_key "phone_numbers", "teams"
+  add_foreign_key "stencils", "phone_books"
+  add_foreign_key "stencils", "teams"
 end

@@ -8,7 +8,7 @@ class Team < ActiveRecord::Base
 #   has_many :journals,      inverse_of: :team
   has_many :phone_numbers, inverse_of: :team
   has_many :phone_books,   inverse_of: :team
-#   has_many :stencils,      inverse_of: :team
+  has_many :stencils,      inverse_of: :team
   
   validates :name, presence: true
   validates :owner, presence: true

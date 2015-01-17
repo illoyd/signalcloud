@@ -1,0 +1,20 @@
+- policy = policy(@stencil || @team.stencils.build)
+- cache policy do
+  .container.toolbar
+    / General
+    .btn-group.btn-group-sm
+      = link_to iconify('All', :list), [@team, :stencils], class: 'btn btn-default'
+      
+      - if policy.new?
+        = link_to iconify('New', :new), new_team_stencil_path(@team), class: 'btn btn-default'
+
+      - if @stencil && !@stencil.new_record?
+        = stencil.toolbar_show_button
+        = stencil.toolbar_edit_button
+        
+      -#
+        - if policy.show?
+          = link_to iconify('Details', :phone_book), @stencil, class: 'btn btn-default'
+
+        - if policy.edit?
+          = link_to iconify('Edit', :edit), [:edit, @stencil], class: 'btn btn-default'

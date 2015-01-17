@@ -1,0 +1,11 @@
+%table.table
+  %thead
+    %tr
+      %th Name
+      %th Status
+      %th Description
+      %th Phone book
+      %th
+      
+  %tbody
+    = render(partial: 'stencils/stencil', collection: stencils) || render('stencils/stencils_empty')

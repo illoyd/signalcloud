@@ -1,0 +1,11 @@
+- cache @stencil do
+  .container
+    .page-header
+      %h1
+        - if stencil
+          = icon(:stencil)
+          = stencil.name
+          %small stencil
+        - else
+          = icon(:stencils)
+          Stencils
