@@ -35,6 +35,9 @@ Rails.application.routes.draw do
   resources :memberships,     only: [:create, :update, :destroy]
   resources :phone_book_entries, only: [:create, :update, :destroy]
   
+  resources :if_clauses,                only: [:destroy]
+  resources :if_starting_clauses,       only: [:create, :update, :destroy]
+
   root to: "teams#index"
 
   # The priority is based upon order of creation: first created -> highest priority.

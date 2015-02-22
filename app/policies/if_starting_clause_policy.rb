@@ -1,0 +1,2 @@
+class IfStartingClausePolicy < IfClausePolicy
+end
