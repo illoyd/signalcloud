@@ -8,8 +8,8 @@ class PhoneBookDecorator < ApplicationDecorator
     name || 'New'
   end
   
-  def add_phone_book_entry_button
-    new_phone_book_entry.new_button
+  def add_phone_book_entry_button(label = nil)
+    new_phone_book_entry.new_button(label)
   end
   
   def add_phone_book_entry_modal

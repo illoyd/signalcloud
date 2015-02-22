@@ -6,7 +6,7 @@
           .modal-header
             %h4.modal-title= iconify('Edit', :edit)
           .modal-body
-            %p Add or update entries in the #{ phone_book_entry.phone_book.name } phone book. This will controle which phone numbers are used when starting a conversation with phone numbers in other countries. If multiple phone numbers are set to the same country, then one of those numbers will be randomly selected when starting the conversation.
+            %p This will control which phone numbers are used when starting a conversation with phone numbers in other countries. If multiple phone numbers are set to the same country, then one of those numbers will be randomly selected when starting the conversation.
             .form-group
               = f.label :phone_number_id
               = f.collection_select :phone_number_id, policy_scope(@team.phone_numbers).decorate, :id, :display_name, {}, { class: 'form-control' }
@@ -20,5 +20,5 @@
               = f.country_select :country, { include_blank: 'Global' }, { class: 'form-control' }
 
           .modal-footer
-            = f.submit 'Save phone book', class: 'btn btn-primary'
+            = f.submit 'Save entry', class: 'btn btn-primary'
             %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Discard changes

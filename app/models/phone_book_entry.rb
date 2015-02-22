@@ -8,6 +8,6 @@ class PhoneBookEntry < ActiveRecord::Base
   normalize_attributes :country
   
   def team
-    phone_book.try(:team)
+    phone_book.try(:team) || phone_number.try(:team)
   end
 end

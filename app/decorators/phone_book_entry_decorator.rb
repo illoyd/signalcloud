@@ -21,15 +21,17 @@ class PhoneBookEntryDecorator < ApplicationDecorator
     h.content_tag :span, '', class: ['flag', "flag-#{size.downcase}", "fl-#{country_alpha2}"], title: country_name, alt: country_name
   end
   
-  def new_button
+  def new_button(label = nil)
+    label ||= h.icon(:new)
     if h.policy(model).new?
-      h.link_to h.icon(:new), '#', class: 'btn btn-xs btn-default', data: { toggle: 'modal', target: "#edit_phone_book_entry_#{ model.id || 'new' }" }
+      h.link_to label, '#', class: 'btn btn-xs btn-default', data: { toggle: 'modal', target: "#edit_phone_book_entry_#{ model.id || 'new' }" }
     end
   end
   
-  def edit_button
+  def edit_button(label = nil)
+    label ||= h.icon(:edit)
     if h.policy(model).edit?
-      h.link_to h.icon(:edit), '#', class: 'btn btn-xs btn-default', data: { toggle: 'modal', target: "#edit_phone_book_entry_#{ model.id || 'new' }" }
+      h.link_to label, '#', class: 'btn btn-xs btn-default', data: { toggle: 'modal', target: "#edit_phone_book_entry_#{ model.id || 'new' }" }
     end
   end
   

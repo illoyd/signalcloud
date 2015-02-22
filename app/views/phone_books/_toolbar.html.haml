@@ -14,3 +14,11 @@
 
         - if policy.edit?
           = link_to iconify('Edit', :edit), [:edit, @phone_book], class: 'btn btn-default'
+        
+    - if @phone_book && !@phone_book.new_record?
+      - if policy(@phone_book).edit?
+        / General
+        .btn-group.btn-group-sm
+          = phone_book.add_phone_book_entry_button( iconify('Add Phone Number', :phone_number) )
+
+        = phone_book.add_phone_book_entry_modal

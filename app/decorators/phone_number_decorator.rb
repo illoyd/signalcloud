@@ -35,4 +35,16 @@ class PhoneNumberDecorator < ApplicationDecorator
     h.link_to(h.icon(:release), [:release, object], class: 'btn btn-xs btn-danger', method: :delete) if h.policy(object).release?
   end
 
+  def add_phone_book_entry_button(label = nil)
+    new_phone_book_entry.new_button(label)
+  end
+  
+  def add_phone_book_entry_modal
+    new_phone_book_entry.edit_modal
+  end
+  
+  def new_phone_book_entry
+    @new_phone_book_entry ||= PhoneBookEntryDecorator.decorate(model.phone_book_entries.build)
+  end
+  
 end
