@@ -2,7 +2,7 @@ class ThenClauseDecorator < ApplicationDecorator
   delegate_all
   
   def name
-    "#{ model.class.name[/Then(.+)Clause/, 1].underscore.titleize } action"
+    model.class.name[/Then(.+)Clause/, 1].underscore.titleize
   end
   
   def new_with_modal(label = nil)

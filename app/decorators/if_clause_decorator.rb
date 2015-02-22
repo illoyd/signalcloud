@@ -3,7 +3,7 @@ class IfClauseDecorator < ApplicationDecorator
   decorates_association :then_clauses, with: ThenClauseDecorator
 
   def name
-    "#{ model.class.name[/If(.+)Clause/, 1].underscore.titleize } action"
+    model.class.name[/If(.+)Clause/, 1].underscore.titleize
   end
   
   def new_with_modal(label = nil)

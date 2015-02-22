@@ -1,0 +1,2 @@
+class IfResponseClausePolicy < IfClausePolicy
+end

@@ -31,6 +31,7 @@ Rails.application.routes.draw do
   
   resources :if_clauses,                only: [:destroy]
   resources :if_starting_clauses,       only: [:create, :update, :destroy]
+  resources :if_response_clauses,       only: [:create, :update, :destroy]
 
   resources :then_clauses,              only: [:destroy]
   resources :then_send_message_clauses, only: [:create, :update, :destroy]
