@@ -1,1 +1,7 @@
-%ol= render(collection: if_clauses, partial: 'if_clauses/item') || render('if_clauses/if_clauses_empty')
+%table.table
+  %thead
+    %tr
+      %th #
+      %th{colspan: 2} Action
+      %th
+  %tbody= render(collection: if_clauses, partial: 'if_clauses/item') || render('if_clauses/if_clauses_empty')

@@ -1,13 +1,16 @@
-- cache item do
-  %li
-    = render(item)
-    = item.edit_with_modal
-    = item.edit_modal
-    = item.destroy_with_modal
-    = item.destroy_modal
+- cache policy(item) do
+  %tr
+    %td{'colspan' => 2}= item_counter + 1
+    %td= render(item)
+    %td
+      = item.edit_with_modal
+      = item.edit_modal
+      = item.destroy_with_modal
+      = item.destroy_modal
 
-    - %w( ThenSendMessageClause ).each do |klass|
-      - klass = klass.constantize
-      = ThenClauseDecorator.decorate(klass.new(if_clause: item)).new_with_modal(iconify('Message', :new))
-      = ThenClauseDecorator.decorate(klass.new(if_clause: item)).edit_modal
-    = render(partial: 'then_clauses/then_clauses', object: item.then_clauses)    
+      - %w( ThenSendMessageClause ).each do |klass|
+        - klass = klass.constantize
+        = ThenClauseDecorator.decorate(klass.new(if_clause: item)).new_with_modal(iconify('Message', :new))
+        = ThenClauseDecorator.decorate(klass.new(if_clause: item)).edit_modal
+
+  = render(partial: 'then_clauses/then_clauses', object: item.then_clauses)    

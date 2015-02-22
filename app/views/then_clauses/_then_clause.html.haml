@@ -1,2 +1,10 @@
 - cache then_clause do
-  %li= render(then_clause)
+  %tr
+    %td
+    %td= then_clause_counter + 1
+    %td= render(then_clause)
+    %td
+      = then_clause.edit_with_modal
+      = then_clause.edit_modal
+      = then_clause.destroy_with_modal
+      = then_clause.destroy_modal

@@ -17,4 +17,4 @@
       = if_clause_class.new_with_modal(iconify(if_clause_class.name, :new))
       = if_clause_class.edit_modal
 
-    %ol= render(partial: 'if_clauses/if_clauses', object: stencil.if_clauses)
+    = render(partial: 'if_clauses/if_clauses', object: stencil.if_clauses)
