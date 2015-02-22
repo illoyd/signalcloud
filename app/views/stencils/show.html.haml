@@ -12,4 +12,9 @@
 
   .col-sm-7
     %h2 Actions
-    %ol= render(partial: 'if_clauses/if_clauses', object:stencil.if_clauses)
+    - %w( IfStartingClause ).each do |if_clause_class|
+      - if_clause_class = IfClauseDecorator.decorate( if_clause_class.constantize.new(parent: stencil.model) )
+      = if_clause_class.new_with_modal(iconify(if_clause_class.name, :new))
+      = if_clause_class.edit_modal
+
+    %ol= render(partial: 'if_clauses/if_clauses', object: stencil.if_clauses)

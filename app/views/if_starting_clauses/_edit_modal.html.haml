@@ -1,0 +1,17 @@
+- cache if_starting_clause.model do
+  .modal.fade[if_starting_clause.model, :edit]
+    .modal-dialog
+      .modal-content
+        = form_for(if_starting_clause.model) do |f|
+          .modal-header
+            %h4.modal-title= iconify('Edit', :edit)
+          .modal-body
+            %p This triggers whenever the Conversation starts.
+
+            = f.hidden_field :parent_id
+            = f.hidden_field :parent_type
+            = f.hidden_field :type
+
+          .modal-footer
+            = f.submit 'Save', class: 'btn btn-primary'
+            %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Discard

@@ -1,13 +1,10 @@
 class ThenClausesController < ProtectedController
-  before_action :set_then_clause, only: [:update, :destroy]
+  before_action :set_then_clause, only: [:create, :update, :destroy]
+  before_action :authorize_then_clause, only: [:create, :update, :destroy]
 
   respond_to :html
 
   def create
-    @then_clause = ThenClause.new(then_clause_params)
-    authorize @then_clause
-    authorize @then_clause.if_clause.parent, :edit?
-
     flash[:success] = "#{ @then_clause } was added to #{ @then_clause.if_clause.parent.name }." if @then_clause.save
     redirect_to :back
   end
@@ -28,7 +25,11 @@ class ThenClausesController < ProtectedController
   private
     def set_then_clause
       @then_clause = ThenClause.find(params[:id])
+    end
+
+    def authorize_then_clause
       authorize @then_clause
+      authorize @then_clause.if_clause.parent, :edit?
     end
 
     def then_clause_params

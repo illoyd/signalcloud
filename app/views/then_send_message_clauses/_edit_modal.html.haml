@@ -7,6 +7,9 @@
             %h4.modal-title= iconify('Edit', :edit)
           .modal-body
             %p This will send an SMS to the recipient.
+            
+            = f.hidden_field :if_clause_id, class: 'if-clause-id'
+
             .form-group
               = f.label :message
               = f.text_field :message, { class: 'form-control' }
@@ -14,3 +17,11 @@
           .modal-footer
             = f.submit 'Save', class: 'btn btn-primary'
             %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Discard
+
+  :javascript
+    $("#edit_#{ then_send_message_clause.model.class.name.underscore }_#{ then_send_message_clause.model.id || 'new' }").on('show.bs.modal', function (event) {
+      var button       = $(event.relatedTarget)      // Button that triggered the modal
+      var if_clause_id = button.data('if-clause-id') // Extract info from data-* attributes
+      var modal = $(this)
+      modal.find('.if-clause-id').val(if_clause_id)
+    })

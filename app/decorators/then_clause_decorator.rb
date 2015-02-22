@@ -5,10 +5,17 @@ class ThenClauseDecorator < ApplicationDecorator
     "#{ model.class.name[/Then(.+)Clause/, 1].underscore.titleize } action"
   end
   
+  def new_with_modal(label = nil)
+    label ||= h.icon(:new)
+    if h.policy(model).new?
+      h.link_to label, '#', class: 'btn btn-xs btn-default', data: { toggle: 'modal', target: "#edit_#{ model.class.name.underscore }_#{ model.id || 'new' }", 'if-clause-id' => model.if_clause_id }
+    end
+  end
+  
   def edit_with_modal(label = nil)
     label ||= h.icon(:edit)
     if h.policy(model).edit?
-      h.link_to label, '#', class: 'btn btn-xs btn-default', data: { toggle: 'modal', target: "#edit_#{ model.class.name.underscore }_#{ model.id || 'new' }" }
+      h.link_to label, '#', class: 'btn btn-xs btn-default', data: { toggle: 'modal', target: "#edit_#{ model.class.name.underscore }_#{ model.id || 'new' }", 'if-clause-id' => model.if_clause_id }
     end
   end
 
