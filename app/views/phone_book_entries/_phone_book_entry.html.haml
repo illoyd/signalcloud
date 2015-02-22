@@ -1,5 +1,7 @@
 -#- cache policy(phone_book_entry) do
 %tr
+  %td= phone_book_entry.phone_book.link_to
+
   %td= phone_book_entry.phone_number.link_to
 
   %td
