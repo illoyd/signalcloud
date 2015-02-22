@@ -1,0 +1,12 @@
+- cache then_set_status_clause.model do
+  .modal.fade[then_set_status_clause.model, :destroy]
+    .modal-dialog
+      .modal-content
+        .modal-header
+          %h4.modal-title= iconify('Remove', :delete)
+        .modal-body
+          %p Are you sure you want to remove <strong>#{ then_set_status_clause.name }</strong> from <strong>#{ then_set_status_clause.if_clause.parent.name }</strong>?
+          %p No worries - you can undo this by re-adding the action.
+        .modal-footer
+          = link_to iconify('Remove', :delete), then_set_status_clause, method: :delete, class: 'btn btn-danger'
+          %a.btn.btn-default{"data-dismiss" => "modal", :type => "button"}= iconify('Keep', :cancel)

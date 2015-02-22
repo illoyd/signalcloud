@@ -1,0 +1,2 @@
+class ThenSetStatusClausePolicy < ThenClausePolicy
+end

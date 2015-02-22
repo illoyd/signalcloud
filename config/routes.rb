@@ -35,6 +35,7 @@ Rails.application.routes.draw do
 
   resources :then_clauses,              only: [:destroy]
   resources :then_send_message_clauses, only: [:create, :update, :destroy]
+  resources :then_set_status_clauses,   only: [:create, :update, :destroy]
   
   root to: "teams#index"
 

@@ -8,7 +8,7 @@
       = item.destroy_with_modal
       = item.destroy_modal
 
-      - %w( ThenSendMessageClause ).each do |then_clause_class|
+      - %w( ThenSendMessageClause ThenSetStatusClause ).each do |then_clause_class|
         - then_clause = ThenClauseDecorator.decorate( then_clause_class.constantize.new(if_clause: item) )
         = then_clause.new_with_modal(iconify(then_clause.name, :new))
         = then_clause.edit_modal
