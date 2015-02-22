@@ -33,13 +33,11 @@ class ApplicationDecorator < Draper::Decorator
     h.icon(flag ? :active : :inactive)
   end
 
-  def status
+  def workflow_state_with_icon
     ws = workflow_state || :active
     h.iconify(ws.to_s.humanize, ws)
   end
-  
-  alias_method :workflow_state_with_icon, :status
-  
+
   ##
   # Show link
   def show_link(label = 'Show', options = {})

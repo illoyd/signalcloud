@@ -1,7 +1,7 @@
 - cache phone_number do
   %tr
     %td= phone_number.link_to
-    %td= phone_number.status
+    %td= phone_number.workflow_state_with_icon
       
     %td
       = phone_number.country_flag

@@ -3,7 +3,7 @@
     %h2 #{ icon(:details) } Details
     %dl
       %dt Status
-      %dd= phone_book.status
+      %dd= phone_book.workflow_state_with_icon
   .col-sm-7
     %h2 #{ icon(:info) } Description
     = phone_book.description
