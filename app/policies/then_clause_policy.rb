@@ -8,8 +8,12 @@ class ThenClausePolicy < ApplicationPolicy
     user.membership_for(record.if_clause.parent.team).developer?
   end
   
+  def destroy?
+    update?
+  end
+  
   def cache_key
-    [ record, { create: create?, update: update? } ]
+    [ record, { create: create?, update: update?, destroy: destroy? } ]
   end
   
   class Scope < Scope

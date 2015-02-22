@@ -1,2 +1,6 @@
-Send the message <mark>#{ then_send_message_clause.message }</mark>.
-= then_send_message_clause.show_link
+- cache policy(then_send_message_clause) do
+  Send the message <mark>#{ then_send_message_clause.message }</mark>.
+  = then_send_message_clause.edit_with_modal
+  = then_send_message_clause.edit_modal
+  = then_send_message_clause.destroy_with_modal
+  = then_send_message_clause.destroy_modal

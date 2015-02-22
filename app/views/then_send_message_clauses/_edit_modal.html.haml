@@ -1,0 +1,16 @@
+- cache then_send_message_clause.model do
+  .modal.fade[then_send_message_clause.model, :edit]
+    .modal-dialog
+      .modal-content
+        = form_for(then_send_message_clause.model) do |f|
+          .modal-header
+            %h4.modal-title= iconify('Edit', :edit)
+          .modal-body
+            %p This will send an SMS to the recipient.
+            .form-group
+              = f.label :message
+              = f.text_field :message, { class: 'form-control' }
+
+          .modal-footer
+            = f.submit 'Save', class: 'btn btn-primary'
+            %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Discard
