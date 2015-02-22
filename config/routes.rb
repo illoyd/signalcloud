@@ -1,11 +1,5 @@
 Rails.application.routes.draw do
 
-  resources :stencils
-
-  resources :phone_books
-
-  resources :phone_numbers
-
   devise_for :users
 
   resources :teams do
